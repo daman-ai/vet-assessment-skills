@@ -10,7 +10,9 @@ One command in Claude Code:
 
 produces paired learner and assessor Word documents (a knowledge tool plus a recipe workbook with generated photography on food units; one combined UAT otherwise), red point-form model answers and benchmarks, and a compliance report — sourced live from training.gov.au, gated by blocking house-rules / readability / brand-logo checks, reviewed by three adversarial personas and an independent clean-room compliance audit.
 
-> **This repository contains RTO intellectual property** — the approved assessment templates, both trading names' logos, branding profiles with registration details, and internal house standards. **Keep it private.** Do not fork it to a public location.
+> **Made public by the RTO's decision.** The approved assessment templates, logos, branding profiles and house standards in this repository remain the property of Meridian Vocational College and Bush Tukka Pty Ltd (T/A Adelaide Culinary Institute / Adelaide Construction Institute). You are welcome to study and reuse the **engine** (scripts, gates, references); do not present the RTOs' documents, marks or identities as your own. To use the pipeline for a different RTO, measure that RTO's own artefacts and add its `assets/` profile — see `references/house-standard.md`.
+
+> **API keys are never in this repository.** The artwork stage reads *your* OpenAI key from `$env:OPENAI_API_KEY` or `%USERPROFILE%\.openai-key` on your machine. `install.ps1 -OpenAIKey "sk-..."` stores it locally in one step. Never commit a key anywhere; the `.gitignore` blocks key files as a backstop.
 
 ## Requirements
 
@@ -28,18 +30,16 @@ Avoid running builds inside a OneDrive-synced folder where possible — Word sil
 In Claude Code:
 
 ```
-/plugin marketplace add <org>/vet-assessment-skills
+/plugin marketplace add daman-ai/vet-assessment-skills
 /plugin install vet-assessment@vet-skills
 ```
-
-(For a private repo, your `gh`/git credentials must have access.)
 
 **Zero-command for a whole team:** commit this to a shared project's `.claude/settings.json` and everyone who opens that project gets the plugin automatically:
 
 ```json
 {
   "extraKnownMarketplaces": {
-    "vet-skills": { "source": { "source": "github", "repo": "<org>/vet-assessment-skills" } }
+    "vet-skills": { "source": { "source": "github", "repo": "daman-ai/vet-assessment-skills" } }
   },
   "enabledPlugins": { "vet-assessment@vet-skills": true }
 }
@@ -48,7 +48,7 @@ In Claude Code:
 ## Install — option B: plain clone
 
 ```powershell
-git clone https://github.com/<org>/vet-assessment-skills "$env:USERPROFILE\vet-assessment-skills"; & "$env:USERPROFILE\vet-assessment-skills\install.ps1"
+git clone https://github.com/daman-ai/vet-assessment-skills "$env:USERPROFILE\vet-assessment-skills"; & "$env:USERPROFILE\vet-assessment-skills\install.ps1"
 ```
 
 Update later:

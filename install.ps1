@@ -1,13 +1,18 @@
 # Installs (or updates) the VET assessment skills into this machine's
 # Claude Code skills folder. Run from anywhere:
 #
-#   git clone https://github.com/<org>/vet-assessment-skills "$env:USERPROFILE\vet-assessment-skills"
+#   git clone https://github.com/daman-ai/vet-assessment-skills "$env:USERPROFILE\vet-assessment-skills"
 #   & "$env:USERPROFILE\vet-assessment-skills\install.ps1"
 #
 # Update later with:  & "$env:USERPROFILE\vet-assessment-skills\install.ps1" -Update
 
+# Optional: pass your own OpenAI API key once and the artwork stage just works:
+#   & .\install.ps1 -OpenAIKey "sk-..."
+# The key is written ONLY to %USERPROFILE%\.openai-key on YOUR machine. It is
+# never read from, written to, or committed into this repository.
+
 [CmdletBinding()]
-param([switch] $Update)
+param([switch] $Update, [string] $OpenAIKey)
 
 $ErrorActionPreference = 'Stop'
 $repo = $PSScriptRoot
@@ -33,6 +38,13 @@ foreach ($skill in 'assessment', 'docx-images') {
     if ($LASTEXITCODE -ge 8) { throw "robocopy failed for $skill (code $LASTEXITCODE)" }
 }
 $global:LASTEXITCODE = 0
+
+if ($OpenAIKey) {
+    if ($OpenAIKey -notmatch '^sk-') { throw 'That does not look like an OpenAI API key (they start with sk-). Not saved.' }
+    $keyFile = Join-Path $env:USERPROFILE '.openai-key'
+    [System.IO.File]::WriteAllText($keyFile, $OpenAIKey.Trim(), (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host "OpenAI key saved to $keyFile (local to this machine only - never committed)." -ForegroundColor Green
+}
 
 Write-Host ''
 Write-Host 'Installed. Requirements to actually build packs:' -ForegroundColor Green
