@@ -1,0 +1,10 @@
+# Never commit credentials
+*.openai-key
+apikey*
+*.pfx
+*.pem
+
+# OS noise
+Thumbs.db
+desktop.ini
+~$*

@@ -1,0 +1,141 @@
+{
+  "_comment": "Tune this file, not the scripts. Detection patterns, house prompt rules and sizing all live here so a document that marks its prompts differently needs a config edit, not a code edit.",
+
+  "detection": {
+    "_comment": "Patterns are .NET regex, matched case-insensitively against the whole normalised paragraph text. 'open' starts a prompt block. A block that opens an unclosed bracket keeps consuming paragraphs until the bracket closes or maxParagraphs is reached.",
+    "open": [
+      "^\\s*\\[\\s*(?<kind>IMAGE|ILLUSTRATION|DIAGRAM|PHOTO|FIGURE|PICTURE)\\s*(PROMPT)?\\s*[:\\-–]\\s*(?<body>.*)$",
+      "^\\s*(?<kind>IMAGE|ILLUSTRATION|DIAGRAM|PHOTO|FIGURE|PICTURE)\\s+PROMPT\\s*[:\\-–]\\s*(?<body>.*)$",
+      "^\\s*(?<kind>ILLUSTRATION|DIAGRAM)\\s*[:\\-–]\\s*(?<body>.*)$",
+      "^\\s*PROMPT\\s*[:\\-–]\\s*(?<body>.*)$"
+    ],
+    "close": [
+      "^\\s*\\[\\s*/\\s*(IMAGE|ILLUSTRATION|DIAGRAM|PHOTO|FIGURE|PICTURE)\\s*\\]\\s*$",
+      "^\\s*END\\s+(IMAGE|ILLUSTRATION|DIAGRAM)\\s+PROMPT\\s*$"
+    ],
+    "maxParagraphs": 12,
+    "minPromptChars": 12,
+    "fieldLines": {
+      "_comment": "Optional labelled lines inside a prompt block. Anything not matching a field is prompt body.",
+      "caption": "^\\s*CAPTION\\s*[:\\-–]\\s*(?<v>.+)$",
+      "alt": "^\\s*(ALT|ALT\\s*TEXT)\\s*[:\\-–]\\s*(?<v>.+)$",
+      "aspect": "^\\s*(ASPECT|ORIENTATION)\\s*[:\\-–]\\s*(?<v>.+)$",
+                       "quality":  "^\\s*QUALITY\\s*[:\\-]\\s*(?<v>.+)$",
+      "kind": "^\\s*(TYPE|KIND)\\s*[:\\-–]\\s*(?<v>.+)$"
+    },
+    "inlineFields": "(?i)\\b(?<f>caption|alt\\s*text|alt|aspect|orientation|quality|type|kind)\\s*[:\\-–]\\s*(?<v>.+?)(?=\\s*\\b(?:caption|alt\\s*text|alt|aspect|orientation|quality|type|kind)\\s*[:\\-–]|$)",
+    "_inlineFieldsComment": "The same Caption / Alt / Aspect fields, but written mid-sentence inside a one-paragraph prompt rather than on their own lines. Each match is lifted out and the rest stays as prompt body."
+  },
+
+  "kindInference": {
+    "_comment": "Used only when the marker does not say which it is. Diagram wins on any hit, because a mislabelled diagram rendered as a photo is the worse failure.",
+    "diagramKeywords": [
+      "flowchart", "flow chart", "diagram", "schematic", "cycle", "process map",
+      "labelled", "labeled", "callout", "cross-section", "cross section",
+      "org chart", "organisational chart", "matrix", "timeline", "decision tree",
+      "steps numbered", "arrows", "legend", "temperature danger zone", "workflow"
+    ],
+    "default": "illustration"
+  },
+
+  "diagram": {
+    "_comment": "Diagrams are NOT generated images. They are built as native Word objects - a drawing canvas of real shapes, or a real table - so every box is clickable and every label is live text an assessor can retype. No API call, no cost, nothing to garble.",
+    "renderer": {
+      "process": "canvas", "cycle": "canvas", "hierarchy": "canvas",
+      "bands": "canvas", "table": "table", "matrix": "table", "comparison": "table"
+    },
+    "palette": {
+      "_comment": "Measured from assets/branding.mvc.json in the assessment skill. Swap these for another RTO's brand.",
+      "navy": "234B8C",
+      "accent": "2F60B4",
+      "rule": "F09C0C",
+      "grey": "606060",
+      "light": "F0F2F7",
+      "border": "C9CFDD"
+    },
+    "typography": {
+      "font": "Arial",
+      "tableHalfPt": 20,
+      "_tableHalfPtComment": "Half-points. 20 = 10 pt, the house table size. The shape renderer steps labels down from 10 pt as they get longer but never below 8 pt, which is the accessibility floor."
+    },
+    "maxNodes": 8,
+    "_maxNodesComment": "Past eight boxes a canvas diagram stops being readable at A4 width. Split it, or render it as a table instead."
+  },
+
+  "generation": {
+    "_comment": "Illustrations only. A diagram never reaches this endpoint.",
+    "endpoint": "https://api.openai.com/v1/images/generations",
+    "model": "gpt-image-1",
+
+    "_costRule": "GENERATE AT THE QUALITY AND SIZE THE PAGE NEEDS - NEVER AT THE MAXIMUM AND THEN SHRINK. Quality is billed per image and rises steeply from low to high, so asking for 'high' and then compressing the result to fit a document pays for detail that is discarded before anyone sees it. The PLACED size sets the requirement: an illustration lands at 85 per cent of the column, capped at 10 cm tall - about 14.4 x 9.6 cm - where 1536x1024 is already around 270 dpi and 'medium' is not distinguishable from 'high' in print. Raise quality for a specific entry that genuinely needs it, and say why; never globally 'to be safe'.",
+
+    "quality": "medium",
+    "_qualityComment": "low | medium | high | auto. medium is the working default for a photograph placed in a document. Use high only where fine detail carries the teaching - a close-up of a label, a texture the learner must judge - and set it on that entry, not on this file.",
+
+    "outputFormat": "jpeg",
+    "outputCompression": 82,
+    "_formatComment": "jpeg at 82 for photographs: visually indistinguishable at document size and roughly a tenth of the bytes. Twenty-two PNGs at 1536x1024 came to 50 MB and produced a 54 MB Word file, which the RTO then has to store and email and learners have to download. Use png ONLY where transparency is needed. output_compression applies to jpeg and webp and is ignored for png. Diagrams never reach this endpoint at all - they are built as native Word objects and cost nothing.",
+
+    "background": "opaque",
+    "sizes": {
+      "landscape": "1536x1024",
+      "portrait": "1024x1536",
+      "square": "1024x1024"
+    },
+    "defaultAspect": {
+      "illustration": "landscape",
+      "diagram": "landscape"
+    },
+    "maxRetries": 4,
+    "retryBackoffSeconds": [4, 10, 25, 60],
+    "timeoutSeconds": 180
+  },
+
+  "placement": {
+    "widthFraction": {
+      "illustration": 0.85,
+      "diagram": 1.0
+    },
+    "maxHeightCm": 10.0,
+    "captionSizeHalfPt": 20,
+    "captionPrefix": "Figure "
+  },
+
+  "houseRules": {
+    "_comment": "Prepended and appended to every prompt taken from the document. The document's own prompt is never altered, only wrapped. THE ABSOLUTE AND FOOD SAFETY CONSTRAINTS LIVE HERE, NOT IN THE CALLING PROMPT, so they cannot be forgotten by whoever writes the next prompt. A cover photograph shipped on 27 August 2026 with raw chicken directly on a stainless bench because the board was not asked for; the model composes for looks, not for the Food Standards Code.",
+    "illustration": {
+      "preamble": "Clean instructional photograph for an Australian vocational training document. Realistic commercial-kitchen photography, neutral even lighting, natural colour, sharp focus on the subject, uncluttered stainless-steel or bench background.",
+      "constraints": [
+        "ABSOLUTE: no faces. Not in focus, not blurred, not in the background, not partially in frame, not reflected in any surface. Frame to torso and hands only.",
+        "ABSOLUTE: nobody identifiable. No name badges, no names on clothing, no lanyards, no distinctive tattoos, no distinctive jewellery, no staff photographs on a wall.",
+        "ABSOLUTE: no real company or venue. No logos, brand marks, branded uniforms, packaging, supplier labels, delivery boxes, signage, menus, shopfronts or vehicles.",
+        "ABSOLUTE: no locatable place. No street signs, no building exteriors, no view through a window that places the venue.",
+        "No text, letters, numbers, words, labels, watermarks or signage anywhere in the image.",
+        "FOOD SAFETY: raw meat, poultry and seafood sit on a dedicated cutting board, never directly on the bench or work surface.",
+        "FOOD SAFETY: knives, shears and utensils rest on the board or a clean tray, never bare on the surface beside raw product.",
+        "FOOD SAFETY: hands handling raw protein are gloved. Sleeves down. No watch, no rings, no bracelets. Hair covered wherever a head would be in frame.",
+        "FOOD SAFETY: raw and ready-to-eat food never share a surface, and raw is never positioned above ready-to-eat.",
+        "FOOD SAFETY: a temperature probe, where shown, sits in the thickest part of the food and away from bone.",
+        "Nothing unsafe or non-compliant on view unless the prompt explicitly asks to show the incorrect practice.",
+        "Photographic realism, not illustration, not 3D render, not stock-photo staging."
+      ]
+    },
+    "diagram": {
+      "preamble": "Clean flat instructional diagram for an Australian vocational training document. Simple vector-style shapes, generous white space, high contrast, plain sans-serif labels, no photographic texture, no 3D, no drop shadows, no decorative flourish.",
+      "constraints": [
+        "Render ONLY the labels listed in the prompt, spelled exactly as written, and no other text of any kind.",
+        "Every label must be fully legible at print size and must not overlap a shape edge or another label.",
+        "Flat colour fills. Use a restrained palette built on a professional blue, with grey and white supporting.",
+        "Arrows and connectors must be unambiguous, with one clear reading order.",
+        "No signature, no watermark, no caption baked into the image."
+      ]
+    }
+  },
+
+  "verification": {
+    "_comment": "A garbled label in a diagram is an audit failure, so diagrams are read back and checked before insertion. Illustrations are checked only for stray text.",
+    "diagramLabelCheck": true,
+    "illustrationTextCheck": true,
+    "maxRegenerations": 2
+  }
+}

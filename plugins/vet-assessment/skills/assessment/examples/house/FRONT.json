@@ -1,0 +1,440 @@
+{
+  "overview": [
+    "This assessment is Unit Assessment Task 1 (UAT 1) — Unit Knowledge Test for SITHPAT018 Produce chocolate confectionery. It assesses the knowledge you need to temper couverture and produce individual chocolates in a commercial patisserie.",
+    "The unit sits within SIT40721 Certificate IV in Patisserie (AQF Level 4). Your answers must therefore explain your knowledge and apply it to workplace situations, not simply repeat definitions.",
+    "Every question is set at La Meridienne Patisserie, Rundle Street, Adelaide, a patisserie and chocolatier producing a boxed retail range and function orders. Appendix A sets out the chocolate range and Appendix B the couverture specification. Read both before you begin and use them wherever a question refers to them."
+  ],
+  "whatThisCovers": {
+    "intro": "The questions are grouped into six sections that map directly to the unit's Knowledge Evidence:",
+    "sections": [
+      {
+        "letter": "A",
+        "text": "Section A — culinary terms and trade names, date codes and rotation labels, and indicators of ingredient freshness and quality."
+      },
+      {
+        "letter": "B",
+        "text": "Section B — the processes used to produce different types of chocolates, and the historical and cultural origins of a variety of chocolates."
+      },
+      {
+        "letter": "C",
+        "text": "Section C — mise en place requirements, safe operational practices for equipment, and protection of polished chocolate moulds."
+      },
+      {
+        "letter": "D",
+        "text": "Section D — tempering methods, melting and tempering temperatures, the properties of tempered couverture and the expected characteristics of solidified couverture."
+      },
+      {
+        "letter": "E",
+        "text": "Section E — the characteristics of centres and fillings, methods of coating centres, and the complementary tastes and textures of dark, milk and white couverture."
+      },
+      {
+        "letter": "F",
+        "text": "Section F — decoration techniques, and the environmental conditions for storing ingredients and finished chocolates."
+      }
+    ]
+  },
+  "howYouAreAssessed": [
+    "Each question is marked Satisfactory (S) or Not Satisfactory (NS). All questions must be Satisfactory for this task to be judged Satisfactory.",
+    "You must complete every assessment task for the unit before your assessor records an overall result of Competent (C) or Not Yet Competent (NYC). Practical skills are assessed separately in UAT 2."
+  ],
+  "instructions": [
+    "Read each task carefully and complete every item in your own words.",
+    "Use the South Australian legislation, codes, standards and authorities that apply.",
+    "Type your answers where possible; handwritten work must be neat and legible.",
+    "If you have a learning need, you may request a reasonable adjustment before you begin.",
+    "Answer all fifteen questions and every part of each question. Every part has its own writing space directly beneath it.",
+    "Follow the word guide shown in the Maps to box for each question; it indicates the depth of answer expected.",
+    "Answer in your own words. Copied work cannot be assessed and will be recorded as Not Satisfactory.",
+    "Where a question refers to La Meridienne Patisserie, answer in that workplace context, using Appendix A and Appendix B where the question directs you to them."
+  ],
+  "principles": {
+    "headers": ["Principle / rule", "How it is applied"],
+    "rows": [
+      [
+        "Fairness",
+        "You are told the requirements, conditions and due date before you begin. Reasonable adjustments are available on request and do not change the standard you must meet."
+      ],
+      [
+        "Flexibility",
+        "The way you complete the task can be adjusted — for example additional time, a scribe or assistive technology — while still assessing the same Knowledge Evidence."
+      ],
+      [
+        "Validity",
+        "Every question maps to Knowledge Evidence in SITHPAT018 and requires you to explain and apply your knowledge in a patisserie context, not simply recall it."
+      ],
+      [
+        "Reliability",
+        "Your assessor judges every learner against the same benchmark answers, held in the separate assessor marking guide, and against the mapping matrix included at the end of this task, so results are consistent."
+      ]
+    ]
+  },
+  "rulesOfEvidence": {
+    "intro": "Your assessor applies the four rules of evidence to the work you submit. The table explains what each rule means for this task.",
+    "headers": ["Rule of evidence", "What it means for this assessment"],
+    "rows": [
+      [
+        "Valid",
+        "Your answers address the knowledge required by SITHPAT018 and show that you can apply it to chocolate production in a commercial patisserie."
+      ],
+      [
+        "Sufficient",
+        "You answer every question and every part, at the depth indicated by the word guide, with enough detail for your assessor to judge your knowledge."
+      ],
+      [
+        "Authentic",
+        "The work is your own, produced under supervision without generative AI. Answers written in your own words, referring to your own practice, demonstrate authenticity."
+      ],
+      [
+        "Current",
+        "Your answers reflect current industry practice and the legislation, codes and standards that apply in South Australia now."
+      ]
+    ]
+  },
+  "qualityExpected": [
+    "Write in complete sentences and use correct culinary and patisserie terminology. Where a word guide is given, treat it as the depth expected rather than a strict limit.",
+    "Where a question asks you to explain, give the reason as well as the fact. Where it asks you to apply, refer to the scenario, the product or the equipment concerned.",
+    "Your assessor marks your work against the benchmark answers held in the separate assessor marking guide for this unit, together with the Knowledge Evidence mapping matrix included at the end of this learner task."
+  ],
+  "assessmentConditions": [
+    {
+      "heading": "",
+      "paragraphs": [
+        "This assessment is open book. You may use your learner resource, standard recipes, manufacturer instructions, Appendix A, Appendix B and the college's food safety program while you work.",
+        "You will complete the assessment individually and under assessor supervision, in a classroom or in the college's simulated commercial patisserie."
+      ],
+      "bullets": []
+    },
+    {
+      "heading": "Duration and session structure",
+      "paragraphs": [
+        "This task is completed in two supervised sessions of up to five hours each. Your assessor will confirm the session dates and the due date recorded on the cover sheet."
+      ],
+      "bullets": []
+    },
+    {
+      "heading": "Security between sessions",
+      "paragraphs": [
+        "Your assessor collects all question papers, responses and working notes at the end of each session and stores them securely. You must not retain copies of completed responses or of the assessment questions between sessions, and you must not discuss the questions with other learners at any time."
+      ],
+      "bullets": []
+    },
+    {
+      "heading": "Individual work, permitted assistance and generative AI",
+      "paragraphs": [
+        "All answers must be your own work, written in your own words. You may ask your assessor to clarify what a question is asking, and you may use the resources listed below. You must not work with another learner on any response, or copy from another learner's work.",
+        "Generative AI must not draft, generate, paraphrase or substantially rewrite any assessment response. Basic spelling and grammar tools, and approved accessibility tools, may be used. Any approved assistive technology must be declared to your assessor before you begin."
+      ],
+      "bullets": []
+    },
+    {
+      "heading": "Assessment mode",
+      "paragraphs": [
+        "Where the cover sheet records this task as Online, it may be completed only in an approved live-supervised session with identity verification and secure submission. Unsupervised online or take-home completion is not permitted for this task."
+      ],
+      "bullets": []
+    },
+    {
+      "heading": "Resources provided",
+      "paragraphs": [],
+      "bullets": [
+        "The SITHPAT018 learner resource and your class notes.",
+        "Appendix A — La Meridienne chocolate range, and Appendix B — couverture specification, both included in this document.",
+        "Standard recipes, mise en place lists and product specifications used at the college.",
+        "Equipment manufacturer instructions and safety data sheets for cleaning chemicals.",
+        "The college food safety program, and the Food Standards Code and Food Act 2001 (SA) as referenced in your learner resource."
+      ]
+    },
+    {
+      "heading": "",
+      "paragraphs": [
+        "If you have a learning need, ask your assessor about a reasonable adjustment before you begin. Adjustments can be made to how you complete the assessment without changing the standard you must meet."
+      ],
+      "bullets": []
+    }
+  ],
+  "taskSummary": {
+    "intro": "The table lists the questions in this assessment, what each one covers and the depth of answer expected. Complete all fifteen questions across the two supervised sessions.",
+    "headers": ["Q", "Section", "Focus", "Word guide"],
+    "rows": [
+      [
+        "1",
+        "A — Terminology and stock",
+        "Culinary terms and trade names for ingredients and for individual chocolates",
+        "Name plus 20–35 words in each writing cell."
+      ],
+      [
+        "2",
+        "A — Terminology and stock",
+        "Date codes, stock rotation labels, and freshness and quality indicators",
+        "(a) 120 words · (b) 25–35 words per cell · (c) 100 words."
+      ],
+      [
+        "3",
+        "B — Production processes and origins",
+        "The five production processes and the Appendix A products each one suits",
+        "40–55 words for the method column; product code and short reason only in the last column."
+      ],
+      [
+        "4",
+        "B — Production processes and origins",
+        "Origins of a variety of chocolates and their use in describing a range",
+        "(a) 25–40 words per cell · (b) 100 words."
+      ],
+      [
+        "5",
+        "C — Mise en place, equipment and moulds",
+        "Mise en place requirements and sequencing of a production run",
+        "(a) 150 words · (b) 150 words."
+      ],
+      [
+        "6",
+        "C — Mise en place, equipment and moulds",
+        "Essential functions and features of equipment, and safe operating practice",
+        "30–45 words in each writing cell."
+      ],
+      [
+        "7",
+        "C — Mise en place, equipment and moulds",
+        "Requirements for the polished mould surface, and handling and storage of moulds",
+        "(a) 30–45 words per cell · (b) 120 words."
+      ],
+      [
+        "8",
+        "D — Tempering",
+        "Control of seed crystal formation and the four tempering methods",
+        "(a) 120 words · (b) 45–60 words per cell."
+      ],
+      [
+        "9",
+        "D — Tempering",
+        "Melting and working temperatures; tempering time and batch calculations",
+        "(a) temperatures from Appendix B plus 40–60 words of explanation · (b) show all working · (c) 120 words."
+      ],
+      [
+        "10",
+        "D — Tempering",
+        "Flow, setting and viscosity; colour, gloss and sheen, and snap; fault diagnosis",
+        "(a) and (b) 30–45 words per cell · (c) 150 words."
+      ],
+      [
+        "11",
+        "E — Centres, fillings and coating",
+        "Characteristics of the nine centres and fillings, and where each is used",
+        "25–40 words for the characteristics column; Appendix A product code only in the last column."
+      ],
+      [
+        "12",
+        "E — Centres, fillings and coating",
+        "The three coating methods and selection of the right method",
+        "(a) 40–55 words per cell · (b) 120 words."
+      ],
+      [
+        "13",
+        "E — Centres, fillings and coating",
+        "Complementary tastes and textures of dark, milk and white couverture",
+        "45–65 words in each writing cell."
+      ],
+      [
+        "14",
+        "F — Decoration and storage",
+        "Decoration techniques and the products and effects they suit",
+        "35–50 words in each writing cell."
+      ],
+      [
+        "15",
+        "F — Decoration and storage",
+        "Storage conditions for ingredients and finished chocolates, and the SA requirements",
+        "(a) 30–45 words per cell · (b) 130 words."
+      ]
+    ]
+  },
+  "appendixA": {
+    "title": "Appendix A — La Meridienne chocolate range",
+    "intro": "This is the current boxed range produced at La Meridienne Patisserie, Rundle Street, Adelaide. Products A1 to A10 all correspond to recipes in your SITHPAT018 Recipe Workbook. A9 and A10 provide the enrobing and prepared hollow-shell processes required across the range. Where a question asks you to select a product, select only from this range. Do not invent a product.",
+    "headers": ["Product", "Centre or filling", "Production process", "Couverture and coating", "Finish"],
+    "rows": [
+      [
+        "A1 — Rocher / mendiant, fruit and nut",
+        "Hard centre — fruit and nut cluster",
+        "Cut or dressed",
+        "Dark couverture",
+        "Rough surface, fruit and nut set on top"
+      ],
+      [
+        "A2 — Chocolate heaven bliss ball, marzipan",
+        "Soft centre — marzipan",
+        "Hand coated",
+        "Dark couverture",
+        "Hand-rolled finish"
+      ],
+      [
+        "A3 — Caramel bonbon",
+        "Hard centre — caramel filling",
+        "Moulded",
+        "Milk couverture",
+        "Cast shell, coloured cocoa butter"
+      ],
+      [
+        "A4 — Coffee liqueur bonbon",
+        "Filling — coffee liqueur fondant",
+        "Moulded",
+        "Dark couverture",
+        "Cast shell, piped line"
+      ],
+      [
+        "A5 — Strawberry fondant bonbon",
+        "Filling — strawberry flavoured fondant",
+        "Moulded",
+        "White couverture",
+        "Cast shell, coloured cocoa butter"
+      ],
+      [
+        "A6 — Passionfruit ganache chocolate",
+        "Filling — passionfruit milk chocolate ganache",
+        "Cut or dressed",
+        "Milk couverture",
+        "Hand dipped, fork marking"
+      ],
+      [
+        "A7 — Almond croquant",
+        "Filling — almond croquant",
+        "Cut or dressed",
+        "Dark couverture",
+        "Hand dipped, dusted finish"
+      ],
+      [
+        "A8 — Chocolate dipped nougat",
+        "Hard centre — nougat",
+        "Cut or dressed",
+        "Dark couverture",
+        "Hand dipped, smooth dipped finish"
+      ],
+      [
+        "A9 — Raspberry jelly square",
+        "Soft centre — raspberry jelly",
+        "Enrobing",
+        "Dark couverture",
+        "Transfer sheet"
+      ],
+      [
+        "A10 — Orange liqueur hollow sphere",
+        "Filling — orange liqueur syrup",
+        "Prepared hollow shells",
+        "Dark couverture",
+        "Piped filigree"
+      ]
+    ]
+  },
+  "appendixB": {
+    "title": "Appendix B — MVC tempering standard",
+    "intro": "These are the tempering parameters taught in your SITHPAT018 Recipe Workbook and used for all products made at La Meridienne. The workbook tempers couverture by the vaccination (addition) method: the couverture is melted, then unmelted seed couverture is added and stirred until the temperature falls to the working temperature below.",
+    "headers": ["Couverture", "Melting temperature (°C)", "Working temperature (°C)"],
+    "rows": [
+      ["Dark couverture", "Heat to close to 40", "32"],
+      ["Milk couverture", "Heat to close to 40", "31"],
+      ["White couverture", "Heat to close to 40", "30"]
+    ],
+    "afterTable": "If the couverture cools to 27 °C and is still fluid, it can be reheated to a working consistency. If it has cooled and solidified, it must be re-tempered. Follow this standard for all La Meridienne products.",
+    "productionDataHeading": "Production data for calculations",
+    "productionData": [
+      "The tempering machine cools melted couverture at an average of 1.5 °C per minute.",
+      "Where the vaccination (addition) method is used, seed couverture is reserved from the total weight of couverture required, not added on top of it.",
+      "Raspberry jelly for the A9 square requires four hours to set before it can be cut. Caramel for the A3 bonbon requires two hours to cool before it can be piped.",
+      "Only one tempering machine, one enrobing machine and one set of polished bonbon moulds are available."
+    ]
+  },
+  "mappingMatrix": {
+    "intro": "The matrix shows where each Knowledge Evidence point of SITHPAT018 is assessed in this task. Every point is addressed by at least one question. Where a question part is marked supporting, it applies or extends the knowledge assessed by the primary part rather than providing the primary evidence.",
+    "headers": ["Knowledge Evidence point (SITHPAT018 Release 1)", "Assessed in"],
+    "rows": [
+      [
+        "Culinary terms and common trade names for ingredients used to produce chocolate confectionery",
+        "Q1 (a)"
+      ],
+      [
+        "Culinary terms and common trade names for individual chocolates prepared in the performance evidence",
+        "Q1 (b)"
+      ],
+      [
+        "Contents of date codes and rotation labels for stock",
+        "Q2 (a); Q2 (c) supporting"
+      ],
+      [
+        "Processes for producing different types of chocolates: cut or dressed; hand coated; enrobing; made with prepared hollow shells; moulded",
+        "Q3"
+      ],
+      [
+        "Characteristics of centres and fillings used when producing chocolates listed in the performance evidence",
+        "Q11"
+      ],
+      [
+        "Historical and cultural origins of a variety of chocolates",
+        "Q4 (a); Q4 (b) supporting"
+      ],
+      [
+        "Indicators of freshness and quality of stocked ingredients for chocolates",
+        "Q2 (b)"
+      ],
+      [
+        "Mise en place requirements for producing chocolate confectionery",
+        "Q5 (a), (b)"
+      ],
+      [
+        "Tempering methods for couverture: controlling the formation of seed crystals; tabling method; use of heated water jackets; use of microwave; vaccination or addition method",
+        "Q8 (a), (b)"
+      ],
+      [
+        "Appropriate temperatures to melt and temper couverture",
+        "Q9 (a); Q9 (b), (c) supporting"
+      ],
+      [
+        "Properties of tempered couverture: flow properties; setting properties; viscosity",
+        "Q10 (a)"
+      ],
+      [
+        "Expected product characteristics of solidified couverture: colour; gloss and sheen; snap",
+        "Q10 (b); Q10 (c) supporting"
+      ],
+      [
+        "Methods to coat centres: hand coating; hand dipping; machine enrobed",
+        "Q12 (a); Q12 (b) supporting"
+      ],
+      [
+        "Complementary tastes and textures of dark, milk and white couverture for fillings and centres",
+        "Q13"
+      ],
+      [
+        "Decoration techniques for individual chocolates",
+        "Q14"
+      ],
+      [
+        "Appropriate environmental conditions for storing ingredients and individual chocolates to ensure food safety and optimise shelf life",
+        "Q15 (a); Q15 (b) supporting"
+      ],
+      [
+        "Safe operational practices using essential functions and features of equipment used to produce chocolate confectionery",
+        "Q6"
+      ],
+      [
+        "Protect polished chocolate moulds from contamination and damage, including ensuring that the polished surface is clean, polished and free of dust or residue; untouched by bare fingers; untouched by objects that may dull, scratch or damage it",
+        "Q7 (a), (b)"
+      ]
+    ]
+  },
+  "foundationSkills": {
+    "heading": "Foundation skills",
+    "paragraphs": [
+      "Numeracy — the unit requires numeracy skills to determine tempering times and temperatures. This is evidenced in Question 9, where you state working temperatures from the couverture specification and calculate the time required to bring melted couverture down to its working temperature.",
+      "Reading and writing — the unit's descriptors require locating information in standard recipes and on date code and stock rotation labels, and recording clear sequenced instructions for new recipes with ingredient quantities. These are assessed in UAT 2, where you work from live recipes, labels and stock, and are not claimed as directly evidenced by this written task."
+    ]
+  },
+  "closing": "Check that you have answered every question and every part before you submit this task with the assessment cover sheet.",
+  "extractionNotes": [
+    "Source line 802 (the closing line) ends with a single trailing space in the text dump; the trailing space has been trimmed in `closing`. No other change.",
+    "Assessment conditions: the source has no sub-heading above the two opening paragraphs (source lines 104-105) or above the closing reasonable-adjustment paragraph (source line 121). Both are stored as blocks with an empty `heading`.",
+    "Character audit of the extracted range: em dash U+2014, en dash U+2013 (all numeric/word ranges), middot U+00B7 (word guides and Appendix B), degree sign U+00B0. All apostrophes in the source are ASCII U+0027 (e.g. \"unit's\", \"college's\", \"learner's\") - reproduced as-is, not converted to curly quotes.",
+    "Task summary row 11 (source line 171) reads \"the nine centres and fillings\" while the Task 11 table itself lists ten centres/fillings. Reproduced verbatim as it appears in the source; not corrected.",
+    "Blank/spacer lines in the source (85-86, 122, 189, 247-248, 269, 300-303, 420-426, 653, 751-753) are table-spacing artefacts of the text dump and carry no content; they are not represented in the JSON.",
+    "Appendix B temperature table: source lines 254-262 give melting temperature as the text \"Heat to close to 40\" and working temperature as a bare number, with the units carried in the column headers. Reproduced exactly."
+  ]
+}

@@ -1,0 +1,143 @@
+{
+  "_comment": "Meridian Vocational College. This is the DEFAULT profile. Registration facts are taken from the approved templates' own docProps/custom.xml, which is the authoritative source - not from memory and never from the ACI profile. See assets/branding.aci.json for the other brand and references/house-style.md section G for the crossover sweep that keeps them apart.",
+
+  "brand": "MVC",
+
+  "rto": {
+    "tradingName": "Meridian Vocational College",
+    "shortName": "MVC",
+    "legalEntity": "Golden Wattle Group Pty Ltd T/A Meridian Vocational College",
+    "rtoCode": "45039",
+    "cricosCode": "03551M",
+    "website": "www.mvc.edu.au",
+    "address": "Level 2 West, 50 Grenfell Street, Adelaide SA 5000",
+    "phone": "0432 421 482",
+    "email": "info@mvc.edu.au",
+    "accreditationBody": "ASQA",
+    "_comment": "rtoCode and cricosCode are UNPREFIXED, matching the RTOnumber and CRICOSnumber document properties. The footer text supplies the words 'RTO' and 'CRICOS'. The ACI properties carry their prefixes inside the value - do not carry that convention across."
+  },
+
+  "logo": {
+    "path": "inherited",
+    "_comment": "The MVC logo is already embedded in both templates at word/media/ and referenced from header1.xml, centred at 1511300 x 635000 EMU. Inherit it. Do not re-insert, resize or substitute it. The Adelaide Culinary Institute and Adelaide Construction Institute marks are different brands and must never appear on an MVC document."
+  },
+
+  "palette": {
+    "_comment": "The structural chrome - banners, table header rows, section headings - is navy. Orange is an accent only. The wider MVC callout palette (D9E4F5, FCEFD9, FBE7E5, C7D0DD) is official brand but is NOT used in these document types.",
+    "dark": "234B8C",
+    "accent": "2F60B4",
+    "rule": "F09C0C",
+    "grey": "606060",
+    "lightFill": "F0F2F7",
+    "border": "C9CFDD",
+    "_borderComment": "Measured 21 August 2026 against the four reference documents: C9CFDD appears 561 times in generated content and CCCCCC zero times. CCCCCC appears 72 times, all of it inside the template cover sheet, which is front matter we do not author. This value styles GENERATED tables, so it is C9CFDD - matching Docx-Blocks-House.ps1 $script:BORD.",
+    "placeholder": "999999",
+    "modelAnswer": "E43C30",
+    "assessorFill": "FFF2CC",
+    "assessorText": "9C6500",
+    "logoOnly": ["F5C800", "E45418"],
+    "_paletteNames": {
+      "234B8C": "MVC Navy - section headings, table header rows, banners, bold labels",
+      "2F60B4": "Meridian Blue - photo placeholder borders, secondary emphasis, the ASSESSMENT wordmark, links",
+      "F09C0C": "MVC Orange - bullet glyphs, competency box left rule, section rules, the tagline",
+      "606060": "Grey - muted and secondary text, footer",
+      "F0F2F7": "Light blue-grey - panel fills, zebra rows, tinted label cells, scenario boxes",
+      "999999": "Placeholder grey - italic placeholder text in blank learner tables",
+      "CCCCCC": "Cell border - all table borders",
+      "E43C30": "Model answer red - assessor guide only, also an MVC logo colour",
+      "FFF2CC/9C6500": "Amber - assessor guides only, never the learner document"
+    }
+  },
+
+  "typography": {
+    "bodyFont": "Arial",
+    "bodySizePt": 11,
+    "recipeBodySizePt": 10,
+    "tableSizePt": 10,
+    "tightTableSizePt": 9,
+    "placeholderSizePt": 9,
+    "coverSheetProsePt": 8.5,
+    "coverSheetHeadingPt": 9.5,
+    "footerSizePt": 8,
+    "bodyLineSpacing": 1.5,
+    "listLineSpacing": 1.15,
+    "_comment": "recipeBodySizePt applies to the Recipe Workbook, whose locked house style is Arial 10pt. The combined UAT runs 11pt body per the accessibility floor in house-style.md section E. coverSheet sizes are the compression figures that hold the cover sheet to one page - see references/template-build.md."
+  },
+
+  "page": {
+    "_comment": "Documentation only - no script reads this block; the gates read house-profile pageMarginsDxa. Side margins re-cut to 1134 dxa (2.0 cm) on 21 August 2026 so the 9638 dxa tables fit the text column - see scripts/Patch-TemplateMargins.ps1.",
+    "size": "A4",
+    "orientation": "portrait",
+    "marginsCm": { "top": 2.54, "bottom": 2.54, "left": 2.0, "right": 2.0 },
+    "contentWidthDxa": 9638,
+    "uatContentWidthDxa": 9638
+  },
+
+  "tagline": "I N N O V A T I O N   ·   T R A D I T I O N   ·   E D U C A T I O N",
+
+  "policy": {
+    "_comment": "LOCKED by RTO decision of 21 August 2026, measured from the RTO own artefacts. Results is 14 days, NOT 45 - both templates shipped 45 and both are patched at source by scripts/Patch-TemplateDayCounts.ps1. Two executable checks read resultsWithinDays from here, so profile and template must agree or a correct document fails its own gate. The Recipe Workbook prompt v4.0 states 15 late-submission days, a Gaps paragraph, 'Student ID' and 'Assessment Due Date' labels and no Online checkbox - those four positions are SUPERSEDED here and the recipe template is patched to match this profile. See assets/templates/README.md.",
+    "lateSubmissionDays": 14,
+    "resultsWithinDays": 14,
+    "appealWorkingDays": 20,
+    "theoryResitFee": 150,
+    "practicalResitFee": 200,
+    "maximumAttempts": 3,
+    "studentIdLabel": "Student MVC ID:",
+    "dueDateLabel": "Due Date:",
+    "includeOnlineSubmissionCheckbox": true,
+    "includeGapsParagraph": false,
+    "includeLearnerDeclaration": true,
+    "includeAssessorDeclaration": false,
+    "_assessorDeclarationCarveOut": "The practical document's ASSESSOR GUIDE carries an assessor declaration with a signature row (there is no separate evidence pack - RTO decision, 21 August 2026), because most SIT units impose assessor requirements beyond the Standards - a trade qualification and a stated number of years in industry - and an instrument that never asks the assessor to confirm them leaves that condition unevidenced."
+  },
+
+  "docControl": {
+    "_comment": "Written to docProps/custom.xml AND to the cached field result inside every header and footer part. The footer reads them through DOCPROPERTY fields, so it is never typed. A file whose footer disagrees with its own properties is a document-control finding.",
+    "footerFormat": "Doc #: {cmsDocNumber}   RTO {RTOnumber}   CRICOS {CRICOSnumber}   Revision: {cmsRevision}   Approved Date: {cmsApprovedDate}   Next Review: {cmsNextReviewDate}   Page {PAGE} of {NUMPAGES}",
+    "docLocation": "\\DMS\\TRAINING\\Ai prompts\\Unit development\\\\",
+    "reviewIntervalMonths": 12,
+    "approvedBy": "RTO Administrator"
+  },
+
+  "templates": {
+    "uat": "assets/templates/MVC_Assessment_Template_Combined_PE_KE_v2.2.docx",
+    "recipeWorkbook": "assets/templates/MVC_Recipe_Workbook_Template.docx"
+  },
+
+  "recipeUnits": {
+    "_comment": "MVC sets recipe units in LOWER CASE. ACI initial-caps them. This is the single divergence most likely to cross over. Grams are 'gms' - never 'g', 'G' or 'Gms'. Normalise every source variant to this set.",
+    "normalised": ["gms", "ml", "each", "tbsp", "tsp", "drops", "pinch", "sheet"],
+    "gramsToken": "gms"
+  },
+
+  "forbiddenTokens": {
+    "_comment": "Drives the brand-crossover sweep in house-style.md section G. None of these may appear in the rendered text, the header image or the footer fields of an MVC document.",
+    "_modes": {
+      "word-cs": "Whole word, case-sensitive. For acronyms and cased style tokens. ACI as a loose substring matches facility and spacing; Gms as a loose match hits every correct lower-case gms.",
+      "word-ci": "Whole word, case-insensitive. For codes, numbers and hex colours.",
+      "substring-ci": "Anywhere in the text, case-insensitive. For multi-word names and domains, which cannot collide with ordinary prose."
+    },
+    "tokens": [
+      { "token": "ACI",                   "mode": "word-cs",      "note": "the other brand acronym" },
+      { "token": "Gms",                   "mode": "word-cs",      "note": "ACI initial-caps recipe units; MVC writes gms" },
+      { "token": "Adelaide Culinary",     "mode": "substring-ci", "note": "the other brand trading name" },
+      { "token": "Adelaide Construction", "mode": "substring-ci", "note": "the other brand trading name" },
+      { "token": "Bush Tukka",            "mode": "substring-ci", "note": "the other brand legal entity" },
+      { "token": "culinaryadelaide",      "mode": "substring-ci" },
+      { "token": "constructionadelaide",  "mode": "substring-ci" },
+      { "token": "45797",                 "mode": "word-ci",      "note": "the other brand RTO code" },
+      { "token": "03978F",                "mode": "word-ci",      "note": "the other brand CRICOS code" },
+      { "token": "Level 10 West",         "mode": "substring-ci", "note": "ACI street address - MVC is Level 2 West" },
+      { "token": "08 7001 6745",          "mode": "substring-ci", "note": "ACI phone - MVC is 0432 421 482" },
+      { "token": "2A364E",                "mode": "word-ci",      "note": "ACI navy" },
+      { "token": "2490CC",                "mode": "word-ci",      "note": "ACI blue" },
+      { "token": "84549C",                "mode": "word-ci",      "note": "ACI palette" },
+      { "token": "F05430",                "mode": "word-ci",      "note": "ACI palette" },
+      { "token": "FCA860",                "mode": "word-ci",      "note": "ACI palette" },
+      { "token": "F09018",                "mode": "word-ci",      "note": "ACI orange" }
+    ]
+  },
+
+  "jurisdiction": "South Australia"
+}

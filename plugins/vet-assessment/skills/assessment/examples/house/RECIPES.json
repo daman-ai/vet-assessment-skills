@@ -1,0 +1,590 @@
+{
+  "recipes": [
+    {
+      "number": 1,
+      "name": "Tempered White Chocolate Couverture",
+      "code": "MVC1845",
+      "group": "Base",
+      "baseMethod": "Tempering",
+      "yield": "—",
+      "portionSize": "—",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Base │ Tempering │ White couverture",
+      "ingredients": [
+        { "component": "", "ingredient": "Couverture White Chocolate", "qty": "220", "unit": "gms" }
+      ],
+      "method": [
+        "In a microwave safe bowl, heat 3/4 of chocolate for 20 seconds and stir. Repeat this step until most of the chocolate is melted.",
+        "Check the temperature. If you are close to (40C) start heating in 5 second intervals, stirring between each cycle and rechecking temperature as it can heat quickly in the end stages and burn.",
+        "Add in the remaining chocolate. Continue to stir until the temperature drops to (30C.) Your chocolate is now in temper and ready to use.",
+        "Test: Spread a small spoonful of chocolate on a piece of wax paper. If it looks dull or streaky, re-temper the chocolate. If it dries quickly with a glossy finish and no streaks, the chocolate is in temper.",
+        "Tip: Once melted chocolate has been tempered, it must be used before it cools and sets. If it cools to 27C and is still fairly liquid, it can be reheated to a liquid consistency. If it has completely cooled and solidified, it should be re-tempered.",
+        "To hold: If you keep your chocolate within these temperature ranges, it will stay in temper and be liquid enough to use you can hold it over a warm water bath or in a chocolate temper machine/warmer."
+      ],
+      "test": "Dip a test strip and set it aside at room temperature. At three to five minutes it should be firm, evenly glossy and free of streaks.",
+      "tip": "White couverture scorches before it melts through. Use short microwave bursts with stirring between, and never take it above 45 °C.",
+      "storage": [
+        "Hold tempered couverture at its working temperature in a tempering machine or over a warm water bath",
+        "Do not refrigerate",
+        "Store solid couverture at 16–18 °C, 50–60% relative humidity, sealed and away from strong odours."
+      ],
+      "presentationStandard": "Glossy, even, no streaking or bloom; clean snap when set.",
+      "assessorNotes": "Build notes — items flagged, not filled (assessor guide): Recipe cards with no yield. Recipes 1 to 3 (the tempered couverture cards, MVC1845 to MVC1847) record no yield and no portion size, so a learner who selects one of them for Theory Question 1 cannot calculate a conversion factor. The worked key redirects the learner to a card that states a yield. The three cards need a yield and portion size added at the next revision."
+    },
+    {
+      "number": 2,
+      "name": "Tempered Milk Chocolate Couverture",
+      "code": "MVC1846",
+      "group": "Base",
+      "baseMethod": "Tempering",
+      "yield": "—",
+      "portionSize": "—",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics and consistency.",
+      "evidenceTags": "Evidence tags: Base │ Tempering │ Milk couverture",
+      "ingredients": [
+        { "component": "", "ingredient": "Couverture Milk Chocolate", "qty": "220", "unit": "gms" }
+      ],
+      "method": [
+        "In a microwave safe bowl, heat 3/4 of chocolate for 20 seconds and stir. Repeat this step until most of the chocolate is melted.",
+        "Check the temperature. If you are close to 40C start heating in 5 second intervals, stirring between each cycle and rechecking temperature as it can heat quickly in the end stages and burn.",
+        "Add in the remaining chocolate. Continue to stir until the temperature drops to 31C. Your chocolate is now in temper and ready to use.",
+        "Test: Spread a small spoonful of chocolate on a piece of wax paper. If it looks dull or streaky, re-temper the chocolate. If it dries quickly with a glossy finish and no streaks, the chocolate is in temper.",
+        "Tip: Once melted chocolate has been tempered, it must be used before it cools and sets. If it cools to 27C and is still fairly liquid, it can be reheated to a liquid consistency. If it has completely cooled and solidified, it should be re-tempered.",
+        "To hold: If you keep your chocolate within these temperature ranges, it will stay in temper and be liquid enough to use you can hold it over a warm water bath or in a chocolate temper machine/warmer."
+      ],
+      "test": "Dip a test strip and check it sets firm and glossy within five minutes, with a clean snap when flexed.",
+      "tip": "Milk couverture works at 31 °C. If it drifts below 27 °C and is still fluid, reheat it gently; if it has set solid, re-temper from the melt.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": "Build notes — items flagged, not filled (assessor guide): Recipe cards with no yield. Recipes 1 to 3 (the tempered couverture cards, MVC1845 to MVC1847) record no yield and no portion size, so a learner who selects one of them for Theory Question 1 cannot calculate a conversion factor. The worked key redirects the learner to a card that states a yield. The three cards need a yield and portion size added at the next revision."
+    },
+    {
+      "number": 3,
+      "name": "Tempered Dark Chocolate Couverture",
+      "code": "MVC1847",
+      "group": "Base",
+      "baseMethod": "Tempering",
+      "yield": "—",
+      "portionSize": "—",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Base │ Tempering │ Dark couverture",
+      "ingredients": [
+        { "component": "", "ingredient": "Couverture dark chocolate", "qty": "220", "unit": "gms" }
+      ],
+      "method": [
+        "In a microwave safe bowl, heat 3/4 of chocolate for 20 seconds and stir. Repeat this step until most of the chocolate is melted.",
+        "Check the temperature. If you are close to 40C start heating in 5 second intervals, stirring between each cycle and rechecking temperature as it can heat quickly in the end stages and burn.",
+        "Add in the remaining chocolate. Continue to stir until the temperature drops to 32C. Your chocolate is now in temper and ready to use.",
+        "Test: Spread a small spoonful of chocolate on a piece of wax paper. If it looks dull or streaky, re-temper the chocolate. If it dries quickly with a glossy finish and no streaks, the chocolate is in temper.",
+        "Tip: Once melted chocolate has been tempered, it must be used before it cools and sets. If it cools to 27C and is still fairly liquid, it can be reheated to a liquid consistency. If it has completely cooled and solidified, it should be re-tempered.",
+        "To hold: If you keep your chocolate within these temperature ranges, it will stay in temper and be liquid enough to use you can hold it over a warm water bath or in a chocolate temper"
+      ],
+      "test": "Dip a test strip and check for gloss and a clean snap at three to five minutes before you commit the batch.",
+      "tip": "Stop stirring only when the seed has melted in completely. Visible lumps mean part of the mass is seeded and part is not, which shows as streaking.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": "Build notes — items flagged, not filled (assessor guide): Recipe cards with no yield. Recipes 1 to 3 (the tempered couverture cards, MVC1845 to MVC1847) record no yield and no portion size, so a learner who selects one of them for Theory Question 1 cannot calculate a conversion factor. The worked key redirects the learner to a card that states a yield. The three cards need a yield and portion size added at the next revision."
+    },
+    {
+      "number": 4,
+      "name": "Rocher, Mendiant - Fruit and Nut",
+      "code": "MVC1848",
+      "group": "Hard centre",
+      "baseMethod": "Cut or dressed",
+      "yield": "8",
+      "portionSize": "15gm each",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Fruit and nut filling, hard centre, hand shaped uniform sizing, tempered chocolate.",
+      "evidenceTags": "Evidence tags: Hard centre │ Cut or dressed │ Nuts │ Fruits",
+      "ingredients": [
+        { "component": "ALMOND ROCHER", "ingredient": "Almonds, slivered", "qty": "300", "unit": "gms" },
+        { "component": "ALMOND ROCHER", "ingredient": "Liqueur", "qty": "20", "unit": "ml" },
+        { "component": "ALMOND ROCHER", "ingredient": "Icing sugar", "qty": "50", "unit": "gms" },
+        { "component": "ALMOND ROCHER", "ingredient": "Cocoa butter", "qty": "70", "unit": "gms" },
+        { "component": "ALMOND ROCHER", "ingredient": "Couverture (milk, white or dark), tempered", "qty": "100", "unit": "gms" },
+        { "component": "HAZELNUT PRALINE", "ingredient": "Hazelnuts, skin on", "qty": "300", "unit": "gms" },
+        { "component": "HAZELNUT PRALINE", "ingredient": "Sugar", "qty": "300", "unit": "gms" },
+        { "component": "HAZELNUT PRALINE", "ingredient": "Water", "qty": "75", "unit": "ml" },
+        { "component": "HAZELNUT PRALINE", "ingredient": "Hazelnut spread", "qty": "100", "unit": "gms" },
+        { "component": "HAZELNUT PRALINE", "ingredient": "Crushed wafers", "qty": "60", "unit": "gms" },
+        { "component": "HAZELNUT PRALINE", "ingredient": "Couverture, melted (to coat)", "qty": "100", "unit": "gms" },
+        { "component": "HAZELNUT PRALINE", "ingredient": "Toasted hazelnuts, finely chopped (to coat)", "qty": "200", "unit": "gms" }
+      ],
+      "method": [
+        "Almond Rocher",
+        "Moisten the almonds with the liqueur.",
+        "Dust icing sugar over the almonds.",
+        "Spread the almonds onto a sheet pan and roast at 170 °C until golden brown. Allow to cool.",
+        "Warm a bowl with a torch or by placing it in the oven for 10 seconds. Warming the bowl first stops the couverture setting too quickly.",
+        "Place the almonds in the warm bowl. Add the cocoa butter, then the tempered couverture, and stir to coat the nuts.",
+        "Spoon small portions onto parchment paper.",
+        "Hold at room temperature for 30 minutes to allow the couverture to set.",
+        "Hazelnut Praline",
+        "Toast the hazelnuts with the skin on. Allow to cool, keeping some whole and crushing the rest.",
+        "Bring the sugar and water to the boil and cook to a light golden toffee.",
+        "Add the hazelnuts and pour directly onto parchment paper to stop the cooking. Do this just before the desired colour, as the toffee continues to darken.",
+        "Once cool, break up the praline and process in a blender to a medium crumb or paste.",
+        "Line a baking sheet with parchment paper or a non-stick mat.",
+        "Mix the crushed wafers, hazelnut praline and hazelnut spread together until well combined. The mixture will be sticky.",
+        "Refrigerate for about 30 minutes so the mixture firms up.",
+        "Shape into teaspoon-sized balls, placing a whole hazelnut inside each one, and freeze for 15 minutes.",
+        "Coat in melted couverture and roll in the finely chopped toasted hazelnuts.",
+        "Hold at room temperature for 30 minutes to allow the couverture to set.",
+        "Store in an airtight container in a cool, dark place.",
+        "Note: Alternative styles for the rocher: milk, white or dark couverture; seeds, shaved or desiccated coconut; crushed nuts, skin on or skin off; raw sugar.",
+        "Note: the mendiant named in the card title has no method recorded in the source recipe — confirm with your assessor before production."
+      ],
+      "test": "Break one cooled cluster. The couverture should snap cleanly and the nuts should stay bound rather than falling apart.",
+      "tip": "Warm the bowl before you add the nuts. A cold bowl sets the couverture before you have finished coating them.",
+      "storage": [
+        "Store finished pieces at 16–18 °C in a sealed container away from light and odour",
+        "Do not refrigerate",
+        "Label with production date and use-by."
+      ],
+      "presentationStandard": "Even cluster size, rough natural surface, nuts and fruit visible, glossy coating.",
+      "assessorNotes": "Build notes — items flagged, not filled (assessor guide): Recipe 4 (Rocher, Mendiant — MVC1848). The card is titled for two products but records no method for the mendiant. No benchmark has been written for a product the workbook does not specify. || Quantities not in the source recipes. Several quantities in the workbook were supplied during earlier builds rather than taken from the chef’s original cards — the praline sugar, water, hazelnut spread, crushed wafers and toasted hazelnuts in MVC1848, the pinch of sea salt in MVC1850, and the 250 gms fillings in MVC1853. Model answers and worked keys avoid relying on those figures, but they still need chef confirmation before issue."
+    },
+    {
+      "number": 5,
+      "name": "Chocolate heaven bliss balls, Marzipan filling",
+      "code": "MVC1849",
+      "group": "Soft centre",
+      "baseMethod": "Hand coated",
+      "yield": "20",
+      "portionSize": "1 each",
+      "prepTime": "40 mins",
+      "cookTime": "10 mins",
+      "competencyFocus": "Hand rolled, chocolate dipped, tempered chocolate, marzipan filling.Prepare centres of precisely uniform shapes and sizes.",
+      "evidenceTags": "Evidence tags: Soft centre │ Hand coated │ Nuts",
+      "ingredients": [
+        { "component": "", "ingredient": "Dark chocolate", "qty": "380", "unit": "gms" },
+        { "component": "", "ingredient": "Philadelphia original spreadable cream cheese", "qty": "250", "unit": "gms" },
+        { "component": "", "ingredient": "Desiccated coconut", "qty": "110", "unit": "gms" },
+        { "component": "", "ingredient": "Marzipan", "qty": "110", "unit": "gms" }
+      ],
+      "method": [
+        "Melt 80g of the chocolate in a small bowl over a double boiler of water in a saucepan over low heat.",
+        "Place the cream cheese, coconut, marzipan and80gm of the melted dark chocolate in a food processor and process until combined. Chill for 30 mins.",
+        "Roll level tablespoon measures of cream cheese mixture into balls.",
+        "Line an oven tray with baking paper. Heat remaining 300g chocolate over low heat until runny.",
+        "Using a fork, dip a ball into the melted chocolate to coat. Gently tap the fork on the side of the pan to remove excess chocolate. Place on the prepared tray. Sprinkle with a little extra coconut if you like.",
+        "Repeat with the remaining balls and chocolate. Chill for 20 minutes or until chocolate is set."
+      ],
+      "test": "Roll one ball and weigh it. Every ball must be within a gram of the portion standard, or the batch will not look consistent in the box.",
+      "tip": "Chill the marzipan before rolling. Warm marzipan sticks to your hands and the balls lose their shape.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": null
+    },
+    {
+      "number": 6,
+      "name": "Caramel Filling",
+      "code": "MVC1850",
+      "group": "Filling",
+      "baseMethod": "Moulded",
+      "yield": "20",
+      "portionSize": "10ml",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Filling │ Moulded │ Caramel",
+      "ingredients": [
+        { "component": "", "ingredient": "Caster sugar", "qty": "120", "unit": "gms" },
+        { "component": "", "ingredient": "Butter, unsalted", "qty": "70", "unit": "gms" },
+        { "component": "", "ingredient": "Thickened cream", "qty": "70", "unit": "ml" },
+        { "component": "", "ingredient": "Pinch sea salt", "qty": "1", "unit": "pinch" },
+        { "component": "", "ingredient": "Liquid glucose", "qty": "40", "unit": "gms" }
+      ],
+      "method": [
+        "Measure out all your ingredients into separate bowls",
+        "Cut the butter into small cubes",
+        "Put the sugar into a large saucepan spread even across the bottom and place onto a medium heat",
+        "Once the sugar has clearly started to melt, gently move the sugar about the pan with a heat proof spatula or wooden spoon until it has all melted.",
+        "As soon as the caramel is light brown, deglaze the caramel by carefully addingin the butter and whisk rapid until the butter has melted and is combined",
+        "Turn off the heat and add the cream, again whisking rapidly until combined and add in the glucose and salt.",
+        "If there are any small sugar crystals, pass the sauce through a metal sieve to remove them."
+      ],
+      "test": "Draw a spoon through the cooled caramel. It should hold a clean line and not run back across itself.",
+      "tip": "Let the caramel cool the full two hours before piping. Piping it warm melts the shell you have just cast.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": "Build notes — items flagged, not filled (assessor guide): Quantities not in the source recipes. Several quantities in the workbook were supplied during earlier builds rather than taken from the chef’s original cards — the praline sugar, water, hazelnut spread, crushed wafers and toasted hazelnuts in MVC1848, the pinch of sea salt in MVC1850, and the 250 gms fillings in MVC1853. Model answers and worked keys avoid relying on those figures, but they still need chef confirmation before issue."
+    },
+    {
+      "number": 7,
+      "name": "Coffee liqueur fondant filling",
+      "code": "MVC1851",
+      "group": "Filling",
+      "baseMethod": "Moulded",
+      "yield": "20",
+      "portionSize": "10ml",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Filling │ Moulded │ Liqueurs │ Flavoured fondant",
+      "ingredients": [
+        { "component": "", "ingredient": "Caster sugar", "qty": "200", "unit": "gms" },
+        { "component": "", "ingredient": "Water", "qty": "60", "unit": "ml" },
+        { "component": "", "ingredient": "Liquid glucose", "qty": "15", "unit": "ml" },
+        { "component": "", "ingredient": "Unsalted butter", "qty": "25", "unit": "gms" },
+        { "component": "", "ingredient": "Coffee espresso", "qty": "1", "unit": "tbsp" },
+        { "component": "", "ingredient": "Irish cream liqueur", "qty": "1", "unit": "tbsp" }
+      ],
+      "method": [
+        "Heat the sugar, water and liquid glucose in a heavy-based saucepan over a medium heat and stir until the sugar has dissolved.",
+        "Insert a sugar thermometer and bring the mixture to the boil. Reduce the heat and simmer until it reaches 121°C.",
+        "Remove the pan from the heat and add the butter, coffee shot and Irish cream flavouring. Stir well.",
+        "Transfer the mixture to a freestanding food mixer with a paddle attachment and beat on a medium speed until the mixture thickens slightly and turns opaque.",
+        "Once the fondant mixture has cooled and slightly thickened but still runny, place it into a piping bag."
+      ],
+      "test": "Taste the filling once cool. The liqueur should be present without any harsh alcohol note.",
+      "tip": "Cool the syrup to 30 °C before adding the liqueur. Adding it hot drives off the alcohol and the flavour with it.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": null
+    },
+    {
+      "number": 8,
+      "name": "Strawberry filling, flavoured fondant",
+      "code": "MVC1852",
+      "group": "Filling",
+      "baseMethod": "Moulded",
+      "yield": "20",
+      "portionSize": "10ml",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Filling │ Moulded │ Flavoured fondant",
+      "ingredients": [
+        { "component": "", "ingredient": "Caster sugar", "qty": "200", "unit": "gms" },
+        { "component": "", "ingredient": "Water", "qty": "60", "unit": "ml" },
+        { "component": "", "ingredient": "Liquid glucose", "qty": "15", "unit": "ml" },
+        { "component": "", "ingredient": "Unsalted butter", "qty": "25", "unit": "gms" },
+        { "component": "", "ingredient": "Strawberry essence", "qty": "10", "unit": "ml" },
+        { "component": "", "ingredient": "Freeze dried strawberry powder", "qty": "1", "unit": "tbsp" },
+        { "component": "", "ingredient": "Natural food colour red", "qty": "2", "unit": "drops" }
+      ],
+      "method": [
+        "Heat the sugar, water and liquid glucose in a heavy-based saucepan over a medium heat and stir until the sugar has dissolved.",
+        "Insert a sugar thermometer and bring the mixture to the boil. Reduce the heat and simmer until it reaches 121°C.",
+        "Remove the pan from the heat and add the butter, essence, natural food colouring, and strawberry powder. Stir well.",
+        "Transfer the mixture to a freestanding food mixer with a paddle attachment and beat on a medium speed until the mixture thickens slightly and turns opaque.",
+        "Once the fondant mixture has cooled and slightly thickened but still runny, place it into a piping bag."
+      ],
+      "test": "Press the fondant with a finger. It should take the mark and hold it without sticking to your skin.",
+      "tip": "Work the fondant at the temperature the recipe specifies. Overheating makes it grainy and it cannot be recovered.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": null
+    },
+    {
+      "number": 9,
+      "name": "Filled chocolates",
+      "code": "MVC1853",
+      "group": "Technique",
+      "baseMethod": "Moulded",
+      "yield": "24",
+      "portionSize": "20g",
+      "prepTime": "1 hr",
+      "cookTime": "1 hr",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Technique │ Moulded │ Shell method",
+      "ingredients": [
+        { "component": "", "ingredient": "Tempered couverture appropriate to the product: milk for caramel bonbons, dark for coffee liqueur bonbons, white for strawberry fondant bonbons", "qty": "500", "unit": "gms" },
+        { "component": "", "ingredient": "Fondant filling", "qty": "250", "unit": "gms" },
+        { "component": "", "ingredient": "Liqueur filling", "qty": "250", "unit": "gms" },
+        { "component": "", "ingredient": "Caramel filling", "qty": "250", "unit": "gms" }
+      ],
+      "method": [
+        "Place about half of your chocolate into a small pan over a very low heat and heat the chocolate until it reaches a temperature of 45ºC",
+        "Decant the melted chocolate into a bowl and add a piece of the un-melted. Stir the chocolate in until it has melted",
+        "Keep adding pieces of the un-melted chocolate until the temperature has been reduced to the working temperature for the couverture you are using — see the tempered white, milk and dark couverture recipes",
+        "Ensure your mould have been prepared correctly. Pour the melted chocolate into the mould. Fill each of the shapes you’re using to the top.",
+        "Once filled, tip the mould upside down over the bowl you stirred the chocolate in and tip out any excess",
+        "Once the excess has tipped out have a quick check for any holes in the shells. If there are any holes, then add in a little extra chocolate and tip again to remove any excess",
+        "Use a flexible palette knife to scrape any excess chocolate from the top of the mould",
+        "Put the mould into the fridge for at least half an hour to set",
+        "Scrape any leftover chocolate from the bowl back into the pan you used to melt the chocolate originally."
+      ],
+      "test": "Turn one filled mould over. Nothing should move, and the seal should be flush with the mould face.",
+      "tip": "Fill to 3 mm below the rim. Overfilling leaves no room for the seal and the chocolate will leak when de-moulded.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": "Build notes — items flagged, not filled (assessor guide): Recipe 9 melting temperature. The Filled chocolates card heats couverture to 45 degrees C, while the three tempering cards and the MVC tempering standard melt to close to 40 degrees C. Observation 4 is benchmarked against the 40 degrees C standard. The card and the standard need to be reconciled. || Quantities not in the source recipes. Several quantities in the workbook were supplied during earlier builds rather than taken from the chef’s original cards — the praline sugar, water, hazelnut spread, crushed wafers and toasted hazelnuts in MVC1848, the pinch of sea salt in MVC1850, and the 250 gms fillings in MVC1853. Model answers and worked keys avoid relying on those figures, but they still need chef confirmation before issue."
+    },
+    {
+      "number": 10,
+      "name": "Raspberry jelly",
+      "code": "MVC1854",
+      "group": "Component",
+      "baseMethod": "Component recipe",
+      "yield": "20",
+      "portionSize": "10g",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Component │ Jellies │ Fruits",
+      "ingredients": [
+        { "component": "", "ingredient": "Raspberry puree", "qty": "250", "unit": "gms" },
+        { "component": "", "ingredient": "Agar agar", "qty": "2.5", "unit": "gms" },
+        { "component": "", "ingredient": "Sugar", "qty": "112", "unit": "gms" }
+      ],
+      "method": [
+        "In a small pot bring puree agar and sugar to boil.",
+        "Then allow to cool and refrigerate.",
+        "Put in a food processor and blitz until creamy.",
+        "Pass it through a drum sieve and transfer to a piping bag."
+      ],
+      "test": "Press the set jelly. It should feel firm and spring back, with a clean cut edge and no weeping.",
+      "tip": "Give the jelly the full four hours to set. Cutting it early tears the edge and the squares will not enrobe evenly.",
+      "storage": [
+        "Refrigerate the set jelly at 1–4 °C, covered, until cut",
+        "Label with production date",
+        "Bring to 18–20 °C before coating."
+      ],
+      "presentationStandard": "Clear, evenly set jelly with a clean cut edge and no syneresis.",
+      "assessorNotes": null
+    },
+    {
+      "number": 11,
+      "name": "Passionfruit milk chocolate ganache",
+      "code": "MVC1855",
+      "group": "Filling",
+      "baseMethod": "Cut or dressed",
+      "yield": "20",
+      "portionSize": "10g",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Filling │ Cut or dressed │ Ganache │ Fruits",
+      "ingredients": [
+        { "component": "", "ingredient": "Cream", "qty": "75", "unit": "gms" },
+        { "component": "", "ingredient": "Glucose", "qty": "25", "unit": "gms" },
+        { "component": "", "ingredient": "Milk chocolate", "qty": "182.5", "unit": "gms" },
+        { "component": "", "ingredient": "Butter", "qty": "20", "unit": "gms" },
+        { "component": "", "ingredient": "Passion puree", "qty": "27.5", "unit": "gms" }
+      ],
+      "method": [
+        "Bring cream, glucose and passion puree to a boil.",
+        "Place chocolate into a bowl pour hot mixture over and whisk until smooth.",
+        "Cool to 35 C and add butter.",
+        "Using a hand blender blend till smooth"
+      ],
+      "test": "Check the ganache is smooth and glossy with no separation before you set it to crystallise.",
+      "tip": "Pour the hot liquid over the chocolate and wait before stirring. Stirring too early splits the emulsion.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": null
+    },
+    {
+      "number": 12,
+      "name": "Almond croquant",
+      "code": "MVC1856",
+      "group": "Filling",
+      "baseMethod": "Cut or dressed",
+      "yield": "20",
+      "portionSize": "5g",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Filling │ Cut or dressed │ Croquant │ Nuts",
+      "ingredients": [
+        { "component": "", "ingredient": "blanched almonds", "qty": "37.5", "unit": "gms" },
+        { "component": "", "ingredient": "sugar", "qty": "69", "unit": "gms" },
+        { "component": "", "ingredient": "butter", "qty": "7.5", "unit": "gms" },
+        { "component": "", "ingredient": "vanilla", "qty": "2.5", "unit": "gms" }
+      ],
+      "method": [
+        "Melt the sugar in a saucepan until it has turned into a golden caramel.",
+        "Add the butter and vanilla extract and stir until the butter has melted.",
+        "Add the chopped almonds and stir until everything is well blended.",
+        "Spread out onto baking paper and leave to cool until set.",
+        "Crush in to pieces as desired."
+      ],
+      "test": "Snap a piece of the cooled croquant. It should break cleanly, not bend.",
+      "tip": "Pour the caramel out just before it reaches the colour you want. It keeps darkening on the tray.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": null
+    },
+    {
+      "number": 13,
+      "name": "Chocolate dipped nougat",
+      "code": "MVC801",
+      "group": "Hard centre",
+      "baseMethod": "Cut or dressed",
+      "yield": "20",
+      "portionSize": "30g",
+      "prepTime": "",
+      "cookTime": "",
+      "competencyFocus": "Use cookery methods for centres and fillings to achieve full flavoured, interesting and natural characteristics. Manipulate ingredients at correct temperature to achieve the correct viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Hard centre │ Cut or dressed │ Nougat │ Nuts │ Fruits",
+      "ingredients": [
+        { "component": "", "ingredient": "Caster sugar", "qty": "262.5", "unit": "gms" },
+        { "component": "", "ingredient": "Glucose", "qty": "112.5", "unit": "gms" },
+        { "component": "", "ingredient": "water", "qty": "175", "unit": "gms" },
+        { "component": "", "ingredient": "honey", "qty": "100", "unit": "gms" },
+        { "component": "", "ingredient": "egg whites", "qty": "30", "unit": "gms" },
+        { "component": "", "ingredient": "icing sugar", "qty": "30", "unit": "gms" },
+        { "component": "", "ingredient": "pistachio (lightly toasted)", "qty": "75", "unit": "gms" },
+        { "component": "", "ingredient": "dried cranberry", "qty": "75", "unit": "gms" },
+        { "component": "", "ingredient": "Tempered dark chocolate", "qty": "200", "unit": "gms" }
+      ],
+      "method": [
+        "Preheat oven to 140°C. Line the base and sides of a baking tray with baking paper.",
+        "Place caster sugar, glucose, 175ml water and honey in a saucepan over medium heat and heat until 2-3°C below 142°C then remove from heat (the temperature will continue to rise).",
+        "Meanwhile, place egg whites and icing sugar in stand mixer fitted with the whisk attachment and whisk until combined and glossy. Place pistachios on tray in oven to keep warm.",
+        "Once sugar mixture reaches 142°C, slowly pour into egg white mixture, whisking until a thick, glossy meringue.",
+        "When meringue is ready, add warm pistachios and cranberries, and fold in gently until just combined (do not over-mix or meringue will become a powdery consistency).",
+        "Using an oiled metal spatula or large spoon, transfer the meringue to prepared tray and smooth as flat as possible and set aside at room temperature for at least 4 hours.",
+        "Gently slice with a serrated knife.",
+        "Store, in an airtight container, at room temperature.",
+        "Temper dark chocolate and dip nougat in it."
+      ],
+      "test": "Cut one baton. The nougat should hold its shape and the coating should not crack away from the centre.",
+      "tip": "Bring the cut batons to 18–20 °C before dipping. Cold centres chill the couverture on contact and the coating dulls.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": null
+    },
+    {
+      "number": 14,
+      "name": "Raspberry jelly square",
+      "code": "MVC1857",
+      "group": "Soft centre",
+      "baseMethod": "Enrobing",
+      "yield": "6",
+      "portionSize": "12g",
+      "prepTime": "30 mins",
+      "cookTime": "10 mins",
+      "competencyFocus": "Coat centres using methods to achieve an even and appropriate thickness with a uniform quality finish. Decorate chocolates according to standard recipes, using designs suited to the product.",
+      "evidenceTags": "Evidence tags: Soft centre │ Enrobing │ Jellies │ Fruits",
+      "ingredients": [
+        { "component": "", "ingredient": "Raspberry jelly (prepared to workbook recipe)", "qty": "120", "unit": "gms" },
+        { "component": "", "ingredient": "Dark couverture 70% (enrobing)", "qty": "180", "unit": "gms" },
+        { "component": "", "ingredient": "Caster sugar (dusting)", "qty": "6", "unit": "gms" },
+        { "component": "", "ingredient": "Transfer sheet", "qty": "1", "unit": "sheet" }
+      ],
+      "method": [
+        "Prepare the raspberry jelly to the workbook recipe. Pour into a frame to a depth of 10 mm. Set for 4 hours at 18–20 °C until firm enough to cut cleanly.",
+        "Cut into 25 mm squares using a guitar cutter or an oiled knife. Dust the cut faces lightly and arrange the squares on the enrobing belt at 18–20 °C.",
+        "Temper the dark couverture to a working temperature of 31–32 °C. Pass the squares through the enrober and vibrate to remove excess couverture.",
+        "Apply the transfer sheet while the couverture is still wet. Set at 14–16 °C for 20 minutes, then peel the transfer sheet away.",
+        "Store at 16–18 °C and 50–60% relative humidity.",
+        "Note: the enrober requires a minimum working bath of approximately 500 g. Couverture not taken up by the product is returned to the tempering machine and is not counted as waste."
+      ],
+      "test": "Check the enrobed square releases from the belt cleanly with an even coating on all faces.",
+      "tip": "Apply the transfer sheet while the couverture is still wet. Once it starts to set the pattern will not take.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": null
+    },
+    {
+      "number": 15,
+      "name": "Orange liqueur hollow sphere",
+      "code": "MVC1858",
+      "group": "Filling",
+      "baseMethod": "Prepared hollow shells",
+      "yield": "6",
+      "portionSize": "10g",
+      "prepTime": "25 mins",
+      "cookTime": "10 mins",
+      "competencyFocus": "Insert fillings to a level surface and allow space for seal. Seal with a layer of chocolate of appropriate thickness. Manipulate ingredients at correct temperature to achieve desired viscosity and consistency.",
+      "evidenceTags": "Evidence tags: Filling │ Prepared hollow shells │ Liqueurs",
+      "ingredients": [
+        { "component": "", "ingredient": "Dark chocolate hollow spheres, 25 mm", "qty": "6", "unit": "each" },
+        { "component": "", "ingredient": "Caster sugar", "qty": "60", "unit": "gms" },
+        { "component": "", "ingredient": "Water", "qty": "18", "unit": "ml" },
+        { "component": "", "ingredient": "Orange liqueur", "qty": "18", "unit": "ml" },
+        { "component": "", "ingredient": "Orange zest", "qty": "0.5", "unit": "each" },
+        { "component": "", "ingredient": "Dark couverture 70% (sealing and filigree)", "qty": "60", "unit": "gms" }
+      ],
+      "method": [
+        "Boil the caster sugar and water to 108 °C to form a syrup. Cool the syrup to 30 °C before adding alcohol, so the liqueur does not flash off.",
+        "Stir in the orange liqueur and zest. Do not reheat after adding.",
+        "Fill each hollow sphere to 3 mm below the opening, leaving space for the seal. Rest for 2 hours at 18 °C so a light sugar crust forms on the surface of the filling.",
+        "Temper the dark couverture to a working temperature of 31–32 °C. Seal the base of each sphere and scrape flush with a palette knife.",
+        "Set at 16 °C, then pipe filigree decoration with the remaining tempered couverture.",
+        "Store at 16–18 °C. Label with a four-week best-before date because of the alcohol content.",
+        "Note: syrup batches below 200 g are difficult to boil accurately. Scale up and reserve the balance for the next production run if a larger batch is practical."
+      ],
+      "test": "Turn a sealed sphere over and check the base is flush and holds the filling.",
+      "tip": "Rest the filled spheres two hours before sealing, so a light sugar crust forms and the seal does not sink into the syrup.",
+      "storage": [
+        "Store finished chocolates at 16–18 °C and 50–60% relative humidity, sealed, away from light and strong odours",
+        "Refrigerate cream-based fillings and components at 1–4 °C, covered and labelled with production date and use-by",
+        "Rotate stock first-in first-out."
+      ],
+      "presentationStandard": "Consistent size and shape, even coating thickness, glossy surface with a clean snap, no fingerprints, bloom or air bubbles.",
+      "assessorNotes": null
+    }
+  ],
+  "extractionNotes": [
+    "Source of record for the cards is the learner workbook (SAMPLE_RecipeWorkbook.txt). The assessor guide (SAMPLE_AG_RW.txt) mirrors all fifteen cards word for word and carries NO per-card benchmark, model answer or assessor panel — consistent with the house standard note 'No per-card assessor content'. Where assessorNotes is populated it is taken verbatim from the guide's closing 'Build notes — items flagged, not filled' section, which names specific cards. '||' separates two distinct build notes within one assessorNotes value.",
+    "Assessor-guide model answers and worked keys that reference MVC1856, MVC1854 and MVC1850 belong to Theory Question 1, Theory Question 2 and the Case Study, not to the recipe cards, and have deliberately not been attached to those cards (they are in the front-matter agent's scope).",
+    "Both source files are flattened single-line text dumps with no line breaks. Header table values, ingredient rows, Test / Tip / Presentation standard lines and storage bullets are unambiguous. METHOD STEP BOUNDARIES WERE INFERRED from sentence structure and the house card anatomy — no wording was added, removed or altered, but the split points between steps are a reconstruction.",
+    "Label stripping: the leading labels 'Test: ', 'Tip: ' and 'Presentation standard: ' have been removed from the stored values so a renderer can re-apply them. The 'Evidence tags:' line is stored in full, including its │ (U+2502) separators, as instructed.",
+    "Label artefact worth checking against the Word original: cards 1, 2, 3, 6, 7 and 8 show NO literal 'Test:' label before the test sentence in the text dump, whereas cards 4, 5 and 9 to 15 do. The test text itself is present on every card and has been captured.",
+    "Cards 1 to 3 carry the source recipe's trailing 'Test:', 'Tip:' and 'To hold:' paragraphs INSIDE the method block, before the card's own Test and Tip lines. These have been kept as method steps 4, 5 and 6 and were not moved into the test/tip fields. These three cards therefore have 6 method steps, outside the house 3-to-5 range.",
+    "GARBLED: card 3 (MVC1847) method step 6 is truncated in the source — it ends '...or in a chocolate temper' with no following word. Cards 1 and 2 read '...or in a chocolate temper machine/warmer.' at the same point. Reproduced as found, not completed.",
+    "Card 4 (MVC1848) is the only card that groups ingredients: ALMOND ROCHER (5 rows) and HAZELNUT PRALINE (7 rows), captured in the component field. Its method also carries the sub-headings 'Almond Rocher' and 'Hazelnut Praline', retained in position as method entries, plus two trailing 'Note:' paragraphs, also retained as method entries. Card 4 therefore has 22 method entries.",
+    "Cards 14 and 15 each end their method with a trailing 'Note:' paragraph, retained as the final method step.",
+    "Time-field labels are not uniform in the source: cards 5 and 9 print 'Prep:' / 'Cook:'; cards 14 and 15 print 'Preparation:' / 'Cooking:'. Only the values are stored. Eleven cards (1, 2, 3, 4, 6, 7, 8, 10, 11, 12, 13) print 'Preparation: Cooking:' with no values and are stored as empty strings — this matches the assessor guide build note 'Eleven of the fifteen recipe cards carry empty Preparation and Cooking fields.'",
+    "Cards 1 to 3 print an em dash '—' in the Yield and Portion size cells rather than leaving them blank; reproduced as the em dash, not as an empty string.",
+    "Character fidelity preserved as printed: card 9 method step 1 uses '45ºC' with a masculine ordinal indicator (º, U+00BA), not a degree sign; card 13 method step 2 uses '2-3°C' with a plain hyphen; cards 7 and 8 use '121°C' with no space; card 11 uses '35 C' with no degree sign; the card 4 banner uses a plain hyphen in 'Rocher, Mendiant - Fruit and Nut' (the house standard table shows an en dash).",
+    "Source typos and run-together words reproduced unchanged: 'and80gm' (card 5, step 2), 'addingin' (card 6, step 5), 'Crush in to pieces as desired.' (card 12, step 5), 'marzipan filling.Prepare' with no space in the card 5 competency focus, 'Ensure your mould have been prepared correctly' (card 9, step 4), 'whisk rapid' (card 6, step 5).",
+    "Assessor-guide build notes that apply across cards rather than to one card, recorded here rather than per card: (a) 'Blank preparation and cooking times. Eleven of the fifteen recipe cards carry empty Preparation and Cooking fields. Observation 1 asks the learner to state the total time from the recipe card, which cannot be judged where the card is blank. Times need to be supplied by the chef.' (b) 'Presentation standard wording. Twelve of the fifteen cards share a generic presentation standard describing a coated chocolate, which does not fit the filling, ganache and jelly component cards. Observation 8 is benchmarked against the organisation's presentation standard rather than that wording.'",
+    "Totals for verification: 15 cards, 72 ingredient rows, 107 method entries (including card 4's two sub-headings and the four trailing 'Note:' paragraphs on cards 4, 14 and 15), 11 cards with both Preparation and Cooking blank, and 6 cards carrying assessor notes (cards 1, 2, 3, 4, 6 and 9); the other 9 cards have assessorNotes null."
+  ]
+}

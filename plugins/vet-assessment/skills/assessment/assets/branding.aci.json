@@ -1,0 +1,185 @@
+{
+  "_comment": "Adelaide Culinary Institute and Adelaide Construction Institute. RTO DECISION, 26 August 2026: EVERYTHING IS AS MVC EXCEPT THE LOGO AND THE COLOURS - and the logo and the colours differ between the two variants. Structure, cover sheet, policy, day counts, typography, margins, table width, pagination and every house rule are MVC's, and ACI builds from MVC's approved templates. Only the identity, the logo and the palette are ACI's. Measured from the RTO's own artefacts in D:\\BT Templates on 26 August 2026; the record is assets/ACI_HOUSE_STANDARD.md.",
+
+  "brand": "ACI",
+
+  "rto": {
+    "_comment": "ONE registered entity trading under TWO names. The variant decides which trading name prints; every other registration fact is shared.",
+    "shortName": "ACI",
+    "legalEntity": "Bush Tukka Pty Ltd",
+    "rtoCode": "45797",
+    "cricosCode": "03978F",
+    "phone": "08 7001 6745",
+    "_phoneComment": "RTO DECISION, 26 August 2026: ONE phone number for both ACI trading names. 08 7001 6745 is the value the templates PRINT and the value used. The docProps PhoneNumber property on both templates says 0401741018 - recorded because the RTO artefact disagrees with itself, but the question is settled and this is no longer an open item.",
+    "address": "Level 10 West, 50 Grenfell Street, Adelaide SA 5000",
+    "_addressComment": "The culinary cover sheet prints 'Level 10, 50 Grenfell Street' without WEST, where the document property and every other artefact say 'Level 10 West'. Source defect; the fuller form is used.",
+    "accreditationBody": "ASQA",
+    "_codeFormatComment": "rtoCode and cricosCode are stored UNPREFIXED, matching branding.mvc.json, so the footer text supplies the words. The RTO's own docProps store them PREFIXED - 'RTO 45797' and 'CRICOS 03978F'. Set-DocControl writes the prefixed form to docProps. Do not carry either convention across brands."
+  },
+
+  "palette": {
+    "_comment": "THE LOCKED ACI PALETTE - ONE palette for BOTH trading names. Stated identically and verbatim across the RTO's own culinary AND construction prompt sets in D:\\BT Templates: navy 2A364E for headings, banners and table header rows; blue 2490CC for photo placeholder borders, secondary emphasis and the ASSESSMENT wordmark; orange F09018 for bullet glyphs, the competency box left rule and the tagline; slate 7A8699 for muted text and the footer; light grey F4F6F8 for panel fills and tinted label cells; CCCCCC for all table borders.\n\nCORRECTION, 27 August 2026. This file previously carried a warm CORAL palette for the culinary variant, sampled from the culinary logo. That was wrong, and it was wrong in the exact way the RTO's own culinary prompt warns against: 'The ACI Culinary logo reads warm orange, but the structural chrome - banners, table header rows, headings - is ACI Navy 2A364E. Orange is an accent only.' A sweep of every ACI artefact returns ZERO occurrences of any coral hex and 25 of 2A364E in the culinary folder alone. The palette is not a variant property. Sample the approved documents, never the logo.",
+    "dark": "2A364E",
+    "accent": "2490CC",
+    "rule": "F09018",
+    "grey": "7A8699",
+    "lightFill": "F4F6F8",
+    "border": "CCCCCC",
+    "placeholder": "999999",
+    "modelAnswer": "E43C30",
+    "assessorFill": "FFF2CC",
+    "assessorText": "9C6500",
+    "_contrast": {
+      "2A364E": "12.1:1 vs white - passes AAA for white bold text on banners and header rows, no darkening needed",
+      "2490CC": "3.54:1 - ACCENT ONLY. Never put white text on it.",
+      "F09018": "2.44:1 - bullet glyph, rule and tagline only, never a text background",
+      "E43C30": "ACI's own locked red for model answers. Shared with MVC, so it is NOT a crossover token for either brand."
+    },
+    "_notUsedInThisDocumentType": {
+      "_comment": "Part of the wider ACI palette, named by the RTO as NOT used in assessment documents. Do not introduce them.",
+      "3CC0D8": "teal", "189C48": "green", "84549C": "purple"
+    },
+    "_bannedValues": {
+      "_comment": "Named in the RTO's own construction prompts as superseded. Never introduce them.",
+      "1F3864": "older navy", "2E75B6": "older blue", "DDEBF7": "older light blue"
+    }
+  },
+
+  "variants": {
+    "_comment": "THE ONLY THINGS THAT DIFFER BETWEEN THE TWO ACI TRADING NAMES: the trading name, the tagline, the website, the LOGO and the PALETTE. The EMAIL AND PHONE ARE SHARED - RTO decision, 26 August 2026, one mailbox and one number for all of ACI, both the culinary address. Resolved at Stage 1 from the unit training package. SIT -> culinary. CPC -> construction. A BSB unit takes the variant of the qualification it is built for; where that is not obvious, ASK. Never guess a trading name.",
+    "default": "culinary",
+
+    "culinary": {
+      "tradingName": "Adelaide Culinary Institute",
+      "tagline": "LEARN. COOK. SUCCEED.",
+      "email": "info@culinaryadelaide.sa.edu.au",
+      "website": "www.culinaryadelaide.sa.edu.au",
+      "_websiteComment": "The culinary assessment template prints the literal placeholder '[insert Adelaide Culinary Institute website]'. The real address is carried by the Recipe Workbook prompt and template. Source defect in the assessment template; the real value is used.",
+      "trainingPackages": ["SIT"],
+      "_packageComment": "Cookery, hospitality, patisserie and catering.",
+
+      "logo": {
+        "path": "assets/logos/ACI_Culinary_Logo.png",
+        "pixels": "2794x791",
+        "aspectRatio": 3.53,
+        "widthCm": 5.2,
+        "_comment": "Extracted from the RTO's own culinary assessment template, word/media/image1.png. Transparent PNG. At 5.2 cm wide it renders about 1.47 cm tall. Never stretch or recolour it."
+      }
+    },
+
+    "construction": {
+      "tradingName": "Adelaide Construction Institute",
+      "tagline": "TRAIN. BUILD. SUCCEED.",
+      "email": "info@culinaryadelaide.sa.edu.au",
+      "_emailComment": "RTO DECISION, 26 August 2026: ONE email for both ACI trading names, and it is the culinary address. This is not a fallback - it is what the RTO chose, and it matches what both templates already carry in docProps AdminEmail. Do not derive a constructionadelaide address; there is not one. This closes what was previously logged as source defect 3 in ACI_HOUSE_STANDARD.md.",
+      "website": "www.constructionadelaide.sa.edu.au",
+      "trainingPackages": ["CPC"],
+      "_packageComment": "Construction, plumbing and building.",
+
+      "logo": {
+        "path": "assets/logos/ACI_Construction_Logo.png",
+        "pixels": "1600x650",
+        "aspectRatio": 2.46,
+        "widthCm": 5.2,
+        "_comment": "Extracted from the RTO's own construction assessment template, word/media/image1.png. Transparent PNG. At 5.2 cm wide it renders about 2.11 cm tall - TALLER than the culinary mark at the same width, because the aspect ratios differ. Never stretch or recolour it."
+      }
+    }
+  },
+
+  "templates": {
+    "_comment": "ACI BUILDS FROM MVC'S APPROVED TEMPLATES. RTO decision, 26 August 2026: everything except the logo and the colours is as MVC. This also settles a structural problem - the RTO's own ACI templates carry ONE sectPr, so Split-TemplateAtBody -Kind uat throws on them, while MVC's carry three and seam correctly. The logo and the palette are swapped in at build time from the resolved variant.",
+    "uat": "assets/templates/MVC_Assessment_Template_Combined_PE_KE_v2.2.docx",
+    "recipeWorkbook": "assets/templates/MVC_Recipe_Workbook_Template.docx",
+    "seam": "sectPr",
+    "swapLogo": true,
+    "swapPalette": true,
+    "_swapComment": "The MVC templates carry the MVC mark at word/media/ and MVC navy throughout. BOTH must be replaced for an ACI build or the document ships MVC-branded. The brand-crossover sweep catches the palette; it cannot see the logo, which is why swapLogo is explicit."
+  },
+
+  "policy": {
+    "_comment": "AS MVC, and independently confirmed against the RTO's own ACI templates, which print the same figures. This SUPERSEDES the earlier ACI branding file, which set every value to null on the basis that timeframes were referenced to the Student Handbook - the artefacts print them.",
+    "lateSubmissionDays": 14,
+    "resultsWithinDays": 14,
+    "appealWorkingDays": 20,
+    "theoryResitFee": 150,
+    "practicalResitFee": 200,
+    "maximumAttempts": 3,
+    "studentIdLabel": "Student ACI ID:",
+    "_studentIdComment": "The one cover-sheet label that is NOT as MVC. Both ACI templates print 'Student ACI ID:' where MVC prints 'Student MVC ID:'. The label carries the brand acronym, so it follows the brand.",
+    "dueDateLabel": "Due Date:",
+    "includeOnlineSubmissionCheckbox": true,
+    "includeGapsParagraph": false,
+    "includeLearnerDeclaration": true,
+    "includeAssessorDeclaration": false
+  },
+
+  "typography": {
+    "_comment": "AS MVC, including the 11 pt accessibility floor. The RTO's own ACI templates run docDefaults at 21 half-points (10.5 pt), below the floor MVC adopted on 21 August 2026. Building from MVC's templates carries 22 half-points, which meets it. A deliberate lift, recorded - ACI_HOUSE_STANDARD.md defect 8.",
+    "bodyFont": "Arial",
+    "bodySizePt": 11,
+    "recipeBodySizePt": 10,
+    "tableSizePt": 10,
+    "tightTableSizePt": 9,
+    "placeholderSizePt": 9,
+    "coverSheetProsePt": 8.5,
+    "coverSheetHeadingPt": 9.5,
+    "footerSizePt": 8,
+    "bodyLineSpacing": 1.5,
+    "listLineSpacing": 1.15
+  },
+
+  "page": {
+    "_comment": "AS MVC. The RTO's own ACI templates use a different right margin per variant - 991 dxa culinary, 849 construction - and a 9026 table width. Building from MVC's templates carries MVC's 1134 margins and 9638 table width instead, which is the point of the everything-as-MVC decision.",
+    "size": "A4",
+    "orientation": "portrait",
+    "marginsCm": { "top": 2.54, "bottom": 2.54, "left": 2.0, "right": 2.0 },
+    "contentWidthDxa": 9638,
+    "uatContentWidthDxa": 9638
+  },
+
+  "docControl": {
+    "_comment": "AS MVC in format. The review interval and the doc-number series are ACI's own, measured from the RTO's templates and confirmed in its prompts.",
+    "footerFormat": "Doc #: {cmsDocNumber}   RTO {RTOnumber}   CRICOS {CRICOSnumber}   Revision: {cmsRevision}   Approved Date: {cmsApprovedDate}   Next Review: {cmsNextReviewDate}   Page {PAGE} of {NUMPAGES}",
+    "docLocation": "NovaCore\\DMS\\Adelaide Culinary Institute\\Unit development\\",
+    "_docLocationComment": "The RTO's own culinary template points cmsDocLocation into the CONSTRUCTION tree (ACI_HOUSE_STANDARD.md source defect 6). Reproducing that in generated documents put the wrong trading entity in every package's metadata - flagged N1 by the 28 August 2026 re-audit. Corrected to the culinary tree for generated documents; the source defect on the RTO's template itself is still reported.",
+    "reviewIntervalMonths": 24,
+    "_reviewComment": "24 months. Measured on both templates and stated in the prompts as 'Next Review: [DD Mon YYYY +24 months]'. MVC's is 12.",
+    "approvedBy": "RTOADM",
+    "_docNumberSeries": "The 42xx series. Culinary assessment template 4223, construction 4137, culinary learner guide 4229, recipe workbook 4275. Increment for each unit and reset Revision to 1.0 for a first release. Do not reuse a template's number on a built document."
+  },
+
+  "recipeUnits": {
+    "_comment": "ACI INITIAL-CAPS recipe units where MVC writes them lower case. Stated twice in the RTO's own material: 'Grams are written Gms, never g, G or gms.' This is the single divergence most likely to cross over, which is why 'gms' lower case is on the forbidden-token list below.",
+    "normalised": ["Gms", "Ml", "Each", "Tbsp", "Tsp", "Drops", "Pinch", "Sheet"],
+    "gramsToken": "Gms"
+  },
+
+  "forbiddenTokens": {
+    "_comment": "Drives the brand-crossover sweep in house-style.md section G. None of these may appear in the rendered text, the header image or the footer fields of an ACI document. See branding.mvc.json for the mode definitions. Because ACI builds from MVC's templates, this sweep is the primary guard that the logo and palette swap actually happened. NOTE: E43C30 is deliberately ABSENT - it is the model-answer red for BOTH brands and is not a crossover.",
+    "tokens": [
+      { "token": "MVC", "mode": "word-cs", "note": "the other brand acronym" },
+      { "token": "gms", "mode": "word-cs", "note": "MVC writes gms lower case; ACI initial-caps to Gms" },
+      { "token": "Meridian Vocational", "mode": "substring-ci" },
+      { "token": "Meridienne", "mode": "substring-ci", "note": "MVC's scenario-world venue name" },
+      { "token": "Golden Wattle", "mode": "substring-ci", "note": "the other brand's legal entity" },
+      { "token": "mvc.edu.au", "mode": "substring-ci" },
+      { "token": "45039", "mode": "word-ci", "note": "the other brand RTO code" },
+      { "token": "03551M", "mode": "word-ci", "note": "the other brand CRICOS code" },
+      { "token": "234B8C", "mode": "word-ci", "note": "MVC navy - if this survives, the palette swap did not run" },
+      { "token": "2F60B4", "mode": "word-ci", "note": "MVC blue" },
+      { "token": "F09C0C", "mode": "word-ci", "note": "MVC orange" },
+      { "token": "F0F2F7", "mode": "word-ci", "note": "MVC light fill" },
+      { "token": "C9CFDD", "mode": "word-ci", "note": "MVC border" },
+      { "token": "F5C800", "mode": "word-ci", "note": "MVC logo yellow" },
+      { "token": "E45418", "mode": "word-ci", "note": "MVC logo deep orange" },
+      { "token": "1F3864", "mode": "word-ci", "note": "superseded ACI navy, banned by the RTO's own prompts" },
+      { "token": "2E75B6", "mode": "word-ci", "note": "superseded ACI blue" },
+      { "token": "DDEBF7", "mode": "word-ci", "note": "superseded ACI light blue" },
+      { "token": "INNOVATION", "mode": "word-cs", "note": "a word from MVC's tagline" },
+    { "token": "Level 2 West", "mode": "substring-ci", "note": "MVC's street address - ACI is Level 10 West. Printed on an ACI title page on 27 August 2026 because the identity swap did not carry the address." },
+    { "token": "0432 421 482", "mode": "substring-ci", "note": "MVC's phone number - ACI is 08 7001 6745." }
+    ]
+  },
+
+  "jurisdiction": "South Australia"
+}

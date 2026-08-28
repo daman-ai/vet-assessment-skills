@@ -1,0 +1,1005 @@
+{
+  "tasks": [
+    {
+      "number": 1,
+      "heading": "Task 1 — Culinary terms and common trade names",
+      "mapsTo": "Knowledge Evidence — culinary terms and common trade names for ingredients used to produce chocolate confectionery, and for the individual chocolates prepared.",
+      "wordGuide": "Word guide: Name plus 20–35 words in each writing cell.",
+      "scenarioHeading": "Scenario",
+      "scenario": "You are a new commis chocolatier at La Meridienne Patisserie, Rundle Street, Adelaide. The head chocolatier uses trade terms on the production board and expects you to use them.",
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "Explain what each ingredient is and how you use it in chocolate work. Give an accepted culinary or trade synonym. You may add an Australian brand example, but it is not required. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Ingredient term", "What it is and how it is used in chocolate work", "Accepted trade name or synonym"],
+            "items": ["Couverture", "Cocoa butter", "Praliné", "Gianduja", "Fondant", "Invert sugar"]
+          },
+          "modelAnswer": "Couverture | Pure coating chocolate, cocoa butter at least 31%~~Fluid enough to cast thin shells, enrobe and dip~~Must be tempered before use | Coating chocolate or pure chocolate~~Sold as callets, pistoles or buttons\nCocoa butter | Natural fat pressed from the cocoa bean~~Carries flavour and sets hard on cooling~~Crystallises during tempering~~Added in small amounts to thin couverture | Cacao butter~~Tinted form sold as coloured cocoa butter\nPraliné | Paste of caramelised nuts, usually almonds or hazelnuts~~Ground smooth or left textured~~Used as a filling in its own right~~Folded through ganache or blended with couverture | Praline paste or nut praline~~French pralines, not Belgian praline\nGianduja | Soft blend of couverture, ground roasted hazelnuts and sugar~~Softens at body temperature~~Piped as a centre, or cut and dipped rather than moulded thin | Gianduia~~Hazelnut chocolate paste\nFondant | Cooked sugar syrup boiled to about 116-121 degrees C~~Agitated so it crystallises to a white opaque paste~~Warmed and flavoured for soft, sweet bonbon centres | Sugar fondant~~Poured fondant\nInvert sugar | Syrup of sucrose split into glucose and fructose~~Holds moisture and softens texture~~Slows crystallisation~~Keeps ganache and fondant centres smooth for longer | Trimoline or invert syrup~~Glucose syrup and honey give the same effect",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q1",
+            "satisfactory": [
+              "All twelve (a) cells complete, each term defined by what it is and its use in chocolate work.",
+              "An accepted trade name or synonym given for every term in (a).",
+              "All sixteen (b) cells complete, with the correct culinary or trade name for each of the eight descriptions.",
+              "Every applicable Appendix A product identified, with the centre, coating and finish that distinguishes it.",
+              "Where a description matches more than one Appendix A product, all matching products are listed."
+            ],
+            "minimumAcceptable": [
+              "Eleven of twelve (a) cells correct.",
+              "Couverture, praline and fondant in (a) all correct.",
+              "Fourteen of sixteen (b) cells correct.",
+              "Moulded-shell description in (b) lists at least two of A3, A4 and A5."
+            ],
+            "criticalErrors": [
+              "Couverture defined only as chocolate, with no cocoa butter content or coating use.",
+              "Praline in (a) confused with the Belgian moulded praline.",
+              "Fewer than six of the eight (b) descriptions matched to an Appendix A product.",
+              "A product named that does not appear in Appendix A.",
+              "Answers copied word for word from the learner resource."
+            ],
+            "exampleCommentSatisfactory": "Defined all six terms accurately with correct trade names, and matched all eight descriptions to the right Appendix A products, listing A3, A4 and A5 for the moulded shell. Meets the Knowledge Evidence for culinary terms and trade names - S.",
+            "exampleCommentNotSatisfactory": "Terms were defined loosely and praline described as a filled Belgian shell, not a nut paste. Three (b) descriptions matched no Appendix A product. Re-attempt: define each term by what it is and how it is used, and name every matching Appendix A product - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "Read each description of an individual chocolate. Identify its accepted culinary or trade name. Explain the centre, coating method and finish that distinguish it. Name every Appendix A product that matches the description. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Description", "Culinary or trade name", "Appendix A product(s), and the centre, coating and finish that distinguish each one"],
+            "items": [
+              "A thin couverture shell cast in a polished mould, filled with a soft centre and sealed with a base layer of tempered couverture.",
+              "A cluster of roasted nuts and dried fruit bound in tempered couverture, hand coated and left with a deliberately rough surface.",
+              "A soft almond paste centre rolled by hand into a ball and coated in couverture.",
+              "A set fruit jelly slab cut into squares and passed on a belt through a curtain of tempered couverture, then finished with a patterned film.",
+              "A pre-formed hollow shell filled with a spirit-based syrup and sealed at the base.",
+              "A crystallised ganache cut to shape, hand dipped in couverture and marked with a dipping fork.",
+              "An aerated nougat containing nuts and glacé fruit, cut into batons and hand dipped in couverture.",
+              "A caramelised nut and sugar centre cut to shape, hand dipped and lightly dusted."
+            ]
+          },
+          "modelAnswer": "Thin couverture shell cast in a polished mould~~Filled with a soft centre~~Sealed with a base layer of tempered couverture | Moulded praline~~Belgian praline (bonbon moule) | A3 caramel bonbon: caramel centre, milk couverture, coloured cocoa butter~~A4 coffee liqueur bonbon: coffee liqueur fondant, dark couverture, piped line~~A5 strawberry fondant bonbon: flavoured fondant, white couverture, coloured cocoa butter\nCluster of roasted nuts and dried fruit in tempered couverture~~Hand coated~~Deliberately rough surface | Rocher~~Mendiant | A1 rocher / mendiant~~Hard fruit and nut cluster centre, dark couverture~~Rough surface with fruit and nut set on top\nSoft almond paste centre~~Rolled by hand into a ball~~Coated in couverture | Marzipan centre~~Hand-coated marzipan ball | A2 chocolate heaven bliss ball~~Soft marzipan centre, dark couverture~~Hand-rolled finish\nSet fruit jelly slab cut into squares~~Passed on a belt through a curtain of tempered couverture~~Finished with a patterned film | Pate de fruit square~~Enrobed jelly | A9 raspberry jelly square~~Soft raspberry jelly centre, dark couverture~~Applied by enrober, transfer sheet finish\nPre-formed hollow shell~~Filled with a spirit-based syrup~~Sealed at the base | Liqueur chocolate~~Made from prepared hollow shells | A10 orange liqueur hollow sphere~~Orange liqueur syrup filling, dark couverture shell~~Piped filigree finish\nCrystallised ganache cut to shape~~Hand dipped in couverture~~Marked with a dipping fork | Ganache~~Cut ganache (palet) | A6 passionfruit ganache chocolate~~Passionfruit milk chocolate ganache filling, milk couverture~~Hand dipped with fork marking\nAerated nougat with nuts and glacé fruit~~Cut into batons~~Hand dipped in couverture | Nougat~~Torrone~~Nougat de Montelimar | A8 chocolate dipped nougat~~Hard nougat centre, dark couverture~~Hand dipped, smooth dipped finish\nCaramelised nut and sugar centre cut to shape~~Hand dipped~~Lightly dusted | Croquant~~Nut brittle centre | A7 almond croquant~~Almond croquant filling, dark couverture~~Hand dipped, dusted finish",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "heading": "Task 2 — Date codes, rotation labels and ingredient quality",
+      "mapsTo": "Knowledge Evidence — contents of date codes and rotation labels for stock (primary); indicators of freshness and quality of stocked ingredients for chocolates.",
+      "wordGuide": "Word guide: (a) 120 words · (b) 25–35 words per cell · (c) 100 words.",
+      "scenarioHeading": "Scenario",
+      "scenario": "It is Monday morning at La Meridienne Patisserie, Rundle Street, Adelaide. A delivery has arrived for the week's chocolate production: dark couverture callets, fresh cream, hazelnut kernels, glacé orange and unsalted butter.\nYou check the delivery in and put it away.",
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "State what information a date code and a stock rotation label carry. Explain how you use both when receiving this delivery and issuing stock to production.",
+          "responseType": "box",
+          "modelAnswer": "Date code is the manufacturer's shelf-life marking: a use-by or a best-before date.\nUse-by: unsafe after that date. Best-before: quality falls but food may still be safe.\nPrinted with a batch or lot number, so product traces back to its production run.\nRotation label is applied by the kitchen, not the manufacturer.\nRecords product name, date received or opened, use-by date, and the labeller's initials.\nOn receipt: check every date code before signing; reject short-dated or out-of-date stock.\nLabel each item, put newest stock behind oldest, and record couverture batch numbers.",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q2",
+            "satisfactory": [
+              "(a) date code carries a use-by or best-before date plus a batch or lot number.",
+              "(a) rotation label carries product, date received or opened, use-by date and labeller's initials.",
+              "(a) explains use of both on receipt and in storage, including first-in-first-out.",
+              "(b) all ten cells give genuine sensory or physical indicators for the ingredient named.",
+              "(b) every cell gives a defensible action on failure.",
+              "(c) links date coding and rotation to the food safety program.",
+              "(c) names the Food Act 2001 (SA), Standard 3.2.2, and SA Health or the council environmental health officer."
+            ],
+            "minimumAcceptable": [
+              "(a) distinguishes use-by from best-before.",
+              "(a) names at least three fields on a rotation label.",
+              "(b) eight of ten cells correct.",
+              "(b) at least one indicator and one action for each of cream and nuts.",
+              "(c) names the Food Act 2001 (SA) and the regulator, with one clear link to food safety."
+            ],
+            "criticalErrors": [
+              "Use-by and best-before treated as the same thing.",
+              "Cream or butter accepted without a temperature check.",
+              "A failed high-risk ingredient used anyway, downgraded or sorted.",
+              "No SA legislation, or a non-SA regulator, named in (c).",
+              "Stock rotation described as newest first."
+            ],
+            "exampleCommentSatisfactory": "Correctly separated use-by from best-before, listed the rotation label fields, and gave sound indicators and rejection actions for all five ingredients, including the 5 degrees C check on cream and butter. Named the Food Act 2001 (SA), Standard 3.2.2 and SA Health - S.",
+            "exampleCommentNotSatisfactory": "Part (b) accepted cream on appearance alone with no temperature check, and part (c) named no legislation or regulator. Re-attempt: state the receipt temperature required for dairy and what you do if it fails, and name the SA Act, Standard and regulator - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "For each ingredient, state the freshness and quality indicators you check. State what you do if an ingredient fails the check. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Ingredient", "Indicators of freshness and quality you check", "What you do if it fails the check"],
+            "items": ["Dark couverture callets", "Fresh cream", "Hazelnut kernels", "Glacé orange", "Unsalted butter"]
+          },
+          "modelAnswer": "Dark couverture callets | Bag sealed and undamaged, within date and batch recorded~~Callets loose and free-flowing, not clumped~~Even dark colour, no grey or white bloom~~Clean cocoa aroma, no rancid or musty smell | Reject at the door and record on the goods-inward record~~If already accepted, quarantine and label Do not use~~Report to the head chocolatier for supplier credit\nFresh cream | Delivered at 5 degrees C or below~~Use-by date not passed, carton and seal intact~~Pours freely, no thickening, lumps or separation~~Clean sweet dairy smell, no sour note | Reject the delivery~~Discard and record the reason if a temperature breach is found later~~Never use in ganache; cream is the highest-risk ingredient\nHazelnut kernels | Kernels whole and dry, no shrivelling, pale even colour~~Snap when broken~~Fresh nutty smell, no paint-like or rancid odour~~No insect damage, webbing or mould, and within date | Reject or quarantine and label it~~Rancid nuts cannot be corrected by roasting~~Fault would carry into the croquant and rocher\nGlacé orange | Pieces glossy, plump and pliable, even colour~~Not hard, dried out or sugar-crusted~~Clean citrus aroma, no mould, fermentation smell or syrup leakage~~Packaging sealed and within date | Reject or quarantine and report it~~Mould or fermentation means the sugar concentration has failed~~Discard the whole pack rather than sorting it\nUnsalted butter | Delivered at 5 degrees C or below, wrapper intact~~Even pale colour, no darkened or translucent edges~~Firm and cool to the touch~~Clean sweet creamy smell, no cheesy or rancid note | Reject on temperature or smell~~Butter picks up odours easily~~Discard tainted butter rather than using it~~Report the fault to the supplier",
+          "benchmark": null
+        },
+        {
+          "label": "c",
+          "text": "Explain how date coding and stock rotation support the patisserie's food safety program. Identify your obligations under the Food Act 2001 (SA) and Standard 3.2.2 of the Food Standards Code.",
+          "responseType": "box",
+          "modelAnswer": "Date coding and rotation are the practical controls that keep the food safety program working.\nHigh-risk ingredients such as cream and butter are used within their validated shelf life.\nOldest stock moves first, so nothing is held past its date.\nEvery batch traces back to a supplier if a problem is found.\nRequirements come from the Food Act 2001 (SA) and the Food Standards Code.\nStandard 3.2.2 Food Safety Practices and General Requirements applies.\nRequires all practicable measures to use only safe and suitable food, and receipt records kept.\nRegulator is SA Health; day-to-day inspection by the local council's environmental health officers.",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "heading": "Task 3 — Processes for producing different types of chocolates",
+      "mapsTo": "Knowledge Evidence — processes for producing different types of chocolates: cut or dressed; hand coated; enrobing; made with prepared hollow shells; moulded.",
+      "wordGuide": "Word guide: 40–55 words for the method column; product code and short reason only in the last column.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "Explain how you carry out each process below to produce individual chocolates. Name one Appendix A product made by that process. Give a short reason why the process suits it. Complete the table.",
+      "parts": [
+        {
+          "label": "",
+          "text": "",
+          "responseType": "table",
+          "table": {
+            "headers": ["Process", "How the process is carried out", "Appendix A product and why the process suits it"],
+            "items": ["Cut or dressed", "Hand coated", "Enrobing", "Made with prepared hollow shells", "Moulded"]
+          },
+          "modelAnswer": "Cut or dressed | Firm centre such as ganache, croquant or nougat set in a frame~~Cut to uniform size with a guitar or knife~~Hand dipped in tempered couverture~~Marked before it sets | A7 almond croquant~~Croquant sets hard enough to slab and cut~~Cutting gives uniform pieces~~Dipped coat seals the sugar against moisture\nHand coated | Centres rolled or shaped by hand~~Small quantity of tempered couverture worked over by gloved hand~~Coat follows the shape rather than pooling | A2 chocolate heaven bliss ball~~Soft marzipan ball would deform in an enrober~~Gives the deliberately rough, hand-rolled look\nEnrobing | Cut centres placed on the enrober belt~~Passed under a curtain of tempered couverture~~Blower and vibrating table level the coat~~Cooling tunnel sets the coat | A9 raspberry jelly square~~Squares uniform and flat, so the belt coats them evenly~~Faster by machine for the Friday order volume\nMade with prepared hollow shells | Ready-made hollow shells warmed slightly~~Filled through the opening with a liquid or soft filling~~Allowed to crust~~Sealed with tempered couverture and finished | A10 orange liqueur hollow sphere~~Liquid liqueur syrup would leak from a shell cast in-house~~Pre-formed shell holds the filling\nMoulded | Polished moulds filled with tempered couverture~~Vibrated and inverted to leave a thin shell~~Chilled, filled and allowed to crust~~Capped with tempered couverture and demoulded | A3 caramel bonbon~~High gloss and sharp cast shape the boxed range needs~~Sealed shell contains the soft caramel",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q3",
+            "satisfactory": [
+              "All five processes explained as they are actually carried out.",
+              "Distinguishing step named: cutting a set slab; hand working the coat; the belt and curtain.",
+              "Distinguishing step named: filling and sealing a ready-made shell; casting, inverting and capping.",
+              "Each process matched to an Appendix A product that Appendix A shows using it.",
+              "Each match carries a reason drawn from the centre or the volume."
+            ],
+            "minimumAcceptable": [
+              "Four of five processes correctly explained and correctly matched.",
+              "Enrobing and moulded are both right.",
+              "Each match carries a reason, not a bare product code."
+            ],
+            "criticalErrors": [
+              "Enrobing described as hand dipping.",
+              "Moulding described without inverting or draining the mould.",
+              "A product matched to a process Appendix A does not show for it.",
+              "A product named that is not in Appendix A.",
+              "A match given with no reason."
+            ],
+            "exampleCommentSatisfactory": "Explained all five processes with the distinguishing steps and matched each to the correct Appendix A product with a sound reason, for example A9 to enrobing on uniform flat squares and run volume. Meets the Knowledge Evidence for production processes - S.",
+            "exampleCommentNotSatisfactory": "Enrobing and hand dipping were described as the same process, and three products were matched without a reason. Re-attempt: explain what the enrober does that the hand does not, and give a reason for each product match - NS."
+          }
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "heading": "Task 4 — Historical and cultural origins of chocolates",
+      "mapsTo": "Knowledge Evidence — historical and cultural origins of a variety of chocolates.",
+      "wordGuide": "Word guide: (a) 25–40 words per cell · (b) 100 words.",
+      "scenarioHeading": "Scenario",
+      "scenario": "La Meridienne Patisserie, Rundle Street, Adelaide is releasing the Appendix A range as a boxed selection for the winter season. Each box carries a card describing where each chocolate comes from.\nResearch four chocolate styles from the La Meridienne range and the wider European chocolate tradition.",
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "Describe the historical and cultural origins of each chocolate style. Explain how those origins still show in the product made today. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Chocolate style", "Historical and cultural origins", "How the origin shows in the product made today"],
+            "items": ["Truffle (French truffe)", "Belgian praline (moulded filled shell)", "Gianduja", "Torrone or nougat confectionery"]
+          },
+          "modelAnswer": "Truffle (French truffe) | Developed in France in the late nineteenth century~~Cream and chocolate ganache rolled and dusted in cocoa powder~~Made to resemble the black perigord truffle dug from the ground~~Took its name from that truffle | Irregular rolled shape~~Cocoa or dusted finish rather than a cast, glossy shell~~Short shelf life from the fresh cream centre\nBelgian praline (moulded filled shell) | Created in Brussels in 1912 by Jean Neuhaus II~~Cast shell held a soft filling that could not be sold alone~~Belgium built its chocolate industry on the moulded filled shell | Cast shell with a thin even wall~~High gloss from moulding~~Sealed base~~Wide range of soft fillings a shell makes possible\nGianduja | Created in Turin during the Napoleonic blockade~~Early nineteenth century, when cocoa was scarce and expensive~~Piedmont hazelnuts ground in to extend the chocolate | High proportion of hazelnut to cocoa~~Soft melting texture~~Ingot or block shape associated with Piedmont\nTorrone or nougat confectionery | Cremona and Montelimar traditions of aerated honey and egg-white confectionery~~Made with nuts~~Made for feast days and Christmas~~Found across Italy, Spain and southern France | Aerated white centre with whole nuts and glace fruit~~Honey sweetness~~Seasonal place in a boxed winter range",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q4",
+            "satisfactory": [
+              "(a) all eight cells completed with a genuine historical or cultural origin for each style.",
+              "(a) French truffle named for the fungus; Belgian moulded praline from Neuhaus in Brussels.",
+              "(a) gianduja from Turin under the Napoleonic blockade.",
+              "(a) torrone or nougat from the Italian, Spanish and southern French feast-day tradition.",
+              "(a) each origin linked clearly to a feature of the product made today.",
+              "(b) explains at least two uses of that knowledge for customers and front-of-house staff."
+            ],
+            "minimumAcceptable": [
+              "Three of the four origins substantially correct.",
+              "Each carries a plausible link to the product made today.",
+              "(b) gives two genuine reasons the knowledge is useful in the shop."
+            ],
+            "criticalErrors": [
+              "Origins invented or attributed to the wrong country.",
+              "The Belgian praline confused with French praline nut paste.",
+              "(a) completed with product descriptions only and no history.",
+              "(b) answered under the stated word guide with a single generic reason."
+            ],
+            "exampleCommentSatisfactory": "Gave accurate origins for all four styles, including Neuhaus in Brussels in 1912 and the Piedmont hazelnut substitution, and linked each to a feature of the product today. Part (b) covered customer description and allergen honesty - S.",
+            "exampleCommentNotSatisfactory": "Gianduja was attributed to Belgium and the truffle origin was not given. Part (b) said only that it is interesting for customers. Re-attempt: research each style's country and period of origin, and give two specific ways the knowledge helps you describe the range - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "Explain how knowing these origins helps you describe the range to customers and front-of-house staff.",
+          "responseType": "box",
+          "modelAnswer": "Lets me describe the range accurately at the counter and gives front-of-house the same script.\nExplains why the products look and behave differently.\nTruffle is rolled and dusted because it imitates a dug truffle.\nBelgian praline is glossy and cast because Neuhaus invented the shell to hold a filling.\nHelps a customer choose: the story signals texture, sweetness and shelf life, not just heritage.\nSupports honest selling: gianduja's hazelnut content matters for a nut allergy.\nLets me say which products are best eaten fresh rather than kept.",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "heading": "Task 5 — Mise en place and production sequencing",
+      "mapsTo": "Knowledge Evidence — mise en place requirements for producing chocolate confectionery.",
+      "wordGuide": "Word guide: (a) 150 words · (b) 150 words.",
+      "scenarioHeading": "Scenario — Friday function order",
+      "scenario": "Friday afternoon service needs 72 individual chocolates: 24 almond croquant (A7), 24 raspberry jelly squares (A9) and 24 caramel bonbons (A3). Use the production data in Appendix B.\nThe raspberry jelly sets for four hours before cutting. The caramel cools for two hours before piping. Only one tempering machine, one enrobing machine and one set of polished bonbon moulds are available.\nYou prepare on Thursday and produce on Friday morning.",
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "Explain the mise en place you complete on Thursday before production begins. Cover ingredients, equipment, moulds, the work area and the environmental conditions of the room.",
+          "responseType": "box",
+          "modelAnswer": "Read the three standard recipes, scale each to 24 pieces, and check stock and dates.\nWeigh and pre-portion the dry ingredients; refrigerate cream and butter until needed.\nClean, dry and switch on the tempering machine to stabilise.\nStrip, clean, sanitise, dry and reassemble the enrober with guards fitted.\nCheck the polished bonbon moulds, polish with cotton wool, bring to room temperature.\nMake the jelly (four-hour set) and the caramel (two-hour cool) on Thursday.\nSet up separate nut and nut-free benches with colour-coded utensils; label every container.\nConfirm transfer sheets, dipping forks, gloves and the probe thermometer are on hand.",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q5",
+            "satisfactory": [
+              "(a) covers ingredients, equipment and work area in a logical order for Thursday.",
+              "(a) scales the three recipes, checks stock and dates, and pre-weighs.",
+              "(a) cleans and prepares the tempering machine, the enrober and the polished moulds.",
+              "(a) sets up separate nut and nut-free bench areas.",
+              "(b) sequences Thursday and Friday around the four-hour jelly set and the two-hour caramel cool.",
+              "(b) respects the single tempering machine, enrober and mould set, and finishes before the 2 pm collection."
+            ],
+            "minimumAcceptable": [
+              "(a) covers ingredients, equipment and work area with at least two specific actions each.",
+              "(b) makes the jelly and caramel on Thursday for their setting times.",
+              "(b) Friday order never puts two products on the tempering machine at once."
+            ],
+            "criticalErrors": [
+              "A sequence that ignores the four-hour jelly set or the two-hour caramel cool.",
+              "Two products scheduled on the single tempering machine or enrober simultaneously.",
+              "The nut product run before nut-free work with no clean-down.",
+              "No mention of the moulds in the mise en place.",
+              "Production finishing after the 2 pm collection."
+            ],
+            "exampleCommentSatisfactory": "Mise en place covered ingredients, equipment and the nut and nut-free bench separation. The sequence placed the jelly and caramel on Thursday for their setting times and staged the Friday tempering machine changeover. Realistic against the 2 pm deadline - S.",
+            "exampleCommentNotSatisfactory": "The plan made the raspberry jelly on Friday morning despite its four-hour set, and ran the croquant before the nut-free work with no clean-down. Re-attempt: build the sequence from the setting times and the single tempering machine, and place the nut product last - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "Sequence the stages of production across Thursday and Friday morning. Justify your order using the setting times and the equipment constraint above.",
+          "responseType": "box",
+          "modelAnswer": "Sequence is driven by setting times and the single tempering machine, enrober and mould set.\nThursday: raspberry jelly first for its four-hour set, then caramel for its two-hour cool.\nThursday: almond croquant slab made last and left to firm overnight.\nFriday: temper milk couverture, cast and chill the bonbon shells in the polished moulds.\nPipe the cooled caramel, crust, cap and de-mould.\nWhile the shells set, cut the jelly and the croquant to size.\nChange the machine to dark couverture; enrobe the jelly squares and apply transfer sheets.\nHand dip the croquant last, as the nut product, so no nut-free clean-down follows.\nDecorate, box and cold store, finished and held before the 2 pm collection.",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "heading": "Task 6 — Safe operational practices for equipment",
+      "mapsTo": "Knowledge Evidence — safe operational practices using essential functions and features of equipment used to produce chocolate confectionery.",
+      "wordGuide": "Word guide: 30–45 words in each writing cell.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "For each item of equipment below, identify its essential functions and features. Explain the safe and hygienic practices you follow when using it. Complete the table.",
+      "parts": [
+        {
+          "label": "",
+          "text": "",
+          "responseType": "table",
+          "table": {
+            "headers": ["Equipment", "Essential functions and features", "Safe and hygienic operating practice"],
+            "items": ["Tempering machine", "Enrobing machine", "Microwave oven", "Marble slab or bench", "Stove top and saucepan (water jacket)", "Digital probe thermometer"]
+          },
+          "modelAnswer": "Tempering machine | Heats, holds and cools couverture through a controlled cycle~~Thermostat, stirring auger or wheel, and heated bowl~~Holds large volumes in temper at a set working temperature | Follow the manufacturer instructions for the cycle~~Keep hands, cloths and utensils clear of the auger~~Never add water or wet tools; isolate at the switch before dismantling~~Strip, clean, sanitise and dry the bowl and auger after use\nEnrobing machine | Carries centres on a belt under a curtain of tempered couverture~~Pump feeds the curtain and a blower removes excess~~Vibrating table levels the coat~~Cooling tunnel sets it | Guards fitted before starting~~Never reach into the belt, curtain or tunnel while running~~Isolate and lock out before clearing a blockage~~Strip, wash, sanitise and dry the belt and pan after the run\nMicrowave oven | Heats couverture quickly by agitating water and fat molecules~~Turntable and variable power settings~~Melts small quantities in short bursts | Short bursts at low or medium power, stirring between them~~Bowl heats unevenly and couverture scorches easily~~Use microwave-safe dry bowls and dry cloths to lift them~~Clean and sanitise the cavity after use\nMarble slab or bench | Cool, flat, non-porous slab with high thermal mass~~Draws heat out of couverture quickly and evenly~~Stable surface for tabling, cutting and cooling | Sanitise and dry the slab before use, and keep it clear of clutter~~Carry and set down cutting tools away from the working edge~~Never use it as a chopping surface~~Clean and sanitise between products, especially nut and nut-free work\nStove top and saucepan (water jacket) | Saucepan of hot water under a bowl gives indirect, gentle heat~~Variable burner controls the water temperature~~Couverture never in direct contact with the heat | Keep the water below simmering, never boiling into the bowl~~A drop of water will seize the couverture~~Lift with a dry cloth, turning the bowl away from you~~Turn pot handles inwards and switch the burner off before removing the bowl\nDigital probe thermometer | Measures couverture and filling temperature to about 0.1 degrees C~~Stainless probe with digital display~~Allows melting and working temperatures to be controlled | Clean and sanitise the probe with an alcohol wipe before and between products~~Calibrate against iced water and record it~~Never leave the probe in the bowl or on the bench~~Store it in its sleeve",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q6",
+            "satisfactory": [
+              "All twelve cells completed.",
+              "Functions named are the ones that matter in chocolate work, not generic descriptions.",
+              "Tempering machine thermostat and auger; enrober curtain, blower, vibrating table and cooling tunnel.",
+              "Microwave variable power and turntable; slab thermal mass; water jacket indirect heat; probe accuracy.",
+              "Safe operating practice gives a genuine control drawn from manufacturer instructions, not a generic statement."
+            ],
+            "minimumAcceptable": [
+              "Ten of twelve cells correct.",
+              "Enrober entry names guarding, or isolation before clearing a blockage.",
+              "Water jacket entry names the risk of water reaching the couverture."
+            ],
+            "criticalErrors": [
+              "Hands in a running enrober or tempering machine.",
+              "No isolation or lock-out before dismantling.",
+              "A microwave used at full power in a single long burst.",
+              "Water or wet tools described as acceptable in the couverture.",
+              "Safe practice column filled with be careful or follow instructions and nothing more."
+            ],
+            "exampleCommentSatisfactory": "Identified the working functions of all six items and gave specific safety and hygiene practices: isolating the enrober before clearing it, keeping the water jacket below simmering, and sanitising the probe between products. Meets the Knowledge Evidence for safe operational practices - S.",
+            "exampleCommentNotSatisfactory": "The enrober entry did not mention guarding or isolation, and three safe practice cells said only to follow the manufacturer instructions. Re-attempt: name the specific control for each item, including how you make the machine safe before you reach into it - NS."
+          }
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "heading": "Task 7 — Protecting polished chocolate moulds",
+      "mapsTo": "Knowledge Evidence — protect polished chocolate moulds from contamination and damage, including ensuring that the polished surface is clean, polished and free of dust or residue; untouched by bare fingers; untouched by objects that may dull, scratch or damage it.",
+      "wordGuide": "Word guide: (a) 30–45 words per cell · (b) 120 words.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "For each requirement of the polished mould surface, explain why it matters to the finished chocolate. Explain how you achieve and maintain it. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Requirement of the polished surface", "Why it matters to the finished chocolate", "How you achieve and maintain it"],
+            "items": ["Clean, polished and free of dust or residue", "Untouched by bare fingers", "Untouched by objects that may dull, scratch or damage it"]
+          },
+          "modelAnswer": "Clean, polished and free of dust or residue | Dust, residue or fat film stops full contact with the mould~~Finished chocolate comes out dull, patchy or marked~~Loses the mirror gloss the moulded face needs | Polish each cavity with cotton wool or a lint-free cloth before every run~~Check under a good light~~Wash only when necessary in warm water, leaving no detergent film~~Dry fully before polishing\nUntouched by bare fingers | Skin leaves a fatty fingerprint that shows as a dull mark~~Bare hands are also a food safety risk~~Mould is in direct contact with ready-to-eat food | Wear food-safe gloves~~Handle moulds by the edges and the frame only~~Change gloves after handling anything else~~Never rest fingers in a cavity when carrying a mould\nUntouched by objects that may dull, scratch or damage it | A scratch or a dulled patch is permanent~~Reproduced on every chocolate cast in that cavity~~Loses gloss and can stop the piece releasing cleanly | Keep metal scrapers, knives, abrasive pads and scourers off the cavities~~Scrape the mould face only with a plastic or nylon scraper~~Stack moulds face to back with a liner between them",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q7",
+            "satisfactory": [
+              "(a) all six cells completed.",
+              "(a) each requirement justified by loss of gloss, marks reproduced on every cast, or failure to release.",
+              "(a) each requirement paired with a practical method of achieving and maintaining it.",
+              "(b) cleaning with a plastic scraper, washing only when needed, drying fully.",
+              "(b) polishing cavity by cavity.",
+              "(b) storing interleaved in a dry area at steady temperature, away from heat and metal tools."
+            ],
+            "minimumAcceptable": [
+              "Five of six cells in (a) correct.",
+              "(a) a correct reason given for the bare-fingers requirement.",
+              "(b) covers polishing, dry storage and protection from scratching."
+            ],
+            "criticalErrors": [
+              "Moulds washed with detergent and scoured, or dried with abrasive cloth.",
+              "Metal scrapers or knives described as acceptable on the cavity face.",
+              "Bare-hand handling accepted.",
+              "A scratch described as removable by polishing.",
+              "No reference to gloss or release in the reasons."
+            ],
+            "exampleCommentSatisfactory": "Explained why each requirement matters in terms of gloss, permanent marking and release, and described handling by the edges with food-safe gloves. Storage answer covered plastic scrapers, full drying, cavity polishing and interleaved dry storage - S.",
+            "exampleCommentNotSatisfactory": "The answer said scratches can be polished out and described scouring the moulds. Re-attempt: explain that a scratch is permanent and is reproduced on every chocolate cast in that cavity, and state what may and may not touch the polished face - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "At La Meridienne Patisserie, Rundle Street, Adelaide, explain how you handle and store the polished bonbon moulds between production runs. Show how this prevents contamination and damage.",
+          "responseType": "box",
+          "modelAnswer": "Scrape clean with a plastic scraper between runs and check under a good light.\nWash only if there is a residue that will not lift.\nUse warm water without detergent, or the detergent the manufacturer specifies.\nRinse thoroughly and dry completely: a detergent film or water spot shows on the next cast.\nPolish cavity by cavity with cotton wool.\nStore face up or interleaved on a dedicated dry-store shelf, away from the oven and wash-up.\nHold at steady room temperature so the moulds do not sweat when brought out.\nNever stack bare, never store with metal tools on top, never near heat that warps polycarbonate.",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "heading": "Task 8 — Seed crystals and tempering methods",
+      "mapsTo": "Knowledge Evidence — tempering methods for couverture: controlling the formation of seed crystals; tabling method; use of heated water jackets; use of microwave; vaccination or addition method.",
+      "wordGuide": "Word guide: (a) 120 words · (b) 45–60 words per cell.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "Explain what seed crystals are in couverture. Explain how controlling their formation produces correctly tempered chocolate.",
+          "responseType": "box",
+          "modelAnswer": "Cocoa butter can set in several different crystal forms.\nOnly the beta or form V crystal gives gloss, a clean snap and reliable release.\nSeed crystals are small stable beta crystals already present in the couverture.\nThey act as a template the rest of the cocoa butter builds on as it solidifies.\nMelt to close to 40 degrees C, which destroys all crystal forms.\nCool so crystals form again, then bring back to the working temperature.\nUnstable forms melt out and only the stable beta seed remains.\nToo little seed sets soft, dull and streaky; too much thickens and is hard to work.",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q8",
+            "satisfactory": [
+              "(a) cocoa butter sets in several crystal forms; only the stable beta form gives gloss, snap and release.",
+              "(a) seed crystals are stable beta crystals acting as a template.",
+              "(a) melt to close to 40 degrees C to destroy all crystal forms.",
+              "(a) cool to form crystals, then hold at the working temperature so unstable forms melt out.",
+              "(a) consequences of too little and too much seed are given.",
+              "(b) all eight cells completed, with a workable method for each of the four methods.",
+              "(b) a genuine advantage and a genuine limitation for each method."
+            ],
+            "minimumAcceptable": [
+              "(a) names the stable beta or form V crystal.",
+              "(a) explains seeding as a template.",
+              "(a) gives the melt and working stages.",
+              "(b) six of eight cells correct.",
+              "(b) vaccination method described as seed reserved from the batch."
+            ],
+            "criticalErrors": [
+              "Tempering described only as heating and cooling, with no reference to crystal form.",
+              "Seed described as an additive bought separately rather than couverture already in temper.",
+              "Vaccination method described as adding seed on top of the total weight.",
+              "A limitation given that is not a limitation, such as needs chocolate."
+            ],
+            "exampleCommentSatisfactory": "Explained crystal forms and the role of stable beta seed accurately, including what happens with too little or too much seed, and gave a workable method with a real advantage and limitation for all four tempering methods - S.",
+            "exampleCommentNotSatisfactory": "Part (a) described tempering as melting and cooling without explaining crystal formation, and the microwave and water jacket entries gave the same advantage twice. Re-attempt: explain what seed crystals do, and give a limitation specific to each method - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "For each tempering method, explain how you carry it out. Give one advantage and one limitation of using it at La Meridienne Patisserie, Rundle Street, Adelaide. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Tempering method", "How you carry it out (steps and equipment)", "One advantage and one limitation"],
+            "items": ["Tabling method", "Use of heated water jackets", "Use of microwave", "Vaccination or addition method"]
+          },
+          "modelAnswer": "Tabling method | Melt to close to 40 degrees C~~Pour about two thirds onto a clean, dry, sanitised marble slab~~Work with palette knife and scraper until it thickens and cools~~Return to the remaining warm couverture and adjust to working temperature | Advantage: cools quickly, with direct feel and control of the mass~~Limitation: needs a marble slab, space and skill, and is messy~~Limitation: impractical for large volumes or a warm kitchen\nUse of heated water jackets | Set a bowl over a saucepan of hot, not boiling, water~~Melt the couverture to close to 40 degrees C~~Remove the bowl and dry its base~~Cool with stirring, over cool water if needed, to working temperature | Advantage: gentle, even heat using equipment every kitchen has~~Limitation: steam or a drop of water will seize the couverture~~Limitation: holding temperature steady on a long run needs constant attention\nUse of microwave | Heat about three quarters in a microwave-safe bowl~~Use 20 second bursts, stirring after each~~Stop when nearly melted and close to 40 degrees C~~Stir in the reserved quarter until melted and at working temperature | Advantage: fast and clean for small batches, no water near the bowl~~Limitation: heats unevenly and scorches white and milk couverture~~Limitation: unsuitable for production run volumes\nVaccination or addition method | Melt the bulk of the couverture to close to 40 degrees C~~Stir in seed couverture reserved from the same total weight~~Use callets or finely chopped couverture as the seed~~Stir until all dissolved and at working temperature | Advantage: simple and reliable, and needs no slab~~Advantage: seed comes from the batch, so nothing is wasted~~Limitation: seed must already be in temper, and dissolving takes time~~Limitation: undissolved callets leave lumps",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "heading": "Task 9 — Temperatures for melting and tempering, and production calculations",
+      "mapsTo": "Knowledge Evidence — appropriate temperatures to melt and temper couverture (primary). Foundation skills — numeracy skills to determine tempering times and temperatures.",
+      "wordGuide": "Word guide: (a) temperatures from Appendix B plus 40–60 words of explanation · (b) show all working · (c) 120 words.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "Using Appendix B, record the melting temperature and the working temperature for each couverture. Explain what happens to the cocoa butter crystals as you melt the couverture and cool it to its working temperature. Explain why each couverture works at a different temperature from the other two. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Couverture", "Melting temperature (°C)", "Working temperature (°C)", "What happens to the cocoa butter crystals, and why this couverture works at that temperature"],
+            "items": ["Dark couverture", "Milk couverture", "White couverture"]
+          },
+          "modelAnswer": "Dark couverture | Heat to close to 40 | 32 | Melting to close to 40 degrees C removes every crystal form~~Cooling to 32 degrees C forms stable beta crystals~~Unstable crystals melt out at that temperature~~Highest working temperature: no milk fat to soften the set\nMilk couverture | Heat to close to 40 | 31 | Worked one degree cooler than dark couverture~~Milk fat lowers the melting point of the mass~~At 32 degrees C too few stable crystals survive to seed the set\nWhite couverture | Heat to close to 40 | 30 | Most milk solids and milk fat, and no cocoa liquor~~Softest mass and the most heat sensitive~~Worked at 30 degrees C~~Scorches if melted much above 40 degrees C",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q9",
+            "satisfactory": [
+              "(a) all nine cells completed from Appendix B.",
+              "(a) melt close to 40 degrees C for all three; working temperatures 32 dark, 31 milk, 30 white.",
+              "(a) difference tied to milk fat and milk solids lowering the melting point of the mass.",
+              "(b) every line of working shown and every answer correct.",
+              "(b) conversion factor 2.4; total milk couverture 1,440 g; caramel filling 600 g.",
+              "(b) seed 360 g; couverture melted 1,080 g; cooling time 6 minutes.",
+              "(c) reheat if still fluid at or above 27 degrees C; re-temper if set or thickened.",
+              "(c) includes a test before casting."
+            ],
+            "minimumAcceptable": [
+              "(a) all three working temperatures correct, with one sound explanation.",
+              "(b) all six answers correct.",
+              "(b) working shown for at least the conversion factor, the seed and the cooling time.",
+              "(c) a set or thickened batch must be remelted to close to 40 degrees C and re-tempered."
+            ],
+            "criticalErrors": [
+              "Any incorrect final value in (b).",
+              "Seed added on top of 1,440 g to give 1,800 g rather than reserved from it.",
+              "Working temperatures swapped between couvertures.",
+              "Cooling time calculated from a temperature other than 40 degrees C to 31 degrees C.",
+              "(c) advising that out-of-temper couverture can simply be warmed and used."
+            ],
+            "workedKey": "Worked key - Q9 (b).\nConversion factor: 96 / 40 = 2.4.\nTotal milk couverture: 600 g x 2.4 = 1,440 g.\nCaramel filling: 250 g x 2.4 = 600 g.\nSeed reserved at 25% of total: 1,440 g x 0.25 = 360 g.\nCouverture to be melted: 1,440 g - 360 g = 1,080 g.\nCooling time: (40 - 31) / 1.5 = 6 minutes.\nTolerance: quantities exact to the nearest gram; conversion factor may be shown as 2.4 or 12/5; cooling time exact at 6 minutes.\nNo tolerance on the seed being reserved from rather than added to the total - that is a method error, not a rounding error.",
+            "exampleCommentSatisfactory": "Recorded the Appendix B temperatures correctly and explained the effect of milk fat. All six calculations correct with working shown, including the seed reserved from the total at 360 g and the six minute cooling time. Numeracy foundation skill demonstrated - S.",
+            "exampleCommentNotSatisfactory": "The seed was added to the total rather than reserved from it, giving 1,800 g to melt. The cooling time used 32 degrees C, not the milk working temperature. Re-attempt those two lines; the factor and filling were correct - NS pending correction."
+          }
+        },
+        {
+          "label": "b",
+          "text": "Calculate the quantities and the tempering time. Show your working in the table.",
+          "scenarioHeading": "Scenario for part (b)",
+          "scenario": "The standard caramel bonbon (A3) recipe yields 40 chocolates. It uses 600 g of milk couverture and 250 g of caramel filling. The Friday order needs 96.\nTemper by the vaccination (addition) method. Reserve 25% of the total couverture as seed. Appendix B states the seed comes out of the total required, not on top of it.\nThe tempering machine cools melted couverture at an average of 1.5 °C per minute. Melt at 40 °C, then cool to the milk couverture working temperature in Appendix B.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Calculation", "Your working", "Answer"],
+            "items": [
+              "Conversion factor for 96 bonbons",
+              "Total milk couverture required (g)",
+              "Caramel filling required (g)",
+              "Seed couverture reserved at 25% of the total (g)",
+              "Couverture to be melted (g)",
+              "Time to cool from 40 °C to the milk working temperature (minutes)"
+            ]
+          },
+          "modelAnswer": "Conversion factor for 96 bonbons | Portions required divided by recipe yield~~96 / 40 | 2.4\nTotal milk couverture required (g) | Recipe quantity x conversion factor~~600 g x 2.4 | 1,440 g\nCaramel filling required (g) | Recipe quantity x conversion factor~~250 g x 2.4 | 600 g\nSeed couverture reserved at 25% of the total (g) | 25% of the total couverture~~1,440 g x 0.25 | 360 g\nCouverture to be melted (g) | Total couverture less the seed reserved from it~~1,440 g - 360 g | 1,080 g\nTime to cool from 40 °C to the milk working temperature (minutes) | Temperature drop divided by cooling rate~~(40 - 31) / 1.5~~9 / 1.5 | 6 minutes",
+          "benchmark": null
+        },
+        {
+          "label": "c",
+          "text": "The tempered couverture falls below its working temperature part-way through moulding. Explain what you do, and why.",
+          "responseType": "box",
+          "modelAnswer": "Check the actual reading with a sanitised probe rather than judging by eye.\nAppendix B allows couverture cooled to 27 degrees C and still fluid to be reheated gently.\nWarm in short bursts with constant stirring, retest, then continue.\nIf it has begun to set, or thickened past flowing off the mould, it is out of temper.\nRe-temper from the start: melt back to close to 40 degrees C to destroy all crystals.\nCool to 31 degrees C for milk couverture by the vaccination method.\nTest a strip on wax paper before committing the batch.\nCasting out of temper gives dull, streaky shells that will not release, wasting the run.",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "heading": "Task 10 — Properties of tempered couverture and characteristics of the set product",
+      "mapsTo": "Knowledge Evidence — properties of tempered couverture: flow properties; setting properties; viscosity. Expected product characteristics of solidified couverture: colour; gloss and sheen; snap.",
+      "wordGuide": "Word guide: (a) and (b) 30–45 words per cell · (c) 150 words.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "Explain each property of tempered couverture. Explain how it affects the chocolates you are making. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Property", "What the property means in practice", "How it affects the chocolate you are making"],
+            "items": ["Flow properties", "Setting properties", "Viscosity"]
+          },
+          "modelAnswer": "Flow properties | How readily tempered couverture runs and levels~~Set by cocoa butter content, temperature and degree of crystallisation~~Tested by how it falls from the spatula | Good flow lets a cast shell run into every corner of the mould~~Drains to an even thin wall~~Lets the enrober lay a smooth curtain~~Poor flow gives thick, heavy, uneven coats\nSetting properties | How quickly and how firmly the couverture solidifies at working temperature~~Depends on enough stable beta seed being present | Shell firm enough to fill within a few minutes~~Clean release from the mould~~Dipped coat firms before the piece is moved~~Slow setting leaves marks and fingerprints\nViscosity | Thickness or resistance of the couverture to flowing~~Rises as temperature falls and crystallisation advances~~Reduced by adding a little cocoa butter | Low viscosity needed to cast thin walls and enrobe cleanly~~Higher viscosity suits a heavier hand-dipped coat~~If it rises too far the coat is thick and the piece clumsy~~Yield per kilogram drops",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q10",
+            "satisfactory": [
+              "(a) all six cells completed: flow, setting and viscosity each explained in practical terms.",
+              "(a) each property linked to a real effect on casting, enrobing or dipping.",
+              "(b) all six cells completed: even colour, mirror gloss and a clean audible snap given as expected.",
+              "(b) faults correctly interpreted: fat bloom, sugar bloom, insufficient stable crystal, or a mould fault.",
+              "(c) diagnoses the batch as out of temper and gives at least two plausible causes.",
+              "(c) remelt to close to 40 degrees C, re-temper to 31 degrees C, test before casting."
+            ],
+            "minimumAcceptable": [
+              "Five of six cells correct in each of (a) and (b).",
+              "(b) grey streaking read correctly as fat bloom.",
+              "(c) identifies the batch as out of temper.",
+              "(c) states that it must be remelted and re-tempered."
+            ],
+            "criticalErrors": [
+              "Grey or white streaking attributed to poor quality couverture rather than temper or storage.",
+              "The faulty batch described as saleable, or as correctable by refrigeration.",
+              "(c) offering no remelt to close to 40 degrees C.",
+              "Snap and gloss described as matters of appearance with no link to crystal formation."
+            ],
+            "exampleCommentSatisfactory": "Explained all three properties with real production consequences, read the faults correctly including fat bloom and sugar bloom, and diagnosed the dull soft batch as out of temper with a correct remelt, re-temper and test-strip remedy - S.",
+            "exampleCommentNotSatisfactory": "The streaky batch was attributed to a poor batch of couverture and the proposed fix was longer refrigeration. Re-attempt: explain what dull, soft and non-releasing chocolate tells you about crystal formation, and set out how you would recover the couverture - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "Describe each characteristic you expect in correctly tempered, solidified couverture. Explain what a fault in that characteristic tells you. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Characteristic", "What you expect in correctly tempered couverture", "What a fault in this characteristic tells you"],
+            "items": ["Colour", "Gloss and sheen", "Snap"]
+          },
+          "modelAnswer": "Colour | Even, uniform colour across the whole surface~~Deep and consistent for dark couverture~~Free of grey, white or marbled patches | Grey or white streaking is fat bloom~~Couverture was out of temper or stored too warm~~Cocoa butter has migrated to the surface~~Dusty, gritty white film is sugar bloom from condensation\nGloss and sheen | Bright mirror shine on the moulded face~~Reflects light cleanly~~No dull patches or fingerprints | Dull or matt finish means too few stable crystals were present~~Or the mould was not properly polished~~Or the piece was cooled too slowly~~Patchy gloss points to a mould fault, not a temper fault\nSnap | Clean, sharp break with an audible crack~~Snapped at room temperature~~Smooth, close-grained fracture face | Soft bend or crumbly break: cocoa butter not in the stable form~~Chocolate is out of temper~~Melts on the fingers~~Will not release cleanly from the mould",
+          "benchmark": null
+        },
+        {
+          "label": "c",
+          "text": "A batch of caramel bonbons (A3) comes out of the fridge dull, streaky and soft to the touch. It will not release cleanly from the mould. Explain the likely causes and the corrective action you would take.",
+          "responseType": "box",
+          "modelAnswer": "The batch is out of temper: too few stable beta crystals were present when the shells were cast.\nCause: not brought back to the 31 degrees C milk working temperature, or seed insufficient or undissolved.\nCause: moulds too cold so shells set before the crystals organised, or couverture overheated after tempering.\nScrape the batch out and remelt to close to 40 degrees C to destroy all crystal forms.\nRe-temper by the vaccination method to 31 degrees C.\nTest a strip on wax paper before casting again.\nCast only when the test sets firm, evenly coloured and glossy within three to five minutes.\nChocolates are not saleable, but the couverture is clean and can be recovered and remelted.\nLoss is the labour and the caramel rather than the couverture.",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "heading": "Task 11 — Characteristics of centres and fillings",
+      "mapsTo": "Knowledge Evidence — characteristics of centres and fillings used when producing chocolates.",
+      "wordGuide": "Word guide: 25–40 words for the characteristics column; Appendix A product code only in the last column.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "Describe each centre or filling — its taste, texture, consistency and keeping quality. Name the Appendix A product that uses it. Complete the table.",
+      "parts": [
+        {
+          "label": "",
+          "text": "",
+          "responseType": "table",
+          "table": {
+            "headers": ["Centre or filling", "Characteristics (taste, texture, consistency, keeping quality)", "Appendix A product"],
+            "items": ["Caramel", "Croquant", "Flavoured fondant", "Ganache", "Jellies", "Liqueurs", "Nougat", "Nuts", "Fruits"]
+          },
+          "modelAnswer": "Caramel | Rich, buttery and sweet with slight bitterness from the cooked sugar~~Smooth and chewy to soft-flowing, depending on final temperature~~Keeps well through its low water activity~~Will run if underworked | A3 caramel bonbon\nCroquant | Sweet, toasted and nutty with a pronounced caramelised note~~Hard, brittle and crisp with an audible snap~~Must be kept dry, as it absorbs moisture and goes sticky | A7 almond croquant\nFlavoured fondant | Very sweet, with the added flavour dominating~~Opaque, fine-grained and smooth~~Soft enough to pipe when warmed to about 35 degrees C~~Keeps well sealed in a shell but crusts if left open | A5 strawberry fondant bonbon~~A4 coffee liqueur fondant, made the same way\nGanache | Full chocolate and cream flavour carrying the fruit or infusion~~Smooth, dense and soft with a short melt~~Shortest keeping quality in the range, from its water content~~Needs refrigeration and a short shelf life | A6 passionfruit ganache chocolate\nJellies | Bright, sharp fruit flavour~~Soft, resilient and slightly elastic with a clean bite~~High sugar and acid preserve it~~Weeps if the set is too soft or the storage too warm | A9 raspberry jelly square\nLiqueurs | Strong spirit flavour with obvious sweetness~~Thin and free-flowing~~Fine sugar crust may form against the shell~~Alcohol and sugar preserve it, but it leaks if the seal fails | A10 orange liqueur hollow sphere~~A4 coffee liqueur bonbon\nNougat | Sweet, honeyed and nutty~~Aerated, chewy and firm~~Whole nuts and fruit give a varied bite~~Keeps well sealed, but goes hard and sticky in air or humidity | A8 chocolate dipped nougat\nNuts | Rich, roasted and buttery with a distinct varietal character~~Firm and crunchy whole~~Smooth and oily when ground to a paste~~High oil content goes rancid, so keep cool, dark and sealed | A1 rocher / mendiant~~Also present in A7 almond croquant\nFruits | Sweet and acidic with concentrated flavour~~Glace fruit dense, chewy and pliable~~Dried fruit firmer~~High sugar preserves them, but they dry out and crystallise unsealed | A1 rocher / mendiant~~Carries dried and glace fruit on top",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q11",
+            "satisfactory": [
+              "All eighteen cells completed.",
+              "Each centre described across taste, texture, consistency and keeping quality, not just one of those.",
+              "Each centre matched to an Appendix A product that actually contains it.",
+              "Ganache identified as the shortest keeping quality because of its water content.",
+              "Croquant and nougat identified as moisture sensitive."
+            ],
+            "minimumAcceptable": [
+              "Fifteen of eighteen cells correct.",
+              "At least three of the four characteristics given for each centre.",
+              "Correct Appendix A matches for ganache, caramel, jellies and liqueurs."
+            ],
+            "criticalErrors": [
+              "Ganache described as long keeping or shelf stable.",
+              "Any centre matched to a product that does not contain it.",
+              "Characteristics given as tastes nice or is sweet, with no texture or keeping quality.",
+              "Fewer than six of the nine centres matched to an Appendix A product."
+            ],
+            "exampleCommentSatisfactory": "Described all nine centres across taste, texture, consistency and keeping quality and matched each to the right Appendix A product, correctly identifying ganache as the shortest keeping item because of its water content - S.",
+            "exampleCommentNotSatisfactory": "Several rows gave taste only, and ganache was described as keeping well at ambient temperature. Re-attempt: give texture, consistency and keeping quality as well as taste, and state why a cream-based ganache has the shortest life in the range - NS."
+          }
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "heading": "Task 12 — Methods to coat centres",
+      "mapsTo": "Knowledge Evidence — methods to coat centres: hand coating; hand dipping; machine enrobed.",
+      "wordGuide": "Word guide: (a) 40–55 words per cell · (b) 120 words.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "Explain how you carry out each method of coating centres. State the type of centre and production volume it suits best. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Coating method", "How it is carried out", "Type of centre and production volume it suits"],
+            "items": ["Hand coating", "Hand dipping", "Machine enrobed"]
+          },
+          "modelAnswer": "Hand coating | Measured quantity of tempered couverture worked over by gloved hand~~Rolled and pressed so the coat follows the shape of the piece~~Set down or rolled in a garnish before it sets | Suits soft, rolled or irregular centres such as marzipan balls and truffles~~A machine would deform the piece~~Low volume only, as it is slow and hand-intensive\nHand dipping | Centre dropped into tempered couverture and lifted on a dipping fork~~Tapped on the rim to shed the excess~~Drawn across the rim to clean the base~~Set on paper and marked with the fork before it sets | Suits firm cut centres such as ganache, croquant and nougat~~Low to medium volume~~Used when a hand-marked finish is wanted\nMachine enrobed | Cut centres placed on the enrober belt~~Carried under a curtain of tempered couverture~~Blower removes excess and a vibrating table levels the coat~~Cooling tunnel sets it before the pieces are lifted off | Suits uniform, flat, firm centres such as jelly squares and cut ganache~~Only practical method for medium to high volume~~Gives the most consistent coat weight",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q12",
+            "satisfactory": [
+              "(a) all six cells completed.",
+              "(a) hand coating: working the coat by gloved hand. Hand dipping: the fork-and-tap.",
+              "(a) enrobing: the belt, curtain, blower and cooling tunnel.",
+              "(a) each method matched to the type of centre and the production volume it suits.",
+              "(b) A9 justified on the product: uniform flat firm squares suit the belt.",
+              "(b) a soft centre would be marked by repeated handling.",
+              "(b) justifies it on volume: the shared tempering machine makes the enrober the faster option."
+            ],
+            "minimumAcceptable": [
+              "Five of six cells in (a) correct.",
+              "(a) volume addressed at least twice.",
+              "(b) gives at least one product-based reason and one volume or efficiency reason for the enrober."
+            ],
+            "criticalErrors": [
+              "Hand dipping and hand coating described identically.",
+              "The enrober described as suitable for soft rolled centres.",
+              "(b) justifying a method other than the one Appendix A shows for A9, without acknowledging Appendix A.",
+              "(b) giving preference or speed alone, with no reference to the product."
+            ],
+            "exampleCommentSatisfactory": "Distinguished all three coating methods clearly and addressed both centre type and volume. The justification for A9 covered the uniform flat squares, the risk of marking a soft centre by hand, and the run time freed on the shared tempering machine - S.",
+            "exampleCommentNotSatisfactory": "Hand coating and hand dipping were described identically, and the justification for A9 said only that the enrober is quicker. Re-attempt: state what the hand does differently in each method, and justify the enrober from the shape and softness of the jelly square - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "Appendix A shows a coating method for the raspberry jelly squares (A9) in the Friday order. Justify it as the most suitable choice. Explain how you bring the cut centres to the correct temperature before coating.",
+          "responseType": "box",
+          "modelAnswer": "Appendix A shows the A9 raspberry jelly square as machine enrobed; that is the correct choice.\nThe squares are cut to a uniform size and flat profile, which the enrober belt handles well.\nThe machine lays an even coat on all faces in one pass.\nThe jelly is soft and would be dented or distorted by repeated handling.\nThe transfer sheet needs even coat thickness and temperature so the pattern takes cleanly.\nVolume: 24 squares compete with two other products for the same tempering machine.\nEnrober speed frees bench time for the hand dipping of the croquant.\nHand dipping would be slower, give a heavier variable coat, and risk fork marks.",
+          "benchmark": null
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "heading": "Task 13 — Matching dark, milk and white couverture to fillings and centres",
+      "mapsTo": "Knowledge Evidence — complementary tastes and textures of dark, milk and white couverture for fillings and centres.",
+      "wordGuide": "Word guide: 45–65 words in each writing cell.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "Describe the taste and texture of each couverture. Identify two Appendix A centres or fillings it complements. Explain why each combination works. Complete the table.",
+      "parts": [
+        {
+          "label": "",
+          "text": "",
+          "responseType": "table",
+          "table": {
+            "headers": ["Couverture", "Taste and texture characteristics", "Two Appendix A centres or fillings it complements, and why"],
+            "items": ["Dark couverture", "Milk couverture", "White couverture"]
+          },
+          "modelAnswer": "Dark couverture | Intense and bitter-edged with pronounced cocoa and roasted notes~~Low sweetness~~Firm, with the sharpest snap of the three~~Cleanest, driest melt, as it contains no milk solids | Almond croquant (A7): bitterness balances the very sweet caramelised sugar~~Raspberry jelly (A9): fruit acidity cuts through the cocoa~~Neither flavour is lost in the pairing\nMilk couverture | Sweet, mild and creamy with caramel and dairy notes~~Much less cocoa character~~Softer, with a shorter snap~~Rounder, slower melt, as the milk fat softens the set | Passionfruit ganache (A6): dairy sweetness rounds the sharp tropical acidity~~Caramel (A3): milk and cooked-sugar notes reinforce each other\nWhite couverture | Very sweet, milky and vanilla-led~~No cocoa flavour: cocoa butter but no cocoa solids~~Softest set, with the least snap~~Fatty, coating melt | Strawberry flavoured fondant (A5): neutral sweetness lets fruit flavour and colour show~~Raspberry jelly: acidity stops the pairing becoming cloying",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q13",
+            "satisfactory": [
+              "All six cells completed.",
+              "Each couverture described for both taste and texture.",
+              "Reason grounded in composition: no milk solids in dark.",
+              "Milk fat and milk solids in milk; cocoa butter without cocoa solids in white.",
+              "Two Appendix A centres or fillings named for each couverture.",
+              "Each pairing justified on a real principle, such as bitterness balancing sweetness or acidity cutting richness."
+            ],
+            "minimumAcceptable": [
+              "Five of six cells correct.",
+              "Two genuine Appendix A pairings for each couverture.",
+              "A reason given for at least four of the six pairings."
+            ],
+            "criticalErrors": [
+              "White couverture described as containing cocoa solids.",
+              "A pairing named that is not in Appendix A.",
+              "Pairings given with no reason.",
+              "Taste described with no reference to texture, snap or melt."
+            ],
+            "exampleCommentSatisfactory": "Described all three couvertures for taste and texture with the composition reasons, and gave two justified Appendix A pairings for each, for example dark with croquant on bitterness against caramelised sugar - S.",
+            "exampleCommentNotSatisfactory": "White couverture was described as having a strong cocoa flavour, and four pairings were listed without reasons. Re-attempt: state what white couverture does and does not contain, and give the reason each pairing works - NS."
+          }
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "heading": "Task 14 — Decoration techniques for individual chocolates",
+      "mapsTo": "Knowledge Evidence — decoration techniques for individual chocolates.",
+      "wordGuide": "Word guide: 35–50 words in each writing cell.",
+      "scenarioHeading": null,
+      "scenario": null,
+      "stem": "Explain how you carry out each decoration technique. State the product it suits and the effect it achieves on the finished chocolate. Refer to Appendix A where a range product uses the technique. Complete the table.",
+      "parts": [
+        {
+          "label": "",
+          "text": "",
+          "responseType": "table",
+          "table": {
+            "headers": ["Decoration technique", "How it is carried out", "Product it suits and the effect it achieves"],
+            "items": ["Piped chocolate filigree", "Transfer sheets", "Coloured cocoa butter, sprayed or brushed", "Dipping fork marking", "Applied garnish (nuts, freeze-dried fruit, gold leaf)"]
+          },
+          "modelAnswer": "Piped chocolate filigree | Tempered couverture piped through a fine paper cornet or small plain tube~~Continuous fine line, freehand or over a template~~Piped directly onto the chocolate~~Or onto acetate to set, then applied | Suits A10 orange liqueur hollow sphere and other smooth moulded pieces~~Fine, delicate, three-dimensional line~~Breaks up a plain round surface~~Signals a premium piece\nTransfer sheets | Printed cocoa butter sheet laid pattern-side down while couverture is fluid~~Applied to the freshly coated or cast surface~~Smoothed and allowed to set fully~~Peeled away, leaving the pattern behind | Suits A9 raspberry jelly square and other flat enrobed pieces~~Printed pattern with high gloss over the whole face~~Fast and consistent across a run\nColoured cocoa butter, sprayed or brushed | Coloured cocoa butter warmed to about 30 degrees C~~Sprayed with an airbrush, or brushed or flicked into the cavity~~Applied to the polished mould before casting~~Allowed to set before the shell is cast over it | Suits A3 caramel bonbon and A5 strawberry fondant bonbon~~Colour with a marbled or graded effect~~Fused into the glossy cast face~~Identifies each flavour in a boxed selection\nDipping fork marking | Piece set down immediately after dipping~~Dipping fork laid lightly across the top and lifted~~Leaves the line pattern of the tines in the surface~~Done before the couverture sets | Suits A6 passionfruit ganache chocolate and other hand-dipped cut pieces~~Marks the flavour~~Shows the piece is hand finished~~Disguises the small pool left where the piece was set down\nApplied garnish (nuts, freeze-dried fruit, gold leaf) | Whole nut, freeze-dried fruit or gold leaf fragment placed on the surface~~Applied while the couverture is still wet~~Placed with tweezers or a dry gloved fingertip~~Left undisturbed to set | Suits A1 rocher / mendiant and A7 almond croquant~~Declares the flavour of the centre~~Adds texture and contrast~~Gold leaf lifts the piece for a premium boxed range",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q14",
+            "satisfactory": [
+              "All ten cells completed.",
+              "Each technique described as a sequence of actions, with the timing that matters.",
+              "Timing: piping while fluid; transfer sheet laid while the coat is wet and peeled when fully set.",
+              "Timing: coloured cocoa butter into the mould before casting; marking immediately after dipping; garnish before the surface sets.",
+              "Each technique matched to a product it actually suits in the Appendix A range.",
+              "The effect it achieves is given for each technique."
+            ],
+            "minimumAcceptable": [
+              "Eight of ten cells correct.",
+              "Transfer sheet applied while the couverture is wet and peeled after setting.",
+              "Coloured cocoa butter applied into the mould before casting."
+            ],
+            "criticalErrors": [
+              "A transfer sheet described as applied to set chocolate.",
+              "Coloured cocoa butter described as painted onto a finished chocolate rather than into the mould.",
+              "A technique matched to a product Appendix A shows with a different finish.",
+              "Timing omitted entirely, so the technique could not be carried out from the description."
+            ],
+            "exampleCommentSatisfactory": "Described all five techniques with the timing that makes them work, including the transfer sheet applied while the coat is wet and the coloured cocoa butter into the mould before casting, and matched each to the right Appendix A product with the effect achieved - S.",
+            "exampleCommentNotSatisfactory": "The transfer sheet was described as applied to set chocolate and the coloured cocoa butter as brushed onto the finished bonbon. Re-attempt: state at what point in the process each decoration is applied and why the timing matters - NS."
+          }
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "heading": "Task 15 — Environmental conditions for storing ingredients and chocolates",
+      "mapsTo": "Knowledge Evidence — appropriate environmental conditions for storing ingredients and individual chocolates to ensure food safety and optimise shelf life (primary).",
+      "wordGuide": "Word guide: (a) 30–45 words per cell · (b) 130 words.",
+      "scenarioHeading": "Scenario",
+      "scenario": "The passionfruit ganache (A6) is made with fresh cream and has no validated ambient shelf life. The finished chocolates are held for 48 hours before the Friday function.\nLa Meridienne Patisserie, Rundle Street, Adelaide prepares and sells unpackaged, ready-to-eat foods containing dairy. It sells these directly to consumers from its retail counter.",
+      "stem": "",
+      "parts": [
+        {
+          "label": "a",
+          "text": "State the environmental conditions for storing each item — temperature, humidity, packaging, light and odour. Explain how those conditions ensure food safety and optimise shelf life. Complete the table.",
+          "responseType": "table",
+          "table": {
+            "headers": ["Item", "Environmental storage conditions", "How the conditions ensure food safety and optimise shelf life"],
+            "items": ["Bulk couverture stock", "Fresh cream and dairy", "Nut kernels and pralinés", "Passionfruit ganache chocolates (A6) held for the function", "Boxed chocolates on retail display"]
+          },
+          "modelAnswer": "Bulk couverture stock | Dry store at 15-18 degrees C, relative humidity below 50%~~Dark, sealed in the original bag or a food-grade container~~Away from strong-smelling stock and off the floor~~Rotated by date code | Stable cool temperature stops fat bloom and keeps couverture in condition~~Low humidity prevents sugar bloom and clumping~~Darkness and sealing prevent rancidity and odour pickup~~Stock stays usable for its full shelf life\nFresh cream and dairy | Refrigerated at 5 degrees C or below~~In the original sealed carton, on a shelf above raw foods~~Used within the use-by date~~Returned to the fridge immediately after decanting | Dairy is a high-risk food~~Kept out of the 5-60 degrees C temperature danger zone~~Prevents growth of pathogens such as Listeria and Salmonella~~Sealed storage prevents cross-contamination and odour transfer\nNut kernels and pralinés | Cool and dark at 15-18 degrees C, or refrigerated for longer holding~~Relative humidity below 50%, sealed in airtight containers~~Well away from the nut-free bench~~Clearly labelled as containing tree nuts | Nut oils go rancid with heat, light and air~~Cool, dark, airtight storage protects flavour and shelf life~~Separate labelled storage is the allergen control~~Keeps tree nuts out of nut-free production\nPassionfruit ganache chocolates (A6) held for the function | Refrigerated at 5 degrees C or below~~In a sealed, labelled container~~Kept apart from strong-smelling foods~~Brought back to room temperature sealed before the box is opened | Made with fresh cream, with no validated ambient shelf life~~Temperature controlled for the full 48 hours~~Sealing prevents odour pickup and condensation~~Warming sealed stops sugar bloom forming on the surface\nBoxed chocolates on retail display | Ambient display at 18-20 degrees C, relative humidity below 50%~~Out of direct sunlight and away from lights that radiate heat~~In closed boxes or a covered display~~Stock rotated and dated | Stable ambient conditions keep the chocolate in temper~~Stays glossy and does not bloom~~Light and heat protection prevents rancidity, softening and fading~~Covered display protects unpackaged ready-to-eat food from contamination",
+          "benchmark": {
+            "panelHeading": "ASSESSOR BENCHMARK — Q15",
+            "satisfactory": [
+              "(a) all ten cells completed with specific temperature, humidity, packaging and light conditions.",
+              "(a) each explanation links the conditions to both food safety and shelf life.",
+              "(a) couverture at 15-18 degrees C and below 50% humidity; dairy at 5 degrees C or below.",
+              "(a) nuts cool, dark, airtight and separated as an allergen.",
+              "(a) ganache chocolates refrigerated for the 48 hours; retail display at stable ambient out of direct sun.",
+              "(b) names the Food Act 2001 (SA) and Food Standards Code Standards 3.2.2 and 3.2.2A.",
+              "(b) states 5 degrees C or below for the ganache.",
+              "(b) protection of unpackaged ready-to-eat display; SA Health and the council environmental health officer named."
+            ],
+            "minimumAcceptable": [
+              "(a) eight of ten cells correct.",
+              "(a) correct temperatures for dairy and for the ganache chocolates.",
+              "(b) names the Food Act 2001 (SA), the correct temperature control and the regulator."
+            ],
+            "criticalErrors": [
+              "The passionfruit ganache chocolates held at ambient temperature for the 48 hours.",
+              "Dairy stored above 5 degrees C.",
+              "Couverture recommended for refrigeration in its normal storage.",
+              "No SA legislation, or a non-SA regulator, named in (b).",
+              "Unpackaged display described with no protection from contamination."
+            ],
+            "exampleCommentSatisfactory": "Gave specific temperature, humidity, packaging and light conditions for all five items with sound reasons, and correctly refrigerated the ganache chocolates for the 48 hours. Part (b) named the Food Act 2001 (SA), Standards 3.2.2 and 3.2.2A, and SA Health - S.",
+            "exampleCommentNotSatisfactory": "The ganache chocolates were placed in ambient storage for 48 hours, and part (b) named no legislation. Re-attempt: state the temperature a cream-based product must be held at and why, and name the SA Act, the Food Standards Code standards and the regulator - NS."
+          }
+        },
+        {
+          "label": "b",
+          "text": "Explain the requirements for storing and displaying these products under the Food Act 2001 (SA) and Standards 3.2.2 and 3.2.2A of the Food Standards Code. State the role of the local council environmental health officer.",
+          "responseType": "box",
+          "modelAnswer": "The patisserie is a food business under the Food Act 2001 (SA).\nIt must comply with the Food Standards Code, in particular Standards 3.2.2 and 3.2.2A.\nIt sells unpackaged, ready-to-eat, potentially hazardous food containing dairy directly to consumers.\nPassionfruit ganache chocolates must be kept at 5 degrees C or below for the whole 48 hours.\nOr under another regime the business can demonstrate is safe; temperature monitored and recorded.\nUnpackaged display must be protected from contamination: covers or screens, tongs not hands, no unprotected self-service.\nStandard 3.2.2A requires a food safety supervisor and evidence of temperature control and cleaning and sanitising.\nRegulator is SA Health; council environmental health officers inspect and can require corrective action or prohibit sale.",
+          "benchmark": null
+        }
+      ]
+    }
+  ],
+  "assessorRewrite": [
+    { "task": 1, "benchmarkWordsBefore": 282, "benchmarkWordsAfter": 253 },
+    { "task": 2, "benchmarkWordsBefore": 298, "benchmarkWordsAfter": 274 },
+    { "task": 3, "benchmarkWordsBefore": 246, "benchmarkWordsAfter": 211 },
+    { "task": 4, "benchmarkWordsBefore": 234, "benchmarkWordsAfter": 227 },
+    { "task": 5, "benchmarkWordsBefore": 267, "benchmarkWordsAfter": 254 },
+    { "task": 6, "benchmarkWordsBefore": 260, "benchmarkWordsAfter": 219 },
+    { "task": 7, "benchmarkWordsBefore": 224, "benchmarkWordsAfter": 214 },
+    { "task": 8, "benchmarkWordsBefore": 264, "benchmarkWordsAfter": 262 },
+    { "task": 9, "benchmarkWordsBefore": 417, "benchmarkWordsAfter": 396 },
+    { "task": 10, "benchmarkWordsBefore": 263, "benchmarkWordsAfter": 255 },
+    { "task": 11, "benchmarkWordsBefore": 203, "benchmarkWordsAfter": 198 },
+    { "task": 12, "benchmarkWordsBefore": 263, "benchmarkWordsAfter": 242 },
+    { "task": 13, "benchmarkWordsBefore": 194, "benchmarkWordsAfter": 185 },
+    { "task": 14, "benchmarkWordsBefore": 251, "benchmarkWordsAfter": 238 },
+    { "task": 15, "benchmarkWordsBefore": 280, "benchmarkWordsAfter": 271 },
+    { "task": "TOTAL", "benchmarkWordsBefore": 3946, "benchmarkWordsAfter": 3699 }
+  ],
+  "extractionNotes": [
+    "Dash character: every task heading in the learner document uses an em dash (U+2014), e.g. \"Task 7 — Protecting polished chocolate moulds\". The brief's example showed a hyphen; the source uses an em dash and that is what has been reproduced. Word guides and ranges use en dashes (20–35, 45–65) and the middot separator is U+00B7.",
+    "Benchmarks are TASK-level, not part-level. Each assessor-guide panel is headed \"ASSESSOR BENCHMARK — Q<n>\" and sits after the last part of the task, covering all parts together. Because the supplied schema places `benchmark` inside a part, each task's single panel has been attached to that task's FIRST part and set to null on the remaining parts. Do not read it as applying only to part (a).",
+    "The benchmark object carries two keys beyond the supplied schema because the source panels contain that content and it would otherwise be lost: `panelHeading`, `exampleCommentSatisfactory` and `exampleCommentNotSatisfactory`. Task 9 additionally carries `workedKey` (the panel's \"Worked answer key and tolerance:\" block).",
+    "Tasks 3, 6, 11, 13 and 14 have NO lettered parts — a single unlettered instruction stem followed by one table headed \"Student response\". These are represented as one part with `\"label\": \"\"` and `\"text\": \"\"`, with the instruction held in the task-level `stem`.",
+    "Where a task has lettered parts, the instruction stem is carried entirely by the lettered part text; the learner document shows only the banner \"Question / instructions\" and then (for some tasks) a Scenario box, then part (a). For those tasks `stem` is set to \"\" — there is no additional stem prose to extract.",
+    "Task 9 has no task-level scenario. It carries a scenario box headed \"Scenario for part (b)\" positioned BETWEEN part (a) and part (b). It has been stored on part (b) as `scenarioHeading` / `scenario` (keys added inside the part object), with the task-level scenario left null. Render it between (a) and (b), not at the top of the task.",
+    "Task 5's scenario box has its own heading, \"Scenario — Friday function order\" (em dash). Tasks 1, 2, 4 and 15 have boxes headed simply \"Scenario\". Tasks 3, 6, 7, 8, 9, 10, 11, 12, 13 and 14 have no scenario box; `scenarioHeading` and `scenario` are null for those.",
+    "Model answers for open boxes are prefixed in the assessor guide with the literal marker \"MODEL ANSWER — \". That marker is a label, not answer text, and has been stripped. Table model answers carry no such marker.",
+    "Table model answers are given one row per line, first-column item label first, fields separated by \" | \". Every row's first field matches the corresponding `table.items` entry exactly, so rows can be rejoined to the learner table by position.",
+    "Task 9 part (a) is a FOUR-column table (Couverture · Melting temperature (°C) · Working temperature (°C) · What happens to the cocoa butter crystals…). It is the only four-column table in the fifteen tasks; the learner document shows three \"Write here…\" cells per row. All other item-per-row tables are three columns (label plus two writable cells).",
+    "Page-break header repeats in the assessor-guide text dump were removed when reassembling rows. Affected rows: Task 6 (header repeated before \"Microwave oven\"), Task 7 (before the third requirement), Task 9 (a) (before \"Milk couverture\") and (b) (before the cooling-time row), Task 10 (a) (before \"Setting properties\"), Task 11 (before \"Ganache\"), Task 12 (a) (mid-row inside \"Machine enrobed\" — the cells were rejoined as \"…levelling the coat, and a cooling tunnel setting it…\" and \"…medium to high volume, and it gives…\"), Task 13 (before \"White couverture\"), Task 14 (before \"Coloured cocoa butter, sprayed or brushed\"), Task 15 (a) (before \"Fresh cream and dairy\"), Task 4 (a) (before \"Belgian praline\"). No wording was altered.",
+    "VERBATIM ARTEFACT WARNING — the assessor-guide source is a text dump in which hyphens at line breaks were lost. Model answers therefore contain closed-up forms that read as typos: \"handrolled\" (Task 1 b, A2 row), \"handdipped\" (Task 10 a, Viscosity), \"handmarked\" (Task 12 a, Hand dipping), \"foodgrade\" / \"strongsmelling\" / \"useby\" / \"nutfree\" (Task 15 a), \"selfservice\" (Task 15 b). These have been reproduced exactly as they appear in the source rather than silently corrected. The learner document itself is unaffected (it reads \"Hand-rolled finish\"). Flag to the RTO for a decision at re-render.",
+    "VERBATIM TYPOGRAPHY — the learner document uses \"°C\" throughout (including in Task 9 table headers and item labels), but the assessor-guide model answers spell it \"degrees C\" and use plain hyphens in ranges (\"116-121 degrees C\", \"15-18 degrees C\", \"5-60 degrees C\"). Both have been preserved as written. Similarly the assessor guide drops accents present in the learner document: \"glace fruit\" (Task 4 a, Task 11), \"Pate de fruit\" (Task 1 b). Learner-side item labels keep their accents (\"Praliné\", \"Glacé orange\", \"Nut kernels and pralinés\").",
+    "Task 5 part (b) model answer contains an apparent drafting error in the source: \"On Friday morning I temper dark couverture first and cast the bonbon shells is not required here, so instead I begin with the moulded caramel bonbons…\". Reproduced verbatim; not corrected. Flag to the RTO.",
+    "Task 5 part (b) model answer and the Q5 benchmark both refer to a \"2 pm collection\", but no collection time appears in the Task 5 scenario or in Appendix B of the learner document. Reproduced verbatim; flagged as a possible gap in the learner scenario.",
+    "Assessor-guide-only material outside the fifteen tasks (Assessor judgement guidance, Oral questioning record, Unit Assessment Result Sheet, assessor declaration, build notes) was not extracted — it is out of scope for this file and, per the guide's own build notes, is not part of the learner document.",
+    "Model answers were found for all 28 parts. No part required a null modelAnswer.",
+    "ASSESSOR-FACING REWRITE (supersedes the verbatim notes above for the affected fields only). At the RTO's request the assessor-facing content was recast for marking speed. Three changes: (1) the eleven open-box model answers (`responseType: box`) were converted from prose to one assessable point per line, separated by \\n; (2) `satisfactory`, `minimumAcceptable` and `criticalErrors` in all fifteen benchmarks changed from a single string to an array of short checkable points, and Task 9's `workedKey` was laid out one calculation step per line; (3) `exampleCommentSatisfactory` and `exampleCommentNotSatisfactory` were tightened to 45 words or fewer. No assessable point, figure, temperature, product code or recipe quantity was removed. Per-task before and after word counts are recorded in the top-level `assessorRewrite` array.",
+    "LEARNER-FACING CONTENT UNCHANGED. `heading`, `mapsTo`, `wordGuide`, `scenario`, `scenarioHeading`, `stem`, every part `text`, and every table `headers` and `items` array are byte-for-byte as extracted. All seventeen table model answers are also unchanged, so they still rejoin to the learner tables by position, one row per line with fields separated by \" | \".",
+    "CONSEQUENCE FOR NOTES ABOVE - RESOLVED 21 August 2026. The closed-up forms flagged in the VERBATIM ARTEFACT WARNING all sat inside TABLE model answers. When the answer grids were rewritten into point form, each was split to its correct hyphenated form: hand-rolled, hand-dipped, hand-marked, food-grade, strong-smelling, use-by, nut-free, self-service. Correctly spaced forms already present in the source were left as written. No RTO decision is outstanding on these. STILL OPEN: the Task 5 \"2 pm collection\" referenced in the model answer has no matching time in the learner scenario or Appendix B. That is a content gap for the RTO to close, not a formatting one."
+  ],
+  "learnerRewrite": [
+      {
+          "task":  1,
+          "wordsBefore":  87,
+          "wordsAfter":  71,
+          "scenarioBefore":  30,
+          "scenarioAfter":  29,
+          "keptLongNote":  "Kept the optional Australian brand example as an option, not a demand; synonym, what-it-is and how-used all retained."
+      },
+      {
+          "task":  2,
+          "wordsBefore":  88,
+          "wordsAfter":  80,
+          "scenarioBefore":  45,
+          "scenarioAfter":  41,
+          "keptLongNote":  "Kept the Food Act 2001 (SA) and Standard 3.2.2 citation in full in (c); abbreviating it would lose the reference."
+      },
+      {
+          "task":  3,
+          "wordsBefore":  38,
+          "wordsAfter":  33,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Kept both the Appendix A product and the short reason; they are assessed separately."
+      },
+      {
+          "task":  4,
+          "wordsBefore":  46,
+          "wordsAfter":  39,
+          "scenarioBefore":  55,
+          "scenarioAfter":  46,
+          "keptLongNote":  "Kept both origin demands in (a): the origins themselves and how they still show in the product today."
+      },
+      {
+          "task":  5,
+          "wordsBefore":  58,
+          "wordsAfter":  48,
+          "scenarioBefore":  90,
+          "scenarioAfter":  70,
+          "keptLongNote":  "Nothing cut from (b): the sequence and the justification against setting times and the equipment constraint both remain."
+      },
+      {
+          "task":  6,
+          "wordsBefore":  31,
+          "wordsAfter":  26,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Only the opener was cut; essential functions, features and safe and hygienic practice are all still demanded."
+      },
+      {
+          "task":  7,
+          "wordsBefore":  55,
+          "wordsAfter":  53,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Part (b) stays at 27 words because the venue name La Meridienne Patisserie, Rundle Street, Adelaide is 7 of them and must stay verbatim."
+      },
+      {
+          "task":  8,
+          "wordsBefore":  46,
+          "wordsAfter":  45,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Part (b) keeps the venue name verbatim plus both the one advantage and the one limitation."
+      },
+      {
+          "task":  9,
+          "wordsBefore":  86,
+          "wordsAfter":  80,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Part (a) keeps four demands: melting temperature, working temperature, the crystal explanation and the why-different explanation."
+      },
+      {
+          "task":  10,
+          "wordsBefore":  78,
+          "wordsAfter":  77,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Part (c) kept all three fault symptoms (dull, streaky, soft, will not release) plus causes and corrective action."
+      },
+      {
+          "task":  11,
+          "wordsBefore":  34,
+          "wordsAfter":  24,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Kept the em dash list of taste, texture, consistency and keeping quality intact; it sets the answer scope."
+      },
+      {
+          "task":  12,
+          "wordsBefore":  62,
+          "wordsAfter":  60,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Part (b) keeps both demands: justify the Appendix A coating method and explain bringing the cut centres to temperature."
+      },
+      {
+          "task":  13,
+          "wordsBefore":  28,
+          "wordsAfter":  25,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Kept the requirement for two Appendix A centres or fillings and a reason for each combination."
+      },
+      {
+          "task":  14,
+          "wordsBefore":  38,
+          "wordsAfter":  36,
+          "scenarioBefore":  0,
+          "scenarioAfter":  0,
+          "keptLongNote":  "Kept the conditional Appendix A reference, which applies only where a product in the range uses the technique."
+      },
+      {
+          "task":  15,
+          "wordsBefore":  71,
+          "wordsAfter":  64,
+          "scenarioBefore":  50,
+          "scenarioAfter":  52,
+          "keptLongNote":  "The first sentence of (b) runs to 25 words because the Food Act 2001 (SA) and Standards 3.2.2 and 3.2.2A citations must appear in full."
+      },
+      {
+          "task":  "TOTAL",
+          "wordsBefore":  846,
+          "wordsAfter":  761,
+          "scenarioBefore":  369,
+          "scenarioAfter":  324,
+          "keptLongNote":  "Counts cover stem plus all part texts. Scenario counts are listed separately and include the Task 9 (b) part-level scenario (99 to 86 words), which stays long because every figure in it feeds the calculation."
+      }
+  ],
+  "tablePointRewrite": [
+    { "task": 1, "part": "a", "rows": 6, "cellsRewritten": 12, "wordsBefore": 250, "wordsAfter": 197, "notes": "Column 1 is a single trade term and stays as one point." },
+    { "task": 1, "part": "b", "rows": 8, "cellsRewritten": 24, "wordsBefore": 343, "wordsAfter": 275, "notes": "Column 1 repeats the long item description, so it was point-ified as well; the row key now reads as bullets rather than the verbatim sentence in table.items. Nothing dropped. handrolled split to hand-rolled." },
+    { "task": 2, "part": "b", "rows": 5, "cellsRewritten": 10, "wordsBefore": 311, "wordsAfter": 262, "notes": "Freshness columns held five or six checks; paired checks were merged to stay within four points. No check dropped." },
+    { "task": 3, "part": "", "rows": 5, "cellsRewritten": 10, "wordsBefore": 293, "wordsAfter": 228, "notes": "All Appendix A codes A2, A3, A7, A9, A10 retained." },
+    { "task": 4, "part": "a", "rows": 4, "cellsRewritten": 8, "wordsBefore": 262, "wordsAfter": 195, "notes": "Dates, places and names retained: 1912, Jean Neuhaus II, Brussels, Turin, Cremona, Montelimar, Piedmont, perigord." },
+    { "task": 6, "part": "", "rows": 6, "cellsRewritten": 12, "wordsBefore": 460, "wordsAfter": 373, "notes": "Safe practice cells held five instructions; in the tempering machine and marble slab rows two short instructions were merged into one point. Nothing dropped. 0.1 degrees C retained." },
+    { "task": 7, "part": "a", "rows": 3, "cellsRewritten": 6, "wordsBefore": 221, "wordsAfter": 186, "notes": "" },
+    { "task": 8, "part": "b", "rows": 4, "cellsRewritten": 8, "wordsBefore": 343, "wordsAfter": 277, "notes": "Advantage and limitation are now separate points, so the advantage/limitation labels are kept as point prefixes. 40 degrees C and 20 second bursts retained." },
+    { "task": 9, "part": "a", "rows": 3, "cellsRewritten": 3, "wordsBefore": 156, "wordsAfter": 121, "notes": "Melting and working temperature columns are single values and stay as one point each. 40, 32, 31, 30 degrees C all retained." },
+    { "task": 9, "part": "b", "rows": 6, "cellsRewritten": 6, "wordsBefore": 133, "wordsAfter": 119, "notes": "Only the working column was point-ified, splitting the rule from the substitution. Answer column is a single value and stays as one point. All figures retained." },
+    { "task": 10, "part": "a", "rows": 3, "cellsRewritten": 6, "wordsBefore": 212, "wordsAfter": 158, "notes": "handdipped split to hand-dipped." },
+    { "task": 10, "part": "b", "rows": 3, "cellsRewritten": 6, "wordsBefore": 192, "wordsAfter": 142, "notes": "" },
+    { "task": 11, "part": "", "rows": 9, "cellsRewritten": 18, "wordsBefore": 398, "wordsAfter": 331, "notes": "Appendix A column is a short product code and stays as one or two points. 35 degrees C retained." },
+    { "task": 12, "part": "a", "rows": 3, "cellsRewritten": 6, "wordsBefore": 218, "wordsAfter": 176, "notes": "handmarked split to hand-marked." },
+    { "task": 13, "part": "", "rows": 3, "cellsRewritten": 6, "wordsBefore": 190, "wordsAfter": 143, "notes": "Pairing column reduced to two or three points, one per Appendix A pairing. A3, A5, A6, A7, A9 all retained." },
+    { "task": 14, "part": "", "rows": 5, "cellsRewritten": 10, "wordsBefore": 378, "wordsAfter": 301, "notes": "30 degrees C for coloured cocoa butter retained." },
+    { "task": 15, "part": "a", "rows": 5, "cellsRewritten": 10, "wordsBefore": 381, "wordsAfter": 318, "notes": "foodgrade, strongsmelling, useby and nutfree split to food-grade, strong-smelling, use-by and nut-free. 15-18, 18-20, 5, 5-60 degrees C, 50% humidity and the 48 hour hold all retained." },
+    { "task": "TOTAL", "part": "", "rows": 81, "cellsRewritten": 161, "wordsBefore": 4741, "wordsAfter": 3802, "notes": "17 table parts. Line counts and pipe counts unchanged in every part. No number, percentage, weight, time, temperature or Appendix A product code was lost." }
+  ]
+}

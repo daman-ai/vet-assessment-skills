@@ -1,0 +1,13 @@
+{
+  "name": "vet-skills",
+  "owner": {
+    "name": "Meridian Vocational College / Adelaide Culinary Institute"
+  },
+  "plugins": [
+    {
+      "name": "vet-assessment",
+      "source": "./plugins/vet-assessment",
+      "description": "Build audit-compliant Australian VET assessment packs matched to the RTO's own approved templates - paired learner and assessor Word documents with model answers, benchmarks, generated recipe photography and a compliance report. Includes the docx-images artwork sub-skill."
+    }
+  ]
+}

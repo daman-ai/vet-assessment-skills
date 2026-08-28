@@ -1,0 +1,8 @@
+{
+  "name": "vet-assessment",
+  "version": "1.0.0",
+  "description": "Australian VET assessment pack builder for MVC and ACI - sources the unit live from training.gov.au, enforces an assess-once register, builds by editing the RTO's approved templates with brand identity, palette and logo swapped and byte-verified, and gates the output through house rules, readability, persona review and an independent clean-room compliance audit. Bundles the docx-images sub-skill for recipe photography.",
+  "author": {
+    "name": "Meridian Vocational College / Adelaide Culinary Institute"
+  }
+}

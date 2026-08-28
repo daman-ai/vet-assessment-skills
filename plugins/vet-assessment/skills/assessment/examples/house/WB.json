@@ -1,0 +1,1767 @@
+{
+    "instructions":  [
+                         "Read each task carefully and complete every item in your own words.",
+                         "Apply the South Australian food safety and hospitality laws, food standards and authorities that apply.",
+                         "Type your answers where possible; handwritten work must be neat and legible.",
+                         "If you have a learning need, you may request a reasonable adjustment before you begin.",
+                         "Complete every question and every recipe card in your own words.",
+                         "Use the product evidence matrix before you begin production.",
+                         "Practical evidence is gathered in the kitchen and recorded on the observation tools."
+                     ],
+    "principles":  {
+                       "headers":  [
+                                       "Principle / rule",
+                                       "How it is applied"
+                                   ],
+                       "rows":  [
+                                    [
+                                        "Fairness",
+                                        "You are told the requirements, conditions and due date before you begin. Reasonable adjustments are available on request and do not change the standard you must meet."
+                                    ],
+                                    [
+                                        "Flexibility",
+                                        "The way you complete the workbook and the practical tasks can be adjusted while still assessing the same unit requirements."
+                                    ],
+                                    [
+                                        "Validity",
+                                        "Every question and recipe card maps to SITHPAT018 and requires you to apply your knowledge in a commercial patisserie context."
+                                    ],
+                                    [
+                                        "Reliability",
+                                        "Your assessor judges every learner against the same benchmarks, the observation tools and the product evidence matrix, so results are consistent."
+                                    ]
+                                ]
+                   },
+    "assessmentConditions":  [
+                                 "This workbook is completed as open-book preparation and recording for the practical assessment.",
+                                 "The knowledge questions are completed individually.",
+                                 "Practical evidence must be gathered in an operational commercial kitchen or an industryrealistic simulated commercial kitchen, with access to the fixtures, small equipment, ingredients, cleaning materials and organisational specifications listed in the unit assessment conditions.",
+                                 "You will have access to your learner resource, the standard recipes in this workbook, equipment manufacturer instructions, safety data sheets and the college food safety program.",
+                                 "Ask your assessor about a reasonable adjustment before you begin."
+                             ],
+    "workbookPurpose":  [
+                            "This workbook aligns to the current SITHPAT018 Produce chocolate confectionery unit structure, performance evidence, knowledge evidence and assessment conditions. It is used with the learner assessment pack and the practical observation tools, and is not a standalone competency decision document."
+                        ],
+    "currentUnitFocus":  {
+                             "intro":  "Under SITHPAT018 you must prepare at least 24 individual chocolates from each of three types, using a range of production processes, centres and fillings, and at least one tempering method for couverture.",
+                             "bullets":  [
+                                             "24 chocolates with hard centres",
+                                             "24 chocolates with soft centres",
+                                             "24 filled chocolates",
+                                             "At least three different processes for producing chocolates: cut or dressed, hand coated, enrobing, made with prepared hollow shells, moulded",
+                                             "Each of the following used at least once across the three types: caramel, croquant, flavoured fondant, ganache, jellies, liqueurs, nougat, nuts, fruits",
+                                             "At least one tempering method for couverture",
+                                             "At least one product adjusted for a documented special customer request"
+                                         ]
+                         },
+    "howToUse":  [
+                     "Complete the knowledge questions in this workbook.",
+                     "Complete the case study and the recipe cards.",
+                     "Use the product evidence matrix first, to confirm the required products will be completed and every performance evidence requirement is covered.",
+                     "For each recipe card, calculate adjusted quantities where needed, complete mise en place, follow the method, and record any special-request adjustments.",
+                     "Practical evidence must be observed in an operational or industry-realistic simulated commercial kitchen.",
+                     "Your assessor relies on the observation tool and the theory assessment, not the recipe pages alone, when making the final judgement."
+                 ],
+    "theoryQuestionsIntro":  "These questions cover knowledge that is required by the unit but is not assessed in your knowledge test. There are only three, because everything else is already covered there. Each question is broken into numbered parts. Every part has its own box and its own writing space. Answer every part.",
+    "theoryQuestions":  [
+                            {
+                                "heading":  "Question 1 — Portioning, yield and cost control",
+                                "whyThisQuestionIsHere":  "PC 3.3 — minimise waste to maximise profitability. This performance criterion has no matching Knowledge Evidence point and is not assessed in UAT 1.",
+                                "scenario":  null,
+                                "tip":  "Tip: Use the conversion factor method: portions required divided by recipe yield.",
+                                "minimumWords":  "Answer every part below. Your total response must be at least 150 words.",
+                                "parts":  [
+                                              {
+                                                  "number":  1,
+                                                  "task":  "Select one recipe card from this workbook.",
+                                                  "responsePrompt":  "Write your response to Part 1 here…",
+                                                  "modelAnswer":  "Recipe 12 — Almond croquant (MVC1856)."
+                                              },
+                                              {
+                                                  "number":  2,
+                                                  "task":  "State its yield and its portion size.",
+                                                  "responsePrompt":  "Write your response to Part 2 here…",
+                                                  "modelAnswer":  "The card gives a yield of 20 pieces at a portion size of 5 gms."
+                                              },
+                                              {
+                                                  "number":  3,
+                                                  "task":  "Calculate the quantities needed to produce 96 pieces, showing the conversion factor and all working.",
+                                                  "responsePrompt":  "Write your response to Part 3 here…",
+                                                  "modelAnswer":  "Conversion factor = pieces required / recipe yield = 96 / 20 = 4.8.\nBlanched almonds 37.5 gms x 4.8 = 180 gms.\nSugar 69 gms x 4.8 = 331.2 gms.\nButter 7.5 gms x 4.8 = 36 gms.\nVanilla 2.5 gms x 4.8 = 12 gms.\nTotal croquant mass required = 96 x 5 gms = 480 gms, which the scaled batch covers."
+                                              },
+                                              {
+                                                  "number":  4,
+                                                  "task":  "Explain two ways you minimise waste during production.",
+                                                  "responsePrompt":  "Write your response to Part 4 here…",
+                                                  "modelAnswer":  "Scale accurately and weigh to the scaled figure rather than rounding up a batch.\nThat way no more croquant is cooked than the order needs.\nSlab the croquant to the thickness the portion size requires.\nCut with a guitar or a ruled frame so every piece is 5 gms and offcuts are minimal.\nTrimmings that do come off are re-warmed into the next slab rather than discarded."
+                                              },
+                                              {
+                                                  "number":  5,
+                                                  "task":  "State what couverture can be recovered and returned to the tempering machine, and what cannot.",
+                                                  "responsePrompt":  "Write your response to Part 5 here…",
+                                                  "modelAnswer":  "Recoverable: clean tempered couverture - marble scrapings, drip tray under the dipping grid, mould-face excess\nOnly if it has not touched a centre, a garnish or the floor and carries no crumb.\nNot recoverable: couverture containing centre, filling, jelly, nut fragments, transfer sheet residue or moisture.\nNot recoverable: couverture from the nut product when the machine is next used for a nut-free run.\nThat material is discarded."
+                                              },
+                                              {
+                                                  "number":  6,
+                                                  "task":  "Explain why waste affects the profitability of the product.",
+                                                  "responsePrompt":  "Write your response to Part 6 here…",
+                                                  "modelAnswer":  "Every gram of couverture, nut and sugar cooked then thrown away has already been paid for.\nWaste is therefore a direct loss against the margin on the box.\nCouverture is the most expensive ingredient in the range.\nA batch over-tempered, out of temper or contaminated cannot be resold and takes the whole cost with it.\nWaste also costs the labour and machine time spent producing it.\nIt can put the order short, so the product has to be made twice."
+                                              }
+                                          ],
+                                "assessorBenchmark":  {
+                                                          "title":  "ASSESSOR BENCHMARK — Theory Question 1",
+                                                          "whatSatisfactoryLooksLike":  [
+                                                                                            "All six parts answered; total at least 150 words.",
+                                                                                            "A workbook recipe card named with its MVC number, yield and portion size correct.",
+                                                                                            "Conversion factor = pieces required divided by recipe yield.",
+                                                                                            "Every ingredient scaled by it, with the working visible.",
+                                                                                            "Two genuine and different waste-minimisation methods given.",
+                                                                                            "Recoverable and non-recoverable couverture distinguished, with a reason.",
+                                                                                            "Waste linked to margin, to couverture as the most expensive ingredient, and to labour or rework."
+                                                                                        ],
+                                                          "minimumAcceptableResponse":  [
+                                                                                            "A named recipe card with the correct yield and portion size.",
+                                                                                            "Correct conversion factor, at least three ingredients scaled, working shown.",
+                                                                                            "Two distinct waste methods.",
+                                                                                            "One correct example each of recoverable and non-recoverable couverture.",
+                                                                                            "One sound reason waste affects profitability."
+                                                                                        ],
+                                                          "criticalErrors":  [
+                                                                                 "Yield or portion size does not match the named recipe card.",
+                                                                                 "Conversion factor inverted (yield divided by pieces).",
+                                                                                 "Scaling applied to some ingredients but not others, without explanation.",
+                                                                                 "Couverture that touched a centre, garnish or nut product called recoverable.",
+                                                                                 "Profitability answered as waste is bad, with no cost reasoning.",
+                                                                                 "Total response under the 150 word minimum."
+                                                                             ],
+                                                          "workedAnswerKeyAndTolerance":  "Worked key - Question 1, Part 3 (model uses Recipe 12, Almond croquant MVC1856, yield 20).\nConversion factor = 96 / 20 = 4.8.\nBlanched almonds 37.5 x 4.8 = 180 gms.\nSugar 69 x 4.8 = 331.2 gms.\nButter 7.5 x 4.8 = 36 gms.\nVanilla 2.5 x 4.8 = 12 gms.\nCross-check: 96 pieces x 5 gms portion = 480 gms of croquant required.\nTolerance: quantities correct to one decimal place.\nConversion factor may be expressed as 4.8 or 24/5.\nDifferent card selected: recalculate against that card\u0027s yield - the method, not the figures, is judged.\nCard with no stated yield (Recipes 1 to 3): redirect the learner to a card that has one.",
+                                                          "exampleCommentSatisfactory":  "Selected MVC1856, quoted yield and portion size correctly, applied a conversion factor of 4.8 with working shown, gave two distinct waste controls, separated clean recoverable couverture from material carrying centre or nut fragments, and reasoned profitability from ingredient cost and rework - S.",
+                                                          "exampleCommentNotSatisfactory":  "Conversion factor calculated as 20 divided by 96, so the scaled quantities were wrong, and recovered couverture from a dipped product called always returnable. Re-attempt Parts 3 and 5: divide pieces by yield, and state what disqualifies couverture from return - NS."
+                                                      }
+                            },
+                            {
+                                "heading":  "Question 2 — Special customer request adjustment",
+                                "whyThisQuestionIsHere":  "Special-request coverage required by this workbook. Not assessed in UAT 1.",
+                                "scenario":  null,
+                                "tip":  "Tip: The six scenarios are in the Special customer request table earlier in this workbook.",
+                                "minimumWords":  "Answer every part below. Your total response must be at least 150 words.",
+                                "parts":  [
+                                              {
+                                                  "number":  1,
+                                                  "task":  "Select one scenario from the special customer request table.",
+                                                  "responsePrompt":  "Write your response to Part 1 here…",
+                                                  "modelAnswer":  "Scenario 1 — Nut allergy."
+                                              },
+                                              {
+                                                  "number":  2,
+                                                  "task":  "Select one recipe card the scenario can be applied to.",
+                                                  "responsePrompt":  "Write your response to Part 2 here…",
+                                                  "modelAnswer":  "Recipe 12 — Almond croquant (MVC1856)."
+                                              },
+                                              {
+                                                  "number":  3,
+                                                  "task":  "Explain the request and what the customer needs.",
+                                                  "responsePrompt":  "Write your response to Part 3 here…",
+                                                  "modelAnswer":  "Six guests at the Friday function have a severe tree nut allergy.\nThey need a portion of the order containing no tree nuts at all.\nIt must not have been exposed to tree nuts during production, storage or packing.\nA severe allergy is not a preference — trace contact can cause anaphylaxis.\nThe requirement is complete exclusion and complete separation.\nIt must be documented so front of house can identify the pieces and answer for them."
+                                              },
+                                              {
+                                                  "number":  4,
+                                                  "task":  "Explain the adjustment you make to the recipe.",
+                                                  "responsePrompt":  "Write your response to Part 4 here…",
+                                                  "modelAnswer":  "Keep the croquant method; replace blanched almonds one for one by weight with toasted pepitas (pumpkin seed).\nPepitas caramelise and set in the same way.\nFor 12 nut-free pieces the conversion factor is 12 / 20 = 0.6.\nPepitas 22.5 gms, sugar 41.4 gms, butter 4.5 gms, vanilla 1.5 gms.\nCoat in dark couverture from a freshly opened bag tempered in a cleaned machine.\nNot from the couverture used for the nut products.\nRecord the substitution and the reason on the recipe card."
+                                              },
+                                              {
+                                                  "number":  5,
+                                                  "task":  "State the food safety and allergen controls you put in place.",
+                                                  "responsePrompt":  "Write your response to Part 5 here…",
+                                                  "modelAnswer":  "The nut-free batch is made first, at the start of the shift.\nBench cleaned and sanitised beforehand; dedicated utensils, separate chopping board, colour-coded tongs.\nCouverture tempered from a new sealed bag in a machine stripped, washed, sanitised and dried.\nNo recovered couverture is used.\nContainers labelled NUT FREE with date and batch, sealed, shelved above the nut products\nPieces boxed separately and labelled; the substitution recorded so the allergen declaration is accurate."
+                                              },
+                                              {
+                                                  "number":  6,
+                                                  "task":  "Explain how you keep the product quality and appearance acceptable after the change.",
+                                                  "responsePrompt":  "Write your response to Part 6 here…",
+                                                  "modelAnswer":  "Pepitas are close to almonds in size, oil content and behaviour in a caramel.\nThe croquant sets to the same brittle texture and cuts to the same 5 gms portion, method unchanged.\nToasted to the same colour, so the flavour is comparably nutty rather than raw.\nCut pieces are the same dimensions as the almond version.\nHand dipped in the same dark couverture and dusted the same way.\nFinished piece matches the box for size, gloss and finish - the guest is not visibly singled out"
+                                              }
+                                          ],
+                                "assessorBenchmark":  {
+                                                          "title":  "ASSESSOR BENCHMARK — Theory Question 2",
+                                                          "whatSatisfactoryLooksLike":  [
+                                                                                            "All six parts answered; total at least 150 words.",
+                                                                                            "One of the six scenarios in the special customer request table named.",
+                                                                                            "A recipe card the scenario genuinely applies to, named with its MVC number.",
+                                                                                            "Request explained as what the customer needs, not just what is removed.",
+                                                                                            "Adjustment specific, with substitute ingredients and quantities.",
+                                                                                            "Controls cover production order, separation, dedicated equipment, labelling and storage.",
+                                                                                            "Quality answer shows the product still matches the range in texture, size and appearance."
+                                                                                        ],
+                                                          "minimumAcceptableResponse":  [
+                                                                                            "A named scenario and a compatible named recipe.",
+                                                                                            "A clear statement of the customer need.",
+                                                                                            "One specific substitution or adjustment.",
+                                                                                            "At least two allergen or food safety controls.",
+                                                                                            "One credible point about maintaining quality."
+                                                                                        ],
+                                                          "criticalErrors":  [
+                                                                                 "Scenario paired with a recipe it cannot apply to.",
+                                                                                 "For example, a gluten-free request against a recipe with no flour component.",
+                                                                                 "Allergen answer relies on cleaning alone, with no separation or sequencing.",
+                                                                                 "A severe allergy treated as a preference.",
+                                                                                 "A substitution given with no quantity.",
+                                                                                 "Adjusted product called acceptable when it fails the portion or presentation standard.",
+                                                                                 "Total response under the 150 word minimum."
+                                                                             ],
+                                                          "workedAnswerKeyAndTolerance":  null,
+                                                          "exampleCommentSatisfactory":  "Selected the nut allergy scenario against MVC1856 with a pepita substitution and quantities, then covered production first on a cleaned bench, dedicated utensils, couverture from a new bag, labelling and separate storage. Explained why the substitute holds texture and portion size - S.",
+                                                          "exampleCommentNotSatisfactory":  "Controls relied on washing the bench afterwards, the nut-free batch was made after the almond croquant, and no substitute quantity was given. Re-attempt Parts 4 and 5: give the substitute with its scaled quantity and place the batch in the running order - NS."
+                                                      }
+                            },
+                            {
+                                "heading":  "Question 3 — Allergen cross-contact control between products",
+                                "whyThisQuestionIsHere":  "Allergen cross-contact is not a Knowledge Evidence point of SITHPAT018 and is not assessed in UAT 1, but it applies directly to a shift producing nut and nut-free products together.",
+                                "scenario":  "Your shift produces almond croquant, raspberry jelly squares and caramel bonbons using the same bench, the same tempering machine and the same enrober.",
+                                "tip":  "Tip: Recovered couverture cannot go back into a product whose allergen declaration does not list nuts.",
+                                "minimumWords":  "Answer every part below. Your total response must be at least 150 words.",
+                                "parts":  [
+                                              {
+                                                  "number":  1,
+                                                  "task":  "Explain how you sequence the three products to control allergen cross-contact.",
+                                                  "responsePrompt":  "Write your response to Part 1 here…",
+                                                  "modelAnswer":  "Nut-free work first, then the products containing no nuts, then the nut product last.\nOn this shift: raspberry jelly squares, then caramel bonbons, then almond croquant.\nNothing that follows the nut product can then pick up its residue.\nOnce the croquant is made, no further product starts on that bench or machine until a full clean-down.\nThe controls are built into the running order rather than relying on cleaning alone."
+                                              },
+                                              {
+                                                  "number":  2,
+                                                  "task":  "Explain how you separate the nut components on the bench.",
+                                                  "responsePrompt":  "Write your response to Part 2 here…",
+                                                  "modelAnswer":  "Almonds weighed and toasted on a dedicated bench at the far end of the section.\nAway from the moulding and enrobing line.\nTheir own board, tray, knife and tongs, kept in a labelled container.\nKept sealed and labelled until the moment of use; never carried open across the section.\nAnyone handling them changes gloves and apron before returning to other work.\nNut waste goes straight into a lidded bin rather than sitting on the bench."
+                                              },
+                                              {
+                                                  "number":  3,
+                                                  "task":  "State what cleaning is done between products, and when.",
+                                                  "responsePrompt":  "Write your response to Part 3 here…",
+                                                  "modelAnswer":  "Between products: bench, boards, utensils, scales washed hot, rinsed, sanitised, dried; cloths changed\nAfter the nut product: a full clean-down of the bench, the dipping forks and the marble.\nThe tempering machine bowl and auger stripped, washed, sanitised and dried before any other couverture goes in.\nThe enrober belt and pan washed and sanitised at the end of the run.\nCleaning is done immediately after each product, not left until the end of the shift."
+                                              },
+                                              {
+                                                  "number":  4,
+                                                  "task":  "Explain what happens to couverture recovered from the nut product.",
+                                                  "responsePrompt":  "Write your response to Part 4 here…",
+                                                  "modelAnswer":  "Couverture recovered from the almond croquant carries nut protein, however clean it looks.\nDipped pieces shed fragments into the bowl and the drip tray.\nIt is kept as nut-containing couverture, labelled CONTAINS TREE NUTS with the date.\nReturned to the tempering machine only if the next product in that machine also declares tree nuts.\nNever into the nut-free batch or a product whose allergen declaration does not list nuts.\nIf no nut-declaring product is left to run, it is discarded."
+                                              }
+                                          ],
+                                "assessorBenchmark":  {
+                                                          "title":  "ASSESSOR BENCHMARK — Theory Question 3",
+                                                          "whatSatisfactoryLooksLike":  [
+                                                                                            "All four parts answered; total at least 150 words.",
+                                                                                            "Nut-free and non-nut products sequenced before the nut product.",
+                                                                                            "Explains why the running order is itself a control.",
+                                                                                            "Separation covers dedicated area, dedicated equipment, sealed labelled storage, glove or apron changes.",
+                                                                                            "Cleaning states what, with what, and when - immediately between products.",
+                                                                                            "Full clean-down after the nut product, including tempering machine bowl and auger.",
+                                                                                            "Recovered nut couverture carries nut protein; nut-declaring products only, or discarded."
+                                                                                        ],
+                                                          "minimumAcceptableResponse":  [
+                                                                                            "Running order places the nut product last, with a reason.",
+                                                                                            "Two specific separation controls.",
+                                                                                            "Cleaning stated as between products, not at the end of the shift.",
+                                                                                            "Recovered nut couverture cannot enter a nut-free product."
+                                                                                        ],
+                                                          "criticalErrors":  [
+                                                                                 "Nut product sequenced before nut-free work.",
+                                                                                 "Cleaning described only as at the end of the shift.",
+                                                                                 "The tempering machine not addressed.",
+                                                                                 "Recovered nut couverture called usable once strained or remelted.",
+                                                                                 "Cross-contact treated as hygiene rather than allergen control.",
+                                                                                 "Total response under the 150 word minimum."
+                                                                             ],
+                                                          "workedAnswerKeyAndTolerance":  null,
+                                                          "exampleCommentSatisfactory":  "Sequenced jelly, then caramel, then croquant with the reason stated, described a dedicated nut bench with its own equipment and sealed labelled storage, set out cleaning between products including a full strip of the tempering machine, and restricted recovered nut couverture - S.",
+                                                          "exampleCommentNotSatisfactory":  "The croquant was produced first and the controls relied on cleaning afterwards, and recovered couverture was called safe to reuse once remelted. Re-attempt Parts 1 and 4: place the nut product last with a reason, and state what happens to nut-bearing couverture - NS."
+                                                      }
+                            }
+                        ],
+    "specialRequestTable":  {
+                                "heading":  "Special customer request scenarios",
+                                "intro":  "At least one recipe in this workbook must be produced with a documented special customer request adjustment. Record the request, the requirement identified, the change made, and how product quality and food safety were maintained.",
+                                "headers":  [
+                                                "Scenario",
+                                                "Request",
+                                                "Typical adjustment",
+                                                "Record in recipe card"
+                                            ],
+                                "rows":  [
+                                             [
+                                                 "1",
+                                                 "Nut allergy",
+                                                 "Remove tree nuts and nutbased garnishes; substitute with seeds or safe inclusions; prevent cross-contact.",
+                                                 "Substituted ingredient and cross-contact controls."
+                                             ],
+                                             [
+                                                 "2",
+                                                 "Texture modification",
+                                                 "Modify garnish, piping or finish for a safer texture while keeping flavour and presentation appropriate.",
+                                                 "Texture change and storage/display controls."
+                                             ],
+                                             [
+                                                 "3",
+                                                 "Cultural / religious requirement",
+                                                 "Remove non-compliant items such as alcohol or gelatine and use compliant alternatives.",
+                                                 "Removed ingredient and compliant substitute."
+                                             ],
+                                             [
+                                                 "4",
+                                                 "Lower sugar / lower fat",
+                                                 "Reduce portion size or use a lighter finish where quality remains acceptable.",
+                                                 "Portion/finish adjustment and reason."
+                                             ],
+                                             [
+                                                 "5",
+                                                 "Coeliac / gluten free",
+                                                 "Use a compliant flour blend and prevent gluten contamination.",
+                                                 "Flour substitution and contamination controls."
+                                             ],
+                                             [
+                                                 "6",
+                                                 "Vegetarian / vegan",
+                                                 "Replace dairy, gelatine or egg components where the product can be adjusted appropriately.",
+                                                 "Ingredient replacements and expected product change."
+                                             ]
+                                         ]
+                            },
+    "productEvidenceMatrix":  {
+                                  "intro":  "Matrix confirms that the products you make will cover every performance evidence requirement of SITHPAT018.",
+                                  "headers":  [
+                                                  "Recipe",
+                                                  "Group",
+                                                  "Base / method",
+                                                  "Primary filling",
+                                                  "Coating",
+                                                  "Decoration",
+                                                  "Special request",
+                                                  "PE coverage note"
+                                              ],
+                                  "rows":  [
+                                               [
+                                                   "Rocher / mendiant",
+                                                   "Hard centre",
+                                                   "Cut or dressed",
+                                                   "Fruit and nut",
+                                                   "Dark couverture",
+                                                   "Rough natural surface",
+                                                   "1, 6",
+                                                   "Nuts; fruits"
+                                               ],
+                                               [
+                                                   "Bliss ball, marzipan",
+                                                   "Soft centre",
+                                                   "Hand coated",
+                                                   "Marzipan",
+                                                   "Dark couverture",
+                                                   "Hand-rolled finish",
+                                                   "1, 5",
+                                                   "Hand coated process"
+                                               ],
+                                               [
+                                                   "Caramel bonbon",
+                                                   "Filling",
+                                                   "Moulded",
+                                                   "Caramel",
+                                                   "Milk couverture",
+                                                   "Coloured cocoa butter",
+                                                   "4",
+                                                   "Caramel"
+                                               ],
+                                               [
+                                                   "Coffee liqueur bonbon",
+                                                   "Filling",
+                                                   "Moulded",
+                                                   "Coffee liqueur fondant",
+                                                   "Dark couverture",
+                                                   "Piped line",
+                                                   "3",
+                                                   "Liqueurs; fondant"
+                                               ],
+                                               [
+                                                   "Strawberry fondant bonbon",
+                                                   "Filling",
+                                                   "Moulded",
+                                                   "Flavoured fondant",
+                                                   "White couverture",
+                                                   "Coloured cocoa butter",
+                                                   "5, 6",
+                                                   "Flavoured fondant"
+                                               ],
+                                               [
+                                                   "Passionfruit ganache",
+                                                   "Filling",
+                                                   "Cut or dressed",
+                                                   "Ganache",
+                                                   "Milk couverture",
+                                                   "Fork marking",
+                                                   "2",
+                                                   "Ganache; fruits"
+                                               ],
+                                               [
+                                                   "Almond croquant",
+                                                   "Filling",
+                                                   "Cut or dressed",
+                                                   "Croquant",
+                                                   "Dark couverture",
+                                                   "Dusted finish",
+                                                   "1",
+                                                   "Croquant; nuts"
+                                               ],
+                                               [
+                                                   "Chocolate dipped nougat",
+                                                   "Hard centre",
+                                                   "Cut or dressed",
+                                                   "Nougat",
+                                                   "Dark couverture",
+                                                   "Smooth dipped finish",
+                                                   "1, 2",
+                                                   "Nougat; nuts; fruits"
+                                               ],
+                                               [
+                                                   "Raspberry jelly square",
+                                                   "Soft centre",
+                                                   "Enrobing",
+                                                   "Raspberry jelly",
+                                                   "Dark couverture",
+                                                   "Transfer sheet",
+                                                   "5, 6",
+                                                   "Jellies; enrobing"
+                                               ],
+                                               [
+                                                   "Orange liqueur sphere",
+                                                   "Filling",
+                                                   "Prepared hollow shells",
+                                                   "Orange liqueur",
+                                                   "Dark couverture",
+                                                   "Piped filigree",
+                                                   "3",
+                                                   "Liqueurs; hollow shells"
+                                               ]
+                                           ],
+                                  "cellFillState":  "Every cell in all ten rows is pre-filled in the source. No cell in this matrix is left blank for the learner to complete."
+                              },
+    "observationInstrumentCover":  {
+                                       "heading":  "Assessment instrument — observation of practical competency",
+                                       "detailTable":  {
+                                                           "rows":  [
+                                                                        [
+                                                                            "RTO",
+                                                                            "Golden Wattle Group Pty Ltd trading as Meridian Vocational College, RTO 45039, CRICOS 03551M"
+                                                                        ],
+                                                                        [
+                                                                            "Unit assessed",
+                                                                            "SITHPAT018 Produce chocolate confectionery, Release 1"
+                                                                        ],
+                                                                        [
+                                                                            "Pre-requisite unit",
+                                                                            "SITXFSA005 Use hygienic practices for food safety"
+                                                                        ],
+                                                                        [
+                                                                            "Location of assessment",
+                                                                            "MVC training facility — simulated commercial kitchen"
+                                                                        ]
+                                                                    ]
+                                                       },
+                                       "whatThisInstrumentIs":  [
+                                                                    "This instrument records what the assessor sees you do in the kitchen.",
+                                                                    "There are eight observation sheets, one for each element of the unit.",
+                                                                    "Each sheet lists the actions the assessor must see, and each action is marked separately.",
+                                                                    "Practical competency cannot be judged from written work alone.",
+                                                                    "This instrument is used together with your Recipe Workbook, the knowledge assessment, and the Student Assessment Record.",
+                                                                    "All of them must be satisfactory before a result of competent is recorded."
+                                                                ],
+                                       "instructionsForAssessor":  [
+                                                                       "Confirm the assessment date with the student at least two working days beforehand.",
+                                                                       "Give the student the recipes at least one week before the assessment.",
+                                                                       "Explain the scenario and any special requests that apply to the recipes.",
+                                                                       "Observe the student across the whole task. Do not mark from memory afterwards.",
+                                                                       "Mark each action S (satisfactory) or NS (not satisfactory) as you observe it.",
+                                                                       "Write a note against any action marked NS, so the student knows what to repeat.",
+                                                                       "Ask questions during the task where you need to confirm understanding, and record the answer in the notes column.",
+                                                                       "Apply the Principles of Assessment and the Rules of Evidence throughout.",
+                                                                       "Record any reasonable adjustment in the space provided on each sheet."
+                                                                   ],
+                                       "instructionsForStudent":  [
+                                                                      "Read the recipes and this instrument before the assessment day.",
+                                                                      "Ask your assessor about a reasonable adjustment before the assessment begins.",
+                                                                      "Work at your normal pace. The assessor will watch and take notes.",
+                                                                      "You may be asked questions while you work. Answer in your own words.",
+                                                                      "If an action is marked not satisfactory, your assessor will tell you what to repeat and when."
+                                                                  ],
+                                       "howMarked":  [
+                                                         "S — satisfactory. The assessor saw the action performed to the required standard.",
+                                                         "NS — not satisfactory. The action was not performed, or not to the required standard. A note must be written explaining what was missing.",
+                                                         "Every action must be marked S before the sheet is judged satisfactory."
+                                                     ]
+                                   },
+    "observations":  [
+                         {
+                             "number":  1,
+                             "elementTitle":  "Select ingredients",
+                             "headingForm":  "Observation 1\tSelect ingredients",
+                             "elementLine":  "Element 1 of SITHPAT018. The assessor marks each action separately as it is observed.",
+                             "columnHeaders":  [
+                                                   "PC",
+                                                   "The student did this",
+                                                   "S",
+                                                   "NS",
+                                                   "Assessor notes"
+                                               ],
+                             "rows":  [
+                                          {
+                                              "pc":  "1.1",
+                                              "action":  "Read the whole standard recipe before starting work",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.1",
+                                              "action":  "Stated the yield, the portion size and the total time from the recipe card",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.1",
+                                              "action":  "Identified any component that had to be started earlier",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.2",
+                                              "action":  "Calculated the conversion factor for the quantity required",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.2",
+                                              "action":  "Calculated the scaled quantity for every ingredient",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.2",
+                                              "action":  "Showed the working and checked it before weighing",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.3",
+                                              "action":  "Selected ingredients that matched the recipe specification",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.3",
+                                              "action":  "Read the date code and said whether it was a use-by or a best-before date",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.3",
+                                              "action":  "Selected the oldest suitable stock",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.3",
+                                              "action":  "Checked freshness and quality by sight, by smell, and by taste where safe",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "1.3",
+                                              "action":  "Set aside, labelled and reported any ingredient that failed the check",
+                                              "assessorIndicator":  null
+                                          }
+                                      ],
+                             "closingBlocks":  {
+                                                   "assessorNotes":  "Assessor notes (column on every criteria row; no separate closing assessor notes block in the learner workbook)",
+                                                   "resultRowLabel":  "Result for this observation",
+                                                   "resultRow":  "Result ☐ Satisfactory        ☐ Not satisfactory",
+                                                   "trainerSignatureAndDateRow":  null
+                                               },
+                             "observableIndicators":  {
+                                                          "title":  "OBSERVABLE INDICATORS — Observation 1",
+                                                          "satisfactory":  [
+                                                                               "Reads the whole card before touching an ingredient.",
+                                                                               "States the yield, the portion size and which component starts first.",
+                                                                               "Conversion factor = portions required divided by recipe yield.",
+                                                                               "Working written down and checked before any weighing.",
+                                                                               "Ingredients match the specification on the card.",
+                                                                               "Reads the actual date code; says use-by or best-before.",
+                                                                               "Takes the oldest suitable stock.",
+                                                                               "Checks freshness by sight and smell; tastes only where safe.",
+                                                                               "Sets aside, labels and reports any ingredient that fails the check."
+                                                                           ],
+                                                          "notSatisfactory":  [
+                                                                                  "Starts weighing before reading the card.",
+                                                                                  "Scales by eye or by doubling.",
+                                                                                  "Conversion factor inverted.",
+                                                                                  "Takes the newest stock from the front.",
+                                                                                  "Date codes not read, or use-by treated as best-before.",
+                                                                                  "Failed ingredient used, downgraded or quietly returned to the shelf.",
+                                                                                  "Tastes an ingredient that is not safe to taste."
+                                                                              ],
+                                                          "exampleCommentSatisfactory":  "Read the full recipe and stated yield, portion size and the jelly as the earliest component. Calculated and checked every scaled quantity before weighing. Took oldest stock, read date codes correctly and rejected a cream carton on temperature. All actions S.",
+                                                          "exampleCommentNotSatisfactory":  "Weighed three ingredients before reading the card through, and scaled by doubling rather than by conversion factor. Date codes not read and the newest cream taken from the front. Actions at PC 1.1, 1.2 and 1.3 marked NS - repeat next production day."
+                                                      }
+                         },
+                         {
+                             "number":  2,
+                             "elementTitle":  "Select, prepare and use equipment",
+                             "headingForm":  "Observation 2\tSelect, prepare and use equipment",
+                             "elementLine":  "Element 2 of SITHPAT018. The assessor marks each action separately as it is observed.",
+                             "columnHeaders":  [
+                                                   "PC",
+                                                   "The student did this",
+                                                   "S",
+                                                   "NS",
+                                                   "Assessor notes"
+                                               ],
+                             "rows":  [
+                                          {
+                                              "pc":  "2.1",
+                                              "action":  "Selected equipment suited to the quantity, the shape and the process",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.1",
+                                              "action":  "Selected bowl and container sizes suited to the volume",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.2",
+                                              "action":  "Dismantled the equipment to the level the manufacturer specifies",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.2",
+                                              "action":  "Cleaned, sanitised and then dried the equipment completely",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.2",
+                                              "action":  "Reassembled the equipment in the correct order with guards fitted",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.3",
+                                              "action":  "Operated the equipment within the limits in the manufacturer instructions",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.3",
+                                              "action":  "Kept hands and utensils clear of moving parts",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.3",
+                                              "action":  "Handled utensils hygienically and did not rest them on the bench",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.4",
+                                              "action":  "Wore food safe gloves and handled moulds by the edges only",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.4",
+                                              "action":  "Polished every mould cavity and checked for dust, residue and damage",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.4",
+                                              "action":  "Kept metal and abrasive items away from the polished surface",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.5",
+                                              "action":  "Brought the moulds to the correct temperature before casting",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "2.5",
+                                              "action":  "Held the mould temperature steady across the whole run",
+                                              "assessorIndicator":  null
+                                          }
+                                      ],
+                             "closingBlocks":  {
+                                                   "assessorNotes":  "Assessor notes (column on every criteria row; no separate closing assessor notes block in the learner workbook)",
+                                                   "resultRowLabel":  "Result for this observation",
+                                                   "resultRow":  "Result ☐ Satisfactory        ☐ Not satisfactory",
+                                                   "trainerSignatureAndDateRow":  null
+                                               },
+                             "observableIndicators":  {
+                                                          "title":  "OBSERVABLE INDICATORS — Observation 2",
+                                                          "satisfactory":  [
+                                                                               "Equipment chosen to suit the quantity, shape and process.",
+                                                                               "Bowls and containers sized to the volume.",
+                                                                               "Dismantled only to the level the manufacturer specifies.",
+                                                                               "Cleaned, sanitised and dried completely before reassembly.",
+                                                                               "Reassembled with all guards fitted.",
+                                                                               "Operation stays inside the manufacturer\u0027s limits.",
+                                                                               "Hands and utensils clear of moving parts; utensils not rested on the bench.",
+                                                                               "Food-safe gloves worn; moulds handled by the edges only.",
+                                                                               "Every cavity polished and checked under light.",
+                                                                               "Metal and abrasive items kept away from the polished face.",
+                                                                               "Moulds brought to and held at the correct temperature across the run."
+                                                                           ],
+                                                          "notSatisfactory":  [
+                                                                                  "Reaches into a running enrober or tempering machine.",
+                                                                                  "Guards left off, or machine started before reassembly is complete.",
+                                                                                  "Equipment reassembled while still wet.",
+                                                                                  "Moulds handled with bare hands or scraped with metal.",
+                                                                                  "A scratched or dull mould used without being reported.",
+                                                                                  "Mould temperature uncontrolled; shells set unevenly or fail to release."
+                                                                              ],
+                                                          "exampleCommentSatisfactory":  "Selected equipment appropriate to the run, stripped and sanitised the tempering machine and dried it fully before reassembly with guards fitted. Isolated the enrober before clearing the belt. Handled moulds by the edges in food-safe gloves and polished every cavity. All actions S.",
+                                                          "exampleCommentNotSatisfactory":  "Reassembled the tempering machine bowl while still damp and reached across the running enrober belt. Moulds were handled with bare hands. Actions at PC 2.2, 2.3 and 2.4 marked NS - safety actions to be re-demonstrated before the next run."
+                                                      }
+                         },
+                         {
+                             "number":  3,
+                             "elementTitle":  "Portion and prepare ingredients",
+                             "headingForm":  "Observation 3\tPortion and prepare ingredients",
+                             "elementLine":  "Element 3 of SITHPAT018. The assessor marks each action separately as it is observed.",
+                             "columnHeaders":  [
+                                                   "PC",
+                                                   "The student did this",
+                                                   "S",
+                                                   "NS",
+                                                   "Assessor notes"
+                                               ],
+                             "rows":  [
+                                          {
+                                              "pc":  "3.1",
+                                              "action":  "Sequenced production by setting times and by shared equipment",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.1",
+                                              "action":  "Grouped ingredients by component and labelled each container",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.1",
+                                              "action":  "Kept nut components separate from nut-free work",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.1",
+                                              "action":  "Assembled refrigerated ingredients last",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.2",
+                                              "action":  "Selected the correct measuring instrument for each ingredient",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.2",
+                                              "action":  "Tared the container before weighing",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.2",
+                                              "action":  "Weighed to within one gram of the scaled target",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.2",
+                                              "action":  "Transferred stiff ingredients such as glucose completely",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.3",
+                                              "action":  "Tempered only the quantity the run needed plus the minimum working volume",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.3",
+                                              "action":  "Recovered clean tempered couverture to the tempering machine",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "3.3",
+                                              "action":  "Kept finished pieces to the portion standard",
+                                              "assessorIndicator":  null
+                                          }
+                                      ],
+                             "closingBlocks":  {
+                                                   "assessorNotes":  "Assessor notes (column on every criteria row; no separate closing assessor notes block in the learner workbook)",
+                                                   "resultRowLabel":  "Result for this observation",
+                                                   "resultRow":  "Result ☐ Satisfactory        ☐ Not satisfactory",
+                                                   "trainerSignatureAndDateRow":  null
+                                               },
+                             "observableIndicators":  {
+                                                          "title":  "OBSERVABLE INDICATORS — Observation 3",
+                                                          "satisfactory":  [
+                                                                               "Running order built from setting times and the shared tempering machine, enrober and moulds.",
+                                                                               "Ingredients grouped by component; every container labelled.",
+                                                                               "Nut components physically separated from nut-free work.",
+                                                                               "Refrigerated items assembled last.",
+                                                                               "Correct measuring instrument chosen for each ingredient.",
+                                                                               "Container tared before weighing.",
+                                                                               "Every weight within one gram of the scaled target.",
+                                                                               "Stiff ingredients such as glucose transferred completely.",
+                                                                               "Only the run quantity plus the minimum working volume tempered.",
+                                                                               "Clean couverture recovered to the machine.",
+                                                                               "Finished pieces hold the portion standard."
+                                                                           ],
+                                                          "notSatisfactory":  [
+                                                                                  "Sequencing ignores the four-hour jelly set or two-hour caramel cool.",
+                                                                                  "Unlabelled containers.",
+                                                                                  "Nut and nut-free components on the same bench.",
+                                                                                  "Scales not tared.",
+                                                                                  "Weights outside the one gram tolerance.",
+                                                                                  "Glucose or paste left in the weighing container.",
+                                                                                  "A full bowl tempered for a small run.",
+                                                                                  "Couverture carrying centre, garnish or nut fragments recovered."
+                                                                              ],
+                                                          "exampleCommentSatisfactory":  "Sequenced the run around setting times and the shared machine, labelled every container and kept nut components on the dedicated bench. Tared before every weighing; all weights within one gram. Tempered to run quantity and recovered only clean couverture. All actions S.",
+                                                          "exampleCommentNotSatisfactory":  "Weighed the glucose without taring and left a significant quantity in the container, and the almond components were prepared on the main bench alongside the jelly. Actions at PC 3.1 and 3.2 marked NS - repeat with allergen separation in place."
+                                                      }
+                         },
+                         {
+                             "number":  4,
+                             "elementTitle":  "Temper couverture",
+                             "headingForm":  "Observation 4\tTemper couverture",
+                             "elementLine":  "Element 4 of SITHPAT018. The assessor marks each action separately as it is observed.",
+                             "columnHeaders":  [
+                                                   "PC",
+                                                   "The student did this",
+                                                   "S",
+                                                   "NS",
+                                                   "Assessor notes"
+                                               ],
+                             "rows":  [
+                                          {
+                                              "pc":  "4.1",
+                                              "action":  "Stated the working temperature for the couverture being used",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.1",
+                                              "action":  "Weighed the seed portion and reserved it from the total",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.1",
+                                              "action":  "Melted the couverture to close to 40 °C and no higher",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.1",
+                                              "action":  "Added the seed and stirred until it was fully distributed",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.1",
+                                              "action":  "Brought the couverture to the correct working temperature",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.2",
+                                              "action":  "Tested the temper with a test strip before committing the batch",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.2",
+                                              "action":  "Assessed gloss, sheen, snap and release, and decided correctly",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.2",
+                                              "action":  "Re-tempered the couverture where the test failed",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.3",
+                                              "action":  "Re-checked the temperature at intervals through the run",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.3",
+                                              "action":  "Kept the couverture inside its working temperature band",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "4.3",
+                                              "action":  "Reheated or re-tempered correctly when the temperature drifted",
+                                              "assessorIndicator":  null
+                                          }
+                                      ],
+                             "closingBlocks":  {
+                                                   "assessorNotes":  "Assessor notes (column on every criteria row; no separate closing assessor notes block in the learner workbook)",
+                                                   "resultRowLabel":  "Result for this observation",
+                                                   "resultRow":  "Result ☐ Satisfactory        ☐ Not satisfactory",
+                                                   "trainerSignatureAndDateRow":  null
+                                               },
+                             "observableIndicators":  {
+                                                          "title":  "OBSERVABLE INDICATORS — Observation 4",
+                                                          "satisfactory":  [
+                                                                               "States the working temperature before starting - dark 32, milk 31, white 30 degrees C.",
+                                                                               "Seed weighed and reserved from the total, not added on top.",
+                                                                               "Couverture melted to close to 40 degrees C and no higher.",
+                                                                               "Seed stirred until fully distributed; no undissolved callets.",
+                                                                               "Working temperature reached and confirmed with a sanitised probe.",
+                                                                               "Test strip set and read before the batch is committed.",
+                                                                               "Gloss, sheen, snap and release assessed; correct decision made.",
+                                                                               "A failed test leads to re-tempering, not to proceeding.",
+                                                                               "Temperature re-checked through the run and held in band.",
+                                                                               "Reheats or re-tempers correctly when the temperature drifts."
+                                                                           ],
+                                                          "notSatisfactory":  [
+                                                                                  "Working temperature not known or stated.",
+                                                                                  "Seed added on top of the total.",
+                                                                                  "Couverture overheated above about 40 degrees C, or scorched.",
+                                                                                  "Casting or dipping without a test strip.",
+                                                                                  "A dull or streaky test read as acceptable.",
+                                                                                  "Couverture allowed out of band and used anyway.",
+                                                                                  "Water or a wet utensil in the bowl.",
+                                                                                  "Set-solid couverture reheated instead of re-tempered from the melt."
+                                                                              ],
+                                                          "exampleCommentSatisfactory":  "Stated 31 degrees C for milk couverture, reserved the seed from the total, melted to 40 degrees C and stirred it in fully. Read a test strip before committing the batch, then re-checked three times and held the band. All actions S.",
+                                                          "exampleCommentNotSatisfactory":  "Melted to 48 degrees C and added seed on top of the required total, then cast without setting a test strip; shells came out dull and would not release. Actions at PC 4.1 and 4.2 marked NS - re-demonstrate tempering from the melt."
+                                                      }
+                         },
+                         {
+                             "number":  5,
+                             "elementTitle":  "Prepare centres and fillings",
+                             "headingForm":  "Observation 5\tPrepare centres and fillings",
+                             "elementLine":  "Element 5 of SITHPAT018. The assessor marks each action separately as it is observed.",
+                             "columnHeaders":  [
+                                                   "PC",
+                                                   "The student did this",
+                                                   "S",
+                                                   "NS",
+                                                   "Assessor notes"
+                                               ],
+                             "rows":  [
+                                          {
+                                              "pc":  "5.1",
+                                              "action":  "Used the cookery process set out in the standard recipe",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "5.1",
+                                              "action":  "Produced centres with full flavour and natural characteristics",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "5.2",
+                                              "action":  "Worked the ingredients at the temperature the recipe specifies",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "5.2",
+                                              "action":  "Achieved the viscosity and consistency the recipe requires",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "5.3",
+                                              "action":  "Followed the standard recipe throughout",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "5.3",
+                                              "action":  "Made food quality adjustments within scope, and reported any others",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "5.4",
+                                              "action":  "Produced centres of uniform shape",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "5.4",
+                                              "action":  "Produced centres of uniform size, to the portion standard",
+                                              "assessorIndicator":  null
+                                          }
+                                      ],
+                             "closingBlocks":  {
+                                                   "assessorNotes":  "Assessor notes (column on every criteria row; no separate closing assessor notes block in the learner workbook)",
+                                                   "resultRowLabel":  "Result for this observation",
+                                                   "resultRow":  "Result ☐ Satisfactory        ☐ Not satisfactory",
+                                                   "trainerSignatureAndDateRow":  null
+                                               },
+                             "observableIndicators":  {
+                                                          "title":  "OBSERVABLE INDICATORS — Observation 5",
+                                                          "satisfactory":  [
+                                                                               "Cookery process on the standard recipe followed as written.",
+                                                                               "Centre has full flavour and natural characteristics; not scorched, raw or flat.",
+                                                                               "Ingredients worked at the recipe temperature, probe-confirmed where stated.",
+                                                                               "Viscosity and consistency match the recipe.",
+                                                                               "Fondant pipes, ganache holds, jelly sets firm enough to cut.",
+                                                                               "In-scope quality adjustments made; anything beyond scope reported, not improvised.",
+                                                                               "Centres uniform in shape.",
+                                                                               "Centres uniform in size and to the portion standard on the card."
+                                                                           ],
+                                                          "notSatisfactory":  [
+                                                                                  "A method not on the card substituted.",
+                                                                                  "Caramel or fondant at the wrong temperature; will not set or pipe.",
+                                                                                  "A split ganache used anyway.",
+                                                                                  "Jelly too soft to cut cleanly.",
+                                                                                  "Centres vary visibly in shape or size.",
+                                                                                  "Out-of-scope change made without reporting it.",
+                                                                                  "Portion size not checked against the card."
+                                                                              ],
+                                                          "exampleCommentSatisfactory":  "Followed the standard recipe throughout, boiled the fondant syrup to the stated temperature and worked it to a pipeable consistency. Centres were uniform in shape and within the portion standard. Reported a thinner-than-usual puree rather than adjusting outside scope. All actions S.",
+                                                          "exampleCommentNotSatisfactory":  "Caramel went past the stated temperature and set too hard to pipe; cut centres varied from 4 to 8 gms against a 5 gms standard. Actions at PC 5.2 and 5.4 marked NS - re-make to the recipe temperature and portion to the card."
+                                                      }
+                         },
+                         {
+                             "number":  6,
+                             "elementTitle":  "Make moulded chocolates",
+                             "headingForm":  "Observation 6\tMake moulded chocolates",
+                             "elementLine":  "Element 6 of SITHPAT018. The assessor marks each action separately as it is observed.",
+                             "columnHeaders":  [
+                                                   "PC",
+                                                   "The student did this",
+                                                   "S",
+                                                   "NS",
+                                                   "Assessor notes"
+                                               ],
+                             "rows":  [
+                                          {
+                                              "pc":  "6.1",
+                                              "action":  "Selected the tempered couverture specified for the filling",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "6.2",
+                                              "action":  "Cast shells of even thickness",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "6.2",
+                                              "action":  "Produced shells free of marks and air bubbles",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "6.3",
+                                              "action":  "Filled to a level surface and left space for the seal",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "6.4",
+                                              "action":  "Sealed with a layer of couverture of appropriate thickness",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "6.5",
+                                              "action":  "Cooled the chocolates correctly before demoulding",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "6.5",
+                                              "action":  "De-moulded without damage and handled the pieces to keep the surface glossy",
+                                              "assessorIndicator":  null
+                                          }
+                                      ],
+                             "closingBlocks":  {
+                                                   "assessorNotes":  "Assessor notes (column on every criteria row; no separate closing assessor notes block in the learner workbook)",
+                                                   "resultRowLabel":  "Result for this observation",
+                                                   "resultRow":  "Result ☐ Satisfactory        ☐ Not satisfactory",
+                                                   "trainerSignatureAndDateRow":  null
+                                               },
+                             "observableIndicators":  {
+                                                          "title":  "OBSERVABLE INDICATORS — Observation 6",
+                                                          "satisfactory":  [
+                                                                               "Couverture is the one the recipe specifies for that filling.",
+                                                                               "Mould filled, vibrated and inverted so the wall drains evenly.",
+                                                                               "Shells cast to an even thickness across every cavity.",
+                                                                               "Shells free of marks, fingerprints and air bubbles.",
+                                                                               "Filling piped level, with space below the rim for the seal.",
+                                                                               "Seal a full layer of tempered couverture, correct thickness, no edge gap.",
+                                                                               "Cooled correctly before de-moulding; not forced or rushed.",
+                                                                               "Pieces release cleanly; handled by the edges or gloved to stay glossy."
+                                                                           ],
+                                                          "notSatisfactory":  [
+                                                                                  "Wrong couverture used for the filling.",
+                                                                                  "Shells heavy at the base, or so thin they break on de-moulding.",
+                                                                                  "Visible bubbles or fingerprints.",
+                                                                                  "Filling piped to the rim, or overfilled so it weeps.",
+                                                                                  "A gap in the seal that lets the filling leak.",
+                                                                                  "De-moulded before contraction; pieces stick or tear.",
+                                                                                  "Finished pieces handled with bare fingers."
+                                                                              ],
+                                                          "exampleCommentSatisfactory":  "Selected milk couverture for the caramel as specified, cast even shells free of bubbles after vibrating and draining, filled to a level surface leaving room for the seal, capped cleanly and de-moulded without damage. Pieces glossy and handled by the edges. All actions S.",
+                                                          "exampleCommentNotSatisfactory":  "Shells were cast without vibrating, leaving air bubbles in most cavities, and the caramel was piped to the rim so several pieces could not be sealed. Actions at PC 6.2 and 6.3 marked NS - repeat with vibration and a correct fill level."
+                                                      }
+                         },
+                         {
+                             "number":  7,
+                             "elementTitle":  "Coat chocolate centres",
+                             "headingForm":  "Observation 7\tCoat chocolate centres",
+                             "elementLine":  "Element 7 of SITHPAT018. The assessor marks each action separately as it is observed.",
+                             "columnHeaders":  [
+                                                   "PC",
+                                                   "The student did this",
+                                                   "S",
+                                                   "NS",
+                                                   "Assessor notes"
+                                               ],
+                             "rows":  [
+                                          {
+                                              "pc":  "7.1",
+                                              "action":  "Selected the tempered couverture specified for the centre",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "7.2",
+                                              "action":  "Brought the centres to the correct temperature before coating",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "7.3",
+                                              "action":  "Coated the centres to an even and appropriate thickness",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "7.3",
+                                              "action":  "Achieved a uniform quality finish across the whole batch",
+                                              "assessorIndicator":  null
+                                          }
+                                      ],
+                             "closingBlocks":  {
+                                                   "assessorNotes":  "Assessor notes (column on every criteria row; no separate closing assessor notes block in the learner workbook)",
+                                                   "resultRowLabel":  "Result for this observation",
+                                                   "resultRow":  "Result ☐ Satisfactory        ☐ Not satisfactory",
+                                                   "trainerSignatureAndDateRow":  null
+                                               },
+                             "observableIndicators":  {
+                                                          "title":  "OBSERVABLE INDICATORS — Observation 7",
+                                                          "satisfactory":  [
+                                                                               "Couverture matches the centre as the recipe specifies.",
+                                                                               "Centres at the correct temperature before coating.",
+                                                                               "Not cold enough to crack the coat, nor warm enough to soften it.",
+                                                                               "Coat even and of appropriate thickness on all faces.",
+                                                                               "Excess shed on the fork or by blower, not pooling at the base.",
+                                                                               "Gloss, thickness and marking uniform across the whole batch."
+                                                                           ],
+                                                          "notSatisfactory":  [
+                                                                                  "Wrong couverture used for the centre.",
+                                                                                  "Centres coated straight from the fridge; coat cracks or blooms.",
+                                                                                  "Coats thick on some pieces, thin enough to show the centre on others.",
+                                                                                  "Heavy feet or pooling left at the base.",
+                                                                                  "Finish drifts through the batch as couverture falls out of temper."
+                                                                              ],
+                                                          "exampleCommentSatisfactory":  "Selected dark couverture for the croquant as specified, brought centres up from the fridge to room temperature before dipping, and produced an even coat with excess correctly shed. Gloss and thickness consistent from first piece to last. All actions S.",
+                                                          "exampleCommentNotSatisfactory":  "Dipped centres straight from the fridge and the coat cracked. The couverture fell below working temperature by the end of the batch, so the last pieces were thick and dull. Actions at PC 7.2 and 7.3 marked NS - repeat in band."
+                                                      }
+                         },
+                         {
+                             "number":  8,
+                             "elementTitle":  "Decorate, present and store chocolates",
+                             "headingForm":  "Observation 8\tDecorate, present and store chocolates",
+                             "elementLine":  "Element 8 of SITHPAT018. The assessor marks each action separately as it is observed.",
+                             "columnHeaders":  [
+                                                   "PC",
+                                                   "The student did this",
+                                                   "S",
+                                                   "NS",
+                                                   "Assessor notes"
+                                               ],
+                             "rows":  [
+                                          {
+                                              "pc":  "8.1",
+                                              "action":  "Decorated the chocolates according to the standard recipe",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "8.1",
+                                              "action":  "Used a decoration design suited to the product",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "8.2",
+                                              "action":  "Presented the chocolates on suitable serviceware",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "8.2",
+                                              "action":  "Met the organisation\u0027s presentation standard",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "8.3",
+                                              "action":  "Displayed the chocolates in conditions that retain freshness",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "8.4",
+                                              "action":  "Stored the chocolates at the correct temperature and humidity",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "8.4",
+                                              "action":  "Labelled stored product with the production date and use-by date",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "8.5",
+                                              "action":  "Cleaned the work area on completion",
+                                              "assessorIndicator":  null
+                                          },
+                                          {
+                                              "pc":  "8.5",
+                                              "action":  "Stored or disposed of surplus and re-usable by-products correctly",
+                                              "assessorIndicator":  null
+                                          }
+                                      ],
+                             "closingBlocks":  {
+                                                   "assessorNotes":  "Assessor notes (column on every criteria row; no separate closing assessor notes block in the learner workbook)",
+                                                   "resultRowLabel":  "Result for this observation",
+                                                   "resultRow":  "Result ☐ Satisfactory        ☐ Not satisfactory",
+                                                   "trainerSignatureAndDateRow":  null
+                                               },
+                             "observableIndicators":  {
+                                                          "title":  "OBSERVABLE INDICATORS — Observation 8",
+                                                          "satisfactory":  [
+                                                                               "Decoration follows the standard recipe and suits the product.",
+                                                                               "Piping done while the couverture is fluid.",
+                                                                               "Transfer sheets laid on a wet coat, peeled only when fully set.",
+                                                                               "Garnish placed before the surface sets.",
+                                                                               "Design identifies the product in the box.",
+                                                                               "Service-ware suitable and clean; presentation to the house standard.",
+                                                                               "Display retains freshness, out of direct sun and heat.",
+                                                                               "Stored at correct temperature and humidity; cream-based items refrigerated.",
+                                                                               "Stored product labelled with production date and use-by date.",
+                                                                               "Work area cleaned on completion.",
+                                                                               "Surplus and re-usable by-products stored or disposed of correctly.",
+                                                                               "Recovered couverture handled according to its allergen status."
+                                                                           ],
+                                                          "notSatisfactory":  [
+                                                                                  "Transfer sheet applied to set chocolate, or peeled early.",
+                                                                                  "Decoration obscures or does not suit the product.",
+                                                                                  "Unpackaged ready-to-eat chocolates displayed without protection.",
+                                                                                  "Cream-based chocolates left at ambient temperature.",
+                                                                                  "Stored product unlabelled or undated.",
+                                                                                  "Work area left uncleaned.",
+                                                                                  "Usable couverture discarded, or nut-bearing couverture returned to general stock."
+                                                                              ],
+                                                          "exampleCommentSatisfactory":  "Applied the transfer sheet while the coat was wet and peeled it after full set, presented on clean suitable service-ware to the house standard, refrigerated the ganache pieces and dated all stored product. Cleaned down fully and recovered couverture correctly. All actions S.",
+                                                          "exampleCommentNotSatisfactory":  "Ganache chocolates were left on the bench at ambient temperature at the end of the shift and stored trays carried no date label. Actions at PC 8.4 marked NS - re-demonstrate storage and labelling; decoration and presentation were satisfactory."
+                                                      }
+                         }
+                     ],
+    "extractionNotes":  [
+                            "Principles table: the heading reads \u0027Principles of assessment \u0026 rules of evidence\u0027 but the table carries FOUR rows and FOUR concepts only — Fairness, Flexibility, Validity, Reliability. There are no rules-of-evidence rows (no Valid, Sufficient, Authentic, Current). Nothing was added; the source has four rows, two columns.",
+                            "Assessment conditions: the source reads \u0027industryrealistic\u0027 as one word (a line-break artefact in the underlying document). Reproduced verbatim. The same phrase appears hyphenated as \u0027industry-realistic\u0027 in \u0027How to use this workbook\u0027.",
+                            "Theory questions: there are exactly three. Question 2 IS the \u0027Special customer request adjustment\u0027 question required by the brief; all six of its Parts are captured.",
+                            "Question 2\u0027s Tip says the six scenarios are \u0027earlier in this workbook\u0027, but in the source document order the Special customer request scenarios table actually appears AFTER the theory questions (after the case study and the product evidence matrix). Reproduced verbatim without correction.",
+                            "Each theory Part in the learner workbook carries its own writing space labelled \u0027Write your response to Part N here…\u0027 — captured as \u0027responsePrompt\u0027. The em-ellipsis character is preserved.",
+                            "Model answers in the assessor guide are each prefixed with the label \u0027MODEL ANSWER — \u0027. That label has been stripped and only the answer text stored in \u0027modelAnswer\u0027; the label is a rendering artefact, not answer content.",
+                            "The assessor guide\u0027s theory benchmarks are per-QUESTION, not per-Part. They are stored on each question as \u0027assessorBenchmark\u0027 with the guide\u0027s own sub-headings. Only Question 1 carries a \u0027Worked answer key and tolerance\u0027 panel; Questions 2 and 3 have none, so that field is null for them.",
+                            "Special customer request table: six scenarios, four columns. Scenario 1 reads \u0027nutbased garnishes\u0027 as one word in the source; reproduced verbatim.",
+                            "Product evidence matrix: eight columns, ten rows. EVERY cell is pre-filled in the source — no cell is left blank for the learner to complete. The intro paragraph is a single sentence.",
+                            "Observation instrument cover: the detail table has only FOUR rows — RTO, Unit assessed, Pre-requisite unit, Location of assessment. There is NO qualification row, NO student name/ID row and NO assessor name row on this cover in the source. None were invented.",
+                            "Observation instrument cover: \u0027What this instrument is\u0027 appears as continuous prose in the text dump, so individual bullet/paragraph boundaries are not recoverable. It has been split at sentence boundaries; the wording is verbatim but the item breaks are inferred.",
+                            "Observation headings in the LEARNER workbook use the form \u0027Observation N\u0027 + TAB + element title (confirmed at byte level). The ASSESSOR guide uses \u0027Observation N — element title\u0027 with an em dash. The learner form is stored in \u0027headingForm\u0027; \u0027elementTitle\u0027 holds the title alone.",
+                            "Observation closing blocks: each sheet in the learner workbook closes with \u0027Result for this observation\u0027 and the row \u0027Result ☐ Satisfactory        ☐ Not satisfactory\u0027. There is NO trainer signature row and NO date row on any of the eight sheets in the source, so \u0027trainerSignatureAndDateRow\u0027 is null throughout. (Note: MVC_HOUSE_STANDARD.md section 8 expects \u0027result and trainer signature rows\u0027 — the source workbook does not have the signature/date row. Flagged, not fabricated.)",
+                            "\u0027Assessor notes\u0027 is a COLUMN on every criteria row, not a separate closing block; there is no free-text assessor notes box at the foot of the sheets.",
+                            "Assessor indicators are per-SHEET in the assessor guide (\u0027OBSERVABLE INDICATORS — Observation N\u0027), not per criteria row. Every row-level \u0027assessorIndicator\u0027 is therefore null, and the sheet-level panel is stored on each observation as \u0027observableIndicators\u0027 with its four labelled fields. No row-level indicator was invented.",
+                            "Row counts per observation sheet, as they appear in the source: Obs 1 = 11, Obs 2 = 13, Obs 3 = 11, Obs 4 = 11, Obs 5 = 8, Obs 6 = 7, Obs 7 = 4, Obs 8 = 9. Total 74 criteria rows. The text dump repeats the header line \u0027PC The student did this S NS Assessor notes\u0027 mid-table on Obs 2, 3 and 4 where the table breaks across a page; those repeats are header rows, not criteria rows, and are not counted.",
+                            "Observation 4\u0027s indicator panel in the assessor guide spells temperatures as \u0027degrees C\u0027 rather than using the \u0027°C\u0027 symbol; the observation criteria rows themselves use \u0027°C\u0027. Both reproduced exactly as found.",
+                            "Out of scope for this extraction and therefore not captured here: the assessment cover sheet, the title page, the Case Study Assessment section (overview, scenario at a glance, the situation, what you must do, and the three Recipe Requirements / Ingredients and Quantity Adjustments template sets), the fifteen recipe cards, and the assessor-guide-only sections (assessor judgement guidance, sample-marked Observation 4 sheet, oral questioning record, UARS result sheet, principles/rules/assessor requirements, assessor declaration and build notes).",
+                            "\u0027La Meridienne Patisserie, Rundle Street, Adelaide\u0027 appears only in the Case Study section, which is outside this extraction\u0027s scope; it does not occur in any section captured here."
+                        ],
+    "assessorRewrite":  {
+                            "purpose":  "Assessor-facing content restructured for bench marking: short, glanceable points instead of unbroken prose. No learner-facing content was altered.",
+                            "date":  "2026-08-21",
+                            "observableIndicators":  {
+                                                         "sheetsProcessed":  8,
+                                                         "wordCountBefore":  2172,
+                                                         "wordCountAfter":  1750,
+                                                         "reductionPercent":  19.4,
+                                                         "bulletItemsCreated":  130,
+                                                         "scope":  "satisfactory and notSatisfactory converted from single strings to arrays of short checkable items; exampleCommentSatisfactory and exampleCommentNotSatisfactory tightened and kept as strings; title unchanged."
+                                                     },
+                            "theoryBenchmarks":  {
+                                                     "benchmarksProcessed":  3,
+                                                     "wordCountBefore":  1041,
+                                                     "wordCountAfter":  871,
+                                                     "reductionPercent":  16.3,
+                                                     "scope":  "whatSatisfactoryLooksLike, minimumAcceptableResponse and criticalErrors converted to arrays of short items; workedAnswerKeyAndTolerance kept as a string laid out one calculation step per line; example comments tightened and kept as strings; title unchanged."
+                                                 },
+                            "modelAnswers":  {
+                                                 "answersProcessed":  16,
+                                                 "wordCountBefore":  1085,
+                                                 "wordCountAfter":  947,
+                                                 "scope":  "Prose model answers broken into newline-separated points, one assessable idea per line. Single-sentence answers for Question 1 Parts 1-2 and Question 2 Parts 1-2 were already one point each and are unchanged."
+                                             },
+                            "substanceCheck":  [
+                                                   "No assessable point was deleted; language was compressed only.",
+                                                   "All recipe codes, quantities, temperatures and conversion factors preserved exactly, including MVC1856, 96 / 20 = 4.8, 12 / 20 = 0.6, 480 gms, 5 gms, one gram tolerance, 150 word minimum.",
+                                                   "Observation 4 retains the source\u0027s \u0027degrees C\u0027 wording in the indicator panel; the criteria rows retain \u0027°C\u0027.",
+                                                   "All eight observation sheets retain their original rows (11, 13, 11, 11, 8, 7, 4, 9 - total 74) and closing blocks untouched."
+                                               ],
+                            "learnerFacingUnchanged":  [
+                                                           "instructions",
+                                                           "principles",
+                                                           "assessmentConditions",
+                                                           "workbookPurpose",
+                                                           "currentUnitFocus",
+                                                           "howToUse",
+                                                           "theoryQuestionsIntro",
+                                                           "theoryQuestions[].heading",
+                                                           "theoryQuestions[].whyThisQuestionIsHere",
+                                                           "theoryQuestions[].scenario",
+                                                           "theoryQuestions[].tip",
+                                                           "theoryQuestions[].minimumWords",
+                                                           "theoryQuestions[].parts[].number",
+                                                           "theoryQuestions[].parts[].task",
+                                                           "theoryQuestions[].parts[].responsePrompt",
+                                                           "specialRequestTable",
+                                                           "productEvidenceMatrix",
+                                                           "observationInstrumentCover",
+                                                           "observations[].number",
+                                                           "observations[].elementTitle",
+                                                           "observations[].headingForm",
+                                                           "observations[].elementLine",
+                                                           "observations[].columnHeaders",
+                                                           "observations[].rows",
+                                                           "observations[].closingBlocks"
+                                                       ],
+                            "otherAssessorProseNoted":  "extractionNotes is the only remaining assessor-only prose block in this file. It was left verbatim: it is build and provenance evidence for the audit trail, not marking guidance used at the bench, and compressing it would weaken the extraction record. Flagged here rather than rewritten.",
+                            "recipesNote":  "Recipe content lives in RECIPES.json and was not touched."
+                        },
+    "rulesOfEvidence":  {
+                            "headers":  [
+                                            "Rule of evidence",
+                                            "How it is met"
+                                        ],
+                            "rows":  [
+                                         [
+                                             "Valid",
+                                             "Every recipe card, theory question and observation sheet maps to a Performance Evidence item, Knowledge Evidence point or performance criterion of SITHPAT018."
+                                         ],
+                                         [
+                                             "Sufficient",
+                                             "You produce every required product, and your assessor observes you against each element, so there is enough evidence to judge competence."
+                                         ],
+                                         [
+                                             "Authentic",
+                                             "The work is your own. Your assessor observes you producing the chocolates at the bench and signs each observation sheet."
+                                         ],
+                                         [
+                                             "Current",
+                                             "The evidence reflects current industry practice, the Food Standards Code and the MVC tempering standard in use now."
+                                         ]
+                                     ]
+                        },
+    "assessorRecords":  {
+                            "intro":  "These three records are completed by the assessor, not the student. They exist because the observation sheets are organised by element while the Performance Evidence is organised by requirement - one sheet per element cannot show which dish demonstrated which requirement, on what date, or how many portions were produced within the time constraint. The product evidence matrix does not close that gap: the student completes it, and it states what the dishes could demonstrate, not what the student did.",
+                            "conditions":  {
+                                               "heading":  "Assessment conditions and assessor declaration",
+                                               "intro":  "One row per condition in the unit Assessment Conditions. Confirm each was available on the day before the observation begins.",
+                                               "headers":  [
+                                                               "Condition",
+                                                               "What the unit requires",
+                                                               "Available on the day",
+                                                               "Notes"
+                                                           ],
+                                               "rows":  [
+                                                            [
+                                                                "Environment",
+                                                                "Operational commercial kitchen - industry workplace, or an industry-realistic training kitchen",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "Fixtures and large equipment",
+                                                                "Benches (1.5 m/person), commercial refrigeration and freezer with shelving, sink, stove top, industrial food processor, marble bench or slab, microwave",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "Storage facilities",
+                                                                "Shelving, trays, warming area",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "Small equipment",
+                                                                "Lining paper, beaters, brushes, cutting boards, graters, knives incl. large serrated, measuring jugs, mixer, pastry brushes, cutters and shapes, piping bags and attachments, presentation equipment, service-ware, saucepans and pots, scales (1 g increments), stainless steel bowls, spoons and ladles, storage containers and trays, whisk, food safe gloves",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "Ingredients",
+                                                                "Diverse and comprehensive range of commercial ingredients for the chocolate confectionery in the performance evidence",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "Cleaning materials and equipment",
+                                                                "Cloths, commercial cleaning and sanitising agents, dustpans and brooms, garbage bins and bags, hand towel dispenser and towels, mops and buckets, separate hand basin and soap, sponges, brushes and scourers, tea towels",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "Organisational specifications",
+                                                                "Equipment manufacturer instructions, current commercial stock control procedures and documentation, mise en place lists and standard recipes, food safety plans, food disposal, storage and presentation guidelines, SDS for cleaning agents",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "Assessor requirements",
+                                                                "Meets the Standards for RTOs assessor requirements AND holds Certificate III or IV in Patisserie or successor, or a trade certificate as cook or chef or equivalent - plus the industry currency the unit requires",
+                                                                "",
+                                                                ""
+                                                            ]
+                                                        ],
+                                               "declaration":  "I confirm that the conditions above were available for this assessment, that I hold the vocational competencies and current industry skills the Standards for RTOs require, and that I meet the assessor requirements stated in SITHPAT018 - Certificate III or IV in Patisserie or a successor, or a trade certificate as a cook or chef or trade equivalent."
+                                           },
+                            "dishRecord":  {
+                                               "heading":  "Dish production record",
+                                               "intro":  "One row per required product. This is where portion count and the commercial time constraint become auditable.",
+                                               "headers":  [
+                                                               "Dish",
+                                                               "Code",
+                                                               "Date",
+                                                               "Portions produced",
+                                                               "Required by",
+                                                               "Actual finish",
+                                                               "Assessor initials",
+                                                               "S / NS"
+                                                           ],
+                                               "rows":  [
+                                                            [
+                                                                "1. Tempered White Chocolate Couverture",
+                                                                "MVC1845",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "2. Tempered Milk Chocolate Couverture",
+                                                                "MVC1846",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "3. Tempered Dark Chocolate Couverture",
+                                                                "MVC1847",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "4. Rocher, Mendiant - Fruit and Nut",
+                                                                "MVC1848",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "5. Chocolate heaven bliss balls, Marzipan filling",
+                                                                "MVC1849",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "6. Caramel Filling",
+                                                                "MVC1850",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "7. Coffee liqueur fondant filling",
+                                                                "MVC1851",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "8. Strawberry filling, flavoured fondant",
+                                                                "MVC1852",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "9. Filled chocolates",
+                                                                "MVC1853",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "10. Raspberry jelly",
+                                                                "MVC1854",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "11. Passionfruit milk chocolate ganache",
+                                                                "MVC1855",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "12. Almond croquant",
+                                                                "MVC1856",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "13. Chocolate dipped nougat",
+                                                                "MVC801",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "14. Raspberry jelly square",
+                                                                "MVC1857",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ],
+                                                            [
+                                                                "15. Orange liqueur hollow sphere",
+                                                                "MVC1858",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                "",
+                                                                ""
+                                                            ]
+                                                        ]
+                                           },
+                            "peMatrix":  {
+                                             "heading":  "Performance evidence completion matrix",
+                                             "intro":  "One row per Performance Evidence requirement, verbatim from the unit, including the framing sentence and every sub-bullet. Complete it from the dish production record and the observation sheets.",
+                                             "headers":  [
+                                                             "PE",
+                                                             "Requirement (verbatim)",
+                                                             "Dish that demonstrated it",
+                                                             "Date",
+                                                             "Assessor initials",
+                                                             "S / NS"
+                                                         ],
+                                             "rows":  [
+                                                          [
+                                                              "Framing",
+                                                              "Complete tasks outlined in the elements and performance criteria of this unit in the context of the job role",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE1",
+                                                              "Prepare at least 24 individual chocolates from each of three types: hard centres, soft centres, fillings",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE1a",
+                                                              "- hard centres (at least 24)",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE1b",
+                                                              "- soft centres (at least 24)",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE1c",
+                                                              "- fillings (at least 24)",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE2",
+                                                              "Use at least three different processes for producing chocolates when preparing the above three types",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "Use each of the following at least once across the preparation of all three types",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "caramel",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "croquant",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "flavoured fondant",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "ganache",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "jellies",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "liqueurs",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "nougat",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "nuts",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE3",
+                                                              "- ",
+                                                              "fruits",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE4",
+                                                              "Use at least one of the tempering methods for couverture when producing the above chocolates",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE5",
+                                                              "Produce the above individual chocolates:",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE5a",
+                                                              "- consistent in quality, size, shape and appearance",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE5b",
+                                                              "- within commercial time constraints",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ],
+                                                          [
+                                                              "PE5c",
+                                                              "- following procedures for portion control and food safety practices when handling and storing chocolate ingredients and chocolates",
+                                                              "",
+                                                              "",
+                                                              "",
+                                                              ""
+                                                          ]
+                                                      ]
+                                         }
+                        }
+}

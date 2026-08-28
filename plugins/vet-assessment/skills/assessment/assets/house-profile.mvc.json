@@ -1,0 +1,293 @@
+{
+  "_comment": "MEASURED house profile for Meridian Vocational College. Measured from the reference set named in _provenance on 21 August 2026, and amended by RTO decisions taken the same day. This file is the authority over anything in references/ that disagrees with it. The builder loads it; nothing here is inferred.",
+
+  "_provenance": {
+    "measuredFrom": "C:\\Users\\ACI-Admin\\Desktop\\SITHPAT018\\out-house",
+    "measuredOn": "2026-08-21",
+    "sourceUnit": "SITHPAT018",
+    "referenceSet": [
+      "SITHPAT018_UAT1_Knowledge.docx",
+      "Assessor_Guide_SITHPAT018_UAT1_Knowledge.docx",
+      "SITHPAT018_Recipe_Workbook.docx",
+      "Assessor_Guide_SITHPAT018_Recipe_Workbook.docx"
+    ],
+    "_referenceSetComment": "THE GOLDEN REFERENCE. The RTO approved these four on 21 August 2026 and future output matches them. They supersede D:\\Superseded\\SAMPLE RESOURCE as the measurement source: that older set has no table of contents, and it carried two defects since fixed - a reversed jc/spacing pair in the recipe photo cell, and a recipe header table whose columns summed to 8638 against a 9638 width.",
+    "verifiedAgainstReferenceSet": {
+      "tableWidthDxa 9638": "128 and 53 tables per document; the only 9026 tables are the template cover sheet and the title-page photo box",
+      "lineSpacing 240 or 360": "confirmed; the only other value is 216, all of it cover-sheet prose",
+      "cell size 19 half-points": "the dominant run size in all four - 1458, 2084, 882 and 582 runs",
+      "docDefaults w:sz": "now 22 in both. The two templates DIFFERED: the recipe template already carried 22, the UAT carried none and fell back to 10 pt. An earlier note said NOT SET for both - that was measured on the UAT and generalised.",
+      "cantSplit": "7 to 8 per document, all inside the template cover sheet; none in generated content",
+      "border C9CFDD": "561 in generated content; CCCCCC only in the template cover sheet",
+      "tableOfContents": "one TOC field per document",
+      "outlineLvl": "23 in each knowledge document, 34 in each workbook - exactly matching the TOC entry counts Word builds"
+    },
+    "warning": "A Learner Resource is NEVER a source of truth - there is one in D:\\Superseded\\SAMPLE RESOURCE. It is written after the assessment is finalised and derived from a compliance-passed assessment. Fact-checking an assessment against it inverts the dependency and launders errors. Only the UAT, the workbook and the assessor guides are sources.",
+    "reMeasureWhen": "A different RTO, or MVC issues a new template. Do not carry these numbers across without measuring."
+  },
+
+  "architecture": {
+    "_comment": "The document COUNT depends on the practical branch. The knowledge/practical split exists only because a recipe workbook needs its own book - recipe cards, product evidence matrix, observation instrument. Where there is no recipe workbook there is nothing to split off, so one UAT carries both. Each assessor guide mirrors its learner document exactly and adds; it is never a document with its own structure.",
+
+    "food": {
+      "_comment": "FOUR documents. Knowledge and practical are SEPARATE assessment tasks: the knowledge tool carries no practical section, and the practical is not folded into the knowledge tool.",
+      "documents": [
+        { "id": "uat1",            "file": "[UNIT]_UAT1_Knowledge.docx",                 "audience": "learner",  "template": "uat",            "mirrors": null,       "carries": "knowledge only" },
+        { "id": "uat1Assessor",    "file": "Assessor_Guide_[UNIT]_UAT1_Knowledge.docx",  "audience": "assessor", "template": "uat",            "mirrors": "uat1" },
+        { "id": "workbook",        "file": "[UNIT]_Recipe_Workbook.docx",                "audience": "learner",  "template": "recipeWorkbook", "mirrors": null,       "carries": "practical" },
+        { "id": "workbookAssessor","file": "Assessor_Guide_[UNIT]_Recipe_Workbook.docx", "audience": "assessor", "template": "recipeWorkbook", "mirrors": "workbook" }
+      ]
+    },
+
+    "nonFood": {
+      "_comment": "TWO documents. One combined UAT carrying BOTH Knowledge and Performance Evidence - Section A knowledge, Section B performance with its observation checklists bound in - and one assessor guide mirroring it. No separate practical workbook. No assessor evidence pack.",
+      "documents": [
+        { "id": "uat",         "file": "[UNIT]_UAT.docx",                "audience": "learner",  "template": "uat", "mirrors": null,  "carries": "knowledge and performance" },
+        { "id": "uatAssessor", "file": "Assessor_Guide_[UNIT]_UAT.docx", "audience": "assessor", "template": "uat", "mirrors": "uat" }
+      ]
+    },
+    "_tableOfContentsComment": "Every document carries a clickable table of contents, after the title page. RTO decision, 21 August 2026 - this OVERRIDES the measurement, since the RTO artefacts have none. There is deliberately NO on/off flag: TableOfContentsPresent is unconditional in Test-HouseRules.ps1, because a switch is only a way for a document to ship without one. A TOC field indexes paragraphs carrying an outline level, so banners carry one - drop that and the field renders empty.",
+    "tableOfContentsField": " TOC \\o \"1-2\" \\h \\z \\u ",
+    "tableOfContentsPlacement": "immediately after the title page, before the first body block",
+    "itemNoun": "Task",
+    "_itemNounComment": "Items are Tasks, not Questions, because the RTO's artefact calls them Tasks. Copy their noun; measure it, do not assume it.",
+    "assessorBanner": {
+      "line1": "ASSESSOR VERSION - CONTAINS BENCHMARK ANSWERS",
+      "line2": "Model answers are shown in red in the student response spaces. Do not issue this document to students.",
+      "position": "before the cover sheet"
+    }
+  },
+
+  "order": {
+    "uat1": [
+      "Assessment cover sheet", "Title page", "Assessment overview", "What this assessment covers",
+      "How you are assessed", "Instructions to students",
+      "Principles of assessment & rules of evidence", "Quality expected of your written responses",
+      "Assessment conditions", "Task summary", "Appendix A", "Appendix B", "Tasks",
+      "Knowledge Evidence mapping matrix", "Foundation skills", "End of assessment task"
+    ],
+    "_uat1Comment": "The FOOD-branch knowledge tool. Knowledge only - the practical lives in the recipe workbook.",
+
+    "uatCombined": [
+      "Assessment cover sheet", "Title page", "Assessment overview", "What this assessment covers",
+      "How you are assessed", "Instructions to students",
+      "Principles of assessment & rules of evidence", "Quality expected of your written responses",
+      "Assessment conditions", "Task summary", "Detailed scenario",
+      "Section A - Knowledge", "Section B - Performance",
+      "Evidence mapping matrix", "Foundation skills", "Evidence to submit", "End of assessment task"
+    ],
+    "_uatCombinedComment": "The NON-FOOD branch. One document carrying both. Section A is the knowledge Tasks; Section B is the practical tasks with each observation checklist and observation record following the task it observes. The Section A banner sits with the first knowledge Task and the Section B banner with the first practical Task - a banner never takes a page alone.",
+    "workbook": [
+      "Assessment cover sheet", "Title page", "Instructions to students",
+      "Principles of assessment & rules of evidence", "Assessment conditions",
+      "Workbook purpose", "Current unit focus", "How to use this workbook",
+      "Theory questions", "Special customer request scenarios", "Product evidence matrix",
+      "Recipe cards", "Observation instrument cover", "Observations"
+    ],
+    "_workbookComment": "Observation sheets are COLLECTED AT THE END, not interleaved after each recipe. There is no case study, no detailed scenario block, and no recipe requirements or quantity adjustment templates.",
+    "foundationSkillsForm": "short prose note, not a table",
+    "mappingMatrixColumns": ["KE point", "Assessed in"],
+    "mappingMatrixQualifier": "primary / supporting"
+  },
+
+  "pagination": {
+    "_rule": "A section heading never occupies a page alone. The first child of a section runs on under its heading. Every sibling after the first starts a new page.",
+    "_comment": "In code this is exactly THREE conditional sites - theory questions, recipes, observations - each -PageBreakBefore:($index -gt 0). Everywhere else the break is unconditional or absent. A fourth exception means the rule has been misread.",
+    "conditionalSites": ["theoryQuestions", "recipeCards", "observations"],
+    "breaks": {
+      "firstBodyBlockAfterTitlePage": false,
+      "workbookFrontMatterBlocks": false,
+      "uatFrontMatterBanners": true,
+      "theoryQuestion1": false,
+      "theoryQuestion2plus": true,
+      "everyUatTask": true,
+      "recipeCard1": false,
+      "recipeCard2plus": true,
+      "observation1": false,
+      "observation2plus": true,
+      "mappingMatrix": true,
+      "foundationSkills": false,
+      "endOfAssessmentTask": false
+    },
+    "mechanics": "pageBreakBefore in the heading's pPr. Never an empty spacer paragraph in front of a bound block - the spacer stays behind when the block is pushed and prints as a blank page. keepNext on every heading and every task stem.",
+    "verifyBy": "Extract what each break actually LANDS ON, as a list. A count of 22 tells you nothing; a list of 22 headings tells you everything."
+  },
+
+  "formatting": {
+    "_comment": "Measured by counting runs in word/styles.xml and word/document.xml. Do not 'correct' any of these to match a general accessibility rule - see accessibilityConflict below.",
+    "docDefaultsRunSize": 22,
+    "_docDefaultsComment": "22 half-points = 11 pt, so every unsized run meets the body floor. The UAT template had none and fell back to 10 pt; the recipe template already carried 22. Set by scripts/Patch-TemplateFontFloor.ps1 and checked by DocDefaultFontSize.",
+    "_docDefaultsRunSizeComment": "READ BY NOTHING. The DocDefaultFontSize check reads formatting.sizes.body, not this field. Kept as a measured record of the template only - changing it moves no gate. Do not cite it as the checked value.",
+    "font": "Arial",
+    "bodyColor": "1A1A1A",
+    "sizes": { "cell": 20, "body": 22, "banner": 26, "subBanner": 24, "small": 20 },
+    "minimumRunSize": 20,
+    "_sizesComment": "Half-points (w:sz). cell 20 = 10 pt and body 22 = 11 pt, which is the accessibility floor. The artefacts measured cell 19 (9.5 pt) and no docDefaults size at all, so unsized body ran at 10 pt; the RTO chose to meet the floor on 21 August 2026 and both templates were patched. minimumRunSize drives the FontFloor blocking check, scoped to the generated body - the template cover sheet legitimately runs 8.5 pt policy prose to hold one page.",
+    "lineSpacing": { "single": 240, "oneAndAHalf": 360, "coverSheetProse": 216 },
+    "_lineSpacingComment": "In the GENERATED BODY: 240 or 360 only. Never 276. The cover sheet is template-supplied front matter and legitimately runs 216 - the compressed 8.5pt leading that holds it to one page. The LineSpacing check is scoped to the body for that reason; it is not a licence to use 216 in generated content.",
+    "tableWidthDxa": 9638,
+    "pageMarginsDxa": { "left": 1134, "right": 1134, "top": 1440, "bottom": 1440 },
+    "_pageMarginsComment": "Side margins are 1134 so the A4 text column is exactly 9638 and every table lines up with it. Changed from 1440 on 21 August 2026 to close the table-overflow defect - tables were 612 twips wider than the column they sat in. Applied to both templates by scripts/Patch-TemplateMargins.ps1. If tableWidthDxa ever changes, these must change with it.",
+    "_tableWidthComment": "Every table, every document. Column widths must sum to EXACTLY this - compute all but the last by weight, then give the last the remainder. Floor-rounding drift makes Word re-flow the table.",
+    "rowHeights": { "writingCell": 1050, "deepAnswer": 2200, "max": 2600, "min": 850 },
+    "cantSplit": false,
+    "_cantSplitComment": "In the GENERATED BODY: none. The template cover sheet uses cantSplit on its field and signature rows to hold the sheet to one page - that is template front matter and is exempt. Both checks are scoped to the body.",
+    "bodyStartsAfter": ["Info@mvc.edu.au", "info@mvc.edu.au", "ASSESSMENT"],
+    "_bodyStartComment": "Anchors that mark the END of the template front matter, tried in order. The RTO email is the last line of the title-page RTO block, so everything after it is generated body. The ASSESSMENT wordmark is a fallback and is deliberately LAST - it sits above the title-page photo box, so anchoring on it wrongly counts that box as generated content.",
+    "_outlineLvlComment": "Banner headings carry w:outlineLvl so the table-of-contents field has something to index. Level 0 for a section banner, level 1 for a sub-banner. Body paragraphs carry none - an outline level on ordinary prose puts prose in the TOC.",
+    "outlineLevels": { "banner": 0, "subBanner": 1 },
+    "tblHeaderOnHeaderRows": true,
+    "bullets": {
+      "bodyProse": "real Word numbering - pStyle ListParagraph + numPr numId 2",
+      "insideTableCellOrPanel": "literal bullet glyph + tab + hanging indent",
+      "_exceptionComment": "The house numbering style indents wrongly inside a cell. This exception gets 'fixed' by mistake - it is written here and in house-style.md so the next implementer does not helpfully break every panel."
+    },
+    "hangingIndents": { "methodSteps": [460, 460], "panelBullets": [260, 260], "gridCellBullets": [200, 200] },
+    "_hangingIndentComment": "Without one, a three-line numbered step reads as three steps.",
+    "modelAnswerColor": "E43C30",
+    "placeholderColor": "999999",
+    "accessibilityResolved": {
+      "_comment": "CLOSED 21 August 2026. The measured artefacts rendered body at 10 pt and table text at 9.5 pt, below the 11/10 floor, because docDefaults carried no w:sz. The RTO chose to meet the floor rather than match the artefact - the one place a measured value was deliberately overridden, alongside the table of contents.",
+      "cost": "Three to five extra pages per document. Every page break moved; the cover sheet still holds one page, verified on the render.",
+      "exception": "The template cover sheet keeps its 8.5 pt policy prose. Raising it would push the sheet to a second page, and cutting a clause to compensate is forbidden. FontFloor is scoped to the generated body for that reason."
+    }
+  },
+
+  "responseBoxHeights": {
+    "_comment": "Height follows the verb the stem opens with. 'Select one scenario' is answered with a number and does not need a third of a page.",
+    "rules": [
+      { "startsWith": ["Select", "Name", "State", "Identify", "List"],  "height": 700 },
+      { "startsWith": ["Explain", "Describe", "Justify", "Discuss"],    "height": 1800 },
+      { "shorterThanChars": 60,                                          "height": 1000 }
+    ],
+    "default": 1800
+  },
+
+  "typography": {
+    "degrees": "°C - the symbol, never 'degrees Celsius'",
+    "ranges": "en dash - 16–18 °C, 1–4 °C, 20–35 words",
+    "percent": "50–60%",
+    "portionSize": "5g, 30g - no space, single g",
+    "ingredientUnits": "gms, lower case",
+    "middot": "· with wide spacing",
+    "_preserveComment": "Preserve byte for byte through every rewrite. Never substitute ASCII lookalikes. Count degree symbols, en dashes and middots before and after any rewrite and report the counts."
+  },
+
+  "writing": {
+    "maxSentenceWords": 20,
+    "_maxSentenceComment": "20, not 25. Only exception: a sentence carrying a legislative citation in full.",
+    "voice": "active, second person",
+    "scenarioBoxMaxWords": 60,
+    "rule": "Cut words, never demands. If a stem asks for three things, the tightened stem still asks for three things. Never drop a requirement, a figure, a product code or an appendix reference.",
+    "assessedTerminology": "never simplified - couverture stays couverture",
+    "spelling": "Australian"
+  },
+
+  "assessorLayer": {
+    "modelAnswers": {
+      "form": "points, never prose",
+      "pointLength": "4-14 words, no full stop, no restating the question",
+      "maxWords": 18,
+      "color": "E43C30",
+      "where": "in the space the learner would use, replacing the placeholder, in open response boxes AND inside answer grids",
+      "boxCollapses": true,
+      "_boxComment": "The box collapses to the answer's natural height rather than holding an empty writing gap."
+    },
+    "answerGridDelimiters": {
+      "newline": "next row, in the same order as the grid's items",
+      "pipe": "next column",
+      "tilde": "~~ = next bullet point within one cell",
+      "column0": "NEVER overwritten - it is the row key printed in the learner copy and the assessor's grid must line up with the student's page word for word. Anything before the first pipe is discarded, so a model line may safely repeat the row key for readability.",
+      "pointsPerCell": "2 to 4",
+      "preserve": "Never lose an assessable fact - every temperature, percentage, weight, time, product code, legislative reference and standard number in the prose must survive into the points."
+    },
+    "benchmarks": {
+      "placement": "ONE panel per task, after the last part of the task - not per part",
+      "sections": ["Mark S when", "Minimum acceptable", "Mark NS when", "Worked key", "Example comment - S", "Example comment - NS"],
+      "form": "every line a bullet, no prose blocks",
+      "maxWordsPerLine": 18
+    },
+    "observableIndicators": {
+      "form": "two-column marking table, not a paragraph and not a large tinted box",
+      "columns": ["Mark S when", "Mark NS when"],
+      "maxWordsPerBullet": 15,
+      "_comment": "An assessor at the bench reads down one column."
+    },
+    "observationSheet": {
+      "columns": ["PC", "The student did this", "S", "NS"],
+      "perRowNotesColumn": false,
+      "_notesComment": "A 3 cm column repeated down seventy rows is unwritable. One notes box closes the sheet, followed by result, trainer signature and date.",
+      "checkboxGlyphs": false,
+      "criterionForm": "one observable action in plain English: action, against what standard, observable result. No bare 'correct method', 'to standard', 'as required'."
+    }
+  },
+
+  "fixedPositions": {
+    "lateSubmissionDays": 14,
+    "resultsWithinDays": 14,
+    "appealWorkingDays": 20,
+    "titlePageColourBand": false,
+    "_colourBandComment": "REMOVED from every document. It DOES appear in the RTO artefact and is removed anyway - RTO decision, 21 August 2026. It is a TABLE, not an image, which is why searching for pictures does not find it. ColourBand is a blocking check.",
+    "oralQuestioning": false,
+    "coverSheetPages": 1,
+    "prefillQualification": true,
+    "prefillUnitCodeAndName": true,
+    "administrationReceiptingRow": false,
+    "_adminRowComment": "Removed from learner cover sheets - it is an internal receipting field."
+  },
+
+  "blockingChecks": [
+    { "name": "PPrChildOrder",           "fails": "any pPr has children out of CT_PPr order" },
+    { "name": "TcPrChildOrder",          "fails": "any tcPr out of CT_TcPr order" },
+    { "name": "EmptyTableCell",          "fails": "any w:tc with no block-level child" },
+    { "name": "ColourBand",              "fails": "the four-cell band appears on any document" },
+    { "name": "DayCounts",               "fails": "any cover sheet says other than 14 / 14" },
+    { "name": "SectionBannerAlone",      "fails": "a section banner is followed by an unconditional break" },
+    { "name": "ProseModelAnswer",        "fails": "a model answer line exceeds 18 words, or a grid cell holds a sentence" },
+    { "name": "ModelAnswerColour",       "fails": "a model answer run is not E43C30" },
+      { "name": "AssessorUnansweredBox", "fails": "an assessor document still shows the learner placeholder, so a response space was never answered" },
+    { "name": "ModelAnswerInLearnerDoc", "fails": "any model-answer-coloured run appears in a learner document" },
+    { "name": "TableWidth",              "fails": "any table is not the profile width" },
+    { "name": "LineSpacing",             "fails": "any w:line other than 240 or 360" },
+    { "name": "PageBreakTargets",        "fails": "the list of elements carrying a break does not match the pagination rule" },
+    { "name": "ColumnWidthSum",          "fails": "a table's column widths do not sum to the table width" },
+    { "name": "TableOverflowsTextColumn", "fails": "WARNING ONLY, never blocking - a table is wider than the text column. The script emits this name as a Warn; TableFitsTextColumn is only ever a pass name and has never failed anything." },
+    { "name": "FontFloor",               "fails": "a generated run is below the accessibility floor" },
+    { "name": "DocDefaultFontSize",      "fails": "docDefaults carries no w:sz, so OOXML falls back to 10 pt" },
+    { "name": "NoCantSplit",             "fails": "any cantSplit appears in the generated body - the house documents use none" },
+    { "name": "OutlineLevelDepth",       "fails": "a banner carries an outline level the table of contents field does not index" },
+    { "name": "TableOfContentsPresent",  "fails": "a document ships without a table of contents" }
+  ],
+  "_blockingChecksSync": "This list mirrors the check names Test-HouseRules.ps1 actually emits. It drifted once - the script had grown seven checks the profile never recorded. If you add a check to the script, add it here in the same commit.",
+  "readability": {
+    "_comment": "RTO decision, 26 August 2026. THE AUTHORITY for every readability figure. These lived in the block builders and in prose only, which is the drift the house standard warns about - a figure in more than one place goes out of step with the check that reads it. Test-Readability.ps1 reads them from here.",
+    "charsPerRenderedLine": 100,
+    "_charsPerLineComment": "9638 dxa is about 17 cm; body text is 11 pt. Roughly 100 characters to the line.",
+    "paragraphMaxLines": 3,
+    "paragraphMaxChars": 300,
+    "paragraphTargetChars": 200,
+    "stackedShortParagraphRun": 4,
+    "stackedShortParagraphChars": 110,
+    "longSentenceChars": 150,
+    "longSentenceClauses": 5,
+    "spacing": {
+      "_comment": "Space AFTER, in twentieths of a point. w:line is a blocking check admitting 240 or 360 only, so readability is bought with space after, never with leading.",
+      "bodyAfter": 160,
+      "bulletAfter": 80,
+      "panelBulletAfter": 40,
+      "tableCellAfter": 60
+    },
+    "keepNextOnColonLeadIn": true,
+    "_keepNextComment": "A paragraph ending in a colon introduces a list, so it binds to the first item beneath it. Without this, the lead-in strands at a page foot while its list opens the next page. Bind with keepNext, NEVER cantSplit - the house documents use none and NoCantSplit blocks it."
+  },
+  "readabilityChecks": [
+    { "name": "ParagraphLength",         "fails": "a body paragraph, bullet or stem exceeds paragraphMaxChars" },
+    { "name": "RunOnList",               "fails": "a paragraph carries a hyphen run doing a list's job" },
+    { "name": "StackedShortParagraphs",  "fails": "four or more consecutive non-bulleted short prose paragraphs - reads as a list without dots" },
+    { "name": "OrphanLeadIn",            "fails": "a body paragraph ends in a colon without keepNext, so it can strand at a page foot" },
+    { "name": "BulletSpacing",           "fails": "a body bullet carries spacing.bulletAfter below the profile value" },
+    { "name": "ListParagraphIsList",     "fails": "a ListParagraph paragraph carries no numPr" }
+  ],
+  "_readabilityChecksComment": "Run by Test-Readability.ps1 at Stage 4b, on top of the assembled documents, after the house gate. Two further names are WARNINGS and never block: LongSentenceClauses and LiteralBulletInBody. Rules: references/readability.md.",
+  "_blockingChecksComment": "Existing package validation covers well-formedness, namespaces, content types, relationships, numId uniqueness and control characters - but NOT schema child order, which is the one thing that actually corrupts a document. A pageBreakBefore-before-keepNext package passes every current gate and fails only when a human opens it."
+}
