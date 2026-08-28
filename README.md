@@ -67,12 +67,21 @@ Update later:
 - **ACI** resolves its trading name from the unit's training package, enforced in code: `SIT` → Adelaide Culinary Institute, `CPC` → Adelaide Construction Institute; an ambiguous package (e.g. `BSB`) refuses to guess and asks.
 - The brand mark is **byte-verified in every header of every document** at build *and* delivery time — a wrong or missing logo fails the build, it cannot ship silently.
 
+After a pack is delivered, build its teaching resources with:
+
+```
+/learner-guide <UNITCODE>
+```
+
 ## What's inside
 
 ```
 plugins/vet-assessment/
   skills/assessment/    the pack builder: SKILL.md pipeline, PowerShell build/gate scripts,
                         measured house profiles, branding, approved templates, logos, references
+  skills/learner-guide/ the teaching resources: builds a branded Learner Guide (Word) and a
+                        classroom Delivery PowerPoint from a finished assessment pack, on one
+                        shared content spine so guide and deck cannot drift
   skills/docx-images/   the artwork sub-skill: scans [IMAGE:] prompts, generates with the
                         OpenAI image model, places pictures back into the .docx
 ```

@@ -1,0 +1,114 @@
+{
+  "_comment": "Learner Guide build profile for Meridian Vocational College. Geometry and heading colours are MEASURED from assets/templates/MVC_Learner_Guide_Template.docx; the callout map is measured from the same template's Callout box library. Where this file and a reference/ document disagree, this file wins, because it was measured and they were written.",
+
+  "brand": "MVC",
+
+  "page": {
+    "widthDxa": 11906,
+    "heightDxa": 16838,
+    "marginTop": 1440,
+    "marginRight": 849,
+    "marginBottom": 1440,
+    "marginLeft": 1440,
+    "contentWidthDxa": 9617,
+    "_geometryComment": "The shipped template had right=1440, giving CW 9026, while the spec and every table in the delivered SITHPAT018 guide use 9617. 11906-1440-849 = 9617 exactly, so the spec's arithmetic is deliberate and the template's margin was the outlier. scripts/Patch-GuideTemplateGeometry.ps1 sets right=849; run it once. Test-GuideRules derives CW from the page's own margins and fails any table wider than it, which is how the delivered guide's 591 DXA overhang was found."
+  },
+
+  "typography": {
+    "bodyFont": "Arial",
+    "iconFont": "Noto Color Emoji",
+    "_iconFontComment": "Noto Color Emoji, registered in word/fontTable.xml, and NOT Segoe UI Emoji - the latter is Windows-only and renders as empty tofu boxes anywhere else, including LibreOffice and macOS.",
+    "bodyLineSpacing": 1.5,
+    "listLineSpacing": 1.15
+  },
+
+  "headings": {
+    "_comment": "Measured from the template's styles.xml. Heading4 ships Word's default 2E74B5, which is NOT a brand colour; authored H4s are written in navy instead.",
+    "Heading1": "234B8C",
+    "Heading2": "234B8C",
+    "Heading3": "2F60B4",
+    "Heading4": "234B8C",
+    "Heading4InTemplate": "2E74B5"
+  },
+
+  "palette": {
+    "_comment": "Structural chrome - cover, headings, banner bands, table header rows, bullets, section rules - is the MVC logo palette. Callouts are the separate map below.",
+    "navy": "234B8C",
+    "meridianBlue": "2F60B4",
+    "orange": "F09C0C",
+    "yellow": "F5C800",
+    "deepOrange": "E45418",
+    "grey": "606060",
+    "border": "C7D0DD",
+    "lightFill": "F0F2F7"
+  },
+
+  "calloutPalette": {
+    "_comment": "CALLOUT-SCOPED ONLY. These are the ACI template's exact hexes, adopted deliberately by spec v3.3 so an MVC guide and an ACI guide are byte-identical at callout level. They must never appear on a cover, heading, band, table header row, bullet or rule. NOTE: the assessment skill's MVC brand-crossover sweep lists 2A364E, 2490CC and 84549C as FORBIDDEN tokens - correctly, for an assessment document. A Learner Guide needs a documented carve-out or every correct guide fails that sweep. See references/gates.md.",
+    "_conflict": "The delivered SITHPAT018 Learner Resource contains ZERO of these hexes and is built entirely on the MVC palette, with no emoji icons at all. The template is v3.4 and carries all of them. Template and spec agree with each other; the delivered guide predates them. Resolved in favour of the template, which is the approved brand source - but flagged, because it is a visible change from the last guide the RTO shipped.",
+    "navy":   { "rule": "2A364E", "fill": "F4F6F8", "titleColour": "body" },
+    "blue":   { "rule": "2490CC", "fill": "D9EDF7" },
+    "orange": { "rule": "F09018", "fill": "FCEFD9" },
+    "teal":   { "rule": "3CC0D8", "fill": "E2F6F9" },
+    "purple": { "rule": "84549C", "fill": "F0EAF5" },
+    "green":  { "rule": "189C48", "fill": "E6F2E6" },
+    "red":    { "rule": "E43C30", "fill": "FBE7E5" },
+    "legendBorder": "C9D2DC",
+    "legendHeaderFill": "2A364E"
+  },
+
+  "callouts": {
+    "_comment": "icon + colour family per callout type. The three neutral types (note, keyTerms, furtherReading) carry the navy left rule but their icon AND title sit in default body black, matching ACI. Where two families share a colour, the icon and the title wording do the finer separation - never colour alone.",
+    "readBeforeYouStart":  { "icon": "📖", "family": "blue",   "title": "Read before you start" },
+    "note":                { "icon": "📌", "family": "navy",   "title": "Note",                  "plainTitle": true },
+    "industryInsight":     { "icon": "📌", "family": "navy",   "title": "Industry insight",      "plainTitle": true },
+    "keyTerms":            { "icon": "🔑", "family": "navy",   "title": "Key terms in this topic", "plainTitle": true },
+    "furtherReading":      { "icon": "📚", "family": "navy",   "title": "Further reading",       "plainTitle": true },
+    "remember":            { "icon": "🟦", "family": "green",  "title": "Remember" },
+    "keyPoint":            { "icon": "🟦", "family": "green",  "title": "Key point" },
+    "topicSummary":        { "icon": "📋", "family": "blue",   "title": "Topic summary - key points" },
+    "caseStudy":           { "icon": "📋", "family": "blue",   "title": "Case study - workplace example" },
+    "workedExample":       { "icon": "🔢", "family": "blue",   "title": "Worked example" },
+    "practicalActivity":   { "icon": "📝", "family": "orange", "title": "Practical activity" },
+    "mySummary":           { "icon": "📝", "family": "orange", "title": "My summary" },
+    "reflection":          { "icon": "🤔", "family": "orange", "title": "Reflection" },
+    "rolePlay":            { "icon": "💬", "family": "teal",   "title": "Role play" },
+    "discussion":          { "icon": "💬", "family": "teal",   "title": "Discussion" },
+    "selfCheck":           { "icon": "✅",       "family": "teal",   "title": "Self-check" },
+    "assessmentLink":      { "icon": "✅",       "family": "purple", "title": "Assessment link" },
+    "assessmentPrep":      { "icon": "✅",       "family": "purple", "title": "Assessment preparation" },
+    "commonErrors":        { "icon": "⚠",       "family": "red",    "title": "Common errors and consequences" }
+  },
+
+  "wordFloors": {
+    "topic": 3000,
+    "underpinningKnowledge": 800,
+    "_comment": "Counted body prose only - paragraphs NOT inside a table. Because every callout, sign-off block and answer space in this house style IS a table, that single rule reproduces the spec's whole exclusion list. Verified against the delivered SITHPAT018 guide, whose eight topics measure 3,770-5,351 words and pass. Its Underpinning knowledge blocks measure 96-242 words and do NOT - see references/gates.md."
+  },
+
+  "structure": {
+    "bodyStartsAt": "Unit overview",
+    "_comment": "The template's front matter - cover, Acknowledgement of Country, Contents field, How to use this guide and the twelve-row icon legend - is approved and is KEPT. Authored content starts at the 'Unit overview' heading and runs to the closing section properties.",
+    "keepFromTemplate": ["cover", "acknowledgement", "contents", "howToUse", "iconLegend"],
+    "topicPageBreak": true,
+    "pcSubsectionPageBreak": true
+  },
+
+  "pcSubSection": [
+    "whatThisMeansInPractice",
+    "remember",
+    "underpinningKnowledge",
+    "regulatoryBasis",
+    "howToDoIt",
+    "workedExample",
+    "caseStudy",
+    "practicalActivity",
+    "rolePlay",
+    "commonErrors",
+    "selfCheck",
+    "assessmentLink"
+  ],
+
+  "_prosePartsGetHeadings": ["whatThisMeansInPractice", "underpinningKnowledge", "regulatoryBasis", "howToDoIt"],
+  "_selfTitledBoxes": "Every other sub-part is delivered as a self-titled icon-prefixed callout and gets NO heading line above it - the box's own bold title IS the heading. A duplicate heading repeats the title and strands an orphan page."
+}

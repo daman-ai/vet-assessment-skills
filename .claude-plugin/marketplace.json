@@ -7,7 +7,7 @@
     {
       "name": "vet-assessment",
       "source": "./plugins/vet-assessment",
-      "description": "Build audit-compliant Australian VET assessment packs matched to the RTO's own approved templates - paired learner and assessor Word documents with model answers, benchmarks, generated recipe photography and a compliance report. Includes the docx-images artwork sub-skill."
+      "description": "Build audit-compliant Australian VET assessment packs matched to the RTO's own approved templates, then the matching teaching resources: paired learner and assessor Word documents with model answers, benchmarks and generated recipe photography; a branded Learner Guide and Delivery PowerPoint built from the finished pack; and a compliance report. Includes the docx-images artwork sub-skill."
     }
   ]
 }

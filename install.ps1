@@ -27,7 +27,7 @@ if ($Update) {
 $dest = Join-Path $env:USERPROFILE '.claude\skills'
 if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force | Out-Null }
 
-foreach ($skill in 'assessment', 'docx-images') {
+foreach ($skill in 'assessment', 'learner-guide', 'docx-images') {
     $src = Join-Path $repo "plugins\vet-assessment\skills\$skill"
     if (-not (Test-Path $src)) { throw "Skill missing from repo: $skill" }
     $tgt = Join-Path $dest $skill
