@@ -1,4 +1,4 @@
-<#
+﻿<#
     Test-GuideRules.ps1
 
     THE GUIDE GATE. Runs on a built Learner Guide (.docx or its unpacked working
@@ -30,6 +30,25 @@
                        exist in the assessment pack, and every question in the
                        pack must be reachable from a topic. This is the whole
                        point of the guide, so both directions are checked.
+
+    A RULE THAT CHECKED NOTHING IS NOT A PASS, AND THIS FILE USED TO SAY IT WAS.
+
+    -QuestionsInPack is optional, and the whole cross-reference block sat behind
+    it: omit it and the gate wrote "assessment cross-reference skipped - no
+    -QuestionsInPack given" into $info and returned Ok. An info line is not a
+    failure, so a caller who simply left the parameter off got a clean PASS on a
+    guide whose question references had not been reconciled in either direction
+    - which is the same disease as the crossover sweep that printed "no
+    crossover" over 766 live occurrences: a gate believed because it was green,
+    over a rule that never ran. The same shape sat behind the page geometry and
+    the topic word floor.
+
+    So every blocking rule whose input is absent now FAILS, and names the input.
+    -AllowPartial is the only way past it: it converts each of those failures
+    into a loud PARTIAL RUN warning, returns the list on .Partial, and the
+    caller must record that list in the stage ledger (Add-StageRecord -Partial),
+    where the delivery report has to carry it. An omission is then a decision
+    somebody made and signed, not an absence nobody saw.
 
     Requires Lib-Resolve.ps1 dot-sourced first.
 
@@ -97,8 +116,14 @@ function Test-GuideRules {
 
         -QuestionsInPack is the list of question references the ASSESSMENT PACK
         actually contains, e.g. @('Q1','Q2','Q9(a)'). Supply it and the
-        cross-reference is checked both ways; omit it and that rule is skipped
-        and said to be.  #>
+        cross-reference is checked both ways. Omit it and the gate FAILS,
+        because omitting it does not make the rule pass - it makes the rule not
+        run, and a rule that did not run must never report green.
+
+        -AllowPartial records that omission as a deliberate, reported decision:
+        each unrunnable blocking rule becomes a loud warning instead of a
+        failure, and every one of them comes back on .Partial for the caller to
+        write into the stage ledger.  #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string] $Path,
@@ -107,7 +132,8 @@ function Test-GuideRules {
         [int]      $SubjectWordFloor  = 800,
         [switch]   $AllowDocumentControl,
         [switch]   $AfterArtwork,
-        [string]   $QuestionPattern
+        [string]   $QuestionPattern,
+        [switch]   $AllowPartial
     )
 
     # How the PACK labels its assessed items, which is not a constant. The
@@ -124,9 +150,25 @@ function Test-GuideRules {
 
     $wd = if ((Get-Item -LiteralPath $Path).PSIsContainer) { $Path } else { Expand-Docx -Path $Path }
 
-    $fail = New-Object System.Collections.Generic.List[string]
-    $warn = New-Object System.Collections.Generic.List[string]
-    $info = New-Object System.Collections.Generic.List[string]
+    $fail    = New-Object System.Collections.Generic.List[string]
+    $warn    = New-Object System.Collections.Generic.List[string]
+    $info    = New-Object System.Collections.Generic.List[string]
+    $partial = New-Object System.Collections.Generic.List[string]
+
+    #  ONE place decides what a missing input means, so no rule can quietly
+    #  invent a gentler answer for itself. Every caller of this block is a
+    #  BLOCKING rule that could not run: the default is a failure that names the
+    #  input, and -AllowPartial is the only thing that softens it - loudly, and
+    #  onto .Partial so the ledger has to carry it.
+    $partialRule = {
+        param([string] $Rule, [string] $Fix, [string] $Why)
+        $partial.Add($Rule)
+        if ($AllowPartial) {
+            $warn.Add("PARTIAL RUN - $Rule checked nothing. $Why Record it in the stage ledger with -Partial and a note.")
+        } else {
+            $fail.Add("$Rule checked nothing - $Fix, or pass -AllowPartial to record the omission as a deliberate, reported decision. $Why")
+        }
+    }
 
     $doc = Get-DocxPart -WorkDir $wd -Part 'word/document.xml'
 
@@ -250,7 +292,15 @@ function Test-GuideRules {
             $info.Add("full-width tables: $(@($widths | Where-Object { $_ -eq $cw }).Count) of $($widths.Count) exactly $cw DXA")
         }
     }
-    else { $warn.Add('could not read page geometry - content-width rule skipped') }
+    else {
+        # The content-width rule is blocking and derives CW from the page's own
+        # margins. No geometry, no derivation, no check - and the delivered
+        # reference guide overhangs its right margin on all 361 of its tables,
+        # so this is not a rule that can be waved through as unimportant.
+        & $partialRule 'content width (page geometry)' `
+            'the document must declare <w:pgSz> and <w:pgMar> so CW can be derived' `
+            'Every full-width table must equal CW exactly; unchecked, a table can overhang the right margin on every page.'
+    }
 
     # -------------------------------------------------------------- numbering
     $numIds = @([regex]::Matches($doc, '<w:numId w:val="(\d+)"') | ForEach-Object { $_.Groups[1].Value })
@@ -268,6 +318,11 @@ function Test-GuideRules {
         if ($distinct.Count -lt 20 -and $numIds.Count -gt 60) {
             $warn.Add("only $($distinct.Count) distinct numIds for $($numIds.Count) list references - separate numbered lists will run on rather than restarting at 1")
         }
+    }
+    elseif ($numIds.Count) {
+        # Undeclared numIds are Test-DocxPackage's blocking rule, not this one -
+        # but say the part is absent rather than reporting nothing at all.
+        $warn.Add("$($numIds.Count) list reference(s) but no word/numbering.xml - every numId in the body is undeclared")
     }
 
     # ------------------------------------------------------- structural blocks
@@ -324,7 +379,11 @@ function Test-GuideRules {
         if ($w -lt $TopicWordFloor) { $fail.Add("$t carries $w words of counted body prose, floor is $TopicWordFloor") }
         else { $info.Add("${t}: $w words") }
     }
-    if (-not $topicOrder.Count) { $warn.Add('no "Topic N" Heading1 found - topic word floor not checked') }
+    if (-not $topicOrder.Count) {
+        & $partialRule 'topic word floor (no "Topic N" Heading1 found)' `
+            'render the guide with its Topic headings before gating it' `
+            "The 3,000-word floor is a content requirement, and with no topic to measure it passed on nothing."
+    }
 
     $thin = @($subjOrder | Where-Object { $subjWords[$_] -lt $SubjectWordFloor })
     if ($thin.Count) {
@@ -459,13 +518,19 @@ function Test-GuideRules {
 
         if (-not $invented.Count -and -not $uncited.Count) { $info.Add('assessment cross-reference reconciles in both directions') }
     }
-    else { $info.Add('assessment cross-reference skipped - no -QuestionsInPack given') }
+    else {
+        & $partialRule 'assessment cross-reference (-QuestionsInPack)' `
+            'supply -QuestionsInPack, derived fresh from the pack this build reads' `
+            'It is the whole point of the guide, and it is checked in both directions: a cited question the pack does not contain is a learner revising for a question that is not on the paper, and a question no topic prepares is a coverage gap.'
+    }
 
     return [pscustomobject]@{
         Ok            = ($fail.Count -eq 0)
         Failures      = $fail
         Warnings      = $warn
         Info          = $info
+        Partial       = $partial          # blocking rules that could not run
+        AllowPartial  = [bool]$AllowPartial
         ContentWidth  = $cw
         TopicWords    = $topicWords
         SubjectWords  = $subjWords
@@ -479,11 +544,19 @@ function Write-GuideRuleReport {
     process {
         Write-Host ''
         Write-Host 'GUIDE GATE' -ForegroundColor Cyan
+        if ($Result.Partial -and @($Result.Partial).Count) {
+            Write-Host ("  !  PARTIAL RUN - {0} blocking rule(s) checked nothing: {1}" -f `
+                        @($Result.Partial).Count, (@($Result.Partial) -join '; ')) -ForegroundColor Magenta
+            Write-Host '     Record every one of them in the stage ledger (Add-StageRecord -Partial) and in the build report.' -ForegroundColor Magenta
+        }
         foreach ($i in $Result.Info)     { Write-Host "  .  $i" -ForegroundColor DarkGray }
         foreach ($w in $Result.Warnings) { Write-Host "  ~  $w" -ForegroundColor Yellow }
         foreach ($f in $Result.Failures) { Write-Host "  X  $f" -ForegroundColor Red }
-        if ($Result.Ok) { Write-Host '  PASS' -ForegroundColor Green }
-        else            { Write-Host "  FAIL - $($Result.Failures.Count) blocking" -ForegroundColor Red }
+        if ($Result.Ok -and @($Result.Partial).Count) {
+            Write-Host ("  PASS - PARTIAL, {0} rule(s) not run" -f @($Result.Partial).Count) -ForegroundColor Yellow
+        }
+        elseif ($Result.Ok) { Write-Host '  PASS' -ForegroundColor Green }
+        else                { Write-Host "  FAIL - $($Result.Failures.Count) blocking" -ForegroundColor Red }
         Write-Host ''
     }
 }

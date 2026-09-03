@@ -44,6 +44,10 @@ Gloss unavoidable Australian workplace terms at first use: *mise en place*, *fro
 
 Every person named in a scenario carries their role at first mention in each part — "Sofia Rossi, Head Chef" — so the learner is never tracking an unexplained name.
 
+**Refer to every scenario person as they/them.** A name does not state anyone's pronouns, and the cast is invented, so there is nothing to infer from. Write *"Sofia Rossi approves the order. They record the approval"*, never *"she records"*.
+
+Watch the verb when you do it: *they approve*, not *they approves*; *and are the person*, not *and is the person*. A compound predicate is where it slips — *"They approve every order over $500 and **is** the person issues are referred to."* Sweep for `\b(she|her|hers|he|him|his)\b` and for `they (is|was|has|does|wants|holds)` before assembly; both were found in a delivered draft.
+
 ---
 
 ## B. Response and deliverable spaces
@@ -156,6 +160,7 @@ Run all of these on the **rendered output**, not the source.
 | Sweep | Pass condition |
 |---|---|
 | Placeholder | Search for `[`, `[Unit code]`, `[Qualification`, `[n]`. Zero count |
+| | **The sweep owns square brackets, so nothing else may use them.** An assessor-only annotation written `[contingent — see the assessor guide]` is legitimate content that this sweep fails as an unresolved placeholder. Put every such marker in **parentheses**. Found at the delivery gate on SITXINV007, after the build was otherwise finished |
 | Assessor-only content in the learner document | Search for "benchmark", "critical error", "model answer", "assessor use only", "setup". Zero count |
 | Word guides | Every question has one; every deliverable has a stated scope |
 | Response spaces | Every answerable part has its own labelled space |

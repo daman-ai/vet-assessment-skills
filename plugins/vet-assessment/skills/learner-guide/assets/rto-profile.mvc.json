@@ -1,0 +1,93 @@
+{
+  "_comment": "RTO PROFILE PACK - the worked example. Everything a build would otherwise hard-code that is a property of this RTO rather than of a unit. Assembled once at Stage S0-RTO, validated by scripts/Get-RtoProfile.ps1, cached, and read by every build for this RTO. Written against assets/rto-profile.schema.json, which is what validates it.",
+
+  "_pointersNotCopies": "This file NAMES its sources and copies none of them. Identity strings and palette hexes come from the branding profile; page geometry, callouts and word floors from the guide profile; layouts, slot ordinals and deck rules from the deck profile. Copying any of them here would create a second source of truth free to drift from the map the brand swap actually applies.",
+
+  "schemaVersion": "1.0",
+  "rto": "MVC",
+  "profileVersion": "1.0.0",
+
+  "brandingFile": "branding.mvc.json",
+  "_brandingFileComment": "Resolved in the skill that owns the branding profiles - the assessment skill's assets directory, or this skill's own after the two merge. Get-RtoProfile reads identity and palette from it, and reads every OTHER branding.*.json beside it so the crossover sweep's forbidden set is derived from the same files rather than typed.",
+
+  "templates": {
+    "guide": "assets/templates/MVC_Learner_Guide_Template.docx",
+    "deck": "assets/templates/MVC_Branded_PPT_Template.pptx",
+    "geometryPatchScript": "scripts/Patch-GuideTemplateGeometry.ps1",
+    "_geometryComment": "The patch belongs to the template, not to the build. Run Patch-GuideTemplateGeometry.ps1 once against a freshly installed template - it is idempotent, keeps the pre-patch copy as *.premargin.docx, and says when there is nothing to do. Skip it and every full-width table overhangs the right margin by 591 DXA, which is what the delivered reference guide does on all 361 of its tables."
+  },
+
+  "guideProfile": "assets/guide-profile.mvc.json",
+  "deckLayouts": "assets/deck-layouts.mvc.json",
+
+  "noNotesReasons": {
+    "_comment": "ONE WRITTEN REASON for every entry on the deck profile's deckRules.notesNotRequiredOn list. The list lives there; the reasons live here, in the audited pack, and Assert-RtoProfile fails if the two sets differ in either direction - an exemption added to the deck profile with no reason here, or a reason here for an exemption nobody made. Speaker notes are a shipped deck rule and this is the only place they can be switched off, so it is a declared allow-list under the same discipline as any other: written reason per entry, surfaced to Stage 6 as evidence.",
+    "title": "Carries the unit code, title, qualification and presenter line only. Nothing on it is taught, so there is nothing to say about it that is not already on the slide.",
+    "divider": "A section marker: number, kicker and one descriptive line. The teaching happens on the slides it introduces, and each of those carries its own notes.",
+    "agenda": "A list of the Topics that follow. Its content is the deck's own structure, and the trainer reads it aloud as written.",
+    "housekeeping": "Venue, breaks, amenities and ground rules, set by the venue on the day rather than by this unit.",
+    "thanks": "Delivered verbatim from the template - the template's own words ARE the delivered words, so there is nothing authored to explain.",
+    "brandref": "Kept at the end of the deck unchanged per the delivery-PowerPoint spec. Nothing on it is authored."
+  },
+
+  "imageFraming": {
+    "_comment": "House framing rules for Route A prompts, enforced mechanically by Assert-PromptLint at the Stage 3b exit, BEFORE any generation spend. One build regenerated 47 of 57 illustrations on identifiable faces, then 17 again, then 2 again - 48 minutes of billed regeneration - and the repair script that finally fixed it read prompts, never images.",
+    "subjectRule": "hands-and-equipment",
+    "personNouns": [
+      "chef", "cook", "apprentice", "student", "learner", "trainer", "assessor",
+      "worker", "employee", "staff", "supervisor", "manager", "operator",
+      "technician", "labourer", "tradesperson", "team", "crew", "person",
+      "man", "woman", "someone", "somebody", "he", "she", "they"
+    ],
+    "_personNounsComment": "Matched at the HEAD of the prompt's subject phrase, as a closed list. Not a semantic judgement, and deliberately not one: a lint that guesses is a lint that gets switched off.",
+    "requiredNegatives": {
+      "_comment": "Set membership, per subject class. Every prompt of a class must carry every constraint listed for it.",
+      "any": ["no text", "no signage lettering", "no logos"],
+      "person-present": ["face angled away from camera", "no identifiable faces"],
+      "food-handling": ["no bare hands on ready-to-eat food"],
+      "workplace": ["no real brands", "no trademarks"]
+    },
+    "allowList": {
+      "_comment": "Per slot, with a written reason, for the rare prompt where a person is the legitimate subject. Empty until a build needs one, and every entry is surfaced to the audit as evidence."
+    }
+  },
+
+  "lockedTerminology": {
+    "_comment": "Canonical terms, the near-synonyms that must never stand in for them, and the paired forms that must appear together. Assessed terminology is never simplified, and the guide and the deck must call the same thing the same name or a learner meets two names for one requirement.",
+    "canonical": {
+      "standard recipe": ["recipe of record", "master recipe"],
+      "learner guide": ["learner resource", "study guide"],
+      "assessor": ["marker", "examiner"]
+    },
+    "_canonicalComment": "Left of the colon is the term that ships; the array is what must never stand in for it in this document type. Extend it per RTO from the RTO's own approved artefacts, never from memory.",
+    "pairedForms": [
+      ["Performance Criteria", "PC"],
+      ["Knowledge Evidence", "KE"]
+    ],
+    "_pairedComment": "First use in reading order expands; later uses may abbreviate. Assert-Terminology checks the order, not just the presence."
+  },
+
+  "documentControl": {
+    "_comment": "What a document-control block IS for this RTO, declared so an audit can verify it rather than recording it as 'not verifiable' for the third round running.",
+    "allowedInGuideBody": false,
+    "appliedIn": "novacore.cloud, after this build",
+    "labels": ["Document Control", "Doc #", "Doc#", "Revision:", "Ver#", "Approved Date", "Next Review", "Approved by", "Revision Date"],
+    "_labelsComment": "The gate requires STRUCTURE, not vocabulary: four or more cells with at least two of these labels as short cell values. In this house style a callout is a table, and the delivered guide carries a Note box whose text explains that document control is applied separately - a keyword sweep reports that correct paragraph as a defect.",
+    "footerDivergence": "The spec says build no footer; the delivered guide ships a full document-control footer. Reported, never failed: where the RTO's own artefact and the spec disagree, the artefact is the authority and the divergence is recorded for the RTO to settle."
+  },
+
+  "carveOuts": [
+    {
+      "rule": "brand crossover - callout palette",
+      "scope": "callout boxes and the icon legend only",
+      "reason": "Study Guide spec v3.3 deliberately adopted the other brand's callout palette hex for hex, so an MVC guide and an ACI guide are visually identical at callout level. Running the assessment skill's crossover sweep unmodified fails every correct Learner Guide. The carve-out is SCOPED: these hexes must never appear on a cover, a heading, a banner band, a table header row, a bullet or a section rule.",
+      "evidence": "references/gates.md section 9"
+    },
+    {
+      "rule": "content width",
+      "scope": "the guide template's right margin",
+      "reason": "The template shipped margins giving CW 9026 while the spec and all 361 tables in the delivered guide use 9617. Resolved by patching the template's right margin to 849, not by relaxing the gate - the gate derives CW from the page's own margins, which is what exposed the mismatch.",
+      "evidence": "references/gates.md section 1"
+    }
+  ]
+}

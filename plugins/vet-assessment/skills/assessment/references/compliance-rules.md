@@ -223,6 +223,10 @@ Fill every cell, in the model colour, in the same table the learner would write 
 
 This covers every completion table, matching grid, cuts-and-characteristics table, technique table and calculation template. **A worked calculation shows the working and the final value**, not just the answer.
 
+**A cell that points at a source is not an answer.** *"Quantity copied from Appendix D"*, *"the figure from the price list"*, *"as per the procedure"* — an assessor cannot mark against any of them. The model answer states **the actual value for the actual data**: not *"deducts the suitable stock on hand"* but *"ten of the fourteen heads are sound, so deduct ten"*. Where the source says none is held, the answer says so and says the full quantity is bought.
+
+This is the one an agent writes when it has the appendix but not the confidence to commit, and it survives every gate because the cell is not empty. **Give it to the build's derived gate** — flag any model cell matching `copied from|from the (report|list|appendix)|as per|see Appendix` that carries no figure of its own.
+
 **2. It is a record completed during the assessment — so it carries an instruction saying so.**
 
 Observation checklists, dish production records, evidence completion matrices, condition confirmations, declarations and signature blocks are not questions and have no model answer. Each one carries a line immediately above it, in the assessor guide, stating **who** completes it, **when**, and **what a complete entry looks like**. Without it, an assessor guide that fills some tables and not others reads as unfinished.

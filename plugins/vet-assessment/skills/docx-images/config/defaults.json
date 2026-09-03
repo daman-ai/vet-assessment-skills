@@ -106,6 +106,7 @@
     "illustration": {
       "preamble": "Clean instructional photograph for an Australian vocational training document. Realistic commercial-kitchen photography, neutral even lighting, natural colour, sharp focus on the subject, uncluttered stainless-steel or bench background.",
       "constraints": [
+        "COMPOSITION: framed from the shoulders down. Hands, tools, equipment and food are the subject of the picture. No head, face or chin is anywhere in the frame.",
         "ABSOLUTE: no faces. Not in focus, not blurred, not in the background, not partially in frame, not reflected in any surface. Frame to torso and hands only.",
         "ABSOLUTE: nobody identifiable. No name badges, no names on clothing, no lanyards, no distinctive tattoos, no distinctive jewellery, no staff photographs on a wall.",
         "ABSOLUTE: no real company or venue. No logos, brand marks, branded uniforms, packaging, supplier labels, delivery boxes, signage, menus, shopfronts or vehicles.",

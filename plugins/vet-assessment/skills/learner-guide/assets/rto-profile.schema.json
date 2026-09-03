@@ -1,0 +1,67 @@
+{
+  "_comment": "SCHEMA for an RTO profile pack (assets/rto-profile.<rto>.json). This file is READ by scripts/Get-RtoProfile.ps1, not just documented by it: Assert-RtoProfile derives its required-key set, its closed palette role enum and its identity field list from here, so the validator and the specification cannot drift apart. Add a key to a profile and it is unvalidated until it is added here with a reason.",
+
+  "schemaVersion": "1.0",
+
+  "_whyThisExists": "Everything a build would otherwise hard-code that is a property of the RTO rather than the unit lives in one versioned, validated file, assembled once per RTO and off the per-build critical path. One build ended up with ten build-local scripts hard-coding a single unit code, a single brand and that build's own counts, and three consecutive audits could only record the document-control block as 'not verifiable' because nothing declared what it was supposed to be.",
+
+  "_derivedNeverRestated": "A profile pack POINTS AT its sources; it does not copy them. Identity strings and palette hexes are read from the branding profile, geometry and callouts from the guide profile, layouts and slot ordinals from the deck profile. A pack that restated a hex would be a second source of truth, free to drift from the map the brand swap actually applies - which is exactly how a crossover sweep came to print 'no crossover' over 766 live occurrences of another brand's fills.",
+
+  "requiredKeys": [
+    "schemaVersion",
+    "rto",
+    "profileVersion",
+    "brandingFile",
+    "templates.guide",
+    "templates.deck",
+    "guideProfile",
+    "deckLayouts",
+    "noNotesReasons",
+    "imageFraming.personNouns",
+    "imageFraming.requiredNegatives",
+    "lockedTerminology",
+    "documentControl",
+    "carveOuts"
+  ],
+
+  "keyReasons": {
+    "schemaVersion": "Which version of THIS file the pack was written against. A compiled contract that changes without a version bump is how two readers end up disagreeing silently.",
+    "rto": "The brand key. Must match the branding profile's own 'brand' value, or the pack and the identity it claims are two different RTOs.",
+    "profileVersion": "The pack's own version. The pack is cached across every unit this RTO ever builds, so a change to it has to be visible.",
+    "brandingFile": "The branding profile this RTO's identity strings and palette are READ from. Named, never copied: the crossover sweep derives its forbidden set from the same files.",
+    "templates.guide": "The approved, geometry-patched Learner Guide template. A brand with no approved template cannot be built - ask the RTO for one rather than generating it.",
+    "templates.deck": "The approved deck template, same rule. The build clones an exemplar per layout and swaps its words.",
+    "guideProfile": "Measured page geometry, heading colours, callout map and word floors for this RTO's guide.",
+    "deckLayouts": "Layout names, slot ordinals, the numberSlot per layout, and the deck rules. Nothing else in the build may hold an ordinal.",
+    "noNotesReasons": "One WRITTEN REASON for every entry on the deck profile's notesNotRequiredOn list. The list itself stays in the deck profile - one source of truth - and this is the audited register of why each exemption exists. An exemption with no reason is a shipped deck rule switched off where nobody reviewing the build would ever see it.",
+    "imageFraming.personNouns": "The closed person-noun list the Stage 3b prompt lint matches at the head of a prompt's subject phrase. Closed and declared, because the lint is a string check and must never become a semantic judgement.",
+    "imageFraming.requiredNegatives": "The negative constraints every prompt of a given subject class must carry. Set membership, per class.",
+    "lockedTerminology": "Canonical terms, their forbidden near-synonyms and the required paired forms. Assessed terminology is never simplified, and the guide and the deck must call the same thing the same name.",
+    "documentControl": "What a document-control block IS for this RTO, so an audit can verify it instead of recording it as not verifiable for the third round running.",
+    "carveOuts": "Every declared exception to a rule, each with a written reason, surfaced to the audit as evidence. A carve-out nobody can see is a rule switched off quietly."
+  },
+
+  "paletteRoles": {
+    "_comment": "The CLOSED role enum. Palette resolution is a total function over it: a role with no match throws rather than falling through to a default, and a role that maps to itself throws, because a self-mapping role is an unresolved property name and never a legitimate no-op. The alias arrays exist because two differently shaped objects reach the swap - a branding file's own palette names the light fill 'lightFill', Set-HousePalette's return names it 'Fill' - and a single-name lookup fell through for that one role, mapped it to itself, and left 608 foreign light fills in a guide and 158 in a deck that both passed a crossover sweep.",
+    "dark":      ["dark", "Dark"],
+    "accent":    ["accent", "Accent"],
+    "rule":      ["rule", "Rule"],
+    "grey":      ["grey", "Grey"],
+    "lightFill": ["lightFill", "Fill", "LightFill"],
+    "border":    ["border", "Border"]
+  },
+
+  "identityFields": {
+    "_comment": "Every identity string a delivered artefact can carry, and therefore every string another brand's profile makes forbidden in this one. Required fields must be present in the branding profile for the pack to validate; the rest are swept when present.",
+    "required": ["tradingName", "legalEntity", "rtoCode", "cricosCode"],
+    "optional": ["shortName", "website", "domain", "email", "address", "phone"]
+  },
+
+  "authorityClasses": {
+    "_comment": "The closed enum every registry figure is classed against in the provenance audit. A figure that fits none of the four is fabricated, however reasonable it looks.",
+    "P": "the assessment pack - upstream, and it wins",
+    "U": "the unit on training.gov.au",
+    "L": "named legislation, a standard or a code, cited",
+    "V": "the scenario venue's own documented procedure, and said so on the page"
+  }
+}

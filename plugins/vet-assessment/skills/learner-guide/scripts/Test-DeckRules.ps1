@@ -1,4 +1,4 @@
-<#
+﻿<#
     Test-DeckRules.ps1
 
     THE DECK GATE. Runs on a built .pptx (or its unpacked working directory)
@@ -21,6 +21,25 @@
                             of the delivery deck is signposting the questions.
       OVERSET TEXT          A slot given far more text than the exemplar held
                             will overflow its shape. Warned, not blocked.
+
+    A RULE THAT CHECKED NOTHING IS NOT A PASS, AND FOUR OF THESE USED TO BE.
+
+    -TemplatePath, -Plan, -NumberSlotByLayout, -Rto and -Cricos were all
+    optional, and four blocking rules sat behind them. Omit -Plan and the gate
+    wrote "per-topic count and chip rules skipped - no -Plan given" into $info
+    and returned Ok: the 15-slide floor, the speaker-notes rule and the chip
+    rule had not run, and the caller saw PASS. Omit -TemplatePath and the
+    residual-placeholder sweep did the same. Omit -NumberSlotByLayout and the
+    printed-number rule fell back to guessing that the last text shape holds the
+    number - on a template where two layouts legitimately have none. Omit -Rto
+    and a deck whose document properties name a competitor's RTO code passed
+    with an info line suggesting the caller confirm it themselves.
+
+    An info line is not a failure. Every one of those now FAILS and names the
+    input it needs. -AllowPartial is the only way past: it turns each into a
+    loud PARTIAL RUN warning, returns them on .Partial, and the caller must
+    record that list in the stage ledger (Add-StageRecord -Partial), where the
+    delivery report has to carry it.
 
     Requires Build-FromTemplate.ps1 and Pptx-Blocks.ps1 dot-sourced first.
 
@@ -68,8 +87,8 @@ function Get-DeckPlaceholderPhrase {
 function Test-DeckRules {
     <#  Gate a built deck.
 
-        -Plan is optional and describes what the build intended, so structural
-        rules can be checked at all. One entry per slide, in deck order:
+        -Plan describes what the build intended, so the structural rules can be
+        checked at all. One entry per slide, in deck order:
 
             @{ Tag = '1.1 concept'; Topic = 1; Kind = 'teaching' }
 
@@ -77,8 +96,13 @@ function Test-DeckRules {
         divider, outcomes, teaching, case-study, figures, process, table,
         assessment-link, recap, briefing, thanks, brandref.
 
-        Without a plan the placeholder, numbering and notes-presence rules still
-        run; the per-topic count and chip rules are skipped and said to be.  #>
+        -TemplatePath, -Plan, -NumberSlotByLayout, -Rto and -Cricos each carry a
+        BLOCKING rule. Leave one out and the gate fails, naming it, because the
+        rule behind it did not run.
+
+        -AllowPartial records those omissions as deliberate, reported decisions:
+        each becomes a loud warning instead of a failure, and all of them come
+        back on .Partial for the caller to write into the stage ledger.  #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][string] $Path,
@@ -87,14 +111,29 @@ function Test-DeckRules {
         [int]       $MinSlidesPerTopic = 15,
         [hashtable] $NumberSlotByLayout,
         [string]    $Rto,
-        [string]    $Cricos
+        [string]    $Cricos,
+        [switch]    $AllowPartial
     )
 
     $wd = if ((Get-Item -LiteralPath $Path).PSIsContainer) { $Path } else { Expand-Docx -Path $Path }
 
-    $fail = New-Object System.Collections.Generic.List[string]
-    $warn = New-Object System.Collections.Generic.List[string]
-    $info = New-Object System.Collections.Generic.List[string]
+    $fail    = New-Object System.Collections.Generic.List[string]
+    $warn    = New-Object System.Collections.Generic.List[string]
+    $info    = New-Object System.Collections.Generic.List[string]
+    $partial = New-Object System.Collections.Generic.List[string]
+
+    #  ONE place decides what a missing input means, so no rule can quietly
+    #  invent a gentler answer for itself. Every caller of this block is a
+    #  BLOCKING rule that could not run.
+    $partialRule = {
+        param([string] $Rule, [string] $Fix, [string] $Why)
+        $partial.Add($Rule)
+        if ($AllowPartial) {
+            $warn.Add("PARTIAL RUN - $Rule checked nothing. $Why Record it in the stage ledger with -Partial and a note.")
+        } else {
+            $fail.Add("$Rule checked nothing - $Fix, or pass -AllowPartial to record the omission as a deliberate, reported decision. $Why")
+        }
+    }
 
     $order = @(Get-DeckSlideOrder -WorkDir $wd)
     $info.Add("slides: $($order.Count)")
@@ -124,7 +163,11 @@ function Test-DeckRules {
             }
         }
     }
-    else { $info.Add('placeholder sweep skipped - no -TemplatePath given') }
+    else {
+        & $partialRule 'residual placeholder sweep (-TemplatePath)' `
+            'pass -TemplatePath, the same template this deck was cloned from' `
+            "The vocabulary is harvested from the template itself, so without the template there is no vocabulary and the sweep compares against nothing. An unfilled slot then ships the exemplar's own words into a classroom."
+    }
 
     # ---- document properties: whose file does this still say it is?
     #
@@ -140,13 +183,27 @@ function Test-DeckRules {
         $x = Get-DocxPart -WorkDir $wd -Part $p -ErrorAction SilentlyContinue
         if ($x) { $props += ($x -replace '<[^>]+>', ' ') }
     }
+    #  The identity rule cannot run without being told whose deck this is, and
+    #  "confirm it yourself" is not a gate. Both codes come from the RTO profile
+    #  pack, never typed here.
+    if (-not $Rto) {
+        & $partialRule 'document-property identity, RTO (-Rto)' `
+            "pass -Rto from the RTO profile pack's identity strings" `
+            'The approved template was cloned from another RTO and still carried that RTO code in docProps, where nothing on a slide shows it and every exported PDF carries it.'
+    }
+    if (-not $Cricos) {
+        & $partialRule 'document-property identity, CRICOS (-Cricos)' `
+            "pass -Cricos from the RTO profile pack's identity strings" `
+            'Same part, same clone, same invisibility on the page.'
+    }
+
     if ($props.Trim()) {
         foreach ($m in [regex]::Matches($props, '(?i)\bRTO\s*#?\s*:?\s*(\d{4,6})\b')) {
             $code = $m.Groups[1].Value
             if ($Rto -and $code -ne $Rto) {
                 $fail.Add("document properties name RTO $code, but this deck is branded RTO $Rto")
             } elseif (-not $Rto) {
-                $info.Add("document properties name RTO $code - confirm it is this RTO (pass -Rto to make this blocking)")
+                $warn.Add("document properties name RTO $code and nothing checked it - no -Rto was given")
             }
         }
         foreach ($m in [regex]::Matches($props, '(?i)\bCRICOS\s*#?\s*:?\s*([0-9]{5}[0-9A-Z])\b')) {
@@ -154,7 +211,7 @@ function Test-DeckRules {
             if ($Cricos -and $code -ne $Cricos) {
                 $fail.Add("document properties name CRICOS $code, but this deck is branded CRICOS $Cricos")
             } elseif (-not $Cricos) {
-                $info.Add("document properties name CRICOS $code - confirm it is this provider")
+                $warn.Add("document properties name CRICOS $code and nothing checked it - no -Cricos was given")
             }
         }
         # An unstamped clone still calls itself a template. A delivered deck
@@ -164,6 +221,19 @@ function Test-DeckRules {
     } else { $info.Add('no document properties found to check') }
 
     # ---- slide numbering
+    #
+    # WHICH SHAPE HOLDS THE NUMBER IS DECLARED, NOT GUESSED. Without the layout
+    # map and the plan that says which layout each slide came from, the rule
+    # below falls back to "the last text shape", and on this template two
+    # layouts legitimately have no number at all - so the fallback reports a
+    # correct thank-you slide as a defect and can miss a real wrong number in a
+    # slot that is not last. A rule running on a guess is not the rule.
+    if (-not ($NumberSlotByLayout -and $Plan -and $Plan.Count)) {
+        & $partialRule 'printed slide number (-NumberSlotByLayout with -Plan)' `
+            'pass -NumberSlotByLayout (Get-DeckNumberSlotMap -Profile $dp) together with -Plan' `
+            'The footer number is literal text, not a field, so a cloned slide keeps the exemplar number: the reference deck prints the wrong number on 19 of its 39 slides.'
+    }
+
     $numBad = 0
     $n = 0
     foreach ($p in $order) {
@@ -246,7 +316,11 @@ function Test-DeckRules {
             else { $info.Add("Topic ${t}: $c slides") }
         }
     }
-    else { $info.Add('per-topic count and chip rules skipped - no -Plan given') }
+    else {
+        & $partialRule 'speaker notes, assessment chips and slides per Topic (-Plan)' `
+            'pass -Plan, one entry per slide in deck order, from the same plan the build rendered' `
+            'Without it nothing knows which slide is a teaching slide, so the 15-slides-per-Topic floor, the speaker-notes rule and the chip rule all pass on nothing - and a trainer finds that out in front of a class.'
+    }
 
     # ---- overset text warning
     $n = 0
@@ -260,11 +334,13 @@ function Test-DeckRules {
     }
 
     return [pscustomobject]@{
-        Ok       = ($fail.Count -eq 0)
-        Failures = $fail
-        Warnings = $warn
-        Info     = $info
-        Slides   = $order.Count
+        Ok           = ($fail.Count -eq 0)
+        Failures     = $fail
+        Warnings     = $warn
+        Info         = $info
+        Partial      = $partial          # blocking rules that could not run
+        AllowPartial = [bool]$AllowPartial
+        Slides       = $order.Count
     }
 }
 
@@ -274,11 +350,19 @@ function Write-DeckRuleReport {
     process {
         Write-Host ''
         Write-Host "DECK GATE - $($Result.Slides) slides" -ForegroundColor Cyan
+        if ($Result.Partial -and @($Result.Partial).Count) {
+            Write-Host ("  !  PARTIAL RUN - {0} blocking rule(s) checked nothing: {1}" -f `
+                        @($Result.Partial).Count, (@($Result.Partial) -join '; ')) -ForegroundColor Magenta
+            Write-Host '     Record every one of them in the stage ledger (Add-StageRecord -Partial) and in the build report.' -ForegroundColor Magenta
+        }
         foreach ($i in $Result.Info)     { Write-Host "  .  $i"  -ForegroundColor DarkGray }
         foreach ($w in $Result.Warnings) { Write-Host "  ~  $w"  -ForegroundColor Yellow }
         foreach ($f in $Result.Failures) { Write-Host "  X  $f"  -ForegroundColor Red }
-        if ($Result.Ok) { Write-Host '  PASS' -ForegroundColor Green }
-        else            { Write-Host "  FAIL - $($Result.Failures.Count) blocking" -ForegroundColor Red }
+        if ($Result.Ok -and @($Result.Partial).Count) {
+            Write-Host ("  PASS - PARTIAL, {0} rule(s) not run" -f @($Result.Partial).Count) -ForegroundColor Yellow
+        }
+        elseif ($Result.Ok) { Write-Host '  PASS' -ForegroundColor Green }
+        else                { Write-Host "  FAIL - $($Result.Failures.Count) blocking" -ForegroundColor Red }
         Write-Host ''
     }
 }

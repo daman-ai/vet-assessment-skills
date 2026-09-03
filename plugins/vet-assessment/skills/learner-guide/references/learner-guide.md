@@ -75,7 +75,7 @@ Reach the floor with genuine depth, never filler:
 - *Regulatory basis* explains what the instrument requires **and how it applies on the job**.
 - *Common errors* explains the error, **why it happens**, and the consequence.
 
-The assessor guide's model answers are the best available guide to required depth. Teaching that stops short of them sets the learner up to under-answer.
+The task's **shape** is the guide to required depth - its rows, its assessed columns, its bullets per cell, its word guide and its benchmark minimum, all derived into withhold.json as numbers. Teaching that stops short of that shape sets the learner up to under-answer. **The assessor guide's model answers are not a depth reference and content agents never see them**: on one build a brief that allowed them "to gauge depth" produced a guide that reproduced the answers in the assessor's order and wording, in an open-book unit, and six audit rounds found it one location at a time.
 
 ---
 

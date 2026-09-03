@@ -85,7 +85,7 @@ Read each file at the stage that needs it. **One file is read in several passes 
 | `house-standard.md` | Stage 0 |
 | `compliance-rules.md` and `house-style.md`, both in full — equal force | Stage 2 |
 | `unit-extraction.md` | Stage 1 |
-| `section-contract.md`; `recipe-workbook.md` §§1–4 and §§7–8 — the branch trigger, the measured order, and which items exist at all | Stage 2 |
+| `section-contract.md` **in full** — it carries `worldFacts`, the interlock rule and the derived-gate spec, and all three are Stage 2 and Stage 3 obligations; plus `recipe-workbook.md` §§1–4 and §§7–8 — the branch trigger, the measured order, and which items exist at all | Stage 2 |
 | `sa-legislation.md` | Stage 3 |
 | `template-build.md`, plus `recipe-workbook.md` §§5–11 or `simulated-industry.md` — §§1–4/7–8 were read at Stage 2 and §12 belongs to Stage 7b | Stage 4 |
 | `readability.md` | Stage 4b |
@@ -93,6 +93,7 @@ Read each file at the stage that needs it. **One file is read in several passes 
 | `audit-checklist.md` — the *Spawning the reviewer* and *Review discipline* sections only, because Stage 3 starts the reviewer's extraction | Stage 3 |
 | `personas.md` | Stage 5 |
 | `audit-checklist.md` — nothing further; the Stage 3 sections carry the spawn prompt, and the reviewer reads the file in full itself | Stage 6 |
+| `learning-loop.md` — but start `findings-register.md` at Stage 3 and keep it as you go; reconstructing it at Stage 9 loses what each finding cost and whether the skill already warned about it | Stage 9 |
 
 ## Models
 
@@ -101,6 +102,8 @@ Run the build itself on **Opus 5**. Move up to **Fable 5** for the first build o
 | Agents | Model | Why |
 |---|---|---|
 | Stage 3 content agents | `opus` | They author the items and model answers the auditor judges — the substance of the pack |
+| Stage 7 remediation agents, where the round **re-derives** content or must reconcile figures across files | `opus` | Judgement about consequences, and the round most likely to introduce a new defect |
+| Stage 7 remediation agents, where the round **applies wording the audit already supplied** | `sonnet` | Mechanical application against an explicit decisions file |
 | Readability agent · Stage 5 flow pass and personas · the reviewer's unit extraction | `sonnet` | Bounded rewriting, reviewing and verbatim transcription against explicit rules |
 | Stage 6 clean-room audit, and every re-audit | `fable` (else the strongest available) | The last line of defence, and one agent — the premium is small against the whole build |
 
@@ -177,16 +180,28 @@ One pass, serial. This is the step that must be done with sight of everything, b
 - **Assess-once register** — every requirement on one line, each assigned to exactly one place. Where a written item and an observation both touch a Performance Criterion, the written item gathers the reasoning and the observation judges the performance. Say so in the mapping.
 - **Practical branch** — food production or not. This decides the document count.
 - **Lock the contract** — scenario card, terminology, numbering plan, style card.
+- **Lock the CONSEQUENCES — `worldFacts`.** Every derived figure with its workings, every dated event and what it carries, every staged event **and how it resolves**, every grouping, every threshold and what crosses it. **Before a single agent runs.**
+
+**The scenario card stops one step short of where the defects are.** It fixes the venue, the cast and the constraints, so nobody invents a person or a form. It does not fix what those constraints *imply* — so every agent computes the implications separately and they disagree. Each answer is individually plausible, which is exactly why no gate can see it.
+
+On SITXINV007 the card fixed six goods, a $2,400 budget, a $500 approval limit and three delivery days, and left the forecast quantities, the maximum prices, the delivery-day allocation, the purchase-order groupings and the staged event's resolution to be invented independently. **Three audit rounds went on reconciling those five things.** One Stage 2 pass removes them.
+
+Skip `worldFacts` only where the unit carries no arithmetic and no timeline — and say so in the report.
 
 Detail: `references/compliance-rules.md`, `references/section-contract.md`.
 
 ## Stage 3 — Content agents (parallel)
 
-Roughly three items per agent. Each gets the contract, its own assignment and the brief.
+Roughly three items per agent. Each gets the contract — **including `worldFacts`** — its own assignment and the brief.
 
 - **Model answers are points, never prose.** The field is `modelAnswerPoints`, an array. No prose instruction elsewhere overrides the shape of a field.
 - Each agent produces the learner content **and its assessor layer in the same pass**.
 - **Agents never write a document.** They return structured content.
+- **A figure in `worldFacts` is not the agent's to recompute.** Say so in the brief.
+
+**Never split an interlocking cluster across agents.** Wave count is the cost, but divergence is the defect. Two agents editing files that must agree will disagree, because neither sees the other. The clusters that go to one agent — the setup pack with the observation instrument, the appendices with the tasks that read them, a benchmark with the thing it marks — are in `section-contract.md`, *Never split an interlocking cluster*. The test before fanning out: *could these two agents each be right alone and contradict each other?*
+
+**Write the build's derived gate now, from `worldFacts`, while the agents run.** A small script over the content JSON — coverage, arithmetic, figure agreement, threshold agreement, leakage, required content — run before every assembly and every re-assembly. Written reactively, one check per audit finding, it arrives a round too late every time. Spec and the three rules that make it worth having: `section-contract.md`, *The derived gate*.
 
 Start the clean-room reviewer's own unit extraction now, overlapped — it depends on nothing the build produces.
 
@@ -195,6 +210,8 @@ Start the clean-room reviewer's own unit extraction now, overlapped — it depen
 Handle `needsFromContract` first, then render every item into the template. **No glossary block is built** — terms are glossed in line at first use.
 
 **Build by editing the approved template** — unpack, edit the XML as raw text, repack. Never generate from scratch. Never edit through a namespace-aware parser. Always assemble from a fresh copy of the pristine template; edits compound.
+
+**Run the build's derived gate FIRST**, over the content JSON, before you assemble anything. It is the only check that sees a pack contradicting itself, and it costs seconds. `Test-HouseRules` and `Test-Readability` check form; nothing shipped with this skill checks whether the pack's own facts agree, because those facts are per-build.
 
 **Then run `Test-HouseRules`** on the unpacked package, before repacking, so a defect is caught before a file exists to mislead anyone. Its assessor-only checks matter as much as the formatting ones: **`AssessorUnansweredBox`** fails a guide that still shows a learner placeholder, which is how an assessor guide ships with half its questions unanswered. Its **warnings do not block** — they carry defects present in the RTO's own source, which the standing rule says to reproduce rather than silently correct.
 
@@ -234,7 +251,18 @@ A reviewer with **none of the build context** — document paths, `references/au
 
 Regenerate content only for the sections with findings, then re-assemble from a fresh template.
 
-**A round is: remediate, re-gate, re-audit.** Re-run `Test-HouseRules`, `Test-Readability` **and** the Stage 6 clean-room audit, each on fresh agents. A remediation that is never re-audited leaves the pack carrying an out-of-date verdict, which is how a pack ships on a stale "Partially Compliant".
+**A remediation round introduces defects at the same rate as authoring does. Assume it will.** On SITXINV007 round two fixed nine of eleven high-risk findings and introduced three new ones; round three fixed those and introduced two more. Every one was the same shape — **a figure changed in one file and not carried to the others** — which is the authoring failure mode returning under a different name. So a remediation round takes the whole of Stage 2 and Stage 3's discipline, not a lighter version of it:
+
+- **Write a decisions file for the round** before dispatching anything — the corrected figures, the corrected timeline, and what each fix implies elsewhere. Hand it to every agent as the round's contract, ahead of the original. This is `worldFacts` for the repair, and it is what lets agents catch errors in *your* instructions instead of silently diverging on them.
+- **The interlock rule still applies.** Do not split the setup pack from the observation instrument, or the appendices from the tasks that read them, just because the findings arrived on different files.
+- **Sequence what depends.** Where a fix changes an appendix figure, that agent runs and lands **before** the agents that read it.
+- **State explicitly which figures must NOT move.** A round that only says what to change invites an agent to helpfully adjust a neighbouring figure that was already correct.
+
+**A round is: remediate, re-gate, re-audit.** Re-run the **derived gate**, `Test-HouseRules`, `Test-Readability` **and** the Stage 6 clean-room audit, each on fresh agents. A remediation that is never re-audited leaves the pack carrying an out-of-date verdict, which is how a pack ships on a stale "Partially Compliant".
+
+**Ask the re-audit to verify its predecessor's findings one by one**, marking each fixed, partly fixed or unfixed with the evidence checked — not merely to look for new ones. A claim that nine of eleven are fixed is worth nothing unless someone opened each cited task.
+
+**When a figure moves deliberately, re-read the derived gate's guards.** They go stale and then fail correct content, which is worse than no gate. On SITXINV007 *every* gate failure in rounds two and three was a stale guard rather than a defect. Fix the guard, never the document, once you have confirmed the content is right.
 
 The fresh reviewer's independence is from the *build*, not from its predecessor: hand a re-audit round the round-one reviewer's own verbatim extract — never the build's — rather than repeating the training.gov.au extraction. See *Revision rounds* in the checklist.
 
@@ -284,6 +312,21 @@ Detail: `references/recipe-workbook.md` section 12.
 
 Full procedure: `references/template-build.md`, *Delivery gate*.
 
+## Stage 9 — Close the loop
+
+**Runs after delivery. Every build teaches this skill something, and almost none of it belongs in this skill.**
+
+The loop exists because the same process defects kept recurring across builds, and a process defect only ever fixed in the pack will be back in the next pack. But a skill that grows by a rule per build becomes a skill nobody reads, and an unread rule does not run. **The loop is selective by design.**
+
+- **Keep `findings-register.md` DURING the build**, not at the end. One row per finding from every gate, every persona and every audit round — **plus the build's own rework**, which no reviewer reports and which carries most of the process defects. Record what each cost and whether the skill already warned about it.
+- **Classify every finding into one of four destinations**: the compliance report, the house profile, memory, or the skill. **Only findings that pass both halves of the skill test go near the skill** — the skill's own instructions caused or missed it, *and* it would recur on an unrelated unit for an unrelated RTO.
+- **Ask the recurrence question before proposing anything.** If the rule already existed, was read and was correct, then **prose failed** — the fix is to make it executable, not to restate it. That is where `worldFacts` and the derived gate came from; *"a figure lives in one place"* had been written down for months and the figures drifted anyway.
+- **Propose amendments as exact diffs, ranked by cost, with what each retires.** Say which you would not make.
+- **Nothing is written to the skill without the user's approval.**
+- **Report the loop even when it changes nothing.** A build that proposes no amendment means the skill held. Expect most builds to yield none or one.
+
+Detail: `references/learning-loop.md`.
+
 ---
 
 ## Report, every build
@@ -299,6 +342,10 @@ Full procedure: `references/template-build.md`, *Delivery gate*.
 - **Every source defect found and not fixed, with the reason** — preserve defects in the RTO's source rather than inventing a correction
 - **Every open question, stated as a question**
 - Anything still open after three rounds
+- **The derived gate** — its check names and their result, and how many arithmetic expressions were recomputed. Zero failures is the only pass
+- **`worldFacts`** — that it was built, or that the unit carried no arithmetic and no timeline so it was skipped
+- **Each remediation round** — what it fixed, and **what it introduced**. A round that broke nothing is worth stating; a round that broke something is worth stating twice
+- **The learning loop** — how many findings went to each of the four destinations, every skill amendment proposed, and the disposition of each: approved, declined, and on whose reasoning. **No amendment proposed is a good result — say so.** A run that proposes one per finding has not classified them
 
 If the audit came back Partially Compliant, say so and name the gap.
 
