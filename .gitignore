@@ -8,3 +8,13 @@ apikey*
 Thumbs.db
 desktop.ini
 ~$*
+
+# Never commit real student data.
+# Marking runs drop roll/ledger files next to the skill; these carry names,
+# student IDs and enrolment status pulled from WiseNet. Fixtures under
+# examples/ are fictional and ARE committed - these patterns are the backstop
+# for live working files only.
+mk*roll.json
+*_roll.json
+rpt_WiseNET*
+*.xls

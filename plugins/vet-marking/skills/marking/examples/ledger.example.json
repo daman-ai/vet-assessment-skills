@@ -1,0 +1,310 @@
+{
+  "_comment": "Worked example of a marking ledger — the input to Resolve-MarkingLedger.ps1. Fictional students. Everything a marking run needs and nothing it can derive: no overall results, no dates other than the marking date, no filenames, no invoice flags. Those are computed, and stating them by hand is how a marking record ends up disagreeing with the SAR it summarises.",
+
+  "rto": "mvc",
+
+  "unit": {
+    "code": "SITHPAT016",
+    "title": "Produce desserts",
+    "prerequisite": "N/A",
+    "coreElective": "Elective"
+  },
+
+  "qualification": {
+    "code": "SIT30821",
+    "title": "Certificate III in Commercial Cookery"
+  },
+
+  "assessor": "Priya Raman",
+  "markingDate": "2026-09-02",
+  "resultsEnteredDate": "2026-09-03",
+
+  "location": "Meridian Vocational College, Training Kitchen 2, Adelaide",
+  "environment": "Simulated environment — commercial training kitchen operating to industry service periods",
+
+  "_toolsComment": "The tool names are the ACTUAL names on the assessment documents. They print as the two column headings on the marking record and as the tool rows on every SAR, so they must read the same in all three places — which they do, because they are written here once.",
+  "tools": [
+    { "id": "kq", "name": "Knowledge Questions" },
+    { "id": "rw", "name": "Recipe Workbook and Observation of Direct Competency — Practical Demonstration", "isObservation": true }
+  ],
+
+  "students": [
+
+    {
+      "_case": "Straightforward Competent — and BOTH TOOLS IN ONE FILE. Mei submitted a single workbook covering the knowledge questions and the recipe workbook, so both results name the same 'evidence' path. The resolver groups them and she gets ONE marked copy, MARKED_MVC00312_SITHPAT016_kq-rw_02092026.docx, with every question marked through it and a declaration page naming both tools. Give them different paths and she would get two.",
+      "firstName": "Mei",
+      "surname": "Tanaka",
+      "studentId": "MVC00312",
+      "comment": "All tasks satisfactory",
+      "results": [
+        {
+          "toolId": "kq",
+          "result": "S",
+          "evidence": "submissions/MVC00312_SITHPAT016_WORKBOOK.docx",
+          "questions": [
+            { "ref": "Q1", "anchor": "Q1.", "outcome": "S" },
+            { "ref": "Q2", "anchor": "Q2.", "outcome": "S" },
+            { "ref": "Q3", "anchor": "Q3.", "outcome": "S" },
+            { "ref": "Q4", "anchor": "Q4.", "outcome": "S" },
+            { "ref": "Q5", "anchor": "Q5.", "outcome": "S" },
+            { "ref": "Q6", "anchor": "Q6.", "outcome": "S" },
+            { "ref": "Q7", "anchor": "Q7.", "outcome": "S" },
+            { "ref": "Q8", "anchor": "Q8.", "outcome": "S" },
+            { "ref": "Q9", "anchor": "Q9.", "outcome": "S" },
+            { "ref": "Q10", "anchor": "Q10.", "outcome": "S" },
+            { "ref": "Q11", "anchor": "Q11.", "outcome": "S" },
+            { "ref": "Q12", "anchor": "Q12.", "outcome": "S" }
+          ],
+          "_endAnchorComment": "Her workbook does not end after Q12 — the recipe cards and the observation sheet follow it in the same file. So the knowledge questions stop at Part B, not at 'End of assessment'. Point it at the end of the document and Q12's outcome lands inside the observation sheet.",
+          "questionsEndAnchor": "Part B.",
+          "feedback": "You answered all twelve knowledge questions and your explanations of gelatine ratios and of the three dessert sauce faults met the requirements of the unit. Your answer on storing sponge components covered temperature and covering. This assessment is satisfactory."
+        },
+        {
+          "toolId": "rw",
+          "result": "S",
+          "_evidenceComment": "The SAME file as the knowledge questions above. That is what makes this one marked copy rather than two.",
+          "evidence": "submissions/MVC00312_SITHPAT016_WORKBOOK.docx",
+          "observations": [
+            "Observed mise en place complete before service.",
+            "Observed all three desserts portioned to the standard recipe.",
+            "Observed holding temperatures checked and recorded.",
+            "Observed wastage recorded on the daily sheet."
+          ],
+          "_sheetComment": "The record is written INTO the observation sheet in her workbook: the four task boxes ticked, the date and times filled, the notes under the notes heading, the feedback on its own line and the sufficiency box ticked Yes. Everything is addressed by text the sheet actually carries.",
+          "observationSheet": {
+            "anchor": "Observation of Direct Competency — Practical Demonstration",
+            "notesAnchor": "Observation notes",
+            "outcomes": ["Yes", "Yes", "Yes", "Yes"],
+            "sufficientAnchor": "Sufficient",
+            "sufficient": true,
+            "feedbackAnchor": "Feedback to Student",
+            "feedback": "You produced all three desserts to the standard recipes. Your temperature checks and wastage control met the requirements.",
+            "fields": [
+              { "label": "Date", "value": "02 / 09 / 2026" },
+              { "label": "Start time", "value": "9:00 am" },
+              { "label": "Finish time", "value": "12:00 pm" }
+            ]
+          },
+          "feedback": "You produced the crème caramel, the chocolate mousse and the poached pear to the standard recipes, and you were observed portioning and plating all three within the service period. Your mise en place and your wastage control met the requirements of the unit. This assessment is satisfactory."
+        }
+      ]
+    },
+
+    {
+      "_case": "Knowledge satisfactory, practical not yet — feedback items drive the feedback sheet.",
+      "firstName": "Daniel",
+      "surname": "Okafor",
+      "studentId": "MVC00318",
+      "comment": "Recipe workbook: 2 dishes not to standard",
+      "results": [
+        {
+          "_case": "Per-question outcomes drive the MARKED COPY. Every question here is S, and the tool is S, so the copy comes back all green with a Competent-coloured front page only if the OTHER tool is also S - which for this student it is not.",
+          "toolId": "kq",
+          "result": "S",
+          "evidence": "submissions/MVC00318_SITHPAT016_KQ.docx",
+          "_questionsComment": "EVERY question on the assessment carries an outcome, so every answer on the returned copy carries a green Satisfactory or a red Not yet Satisfactory. A question left out of this list is a question the student gets back with no remark on it.",
+          "questions": [
+            { "ref": "Q1", "anchor": "Q1.", "outcome": "S" },
+            { "ref": "Q2", "anchor": "Q2.", "outcome": "S" },
+            { "ref": "Q3", "anchor": "Q3.", "outcome": "S" },
+            { "ref": "Q4", "anchor": "Q4.", "outcome": "S" },
+            { "ref": "Q5", "anchor": "Q5.", "outcome": "S" },
+            { "ref": "Q6", "anchor": "Q6.", "outcome": "S" },
+            { "ref": "Q7", "anchor": "Q7.", "outcome": "S" },
+            { "ref": "Q8", "anchor": "Q8.", "outcome": "S" },
+            { "ref": "Q9", "anchor": "Q9.", "outcome": "S" },
+            { "ref": "Q10", "anchor": "Q10.", "outcome": "S" },
+            { "ref": "Q11", "anchor": "Q11.", "outcome": "S" },
+            { "ref": "Q12", "anchor": "Q12.", "outcome": "S" }
+          ],
+          "questionsEndAnchor": "End of assessment",
+          "feedback": "You answered all twelve knowledge questions. Your explanation of why a custard splits met the requirements of the unit. Your account of the two thickening agents was also correct. This assessment is satisfactory."
+        },
+        {
+          "toolId": "rw",
+          "result": "NYS",
+          "evidence": "submissions/MVC00318_SITHPAT016_RW.docx",
+          "observations": [
+            "Observed mise en place complete before service.",
+            "Observed all three desserts produced within the service period.",
+            "Chocolate mousse card submitted with no setting time and no holding temperature.",
+            "Crème caramel poured without a colour check on the caramel."
+          ],
+          "_sheetComment": "Two of the four observable tasks were not met, so two pairs are ticked No. The count of outcomes must equal the count of Yes/No pairs on the sheet, or nothing is ticked at all and the build says why.",
+          "observationSheet": {
+            "anchor": "Observation of Direct Competency — Practical Demonstration",
+            "notesAnchor": "Observation notes",
+            "outcomes": ["Yes", "Yes", "No", "No"],
+            "sufficientAnchor": "Sufficient",
+            "sufficient": false,
+            "feedbackAnchor": "Feedback to Student",
+            "feedback": "You produced all three desserts within the service period. The mousse card and the caramel colour check are outstanding.",
+            "fields": [
+              { "label": "Date", "value": "02 / 09 / 2026" },
+              { "label": "Start time", "value": "9:00 am" },
+              { "label": "Finish time", "value": "12:00 pm" }
+            ]
+          },
+          "feedback": "You produced all three desserts and your poached pear met the standard recipe. The chocolate mousse recipe card records no setting time and no holding temperature, and the crème caramel was served without the caramel being checked for colour, so two of the unit's requirements are not yet demonstrated. Correct the two items listed on your feedback sheet and resubmit both your original and corrected attempts by 09 / 09 / 2026.",
+          "items": [
+            {
+              "questionNo": "Recipe card 2 — chocolate mousse",
+              "issue": "The recipe card records no setting time and no holding temperature. The unit requires you to record both for a set dessert.",
+              "action": "Add the setting time in hours and the holding temperature in °C to recipe card 2, and resubmit the card."
+            },
+            {
+              "questionNo": "Observation item 7 — crème caramel",
+              "issue": "The caramel was taken to the mould without a colour check, so the quality check the unit requires was not demonstrated.",
+              "action": "Re-do the crème caramel and state aloud the colour you are checking for before you pour. Your assessor will observe this."
+            }
+          ]
+        }
+      ]
+    },
+
+    {
+      "_case": "Nothing submitted for either tool. Comment must be exactly 'No submission'; the resolver enforces it.",
+      "firstName": "Aisha",
+      "surname": "Rahman",
+      "studentId": "MVC00327",
+      "comment": "No submission",
+      "results": [
+        {
+          "toolId": "kq",
+          "result": "NYS",
+          "submitted": false,
+          "feedback": "No assessment was submitted for the Knowledge Questions, so this assessment is Not Yet Satisfactory on that basis. Submit your completed Knowledge Questions by 09 / 09 / 2026."
+        },
+        {
+          "toolId": "rw",
+          "result": "NYS",
+          "submitted": false,
+          "feedback": "No assessment was submitted for the Recipe Workbook and no practical demonstration was observed, so this assessment is Not Yet Satisfactory on that basis. Submit your completed Recipe Workbook and arrange a practical demonstration by 09 / 09 / 2026."
+        }
+      ]
+    },
+
+    {
+      "_case": "A response confirmed by the assessor as not the student's own work. The flag forces NYS on the tool that contains it and nothing else.",
+      "firstName": "Luca",
+      "surname": "Bianchi",
+      "studentId": "MVC00334",
+      "comment": "Q6 flagged — not own work",
+      "results": [
+        {
+          "toolId": "kq",
+          "result": "NYS",
+          "evidence": "submissions/MVC00334_SITHPAT016_KQ.docx",
+          "aiFlagged": ["Q6"],
+          "_questionsComment": "The authorship flag applies to the INDIVIDUAL response. Q6 is red on the returned copy; the other eleven are green, because a flag on one answer is not a verdict on the rest.",
+          "questions": [
+            { "ref": "Q1", "anchor": "Q1.", "outcome": "S" },
+            { "ref": "Q2", "anchor": "Q2.", "outcome": "S" },
+            { "ref": "Q3", "anchor": "Q3.", "outcome": "S" },
+            { "ref": "Q4", "anchor": "Q4.", "outcome": "S" },
+            { "ref": "Q5", "anchor": "Q5.", "outcome": "S" },
+            { "ref": "Q6", "anchor": "Q6.", "outcome": "NYS" },
+            { "ref": "Q7", "anchor": "Q7.", "outcome": "S" },
+            { "ref": "Q8", "anchor": "Q8.", "outcome": "S" },
+            { "ref": "Q9", "anchor": "Q9.", "outcome": "S" },
+            { "ref": "Q10", "anchor": "Q10.", "outcome": "S" },
+            { "ref": "Q11", "anchor": "Q11.", "outcome": "S" },
+            { "ref": "Q12", "anchor": "Q12.", "outcome": "S" }
+          ],
+          "questionsEndAnchor": "End of assessment",
+          "feedback": "You answered all twelve knowledge questions and eleven of them met the requirements of the unit. Your response to question 6 does not appear to be your own work and has not been accepted, so this assessment is Not Yet Satisfactory. Rewrite question 6 in your own words and resubmit both your original and corrected attempts by 09 / 09 / 2026.",
+          "items": [
+            {
+              "questionNo": "Q6",
+              "issue": "Response does not appear to be your own work — rewrite in your own words.",
+              "action": "Rewrite your answer to question 6 in your own words, in one short paragraph or dot points."
+            }
+          ]
+        },
+        {
+          "toolId": "rw",
+          "result": "S",
+          "evidence": "submissions/MVC00334_SITHPAT016_RW.docx",
+          "observations": [
+            "Observed mise en place complete before service.",
+            "Observed each dessert plated within the service period.",
+            "Observed temperature checks taken and recorded.",
+            "Observed wastage recorded on the daily sheet."
+          ],
+          "observationSheet": {
+            "anchor": "Observation of Direct Competency — Practical Demonstration",
+            "notesAnchor": "Observation notes",
+            "outcomes": ["Yes", "Yes", "Yes", "Yes"],
+            "sufficientAnchor": "Sufficient",
+            "sufficient": true,
+            "feedbackAnchor": "Feedback to Student",
+            "feedback": "You produced all three desserts to the standard recipes. Your temperature checks and wastage control met the requirements.",
+            "fields": [
+              { "label": "Date", "value": "02 / 09 / 2026" },
+              { "label": "Start time", "value": "9:00 am" },
+              { "label": "Finish time", "value": "12:00 pm" }
+            ]
+          },
+          "feedback": "You produced all three desserts to the standard recipes and were observed plating each within the service period. Your temperature checks and your wastage control met the requirements of the unit. This assessment is satisfactory."
+        }
+      ]
+    },
+
+    {
+      "_case": "Second attempt still not satisfactory. attempt: 2 is what drives Invoice Raised and Re-enrol — both are derived, never stated.",
+      "firstName": "Sofia",
+      "surname": "Marchetti",
+      "studentId": "MVC00341",
+      "attempt": 2,
+      "comment": "2nd attempt — knowledge still NYS",
+      "results": [
+        {
+          "toolId": "kq",
+          "result": "NYS",
+          "evidence": "submissions/MVC00341_SITHPAT016_KQ_attempt2.docx",
+          "questions": [
+            { "ref": "Q1", "anchor": "Q1.", "outcome": "S" },
+            { "ref": "Q2", "anchor": "Q2.", "outcome": "S" },
+            { "ref": "Q3", "anchor": "Q3.", "outcome": "S" },
+            { "ref": "Q4", "anchor": "Q4.", "outcome": "S" },
+            { "ref": "Q5", "anchor": "Q5.", "outcome": "S" },
+            { "ref": "Q6", "anchor": "Q6.", "outcome": "S" },
+            { "ref": "Q7", "anchor": "Q7.", "outcome": "S" },
+            { "ref": "Q8", "anchor": "Q8.", "outcome": "S" },
+            { "ref": "Q9", "anchor": "Q9.", "outcome": "NYS" },
+            { "ref": "Q10", "anchor": "Q10.", "outcome": "S" },
+            { "ref": "Q11", "anchor": "Q11.", "outcome": "S" },
+            { "ref": "Q12", "anchor": "Q12.", "outcome": "S" }
+          ],
+          "questionsEndAnchor": "End of assessment",
+          "feedback": "You resubmitted the Knowledge Questions and your answers on sauce faults and on portion control now meet the requirements of the unit. Question 9 still does not name a food safety control for holding a dairy-based dessert, which the unit requires. Correct question 9 and resubmit both attempts by 09 / 09 / 2026.",
+          "items": [
+            {
+              "questionNo": "Q9",
+              "issue": "Your answer names a holding time but no temperature and no covering. The unit requires a food safety control for holding a dairy-based dessert.",
+              "action": "State the holding temperature in °C and how the dessert is covered, and resubmit question 9."
+            }
+          ]
+        },
+        {
+          "toolId": "rw",
+          "result": "S",
+          "evidence": "submissions/MVC00341_SITHPAT016_RW.docx",
+          "observations": [
+            "Observed mise en place complete before service.",
+            "Observed all three desserts produced to the standard recipes.",
+            "Observed every quality check recorded on the cards."
+          ],
+          "_sheetComment": "Sofia's workbook was printed and scanned, so it carries no observation sheet the builder can write into. That is declared, not left to a fallback: the record prints on her declaration page instead, and the resolver reports the choice as a CHECK so it stays visible.",
+          "observationSheet": { "inSubmission": false },
+          "feedback": "You produced all three desserts to the standard recipes and your recipe cards record every quality check the unit asks for. This assessment is satisfactory."
+        }
+      ],
+      "resit": {
+        "result": "NYS",
+        "feedback": "Your second attempt at the Knowledge Questions was assessed on 02 / 09 / 2026. Question 9 remains outstanding. See your feedback sheet."
+      }
+    }
+
+  ]
+}

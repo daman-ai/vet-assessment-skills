@@ -1,0 +1,185 @@
+{
+  "_comment": "Adelaide Construction Institute. MEASURED — three templates supplied and measured with Measure-Template.ps1 on 2026-09-01. Same legal entity as Adelaide Culinary Institute (Bush Tukka Pty Ltd, RTO 45797, CRICOS 03978F) trading under a second name, but the two sets of templates are NOT the same files: different placeholder colour, different RTO row treatment, different document numbers. They are registered separately and deliberately.",
+
+  "key": "aci-construction",
+
+  "rto": {
+    "legalName": "Bush Tukka Pty Ltd",
+    "tradingName": "Adelaide Construction Institute",
+    "acronym": "ACI",
+    "rtoCode": "45797",
+    "cricos": "03978F",
+    "state": "SA",
+    "identityLine": "Bush Tukka Pty Ltd T/A Adelaide Construction Institute (ACI)  ·  RTO 45797  ·  CRICOS 03978F"
+  },
+
+  "_variantComment": "Resolved from the unit's training package, not from what the user types. A CPC unit is Adelaide Construction Institute; an SIT unit is Adelaide Culinary Institute. A BSB unit takes the variant of the qualification it sits in — ask where that is not obvious. Never guess a trading name onto a student record.",
+  "trainingPackages": ["CPC"],
+
+  "dates": {
+    "assessmentOffsetDays": 14,
+    "resubmissionBusinessDays": 5,
+    "holidayTable": "public-holidays.sa.json"
+  },
+
+  "rtoRowIsPlaceholder": true,
+  "_rtoRowComment": "MEASURED: the SAR (details row 2) and the marking record (header table) leave the RTO row as an unfilled '[ Insert RTO name and code ]' field, so the builder writes rto.identityLine into it. This is the OPPOSITE of the culinary variant, which pre-fills the row. The FEEDBACK SHEET has no RTO row at all — the builder's fill for it is non-asserting, so that is harmless.",
+
+  "styling": {
+    "placeholderColor": "8A939C",
+    "answerColor": "000000"
+  },
+  "_stylingComment": "MEASURED: 8A939C, italic — 25 fields in the SAR, 160 in the marking record, 51 in the feedback sheet. The SAR and marking record carry one more than the culinary variant because of the extra RTO field. This is NOT MVC's grey (8E96A3) nor the culinary variant's (9AA3B2). Using the wrong value makes the gate's NoPlaceholderStyling check blind to a field that was never filled.",
+
+  "templates": {
+
+    "sar": {
+      "file": "templates/ACI_Construction_SAR_Template.docx",
+      "orientation": "portrait",
+      "tableCount": 6,
+      "tables": {
+        "details":       { "index": 1, "heading": "Assessment Details" },
+        "outcomes":      { "index": 2, "heading": "Assessment Outcomes" },
+        "certification": { "index": 5, "heading": "Assessor certification" },
+        "admin":         { "index": 6, "heading": "ADMIN NOTE" }
+      },
+      "_tableComment": "SIX tables, not MVC's five. ACI pulls the result-codes legend out into its own table 3, which pushes Reasonable adjustment to 4, certification to 5 and admin to 6. Copying MVC's indices here would fill the Reasonable adjustment panel with the certification block.",
+
+      "outcomeRows": {
+        "tool1RowText": "Insert assessment tool 1",
+        "tool2RowText": "Insert assessment tool 2",
+        "resitRowText": "Re-assessment",
+        "cloneFromRowText": "Insert assessment tool 2",
+        "_cloneComment": "MEASURED: row 3 carries the vMerge MASTER cell ('Evidence to be attached') spanning the tool block; row 4 is the continuation. CLONE ROW 4, NEVER ROW 3 — cloning the master duplicates the merge and splits the panel.",
+        "cells": { "evidence": 1, "toolName": 2, "s": 3, "nys": 4, "feedback": 5 },
+        "rowLayout": {
+          "1": "title banner, gridSpan 5",
+          "2": "column headings: S, NYS, Feedback to student",
+          "3": "tool 1  (vMerge MASTER in c1)",
+          "4": "tool 2  (vMerge continuation in c1)",
+          "5": "resit row",
+          "6": "re-enrol row, c2 gridSpan 4"
+        },
+        "_rowLayoutComment": "Six rows, not MVC's seven — the result-codes row lives in table 3 here rather than as row 7 of this table."
+      },
+
+      "checkboxes": {
+        "perToolRow": {
+          "feedbackOptions": {
+            "labels": {
+              "completed":    "Assessment completed",
+              "notSubmitted": "Assessment not submitted",
+              "corrections":  "Please make corrections — resubmit both this and the corrected 2nd attempt"
+            }
+          }
+        },
+        "reEnrol": {
+          "label": "Re-enrol in unit of competency, as the 2nd attempt of assessment is not satisfactory"
+        },
+        "_verifiedLabelComment": "MEASURED character for character, including the EM DASH (U+2014) in the 'corrections' label. Identical to MVC's and to the culinary variant's labels.",
+        "_otherStandingLabels": {
+          "certification": ["is Competent", "is Not Yet Competent", "has been advised of the result"],
+          "_certificationComment": "'is Competent' and 'is Not Yet Competent' SHARE ONE PARAGRAPH. Matching each with its box glyph as a prefix is what stops the first from matching inside the second.",
+          "admin": ["Resit invoice raised", "Not applicable", "Results updated in the student management system", "Assessment scanned and stored in the student management system", "Feedback / appeals information sent to the student"]
+        }
+      },
+
+      "fields": {
+        "Insert RTO name and code": { "occurrences": 1, "scopedTo": ["details row 2"] },
+        "dd / mm / yyyy": { "occurrences": 3, "scopedTo": ["details = date of assessment", "certification = certification date", "admin = results entered date"] },
+        "Insert trainer / assessor name": { "occurrences": 2, "scopedTo": ["details", "certification"] },
+        "Insert feedback to student": { "occurrences": 3, "scopedTo": ["outcomes rows 3, 4 and 5"] },
+        "bracketedCheckboxes": 6
+      }
+    },
+
+    "amrr": {
+      "file": "templates/ACI_Construction_AMRR_Template.docx",
+      "orientation": "landscape",
+      "tableCount": 4,
+      "tableWidthDxa": 14822,
+      "tables": {
+        "header":   { "index": 1, "heading": "RTO name and code / Trainer / Assessor block" },
+        "students": { "index": 2, "heading": "S. No. | Student First Name | Student Surname | Student ID | Assessment Tools | Results" },
+        "signOff":  { "index": 3, "heading": "Trainer / Assessor signature" }
+      },
+      "_tableComment": "Table 4 is the result-codes legend and carries no field. The header table's grid is 2100,4700,2200,5822 rather than the culinary variant's 1500,5300,2200,5822, because the RTO row is a field here rather than pre-filled text.",
+
+      "studentTable": {
+        "headerRows": 2,
+        "toolNameRow": 2,
+        "firstStudentRow": 3,
+        "templateRowCount": 15,
+        "gridColumns": [560, 1480, 1480, 1180, 1620, 1620, 1080, 1130, 1520, 1030, 2122],
+        "columns": {
+          "serial": 1,
+          "firstName": 2,
+          "surname": 3,
+          "studentId": 4,
+          "firstToolColumn": 5,
+          "toolColumns": 2,
+          "overall": 7,
+          "feedbackGiven": 8,
+          "resubmissionDue": 9,
+          "invoiceRaised": 10,
+          "comments": 11
+        },
+        "groupedHeaderRow": {
+          "row": 1,
+          "_comment": "Row 1 is a grouped header: 'Assessment Tools' spans the tool block and must take a WIDER gridSpan when a tool column is inserted, not a new cell."
+        }
+      },
+
+      "_multiToolVerified": "VERIFIED 1 September 2026 against this template at three tools and at four. The new column is inserted INSIDE the tool block, so the grouped header widens 'Assessment Tools' and leaves 'Results' at span 3. Three tools gives 12 grid columns summing to 14822; four gives 13, also summing to 14822. Both were built and passed the full gate. See references/template-fill.md."
+    },
+
+    "feedback": {
+      "file": "templates/ACI_Construction_Feedback_Template.docx",
+      "orientation": "portrait",
+      "tableCount": 3,
+      "tables": {
+        "details": { "index": 1, "heading": "Student and Unit Details" },
+        "items":   { "index": 2, "heading": "Questions and Tasks to be Fixed and Resubmitted" },
+        "next":    { "index": 3, "heading": "What happens next" }
+      },
+      "_tableComment": "THREE tables, not MVC's two. ACI gives the item rows a table of their own instead of continuing the details table, so itemTable.table names it explicitly. Leave that key off and the builder reads the details table, finds no item rows, and stops. The details table has five rows here against the culinary variant's six, because this sheet carries no RTO row.",
+      "itemTable": {
+        "table": "items",
+        "firstItemRow": 3,
+        "maxItems": 10,
+        "_rowComment": "MEASURED: table 2 holds 12 rows — row 1 the banner, row 2 the column headings, rows 3-12 the ten item rows.",
+        "cells": { "serial": 1, "toolName": 2, "questionNo": 3, "issue": 4, "action": 5 },
+        "_cellComment": "MEASURED: item rows carry 5 cells across a 5-column grid, one cell per column — no gridSpan, unlike MVC's.",
+        "_overflowComment": "Ten items is one page. Where a student has more, the ten most significant are listed and the builder adds a closing note carrying the rest. The gate's FeedbackSheetOnePage check renders the file and blocks on two."
+      },
+      "fields": {
+        "dd / mm / yyyy": { "occurrences": 2, "scopedTo": ["details = date of marking", "next = sign-off date"] },
+        "dd / mm / yyyy or N/A": { "occurrences": 1, "scopedTo": ["details = resubmission due"] },
+        "_orderComment": "Fill 'dd / mm / yyyy or N/A' BEFORE 'dd / mm / yyyy', so a template revision that drops a bracket cannot silently strand ' or N/A' on a student's sheet.",
+        "Insert trainer / assessor name": { "occurrences": 2, "scopedTo": ["details", "next"] }
+      }
+    }
+  },
+
+  "markedAssessment": {
+    "frontTitle": "MARKED ASSESSMENT",
+    "headingColor": "000000",
+    "satisfactoryText": "Satisfactory",
+    "satisfactoryColor": "1E7B34",
+    "notSatisfactoryText": "Not yet Satisfactory - refer to feedback sheet",
+    "notSatisfactoryColor": "C00000",
+    "overallCompetentText": "Overall result: Competent",
+    "overallNotCompetentText": "Overall result: Not Yet Competent",
+    "referralText": "See your Student Feedback Sheet for the items to correct and the resubmission date.",
+    "observationHeading": "ASSESSOR OBSERVATION RECORD",
+    "observationBullet": "•",
+    "observationCompletedText": "Observation completed by the assessor on"
+  },
+
+  "fileNames": {
+    "sar":      "SAR_{studentId}_{unitCode}_{overall}.docx",
+    "amrr":     "AMLC_{unitCodeUpper}_{markingDateCompact}.docx",
+    "feedback": "FEEDBACK_{studentId}_{unitCode}_{markingDateCompact}.docx",
+    "marked":   "MARKED_{studentId}_{unitCode}_{toolId}_{markingDateCompact}.docx"
+  }
+}

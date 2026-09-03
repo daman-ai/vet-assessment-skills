@@ -1,0 +1,57 @@
+{
+  "_comment": "South Australian public holidays, used to roll the Date of assessment back to a working day and to count the five business days to Resubmission Due. Dates are the days on which the holiday is OBSERVED — where a holiday falls at a weekend and SA substitutes a weekday, the substitute is listed and the original is not.",
+
+  "_provenance": {
+    "source": "safework.sa.gov.au public holidays listing",
+    "recordedOn": "2026-08-31",
+    "verifyBefore": "Marking any batch whose marking date falls in a year listed here. Gazetted dates move; a stale table produces a wrong Resubmission Due on a real student record.",
+    "partDayHolidays": "Christmas Eve and New Year's Eve are part-day holidays in SA, from 7pm. They are NOT listed: a full working day runs to 7pm, so they count as working days for this purpose."
+  },
+
+  "_yearsCovered": [2026, 2027, 2028],
+  "_outOfRangeRule": "Get-WorkingDay and Add-BusinessDays THROW for a date outside _yearsCovered. They never fall back to weekends-only. A silently ignored holiday is a wrong date on a signed record.",
+
+  "state": "SA",
+
+  "holidays": {
+    "2026": [
+      { "date": "2026-01-01", "name": "New Year's Day" },
+      { "date": "2026-01-26", "name": "Australia Day" },
+      { "date": "2026-03-09", "name": "Adelaide Cup Day" },
+      { "date": "2026-04-03", "name": "Good Friday" },
+      { "date": "2026-04-04", "name": "Easter Saturday" },
+      { "date": "2026-04-06", "name": "Easter Monday" },
+      { "date": "2026-04-25", "name": "Anzac Day" },
+      { "date": "2026-06-08", "name": "King's Birthday" },
+      { "date": "2026-10-05", "name": "Labour Day" },
+      { "date": "2026-12-25", "name": "Christmas Day" },
+      { "date": "2026-12-28", "name": "Proclamation Day (observed)" }
+    ],
+    "2027": [
+      { "date": "2027-01-01", "name": "New Year's Day" },
+      { "date": "2027-01-26", "name": "Australia Day" },
+      { "date": "2027-03-08", "name": "Adelaide Cup Day" },
+      { "date": "2027-03-26", "name": "Good Friday" },
+      { "date": "2027-03-27", "name": "Easter Saturday" },
+      { "date": "2027-03-29", "name": "Easter Monday" },
+      { "date": "2027-04-26", "name": "Anzac Day (observed)" },
+      { "date": "2027-06-14", "name": "King's Birthday" },
+      { "date": "2027-10-04", "name": "Labour Day" },
+      { "date": "2027-12-27", "name": "Christmas Day (observed)" },
+      { "date": "2027-12-28", "name": "Proclamation Day (observed)" }
+    ],
+    "2028": [
+      { "date": "2028-01-03", "name": "New Year's Day (observed)" },
+      { "date": "2028-01-26", "name": "Australia Day" },
+      { "date": "2028-03-13", "name": "Adelaide Cup Day" },
+      { "date": "2028-04-14", "name": "Good Friday" },
+      { "date": "2028-04-15", "name": "Easter Saturday" },
+      { "date": "2028-04-17", "name": "Easter Monday" },
+      { "date": "2028-04-25", "name": "Anzac Day" },
+      { "date": "2028-06-12", "name": "King's Birthday" },
+      { "date": "2028-10-02", "name": "Labour Day" },
+      { "date": "2028-12-25", "name": "Christmas Day" },
+      { "date": "2028-12-26", "name": "Proclamation Day" }
+    ]
+  }
+}

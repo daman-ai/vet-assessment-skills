@@ -1,0 +1,8 @@
+{
+  "name": "vet-marking",
+  "version": "1.0.0",
+  "description": "Australian VET marking and compliance toolchain for MVC and ACI: the marking skill (marks a batch of submitted student assessments for one unit, reads the WiseNet 0217 Unit Enrolment Outcome Matrix by cell colour to decide who must submit, and produces the four records an RTO keeps - a marked copy per student, a Student Assessment Record, one class Assessment Marking and Results Record and a Student Feedback Sheet per NYC student - all derived from one ledger and blocked on a gate that reads the finished files back), and the rto-validation-docs skill (maintains and reconciles the controlled assessment-validation document set: Parts A/B/C, the Assessment Validation Plan, the Continuous Improvement Register and panel rosters, against the Standards for RTOs 2025).",
+  "author": {
+    "name": "Meridian Vocational College / Adelaide Culinary Institute"
+  }
+}

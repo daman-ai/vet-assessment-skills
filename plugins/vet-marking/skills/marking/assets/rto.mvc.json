@@ -1,0 +1,189 @@
+{
+  "_comment": "Meridian Vocational College. MEASURED — the three approved templates were supplied and measured with Measure-Template.ps1 on 2026-09-01. Every index, row text, cell number and label below is a measurement, not an assumption. If a template is revised, RE-MEASURE and update this file in the same change: a stale map fills the wrong cell.",
+
+  "key": "mvc",
+
+  "rto": {
+    "legalName": "Golden Wattle Group Pty Ltd",
+    "tradingName": "Meridian Vocational College",
+    "acronym": "MVC",
+    "rtoCode": "45039",
+    "cricos": "03551M",
+    "state": "SA",
+    "identityLine": "Golden Wattle Group Pty Ltd T/A Meridian Vocational College (MVC)  ·  RTO 45039  ·  CRICOS 03551M"
+  },
+
+  "trainingPackages": [],
+  "_trainingPackagesComment": "Empty by design. MVC is a single trading name, so no variant has to be resolved from the unit's training package. That mechanism exists for ACI, which trades under two.",
+
+  "dates": {
+    "assessmentOffsetDays": 14,
+    "resubmissionBusinessDays": 5,
+    "holidayTable": "public-holidays.sa.json"
+  },
+
+  "rtoRowIsPlaceholder": false,
+  "_rtoRowComment": "MEASURED: all three templates PRE-FILL the RTO row with the identity line. No '[ Insert RTO name and code ]' field exists in any of them, so the builder must not try to fill one.",
+
+  "styling": {
+    "placeholderColor": "8E96A3",
+    "answerColor": "000000"
+  },
+  "_stylingComment": "MEASURED: every bracketed field in all three templates is a single italic run coloured 8E96A3 — 24 of them in the SAR, 159 in the marking record, 51 in the feedback sheet. Filling a field must drop the italic and this colour, or a finished record still reads as an unfilled one. The gate's NoPlaceholderStyling check keys off this value.",
+
+  "templates": {
+
+    "sar": {
+      "file": "templates/MVC_SAR_Template.docx",
+      "orientation": "portrait",
+      "tableCount": 5,
+      "tables": {
+        "details":       { "index": 1, "heading": "Assessment Details" },
+        "outcomes":      { "index": 2, "heading": "Assessment Outcomes" },
+        "certification": { "index": 4, "heading": "Assessor certification" },
+        "admin":         { "index": 5, "heading": "ADMIN NOTE" }
+      },
+      "_tableComment": "Table 3 is the Reasonable adjustment panel. It carries no field the builder fills, which is why it is not mapped — but it still counts toward the table index, so 'certification' is 4 and 'admin' is 5, not 3 and 4.",
+
+      "outcomeRows": {
+        "tool1RowText": "Insert assessment tool 1",
+        "tool2RowText": "Insert assessment tool 2",
+        "resitRowText": "Re-assessment",
+        "cloneFromRowText": "Insert assessment tool 2",
+        "_cloneComment": "MEASURED: the outcomes table's row 3 carries the vMerge MASTER cell ('Evidence to be attached') spanning the tool block; row 4 is the continuation. CLONE ROW 4, NEVER ROW 3 — cloning the master duplicates the merge and splits the panel. cloneFromRowText names the continuation row deliberately.",
+        "cells": { "evidence": 1, "toolName": 2, "s": 3, "nys": 4, "feedback": 5 },
+        "_cellComment": "MEASURED from rows 3-5, which carry 5 cells each: c1 evidence (vMerge), c2 tool name, c3 S box, c4 NYS box, c5 feedback options and text.",
+        "rowLayout": {
+          "1": "title banner, gridSpan 5",
+          "2": "column headings: S, NYS, Feedback to student",
+          "3": "tool 1  (vMerge MASTER in c1)",
+          "4": "tool 2  (vMerge continuation in c1)",
+          "5": "resit row",
+          "6": "re-enrol row, c2 gridSpan 4",
+          "7": "result codes legend, gridSpan 5"
+        }
+      },
+
+      "checkboxes": {
+        "perToolRow": {
+          "feedbackOptions": {
+            "labels": {
+              "completed":    "Assessment completed",
+              "notSubmitted": "Assessment not submitted",
+              "corrections":  "Please make corrections — resubmit both this and the corrected 2nd attempt"
+            }
+          }
+        },
+        "reEnrol": {
+          "label": "Re-enrol in unit of competency, as the 2nd attempt of assessment is not satisfactory"
+        },
+        "_verifiedLabelComment": "MEASURED character for character, including the EM DASH (U+2014) in the 'corrections' label. A label matched loosely ticks the wrong box.",
+        "_otherStandingLabels": {
+          "_note": "Present in the template and ticked by Build-MarkingRecords.ps1 from hard-coded strings. Recorded here so that a template revision which changes one is caught by comparison.",
+          "certification": ["is Competent", "is Not Yet Competent", "has been advised of the result"],
+          "_certificationComment": "'is Competent' and 'is Not Yet Competent' SHARE ONE PARAGRAPH in the certification block. Matching each with its box glyph as a prefix is what stops the first from matching inside the second.",
+          "admin": ["Resit invoice raised", "Not applicable", "Results updated in the student management system", "Assessment scanned and stored in the student management system", "Feedback / appeals information sent to the student"]
+        }
+      },
+
+      "fields": {
+        "_note": "MEASURED occurrence counts. Scope matters: 'dd / mm / yyyy' occurs three times and a document-wide replace would put the results-entered date in the date-of-assessment cell.",
+        "dd / mm / yyyy": { "occurrences": 3, "scopedTo": ["details = date of assessment", "certification = certification date", "admin = results entered date"] },
+        "Insert trainer / assessor name": { "occurrences": 2, "scopedTo": ["details", "certification"] },
+        "Insert feedback to student": { "occurrences": 3, "scopedTo": ["outcomes rows 3, 4 and 5"] },
+        "bracketedCheckboxes": 6
+      }
+    },
+
+    "amrr": {
+      "file": "templates/MVC_AMRR_Template.docx",
+      "orientation": "landscape",
+      "tableCount": 4,
+      "tableWidthDxa": 14822,
+      "tables": {
+        "header":   { "index": 1, "heading": "RTO / qualification / unit block" },
+        "students": { "index": 2, "heading": "S. No. | Student First Name | Student Surname | Student ID | Assessment Tools | Results" },
+        "signOff":  { "index": 3, "heading": "Trainer / Assessor signature" }
+      },
+      "_tableComment": "Table 4 is the result-codes legend and carries no field.",
+
+      "studentTable": {
+        "headerRows": 2,
+        "toolNameRow": 2,
+        "firstStudentRow": 3,
+        "templateRowCount": 15,
+        "_rowComment": "MEASURED: 17 rows — row 1 grouped header, row 2 column headings and tool names, rows 3-17 the fifteen student rows. Set-RowCount trims them to the real class size; the gate's NoUnusedRows check blocks on any survivor.",
+        "gridColumns": [560, 1480, 1480, 1180, 1620, 1620, 1080, 1130, 1520, 1030, 2122],
+        "columns": {
+          "serial": 1,
+          "firstName": 2,
+          "surname": 3,
+          "studentId": 4,
+          "firstToolColumn": 5,
+          "toolColumns": 2,
+          "overall": 7,
+          "feedbackGiven": 8,
+          "resubmissionDue": 9,
+          "invoiceRaised": 10,
+          "comments": 11
+        },
+        "groupedHeaderRow": {
+          "row": 1,
+          "cells": ["S. No. (vMerge)", "Student First Name (vMerge)", "Student Surname (vMerge)", "Student ID (vMerge)", "Assessment Tools (gridSpan 2)", "Results (gridSpan 3)", "Resit", "Comments (vMerge)"],
+          "_comment": "Row 1 is a grouped header: 'Assessment Tools' already spans the tool block. It must take a WIDER gridSpan when a tool column is inserted, not a new cell — a new cell makes the row one wider than the grid and prints a stray empty box."
+        }
+      },
+
+      "_multiToolVerified": "VERIFIED 1 September 2026 against this template at three tools and at four. The new column is inserted INSIDE the tool block, so the grouped header widens 'Assessment Tools' and leaves 'Results' at span 3. Three tools gives 12 grid columns summing to 14822; four gives 13, also summing to 14822. Both were built and passed the full gate. The first attempt inserted one column too far right and put the third tool under 'Results' — see references/template-fill.md."
+    },
+
+    "feedback": {
+      "file": "templates/MVC_Feedback_Template.docx",
+      "orientation": "portrait",
+      "tableCount": 2,
+      "tables": {
+        "details": { "index": 1, "heading": "Student and Unit Details" },
+        "next":    { "index": 2, "heading": "What happens next" }
+      },
+      "itemTable": {
+        "table": "details",
+        "_tableComment": "MVC keeps the item rows INSIDE the details table, so this names 'details'. Both ACI variants give them a table of their own and name 'items'. 'details' is also the default when the key is absent.",
+        "firstItemRow": 9,
+        "maxItems": 10,
+        "_rowComment": "MEASURED: table 1 holds 18 rows — rows 1-6 the details block, row 7 the 'Questions and Tasks to be Fixed and Resubmitted' banner, row 8 the column headings, rows 9-18 the ten item rows. The item rows live in the SAME table as the details, which is why the builder reads its repeating block from table 1 and not from a table of its own.",
+        "cells": { "serial": 1, "toolName": 2, "questionNo": 3, "issue": 4, "action": 5 },
+        "_cellComment": "MEASURED: item rows carry 5 cells across an 8-column grid — c2 has gridSpan 2, c4 has gridSpan 3. Address them by cell number, never by grid column.",
+        "_overflowComment": "Ten items is one page. Where a student has more, the ten most significant are listed and the builder adds a closing note carrying the rest. Never shrink the type or spill to a second page — the gate's FeedbackSheetOnePage check renders the file and blocks on two."
+      },
+      "fields": {
+        "dd / mm / yyyy": { "occurrences": 2, "scopedTo": ["details = date of marking", "next = sign-off date"] },
+        "dd / mm / yyyy or N/A": { "occurrences": 1, "scopedTo": ["details = resubmission due"] },
+        "_orderComment": "Fill 'dd / mm / yyyy or N/A' BEFORE 'dd / mm / yyyy'. The closing bracket already stops the shorter field matching inside the longer one, but filling longest-first means a template revision that drops a bracket cannot silently strand ' or N/A' on a student's sheet.",
+        "Insert trainer / assessor name": { "occurrences": 2, "scopedTo": ["details", "next"] }
+      }
+    }
+  },
+
+  "markedAssessment": {
+    "frontTitle": "MARKED ASSESSMENT",
+    "headingColor": "000000",
+    "satisfactoryText": "Satisfactory",
+    "satisfactoryColor": "1E7B34",
+    "notSatisfactoryText": "Not yet Satisfactory - refer to feedback sheet",
+    "notSatisfactoryColor": "C00000",
+    "overallCompetentText": "Overall result: Competent",
+    "overallNotCompetentText": "Overall result: Not Yet Competent",
+    "referralText": "See your Student Feedback Sheet for the items to correct and the resubmission date.",
+    "observationHeading": "ASSESSOR OBSERVATION RECORD",
+    "observationBullet": "•",
+    "observationCompletedText": "Observation completed by the assessor on"
+  },
+  "_markedAssessmentComment": "The marked copy is built from the STUDENT'S OWN submitted file, not from a template. Both colours print legibly in greyscale as two distinct tones, and the WORDS carry the meaning, so a reader who cannot distinguish them loses nothing.",
+
+  "fileNames": {
+    "sar":      "SAR_{studentId}_{unitCode}_{overall}.docx",
+    "amrr":     "AMLC_{unitCodeUpper}_{markingDateCompact}.docx",
+    "feedback": "FEEDBACK_{studentId}_{unitCode}_{markingDateCompact}.docx",
+    "marked":   "MARKED_{studentId}_{unitCode}_{toolId}_{markingDateCompact}.docx"
+  }
+}

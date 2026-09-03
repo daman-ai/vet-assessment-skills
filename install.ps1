@@ -1,5 +1,5 @@
-# Installs (or updates) the VET assessment skills into this machine's
-# Claude Code skills folder. Run from anywhere:
+# Installs (or updates) the VET skills into this machine's Claude Code skills
+# folder. Run from anywhere:
 #
 #   git clone https://github.com/daman-ai/vet-assessment-skills "$env:USERPROFILE\vet-assessment-skills"
 #   & "$env:USERPROFILE\vet-assessment-skills\install.ps1"
@@ -27,8 +27,22 @@ if ($Update) {
 $dest = Join-Path $env:USERPROFILE '.claude\skills'
 if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force | Out-Null }
 
-foreach ($skill in 'assessment', 'learner-guide', 'docx-images') {
-    $src = Join-Path $repo "plugins\vet-assessment\skills\$skill"
+# Skill name -> the plugin in this repo that owns it.
+$skills = [ordered] @{
+    'assessment'    = 'vet-assessment'
+    'learner-guide' = 'vet-assessment'
+    'docx-images'   = 'vet-assessment'
+    'marking'       = 'vet-marking'
+}
+
+# NOTE: rto-validation-docs is versioned in this repo (plugins/vet-marking/skills)
+# but is deliberately NOT installed user-level. It currently ships as a PROJECT
+# skill in the workspace that uses it; installing it here too would register two
+# skills with the same name. Copy it into that project's .claude\skills yourself,
+# or move it here and drop the project copy - but not both.
+
+foreach ($skill in $skills.Keys) {
+    $src = Join-Path $repo ("plugins\{0}\skills\{1}" -f $skills[$skill], $skill)
     if (-not (Test-Path $src)) { throw "Skill missing from repo: $skill" }
     $tgt = Join-Path $dest $skill
     Write-Host ("Installing {0} -> {1}" -f $skill, $tgt) -ForegroundColor Cyan
@@ -52,5 +66,7 @@ Write-Host '  - Windows with Microsoft Word installed (delivery uses Word COM fo
 Write-Host '  - Windows PowerShell 5.1 (ships with Windows)'
 Write-Host '  - Claude Code, with a JavaScript-capable browser tool (training.gov.au is a JS app)'
 Write-Host '  - For recipe photography: an OpenAI API key in $env:OPENAI_API_KEY or in ~\.openai-key'
+Write-Host '  - For marking: Microsoft Excel, to read the WiseNet .xls enrolment matrix'
 Write-Host ''
 Write-Host 'Use it in Claude Code with:  /assessment <UNITCODE> <QUALIFICATION> <MVC|ACI>' -ForegroundColor Green
+Write-Host '                            /marking <UNITCODE>' -ForegroundColor Green

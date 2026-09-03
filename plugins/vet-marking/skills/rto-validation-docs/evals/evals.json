@@ -1,0 +1,50 @@
+{
+  "skill_name": "rto-validation-docs",
+  "evals": [
+    {
+      "id": 0,
+      "name": "fork-merge",
+      "prompt": "We have two validation forms - ACI_Culinary_Validation_Form_MASTER_v1_3_BLANK.docx and MVC_Validation_Form_MASTER_v1_0_BLANK (1).docx, both in C:\Users\daman\Downloads. I want one form both brands can use, with room for a third brand. Tell me exactly what differs between them and what you would change.",
+      "expected_output": "A diff-first analysis finding the documents are textually identical apart from the register prefix, and a plan to parameterise the brand rather than rebuild.",
+      "assertions": [
+        "Diffs the two documents before proposing any merge approach",
+        "Reports that the two forms are textually identical apart from the register prefix",
+        "Does NOT propose rebuilding the form from scratch",
+        "Proposes driving the brand from document properties rather than hard-coded text",
+        "Identifies BT- and GW- as legal-entity prefixes that should be retired in favour of brand prefixes",
+        "Normalises character encoding before diffing, or otherwise avoids false differences from numeric character references"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "register-contradiction",
+      "prompt": "Our steps document and the pre-assessment master prompt seem to disagree about how many rows go into the continuous improvement register for one validation. The files are ACI_MVC_Validation_to_Closure_Steps_v1_0.docx and MVC_Pre-Assessment_Validation_MASTER_PROMPT.docx in C:\Users\daman\Downloads. Work out which is right and what should happen.",
+      "expected_output": "Both conflicting statements quoted, the master prompt identified as governing, settled on one entry per unit, and the losing document flagged for amendment.",
+      "assertions": [
+        "Quotes or cites both conflicting statements from the two documents",
+        "Resolves the conflict in favour of one register entry per unit",
+        "Identifies which document governs rather than picking arbitrarily",
+        "States that the losing document must be amended, not just noted",
+        "Mentions that the detail stays in the validation form at B.9-B.11 or C.6-C.8"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "risk-rescore",
+      "prompt": "MSF30322 Certificate III in Cabinet Making is staying on our scope but we are not delivering it - there is no cohort. What does that mean for the Assessment Validation Plan? The file is Assessment_Validation_Plan_v2_0.docx in C:\Users\daman\Downloads.",
+      "expected_output": "A rescore using the plan's six-factor risk model dropping the product from High to Medium, with sample size adjusted and the Part B / Part C consequence stated.",
+      "assertions": [
+        "Applies the plan's six-factor weighted risk model rather than asserting a rating",
+        "Sets delivery status to 0 and cohort vulnerability to 0 because there is no cohort",
+        "Arrives at a Medium rating (total around 16), not High",
+        "Adjusts the sample size to the Medium band",
+        "States that Part B still applies before any tool is issued",
+        "States that Part C cannot run until a first cohort has been assessed",
+        "Does NOT remove the product from the plan, since it remains on scope"
+      ],
+      "files": []
+    }
+  ]
+}

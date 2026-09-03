@@ -32,6 +32,7 @@ In Claude Code:
 ```
 /plugin marketplace add daman-ai/vet-assessment-skills
 /plugin install vet-assessment@vet-skills
+/plugin install vet-marking@vet-skills
 ```
 
 **Zero-command for a whole team:** commit this to a shared project's `.claude/settings.json` and everyone who opens that project gets the plugin automatically:
@@ -41,7 +42,7 @@ In Claude Code:
   "extraKnownMarketplaces": {
     "vet-skills": { "source": { "source": "github", "repo": "daman-ai/vet-assessment-skills" } }
   },
-  "enabledPlugins": { "vet-assessment@vet-skills": true }
+  "enabledPlugins": { "vet-assessment@vet-skills": true, "vet-marking@vet-skills": true }
 }
 ```
 
@@ -67,6 +68,14 @@ Update later:
 - **ACI** resolves its trading name from the unit's training package, enforced in code: `SIT` → Adelaide Culinary Institute, `CPC` → Adelaide Construction Institute; an ambiguous package (e.g. `BSB`) refuses to guess and asks.
 - The brand mark is **byte-verified in every header of every document** at build *and* delivery time — a wrong or missing logo fails the build, it cannot ship silently.
 
+Mark a batch of submitted student assessments with:
+
+```
+/marking <UNITCODE>
+```
+
+The marking skill reads the WiseNet 0217 Unit Enrolment Outcome Matrix **by cell colour** to work out who was actually enrolled and is required to submit. Real roll exports carry student names and IDs - they are gitignored, never commit one.
+
 After a pack is delivered, build its teaching resources with:
 
 ```
@@ -84,6 +93,17 @@ plugins/vet-assessment/
                         shared content spine so guide and deck cannot drift
   skills/docx-images/   the artwork sub-skill: scans [IMAGE:] prompts, generates with the
                         OpenAI image model, places pictures back into the .docx
+
+plugins/vet-marking/
+  skills/marking/       the marking engine: reads the WiseNet 0217 enrolment matrix by cell colour
+                        to decide who must submit, then produces the four records an RTO keeps -
+                        a marked copy per student, a Student Assessment Record each, one class
+                        Assessment Marking and Results Record, and a Student Feedback Sheet for
+                        every student assessed NYC - all derived from one ledger
+  skills/rto-validation-docs/
+                        the controlled assessment-validation document set: Parts A/B/C, the
+                        Validation Plan, the Continuous Improvement Register and panel rosters,
+                        against the Standards for RTOs 2025 (versioned here; installed per-project)
 ```
 
 Brand facts live in `skills/assessment/assets/branding.<brand>.json` and the measured house profiles beside it. **A new RTO is added by measuring its approved artefacts** (see `references/house-standard.md`), never by copying another brand's profile.
