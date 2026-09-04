@@ -62,10 +62,22 @@ param(
     #  given: assets\rto-profile.<brand>.json in this skill.
     [string] $Profile,
     [string] $SpineDir,
-    [string] $SkillDir = (Split-Path -Parent $PSScriptRoot),
+    [string] $SkillDir,
     [switch] $SelfTest,
     [switch] $Quiet
 )
+
+#  $PSScriptRoot is EMPTY inside a PARAMETER DEFAULT when the script is run as
+#  `powershell -File`, so a default that called Split-Path on it threw inside
+#  the parameter block: the script exited 1 having never run a single check -
+#  the same exit code it uses for a real finding, which is why nobody noticed.
+#  Resolved here instead, where the automatic variable is populated, with a
+#  guarded fallback for the scriptblock case.
+if (-not $SkillDir) {
+    $__here = $PSScriptRoot
+    if (-not $__here -and $MyInvocation.MyCommand.Path) { $__here = Split-Path -Parent $MyInvocation.MyCommand.Path }
+    if ($__here) { $SkillDir = Split-Path -Parent $__here }
+}
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')

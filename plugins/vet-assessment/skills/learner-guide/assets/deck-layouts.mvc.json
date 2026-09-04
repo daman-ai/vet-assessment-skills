@@ -1,86 +1,227 @@
 {
-  "_comment": "Slot map for the MVC Branded PPT template. The template is a 13-slide LAYOUT LIBRARY - one worked exemplar per layout - and the build clones an exemplar and swaps its words. Template shapes are named generically ('Text 1', 'Text 5'), so a shape is addressed by its ORDINAL among text-bearing shapes on that slide. Measured from assets/templates/MVC_Branded_PPT_Template.pptx, not from memory. If the template changes, re-measure with Get-SlideShape and edit this file - nothing else should hold an ordinal.",
+    "_comment":  "Slot map for the MVC Branded PPT template. The template is a 13-slide LAYOUT LIBRARY - one worked exemplar per layout - and the build clones an exemplar and swaps its words. Template shapes are named generically (\u0027Text 1\u0027, \u0027Text 5\u0027), so a shape is addressed by its ORDINAL among text-bearing shapes on that slide. Measured from assets/templates/MVC_Branded_PPT_Template.pptx, not from memory. If the template changes, re-measure with Get-SlideShape and edit this file - nothing else should hold an ordinal.",
+    "template":  "assets/templates/MVC_Branded_PPT_Template.pptx",
+    "slideSize":  {
+                      "cx":  12192000,
+                      "cy":  6858000,
+                      "note":  "13.333in x 7.5in, 16:9"
+                  },
+    "numberIsLiteralText":  true,
+    "_numberComment":  "The footer number is literal text, NOT a slidenum field. A cloned slide therefore keeps the exemplar\u0027s number unless it is rewritten. The shipped SITHPAT018 deck prints the wrong number on 19 of its 39 slides for exactly this reason. numberSlot names the shape to rewrite; 0 means the layout has no page number (title and thank-you slides).",
+    "layouts":  {
+                    "title":  {
+                                  "slide":  1,
+                                  "numberSlot":  0,
+                                  "slots":  {
+                                                "title":  1,
+                                                "subtitle":  2,
+                                                "presenter":  3,
+                                                "rto":  4
+                                            }
+                              },
+                    "agenda":  {
+                                   "slide":  2,
+                                   "numberSlot":  14,
+                                   "slots":  {
+                                                 "kicker":  1,
+                                                 "headline":  2,
+                                                 "n1":  3,
+                                                 "t1":  4,
+                                                 "n2":  5,
+                                                 "t2":  6,
+                                                 "n3":  7,
+                                                 "t3":  8,
+                                                 "n4":  9,
+                                                 "t4":  10,
+                                                 "n5":  11,
+                                                 "t5":  12
+                                             },
+                                   "rows":  5,
+                                   "_note":  "Five numbered rows. A unit with more than five topics takes a second agenda slide, as the SITHPAT018 deck does (Topics 1-5, then 6-8)."
+                               },
+                    "divider":  {
+                                    "slide":  3,
+                                    "numberSlot":  6,
+                                    "slots":  {
+                                                  "number":  1,
+                                                  "kicker":  2,
+                                                  "title":  3,
+                                                  "description":  4
+                                              }
+                                },
+                    "single":  {
+                                   "slide":  4,
+                                   "numberSlot":  6,
+                                   "slots":  {
+                                                 "kicker":  1,
+                                                 "headline":  2,
+                                                 "lead":  3,
+                                                 "bullets":  4
+                                             },
+                                   "_note":  "The workhorse. The SITHPAT018 deck\u0027s content slides are this exemplar, shape for shape."
+                               },
+                    "two":  {
+                                "slide":  5,
+                                "numberSlot":  8,
+                                "slots":  {
+                                              "kicker":  1,
+                                              "headline":  2,
+                                              "leftHead":  3,
+                                              "left":  4,
+                                              "rightHead":  5,
+                                              "right":  6
+                                          }
+                            },
+                    "cards":  {
+                                  "slide":  6,
+                                  "numberSlot":  10,
+                                  "slots":  {
+                                                "kicker":  1,
+                                                "headline":  2,
+                                                "card1":  3,
+                                                "card1Body":  4,
+                                                "card2":  5,
+                                                "card2Body":  6,
+                                                "card3":  7,
+                                                "card3Body":  8
+                                            }
+                              },
+                    "figures":  {
+                                    "slide":  7,
+                                    "numberSlot":  13,
+                                    "slots":  {
+                                                  "kicker":  1,
+                                                  "headline":  2,
+                                                  "fig1":  3,
+                                                  "label1":  4,
+                                                  "fig2":  5,
+                                                  "label2":  6,
+                                                  "fig3":  7,
+                                                  "label3":  8,
+                                                  "fig4":  9,
+                                                  "label4":  10,
+                                                  "note":  11
+                                              },
+                                    "_note":  "For the numbers most likely to be asked in UAT 1 - temperatures, percentages, limits, standard drinks."
+                                },
+                    "table":  {
+                                  "slide":  8,
+                                  "numberSlot":  4,
+                                  "slots":  {
+                                                "kicker":  1,
+                                                "headline":  2
+                                            },
+                                  "table":  {
+                                                "rows":  5,
+                                                "cols":  3,
+                                                "headerRow":  1,
+                                                "dataRows":  4
+                                            },
+                                  "_note":  "Cells are a real PowerPoint table in a graphicFrame - fill with Set-SlideTableCell, not Set-SlideShapeText. Five rows: one header and four data rows. Fill every data row or delete the spare ones with Remove-SlideTableRow; a half-filled table ships \u0027Row label four\u0027 and \u0027Value / description\u0027 into the classroom."
+                              },
+                    "process":  {
+                                    "slide":  9,
+                                    "numberSlot":  19,
+                                    "slots":  {
+                                                  "kicker":  1,
+                                                  "headline":  2,
+                                                  "num1":  3,
+                                                  "step1":  4,
+                                                  "desc1":  5,
+                                                  "num2":  7,
+                                                  "step2":  8,
+                                                  "desc2":  9,
+                                                  "num3":  11,
+                                                  "step3":  12,
+                                                  "desc3":  13,
+                                                  "num4":  15,
+                                                  "step4":  16,
+                                                  "desc4":  17
+                                              },
+                                    "arrowSlots":  [
+                                                       6,
+                                                       10,
+                                                       14
+                                                   ],
+                                    "_note":  "Ordinals 6, 10 and 14 are the arrow glyphs between steps. Leave them alone."
+                                },
+                    "callout":  {
+                                    "slide":  10,
+                                    "numberSlot":  4,
+                                    "slots":  {
+                                                  "quote":  1,
+                                                  "attribution":  2
+                                              },
+                                    "_note":  "The SITHPAT018 deck puts the assessment reference in the attribution line here rather than using a chip."
+                                },
+                    "image":  {
+                                  "slide":  11,
+                                  "numberSlot":  7,
+                                  "slots":  {
+                                                "kicker":  1,
+                                                "headline":  2,
+                                                "caption":  3,
+                                                "subhead":  4,
+                                                "bullets":  5
+                                            },
+                                  "imagePlaceholder":  {
+                                                           "frameShape":  7,
+                                                           "removeShapes":  [
+                                                                                7,
+                                                                                8,
+                                                                                9
+                                                                            ],
+                                                           "captionShape":  10
+                                                       },
+                                  "_imageComment":  "ALL-SHAPE ordinals (sp AND pic in document order - use Get-SlideAllShape, not Get-SlideShape). The placeholder is four shapes: 7 the grey E3E8EE frame, 8 the navy circle, 9 the icon picture inside it, and 10 the \u0027Replace with image\u0027 caption. Set-SlidePicture takes its geometry from 7 and deletes 7, 8 and 9 only. Shape 10 is KEPT and reused as the figure caption via the text slot \u0027caption\u0027 - the Visual Placement spec requires a caption on every interior figure anyway, and deleting a text-bearing shape would shift every text ordinal after it, so numberSlot 7 would then point at the wrong shape."
+                              },
+                    "thanks":  {
+                                   "slide":  12,
+                                   "numberSlot":  0,
+                                   "verbatim":  true,
+                                   "slots":  {
+                                                 "title":  1,
+                                                 "tagline":  2,
+                                                 "contact":  3
+                                             },
+                                   "_note":  "verbatim: the template\u0027s own words (\u0027Thank you\u0027, the tagline) ARE the delivered words, so the residual-placeholder sweep must not read them as unfilled slots."
+                               },
+                    "brandref":  {
+                                     "slide":  13,
+                                     "numberSlot":  16,
+                                     "verbatim":  true,
+                                     "slots":  {
 
-  "template": "assets/templates/MVC_Branded_PPT_Template.pptx",
-  "slideSize": { "cx": 12192000, "cy": 6858000, "note": "13.333in x 7.5in, 16:9" },
-
-  "numberIsLiteralText": true,
-  "_numberComment": "The footer number is literal text, NOT a slidenum field. A cloned slide therefore keeps the exemplar's number unless it is rewritten. The shipped SITHPAT018 deck prints the wrong number on 19 of its 39 slides for exactly this reason. numberSlot names the shape to rewrite; 0 means the layout has no page number (title and thank-you slides).",
-
-  "layouts": {
-    "title":    { "slide": 1,  "numberSlot": 0,
-                  "slots": { "title": 1, "subtitle": 2, "presenter": 3, "rto": 4 } },
-
-    "agenda":   { "slide": 2,  "numberSlot": 14,
-                  "slots": { "kicker": 1, "headline": 2,
-                             "n1": 3, "t1": 4, "n2": 5, "t2": 6, "n3": 7, "t3": 8,
-                             "n4": 9, "t4": 10, "n5": 11, "t5": 12 },
-                  "rows": 5,
-                  "_note": "Five numbered rows. A unit with more than five topics takes a second agenda slide, as the SITHPAT018 deck does (Topics 1-5, then 6-8)." },
-
-    "divider":  { "slide": 3,  "numberSlot": 6,
-                  "slots": { "number": 1, "kicker": 2, "title": 3, "description": 4 } },
-
-    "single":   { "slide": 4,  "numberSlot": 6,
-                  "slots": { "kicker": 1, "headline": 2, "lead": 3, "bullets": 4 },
-                  "_note": "The workhorse. The SITHPAT018 deck's content slides are this exemplar, shape for shape." },
-
-    "two":      { "slide": 5,  "numberSlot": 8,
-                  "slots": { "kicker": 1, "headline": 2, "leftHead": 3, "left": 4, "rightHead": 5, "right": 6 } },
-
-    "cards":    { "slide": 6,  "numberSlot": 10,
-                  "slots": { "kicker": 1, "headline": 2,
-                             "card1": 3, "card1Body": 4, "card2": 5, "card2Body": 6, "card3": 7, "card3Body": 8 } },
-
-    "figures":  { "slide": 7,  "numberSlot": 13,
-                  "slots": { "kicker": 1, "headline": 2,
-                             "fig1": 3, "label1": 4, "fig2": 5, "label2": 6,
-                             "fig3": 7, "label3": 8, "fig4": 9, "label4": 10, "note": 11 },
-                  "_note": "For the numbers most likely to be asked in UAT 1 - temperatures, percentages, limits, standard drinks." },
-
-    "table":    { "slide": 8,  "numberSlot": 4,
-                  "slots": { "kicker": 1, "headline": 2 },
-                  "table": { "rows": 5, "cols": 3, "headerRow": 1, "dataRows": 4 },
-                  "_note": "Cells are a real PowerPoint table in a graphicFrame - fill with Set-SlideTableCell, not Set-SlideShapeText. Five rows: one header and four data rows. Fill every data row or delete the spare ones with Remove-SlideTableRow; a half-filled table ships 'Row label four' and 'Value / description' into the classroom." },
-
-    "process":  { "slide": 9,  "numberSlot": 19,
-                  "slots": { "kicker": 1, "headline": 2,
-                             "num1": 3, "step1": 4, "desc1": 5,
-                             "num2": 7, "step2": 8, "desc2": 9,
-                             "num3": 11, "step3": 12, "desc3": 13,
-                             "num4": 15, "step4": 16, "desc4": 17 },
-                  "arrowSlots": [6, 10, 14],
-                  "_note": "Ordinals 6, 10 and 14 are the arrow glyphs between steps. Leave them alone." },
-
-    "callout":  { "slide": 10, "numberSlot": 4,
-                  "slots": { "quote": 1, "attribution": 2 },
-                  "_note": "The SITHPAT018 deck puts the assessment reference in the attribution line here rather than using a chip." },
-
-    "image":    { "slide": 11, "numberSlot": 7,
-                  "slots": { "kicker": 1, "headline": 2, "caption": 3, "subhead": 4, "bullets": 5 },
-                  "imagePlaceholder": { "frameShape": 7, "removeShapes": [7, 8, 9], "captionShape": 10 },
-                  "_imageComment": "ALL-SHAPE ordinals (sp AND pic in document order - use Get-SlideAllShape, not Get-SlideShape). The placeholder is four shapes: 7 the grey E3E8EE frame, 8 the navy circle, 9 the icon picture inside it, and 10 the 'Replace with image' caption. Set-SlidePicture takes its geometry from 7 and deletes 7, 8 and 9 only. Shape 10 is KEPT and reused as the figure caption via the text slot 'caption' - the Visual Placement spec requires a caption on every interior figure anyway, and deleting a text-bearing shape would shift every text ordinal after it, so numberSlot 7 would then point at the wrong shape." },
-
-    "thanks":   { "slide": 12, "numberSlot": 0, "verbatim": true,
-                  "slots": { "title": 1, "tagline": 2, "contact": 3 },
-                  "_note": "verbatim: the template's own words ('Thank you', the tagline) ARE the delivered words, so the residual-placeholder sweep must not read them as unfilled slots." },
-
-    "brandref": { "slide": 13, "numberSlot": 16, "verbatim": true,
-                  "slots": {},
-                  "_note": "Kept at the end of the deck unchanged, per SECTION 3 of the delivery-PowerPoint spec. Nothing on it is authored, so it is exempt from the placeholder sweep." }
-  },
-
-  "chip": {
-    "_comment": "The assessment-link chip is built, not cloned - the template ships no such shape. Orange left rule over the light brand fill, bottom-right, clear of the footer band at y=6400800.",
-    "rule": "F09C0C",
-    "fill": "F0F2F7",
-    "text": "234B8C",
-    "wording": "Prepares you for: {refs}"
-  },
-
-  "deckRules": {
-    "minSlidesPerTopic": 15,
-    "notesRequiredOn": ["teaching", "case-study", "assessment-link", "figures", "process", "table"],
-    "notesNotRequiredOn": ["title", "divider", "agenda", "thanks", "brandref", "housekeeping"]
-  }
+                                               },
+                                     "_note":  "Kept at the end of the deck unchanged, per SECTION 3 of the delivery-PowerPoint spec. Nothing on it is authored, so it is exempt from the placeholder sweep."
+                                 }
+                },
+    "chip":  {
+                 "_comment":  "The assessment-link chip is built, not cloned - the template ships no such shape. Orange left rule over the light brand fill, bottom-right, clear of the footer band at y=6400800.",
+                 "rule":  "F09C0C",
+                 "fill":  "F0F2F7",
+                 "text":  "234B8C",
+                 "wording":  "Prepares you for: {refs}"
+             },
+    "deckRules":  {
+                      "minSlidesPerTopic":  15,
+                      "notesRequiredOn":  [
+                                              "teaching",
+                                              "case-study",
+                                              "assessment-link",
+                                              "figures",
+                                              "process",
+                                              "table",
+                                              "outcomes",
+                                              "key-terms"
+                                          ],
+                      "notesNotRequiredOn":  [
+                                                 "title",
+                                                 "divider",
+                                                 "agenda",
+                                                 "thanks",
+                                                 "brandref",
+                                                 "housekeeping"
+                                             ]
+                  }
 }

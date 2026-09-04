@@ -50,15 +50,38 @@
 param(
     #  EVERY delivered artefact. A stage cannot pass unless this ran on all of
     #  them, which is why they are passed together rather than one per call.
-    [Parameter(Mandatory)][string[]] $Path,
+    [string[]] $Path,
     [string] $BuildDir,
     [string] $Brand,
     [string] $Variant,
-    [string] $SkillDir = (Split-Path -Parent $PSScriptRoot),
+    [string] $SkillDir,
     [string] $BrandingDir,
     [switch] $SelfTest,
     [switch] $Quiet
 )
+
+#  -Path was Mandatory, so -SelfTest could never be run on its own: PowerShell
+#  refused the call before the script started. The gate this skill says is
+#  "trusted only after failing on a planted defect" could not be asked to
+#  prove itself, and a fixtures sweep scored it inconclusive for that reason.
+#  It is enforced here instead, so a real run still FAILS naming the input.
+if (-not $SelfTest -and @($Path | Where-Object { "$_".Trim() }).Count -eq 0) {
+    Write-Host '  X Check-Identity: -Path is required. Pass every delivered artefact in ONE call.' -ForegroundColor Red
+    Write-Host '    A stage cannot pass having run this on one artefact and not the other.' -ForegroundColor Yellow
+    exit 2
+}
+
+#  $PSScriptRoot is EMPTY inside a PARAMETER DEFAULT when the script is run as
+#  `powershell -File`, so a default that called Split-Path on it threw inside
+#  the parameter block: the script exited 1 having never run a single check -
+#  the same exit code it uses for a real finding, which is why nobody noticed.
+#  Resolved here instead, where the automatic variable is populated, with a
+#  guarded fallback for the scriptblock case.
+if (-not $SkillDir) {
+    $__here = $PSScriptRoot
+    if (-not $__here -and $MyInvocation.MyCommand.Path) { $__here = Split-Path -Parent $MyInvocation.MyCommand.Path }
+    if ($__here) { $SkillDir = Split-Path -Parent $__here }
+}
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
@@ -76,6 +99,22 @@ if (-not $Brand -and $BuildDir) {
     if ($null -ne $contract) {
         $Brand = [string](Get-GateProp -Object $contract.build -Names @('brand'))
         if (-not $Variant) { $Variant = [string](Get-GateProp -Object $contract.build -Names @('variant')) }
+    }
+}
+#  A SELF-TEST proves the gate on a fixture it builds itself, so it needs A
+#  brand, not THE brand. Take the first branding profile on disk and say which,
+#  so the gate can always be asked to prove itself. A REAL run still refuses
+#  below: a crossover sweep that does not know which brand it is proving cannot
+#  derive what is forbidden.
+if ($SelfTest -and -not $Brand) {
+    foreach ($d in @($BrandingDir, (Join-Path $SkillDir 'assets'), (Join-Path (Split-Path -Parent $SkillDir) 'assessment\assets'))) {
+        if (-not "$d".Trim() -or -not (Test-Path -LiteralPath "$d")) { continue }
+        $bf = @(Get-ChildItem -LiteralPath "$d" -Filter 'branding.*.json' -File -ErrorAction SilentlyContinue | Sort-Object Name)
+        if ($bf.Count -gt 0) {
+            $Brand = ($bf[0].BaseName -split '\.')[1]
+            Write-Host ("  self-test: no -Brand given; proving against '{0}', the first branding profile in {1}" -f $Brand, $d) -ForegroundColor DarkGray
+            break
+        }
     }
 }
 if (-not $Brand) {
@@ -325,6 +364,42 @@ foreach ($file in $Path) {
 }
 
 Write-Host ''
+#  STANDALONE SELF-TEST. The plant inside the artefact loop augments a real
+#  sweep and needs a document; with no -Path that loop never runs, so the gate
+#  could not be asked to prove itself at all - and a gate this skill calls
+#  "trusted only after failing on a planted defect" that cannot be asked is
+#  the same silent gap as a rule behind an optional parameter. The scanner
+#  works on a parts hashtable, so the fixture is built here rather than
+#  requiring a real .docx: same scanner, same token set, no Office.
+if ($SelfTest -and @($Path | Where-Object { "$_".Trim() }).Count -eq 0) {
+    $stFail = 0
+    if (@($tokens).Count -eq 0) {
+        Write-Host '  X self-test: no forbidden tokens were derived, so a plant would prove nothing.' -ForegroundColor Red
+        $stFail++
+    }
+    else {
+        $tok = @($tokens)[0]
+        $clean = [ordered]@{ 'word/document.xml' = '<w:p><w:t>ordinary body text with no other brand in it</w:t></w:p>' }
+        $none = Invoke-CrossoverScan -Parts $clean -Tokens @($tok)
+        if (@($none).Count -eq 0) { Write-Host '  self-test: clean fixture is silent' -ForegroundColor Green }
+        else { Write-Host '  X self-test: the scanner fired on a fixture carrying no forbidden token.' -ForegroundColor Red; $stFail++ }
+        $planted = [ordered]@{ 'word/document.xml' = ($clean['word/document.xml'] + ("<w:p><w:t>{0}</w:t></w:p>" -f $tok)) }
+        if ($planted['word/document.xml'].IndexOf($tok, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) {
+            Write-Host '  X self-test: the plant did not land, so this proves nothing.' -ForegroundColor Red
+            $stFail++
+        }
+        else {
+            $hit = Invoke-CrossoverScan -Parts $planted -Tokens @($tok)
+            if (@($hit).Count -gt 0) { Write-Host ("  self-test: planted '{0}' and the scanner found it. This sweep can fail." -f $tok) -ForegroundColor Green }
+            else { Write-Host ("  X self-test: planted '{0}' and the scanner did NOT find it." -f $tok) -ForegroundColor Red; $stFail++ }
+        }
+    }
+    Write-Host ''
+    if ($stFail -eq 0) { Write-Host ("SELF-TEST PASS - the crossover scanner fails on a verified plant ({0} token(s) in the check-set)" -f @($tokens).Count) -ForegroundColor Green; exit 0 }
+    Write-Host ("SELF-TEST FAILED - {0} check(s)" -f $stFail) -ForegroundColor Red
+    exit 4
+}
+
 Write-Host ("  artefacts swept: {0} of {1} supplied" -f $artefactsScanned, @($Path).Count) -ForegroundColor DarkGray
 if ($artefactsScanned -ne @($Path).Count) {
     Write-Host '  X not every supplied artefact was swept. A stage cannot pass on a partial sweep.' -ForegroundColor Red

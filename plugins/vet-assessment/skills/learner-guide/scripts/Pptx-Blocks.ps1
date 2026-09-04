@@ -1,4 +1,4 @@
-<#
+﻿<#
     Pptx-Blocks.ps1
 
     THE DECK BUILDER. Clones slides out of the approved MVC PowerPoint template

@@ -1,4 +1,4 @@
-<#
+﻿<#
     Build-Guide.ps1
 
     THE GUIDE ASSEMBLER. Splices authored body OOXML into the approved MVC

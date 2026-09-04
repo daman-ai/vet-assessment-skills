@@ -68,34 +68,55 @@
     keep off the page, and a gate that quotes them into a log is the leak
     the previous build's audit reports turned out to be.
 
-    CALIBRATION (recorded so the numbers can be argued with, not trusted):
-      Corpus A - spine_backup_pre_round4, the spine as it stood when round 5
-      found the leak. Required to BLOCK on t2_2.3 (Task 11(a)), t1_1.4
-      (4(a)/(b)), t5_5.4 (9(a)), t3_3.1 (6(a)). Result: 4 of 4 blocked.
-        11(a) 7 of 7 rows FULL (audit: 7 of 7); 4(a) 3 of 3 FULL, 4(b) 3 of 3
-        FULL (audit: 6 of 6 across the pair); 9(a) 4 FULL + 2 PARTIAL (audit:
-        6 of 6 - the two partial rows are Freezers, whose freezer-burn bullet
-        is spread over two sentences, and Refrigerators, whose short cells
-        carry single-word bullets that cannot hit under the 2-word floor);
-        6(a) 2 FULL + 4 PARTIAL under allowance 0 (audit: 6 of 6 - the
-        "why" column's bullets are one or two words each after the learner
-        strip, so four rows answer the "what" column only). Every required
-        file blocks on the FULL-ROW arm; ROW ORDER also fires on 2.3
-        (LCS 7 of 7), 1.4 (3 of 3, twice), 5.4 (6 of 6), 3.1 (5 of 6).
-      Corpus B - the current spine, which round 6 recorded CLEAN for 1.1,
-      2.3, 3.1 (activity), 5.4 and 5.2. Result: 0 BLOCK on those five and 0
-      BLOCK anywhere else in the spine. REPORT level, adjudicated in the
-      delivery note: partial rows on 1.4 (residual indicator prose the round
-      6 audit also rated Low) and single-cell partials where the guide teaches
-      a process the model also states in one bullet.
-      Recall on corpus A: 4 of 4 required files, 26 of 26 audited rows
-      answered at least partially (18 FULL). False positives on corpus B:
-      0 at BLOCK level across 28 sub-section files.
-      Anchoring window 2 sentences; hit floor 2 words and 50 per cent; DF
-      ceiling 0.25 (inert on this pack - the highest bullet DF is 3.6 per
-      cent); an alias that is ONE word and occurs in more than a tenth of a
-      file's sentences is ambient vocabulary for that file and does not
-      anchor ("food" in 5.2, "equipment" in 2.3) - the full label still does.
+    CALIBRATION (recorded so the numbers can be argued with, not trusted).
+    Corpus A - spine_backup_pre_round4, the spine as it stood when round 5
+    found the leak. Required to BLOCK on t2_2.3 (Task 11(a)), t1_1.4
+    (4(a)/(b)), t5_5.4 (9(a)) and t3_3.1 (6(a)). Result: 4 of 4 BLOCK.
+      11(a) 7 of 7 rows FULL, every one assembled in underpinningKnowledge
+            (audit: 7 of 7); ROW ORDER fires in four channels (LCS 5-6 of 7).
+      4(a)  3 of 3 FULL, 4(b) 3 of 3 FULL (audit: 6 of 6); ROW ORDER 3 of 3.
+      9(a)  5 FULL + 1 PARTIAL (audit: 6 of 6 - Chillers has both cells
+            answered, but in two different channels); ROW ORDER 6 of 6 in
+            underpinningKnowledge and workedExample.
+      6(a)  5 FULL + 1 PARTIAL (audit: 6 of 6); Workbook 3(a) 2 FULL over
+            allowance 1 (audit: 6 of 6 - a numbered grid is anchored by row
+            position and the guide interleaved two extra steps).
+      Whole backup spine: 17 grid pairs BLOCK, 186 at report level, 13,604
+      sentences. Recall on the four required files: 25 of 25 audited rows
+      answered at least partially, 23 FULL.
+    Corpus B - the current spine, which round 6 recorded CLEAN for 1.1, 2.3,
+    3.1 (activity table), 5.4 and 5.2. Result: SILENT at BLOCK level on all
+    five (1.1: 3 partial rows, 2.3: 3 partial rows, 5.4: 2 partial, 5.2: one
+    FULL row inside allowance 1; 3.1 Workbook 3(a): 1 partial). Whole spine:
+    4 grid pairs BLOCK, 198 at report level, 13,989 sentences, and each of
+    the four is a REAL residual, not a false positive, adjudicated from the
+    guide sentences themselves: t1_1.4 still carries 4(a) and 4(b) 3 of 3
+    FULL in underpinningKnowledge (the round 6 HIGH finding 4.11, verbatim
+    "On meat, contamination shows as ..." sentences, not remediated);
+    t3_3.1 assembles 6(a) row "Set up containers, lids, labels and date
+    codes" (what + why) in underpinningKnowledge under allowance 0; t4_4.3
+    works Workbook 4(e) row "Deep fryer" (what + why) in underpinningKnowledge
+    under allowance 0. False positives at BLOCK level: 0 of 35 files.
+    Two rules were ADDED during calibration, each for a recorded reason:
+      - a row is FULL only when one channel answers every cell. Before it,
+        2.3 "Blast freezer" read FULL from a temperature standard in a
+        practical table, a common-error line and a slide bullet - three
+        channels, none of which writes the row; the audit standard is a row
+        assembled in one place, and every corpus A leak was.
+      - an alias equal to the grid subject class ("equipment") never
+        anchors: it tied every generic safety sentence in 2.3 to the vacuum
+        sealer row. A numeric label anchors only a table label cell or a
+        list number; numbered grids anchor on the register subjects.
+    Tried and NOT adopted: DF ceiling 0.02 (strips batch, degree, clean,
+    probe, pack, product, tray, seal, check). It left every corpus A block
+    standing and 3.1 still blocking, so it bought nothing; 0.25 is kept,
+    inert on this pack (highest bullet DF 3.6 per cent).
+    Settings: anchor window 2 sentences (crossing paragraph boundaries
+    inside one array - the 11(a) feature sentences open with "Its ..."); hit
+    floor 2 words and 50 per cent; row order LCS >= min(4, rows); bullet
+    order 3; ambient alias ceiling 10 per cent of a file (204 suppressions
+    across the current spine, e.g. "food" in 5.2, "recipes" in 1.1); the
+    name part of a qualified label ("Vegetable stock - 1.1 L (...)") anchors.
 
     PS 5.1. ASCII only in this file. Nothing here names a unit, a brand or a
     build path: the grids, the aliases, the allowances and the benchmark
@@ -364,7 +385,7 @@ function Get-SmGridSet {
                 #  untaught. The part before the first dash, colon or bracket is
                 #  the name the prose uses.
                 #  (the dash family is written as \u escapes: this file is ASCII)
-                $namePart = ($label -split '\s-\s|\s--\s|[–—:(]')[0]
+                $namePart = ($label -split '\s-\s|\s--\s|[\u2013\u2014:(]')[0]
                 $namePartNorm = ConvertTo-GateNormal $namePart
                 if ($namePartNorm -and $namePartNorm -ne (ConvertTo-GateNormal $label) -and (@($namePartNorm -split ' ' | Where-Object { $_.Length -ge 3 }).Count -ge 1)) { $anchorTexts.Add("$namePart".Trim()) }
             }

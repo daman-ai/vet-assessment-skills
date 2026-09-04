@@ -1,4 +1,4 @@
-<#
+﻿<#
     Test-FigureConsistency.ps1  -  ONE FIGURE, ONE VALUE, EVERYWHERE.
 
     THE GATE THAT EXISTS BECAUSE SWEEPS FAIL. Three remediation rounds on one

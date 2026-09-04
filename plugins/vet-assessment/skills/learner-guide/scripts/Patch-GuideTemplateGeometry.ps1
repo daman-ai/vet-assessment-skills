@@ -1,4 +1,4 @@
-<#
+﻿<#
     Patch-GuideTemplateGeometry.ps1
 
     Bring the Learner Guide template's PAGE MARGINS into agreement with the

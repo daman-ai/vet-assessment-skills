@@ -1,4 +1,4 @@
-<#
+﻿<#
     Xml-Scan.ps1
 
     Balanced-element scanning for raw OOXML text editing.

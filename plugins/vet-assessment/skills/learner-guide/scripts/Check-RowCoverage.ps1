@@ -57,17 +57,35 @@
 
     NEVER PRINTS A MODEL BULLET. Row labels, headings, counts and paths only.
 
-    CALIBRATION - see the delivery note for the -Whole list on the current
-    spine; the numbers here are the ones the gate was tuned against.
-      Corpus A (spine_backup_pre_round4): the rows the shape mirror scores as
-      FULL have LOW teaching counts (Task 11(a) rows: 1-4 teaching sentences
-      each against 6-12 answering) - the prose was answer, not teaching, which
-      is the point of counting the two separately.
-      Corpus B (current spine, -Whole): see the list in the delivery note.
-      Every row below the floor is a real finding for the coordinator, not a
-      calibration artefact; the gate was not tuned to make that list shorter.
-      KE frame ceiling 0.25 across points; teaching floors 2 (file) and 3
-      (whole); hollow share 0.6.
+    CALIBRATION (the numbers the gate was tuned against, recorded so they can
+    be argued with).
+    Corpus A (spine_backup_pre_round4, -Whole): the rows the shape mirror
+    scores FULL carry far more ANSWERING than teaching relative to their
+    size - Task 11(a): Packaging material 17 teaching / 10 answering, Vacuum
+    sealing equipment 15 / 12, Ice slurry 59 / 17; Task 4(a): Meat 133 / 16,
+    Eggs 98 / 16, Poultry 78 / 9 - the leaked prose was answer, and
+    counting the two separately is the point. 2 rows under the whole-spine
+    floor, 9 KE points under the every-term rule.
+    Corpus B (current spine, -Whole): 0 rows under the whole-spine floor of
+    3 once the name part of a qualified label anchors (before it, "Vegetable
+    stock - 1.1 L (wet bulk, measured)" in Knowledge Task 5(f) read as taught
+    in 0 sentences because neither the label nor the register alias
+    "vegetable stock 1 1 l" can occur in prose); 1 row under the per-file
+    floor of 2 (Workbook Task 3(a) row 3 in t3_3.1: a numbered row anchors
+    only where it is a table label or a list number, and the guide's worked
+    sequence is set on a different order). KE: 26 of 27 points covered at a 60 per cent
+    term share; the 1 uncovered is real - KE7a "blast" is assigned to 5.1
+    and 5.1 underpinningKnowledge (38 paragraphs) never says "blast" (the
+    word appears 17 times elsewhere in the file: howToDoIt, activity, slides).
+    Under an every-term rule 9 points failed, 8 of them on framing words
+    ("commonly subject to", "procedures", "appropriate", "specifications",
+    "produce") that the 25 per cent frame ceiling cannot see on a 27-point
+    list; hence -KeTermShare 0.6, with every missing term still printed.
+    Hollow relocation: 0 cells on the current spine; the fixture in
+    Test-Pipeline.ps1 proves the arm fires on two-word cells.
+    Floors: 2 (file, report), 3 (whole, block); hollow share 0.6; KE frame
+    ceiling 0.25 and term share 0.6. Scoring calibration is the shape
+    mirror's and is documented there.
 
     PS 5.1. ASCII only in this file. Nothing here names a unit, a brand or a
     build path.
@@ -115,6 +133,22 @@ if ($smB -lt 0 -or $smE -le $smB) { throw "Check-RowCoverage: the SM-LIB markers
 . ([scriptblock]::Create($smText.Substring($smB, $smE - $smB)))
 
 $GATE = 'Check-RowCoverage'
+
+function Get-RcList {
+    <#  A value as a plain List[object] of its elements: a table's rows, or one row's cells, whether it arrives as an array, a PSObject-wrapped array or a lone string (one element; $null is none). Returned with the unary comma, because a one-element List returned bare is unrolled by PowerShell into its single element and a one-row table would read as its own first row. Indexing with [n] is then safe at both levels.  #>
+    param($Value)
+    $out = New-Object System.Collections.Generic.List[object]
+    if ($null -eq $Value) { return ,$out }
+    $base = $Value
+    if ($null -ne $Value.PSObject -and $null -ne $Value.PSObject.BaseObject) { $base = $Value.PSObject.BaseObject }
+    if ($base -is [string]) { $out.Add([string]$base); return ,$out }
+    if ($base -is [System.Collections.IEnumerable]) {
+        foreach ($e in $base) { $out.Add($e) }
+        return ,$out
+    }
+    $out.Add($base)
+    return ,$out
+}
 
 function Get-RcKePoints {
     <#  Knowledge Evidence points and sub-points out of the unit extract's own
@@ -245,9 +279,8 @@ foreach ($f in $in.Files) {
         #  and foreach UNROLLS the inner array into its strings (three rows of
         #  one cell). Either way every relocated exemplar was invisible. .Count
         #  and [n] work on the array whatever wrapper it carries.
-        $tRowsObj = $t.Rows
-        $tRowCount = 0
-        if ($null -ne $tRowsObj) { $tRowCount = [int]$tRowsObj.Count }
+        $tRowsList = Get-RcList -Value $t.Rows
+        $tRowCount = $tRowsList.Count
         $tHeads = @(@($t.Headers) | ForEach-Object { ConvertTo-GateNormal ([string]$_) } | Where-Object { $_ })
         if ($tHeads.Count -lt 2) { continue }
         foreach ($g in $own) {
@@ -257,11 +290,14 @@ foreach ($f in $in.Files) {
             if ($shared.Count -lt 2) { continue }
             $need = [int][math]::Ceiling($HollowShare * $g.WordGuideMin)
             for ($r = $t.Skip; $r -lt $tRowCount; $r++) {
-                $cells = $tRowsObj[$r]
-                if ($null -eq $cells -or $cells -is [string]) { continue }
-                $cellCount = [int]$cells.Count
+                #  NOT $cells. PowerShell variables are case-insensitive and this script
+                #  has a [string] $Cells PARAMETER, so "$cells = <row>" converted every
+                #  row to its first string and the hollow check reported nothing on a
+                #  table it had walked correctly. Cost most of an afternoon.
+                $rowCells = Get-RcList -Value $tRowsList[$r]
+                $cellCount = $rowCells.Count
                 if ($cellCount -lt 2) { continue }
-                $label = [string]$cells[0]
+                $label = [string]$rowCells[0]
                 $labelN = ConvertTo-GateNormal $label
                 if (-not $labelN -or $tHeads -contains $labelN) { continue }
                 $isAssessed = $false
@@ -269,7 +305,7 @@ foreach ($f in $in.Files) {
                 if ($isAssessed) { continue }   # an assessed row is the mirror's business, not a relocation
                 if ($label -match $WithheldRx) { continue }
                 for ($c = 1; $c -lt $cellCount; $c++) {
-                    $txt = [string]$cells[$c]
+                    $txt = [string]$rowCells[$c]
                     if ($txt -match $WithheldRx) { continue }
                     if (-not (Test-GateCellFilled -Text $txt -BlankTokens $blanks)) { continue }
                     $words = @((ConvertTo-GateNormal $txt) -split ' ' | Where-Object { $_ }).Count
@@ -284,13 +320,13 @@ foreach ($f in $in.Files) {
 
     $fileReports.Add([pscustomobject]@{ File = $f.Name; SubSection = $sub; Sentences = $sentences.Count; Ambient = $scan.Ambient; Grids = $gridsOut.ToArray() })
 
+    foreach ($go in $gridsOut) { $fileReportRows += @($go.Rows | Where-Object { $_.Below }).Count }
     if (-not $Quiet -and $gridsOut.Count -gt 0) {
         Write-Host ''
         Write-Host ("  {0}  (sub-section {1}; {2} sentences)" -f $f.Name, $sub, $sentences.Count) -ForegroundColor Cyan
         foreach ($am in $scan.Ambient) { Write-Host ("    ambient alias not used as an anchor in this file: {0}" -f $am) -ForegroundColor DarkGray }
         foreach ($go in $gridsOut) {
             $below = @($go.Rows | Where-Object { $_.Below })
-            $fileReportRows += $below.Count
             $c = if ($below.Count) { 'Yellow' } else { 'DarkGray' }
             Write-Host ("    {0} [{1}]  {2} row(s) under the per-file floor of {3}" -f $go.Ref, $go.Kind, $below.Count, $MinTeachFile) -ForegroundColor $c
             Write-Host ("       {0,-46} teaching answering" -f 'row') -ForegroundColor DarkGray

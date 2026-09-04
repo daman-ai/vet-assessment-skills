@@ -212,7 +212,13 @@ function Get-GateCorpusDocs {
     param(
         [Parameter(Mandatory)][string] $CorpusDir,
         [string] $BuildDir,
-        [string] $AssessorRx = '(?i)(assessor|marking[_ -]?guide|benchmark|model[_ -]?answer|answer[_ -]?key|marker)'
+        #  Abbreviations matter as much as words here. A corpus extracted as
+        #  out_AG.txt / staging_AG.txt classified as LEARNER-FACING under the
+        #  word-only pattern, so any gate trusting this would have swept an
+        #  assessor guide as a learner document - the leak direction. AG, MG
+        #  and AS are the abbreviations these packs actually use, matched only
+        #  as whole tokens so a learner file named "storage" is untouched.
+        [string] $AssessorRx = '(?i)((^|[^a-z])(assessor|marker|benchmark)|marking[_ -]?guide|model[_ -]?answer|answer[_ -]?key|(^|[_\-. ])(ag|mg|as)([_\-. ]|$))'
     )
 
     $map = @{}
@@ -238,7 +244,14 @@ function Get-GateCorpusDocs {
         $aud = $null
         if ($map.ContainsKey($stem)) { $aud = $map[$stem] }
         if (-not $aud) { $aud = if ($f.Name -match $AssessorRx) { 'assessor' } else { 'learner' } }
-        if ($aud -notmatch '^(learner|assessor)$') { $aud = 'learner' }
+        #  An audience value the manifest supplies but this code does not
+        #  recognise is UNKNOWN, and unknown is treated as assessor. Defaulting
+        #  an unrecognised value to learner is the same fail-open as above: it
+        #  puts unclassified text into every learner-facing sweep.
+        if ($aud -notmatch '^(learner|assessor)$') {
+            Write-Host ('  ! Get-GateCorpusDocs: {0} declares audience ''{1}'', which is neither learner nor assessor. Treating it as ASSESSOR.' -f $f.Name, $aud) -ForegroundColor Yellow
+            $aud = 'assessor'
+        }
         $docs.Add([pscustomobject]@{
             Name     = $stem
             Path     = $f.FullName

@@ -53,12 +53,24 @@
 param(
     [Parameter(Mandatory)][string] $BuildDir,
     [string] $SpineDir,
-    [string] $SkillDir = (Split-Path -Parent $PSScriptRoot),
+    [string] $SkillDir,
     #  Every script that turns spine JSON into a page. Globbed, not named.
     [string[]] $RendererPath,
     [string[]] $DeckProfile,
     [switch] $Quiet
 )
+
+#  $PSScriptRoot is EMPTY inside a PARAMETER DEFAULT when the script is run as
+#  `powershell -File`, so a default that called Split-Path on it threw inside
+#  the parameter block: the script exited 1 having never run a single check -
+#  the same exit code it uses for a real finding, which is why nobody noticed.
+#  Resolved here instead, where the automatic variable is populated, with a
+#  guarded fallback for the scriptblock case.
+if (-not $SkillDir) {
+    $__here = $PSScriptRoot
+    if (-not $__here -and $MyInvocation.MyCommand.Path) { $__here = Split-Path -Parent $MyInvocation.MyCommand.Path }
+    if ($__here) { $SkillDir = Split-Path -Parent $__here }
+}
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
@@ -79,6 +91,19 @@ else {
     foreach ($pattern in @(
         (Join-Path $BuildDir 'Build-*.ps1'),
         (Join-Path $BuildDir 'Render-*.ps1'),
+        #  Invoke-Render.ps1 IS the spine reader - it holds both the guide
+        #  renderer and the deck renderer and reads every content-model field.
+        #  Build-Guide.ps1 and Pptx-Blocks.ps1 are the low-level BLOCK
+        #  libraries it calls; between them they name almost none of the spine
+        #  field names. Omitting Invoke-Render from this list derived the
+        #  read-set from the block libraries alone, so the gate reported EVERY
+        #  authored field as UNREAD and every container as MISSING - 36 lines
+        #  on a correct file - which is the "gate that fires on everything" the
+        #  throw below exists to prevent, arriving by a different route.
+        #  Found on the SITXINV007 build, 4 September 2026, by the pilot agent:
+        #  verified by grepping all 23 content-model field names against the
+        #  three scripts before this line was changed.
+        (Join-Path $SkillDir 'scripts\Invoke-Render.ps1'),
         (Join-Path $SkillDir 'scripts\Build-Guide.ps1'),
         (Join-Path $SkillDir 'scripts\Build-Deck*.ps1'),
         (Join-Path $SkillDir 'scripts\Pptx-Blocks.ps1')
@@ -166,6 +191,10 @@ if (-not $Quiet) {
 # ---------------------------------------------------------------------------
 
 $unread  = New-Object System.Collections.Generic.List[string]
+#  Every content-bearing field the walker examined, read or not. The denominator
+#  for the incomplete-renderer-set guard below - derived from the same walk that
+#  produces the findings, so the two can never disagree.
+$script:contentFieldsSeen = 0
 $missing = New-Object System.Collections.Generic.List[string]
 
 function Test-HasContent {
@@ -243,6 +272,7 @@ function Walk-Spine {
 
         $childPath = if ($Path) { "$Path.$name" } else { $name }
 
+        $script:contentFieldsSeen++
         if (-not (Test-FieldRead -Name $name)) {
             $unread.Add("$File -> $childPath  (carries content, no renderer reads this field name)")
         }
@@ -265,7 +295,10 @@ function Walk-Spine {
     }
 }
 
-foreach ($f in (Get-GateSpineFiles -BuildDir $BuildDir -SpineDir $SpineDir)) {
+#  Enumerated ONCE into a variable: the incomplete-renderer-set guard below
+#  needs the file COUNT, and re-enumerating would let the two disagree.
+$spineFileList = @(Get-GateSpineFiles -BuildDir $BuildDir -SpineDir $SpineDir)
+foreach ($f in $spineFileList) {
     $j = Get-GateJson -Path $f.FullName
     if ($null -eq $j) { continue }
     Walk-Spine -Node $j -Path '' -File $f.Name
@@ -298,6 +331,42 @@ if (-not $Quiet) {
         Write-Host '  Fix the SPINE to the field names the renderer reads, or teach the renderer the field.' -ForegroundColor Yellow
         Write-Host '  A field that is deliberately not rendered is declared in contract.json under' -ForegroundColor Yellow
         Write-Host '  spineContract.unrenderedFields, with a written reason, so the next reader knows.' -ForegroundColor Yellow
+    }
+}
+
+#  AN INCOMPLETE RENDERER SET LOOKS EXACTLY LIKE A BROKEN SPINE, and the
+#  difference is SHAPE, not volume. A real unread-field defect is LOCAL: an
+#  author mistypes a field name in one file. When the SAME field name is
+#  unread in nearly every spine file, nothing was mistyped - the renderer that
+#  reads it was not found. This build keeps two of its four renderers in the
+#  BUILD directory; a run that cannot see them parsed 2 instead of 4 and
+#  reported 911 of 2063 content fields unread, none of it real. A share
+#  threshold was tried first and rejected: 44 per cent looks unremarkable, and
+#  the tell was never the proportion.
+$fileCount = $spineFileList.Count
+if ($u.Count -gt 0 -and $fileCount -ge 4) {
+    $byName = @{}
+    foreach ($entry in @($unread)) {
+        $mm = [regex]::Match([string]$entry, '^(?<f>\S+)\s*->\s*(?<p>[^\s(]+)')
+        if (-not $mm.Success) { continue }
+        #  The TOP-level name only: slides[3].notes and slides[0].notes are one
+        #  field name, or every indexed path would count as its own defect.
+        $nm = ($mm.Groups['p'].Value -split '[.\[]')[0]
+        if (-not $byName.ContainsKey($nm)) { $byName[$nm] = New-Object 'System.Collections.Generic.HashSet[string]' }
+        [void]$byName[$nm].Add($mm.Groups['f'].Value)
+    }
+    $universal = @($byName.Keys | Where-Object { $byName[$_].Count -ge [int][Math]::Ceiling($fileCount * 0.8) } | Sort-Object)
+    if ($universal.Count -ge 5) {
+        Write-Host ''
+        Write-Host ("  X RENDERER SET LOOKS INCOMPLETE - not a spine defect: {0} field name(s) are unread in at least 80% of the {1} spine files." -f $universal.Count, $fileCount) -ForegroundColor Red
+        Write-Host ("    {0}" -f ($universal -join ', ')) -ForegroundColor Yellow
+        Write-Host ("    {0} renderer(s) were parsed: {1}" -f $renderers.Count, (($renderers | ForEach-Object { Split-Path $_ -Leaf }) -join ', ')) -ForegroundColor Yellow
+        Write-Host '    A spine does not go wrong the same way in every file at once. Check that every' -ForegroundColor Yellow
+        Write-Host '    renderer this build uses is visible - build-specific renderers live in the BUILD' -ForegroundColor Yellow
+        Write-Host '    directory, not the skill - and pass -RendererPath if they are elsewhere.' -ForegroundColor Yellow
+        Write-Host '    This is still a FAILURE. It is a differently-caused one, and the field list above' -ForegroundColor Yellow
+        Write-Host '    is the diagnosis rather than a work order.' -ForegroundColor Yellow
+        exit 14
     }
 }
 

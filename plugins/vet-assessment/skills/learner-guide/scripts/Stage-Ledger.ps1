@@ -746,7 +746,22 @@ function Write-StageLedgerReport {
     }
 }
 
-if ($Check -and $BuildDir) {
+#  -Check with no -BuildDir used to fall through this condition and exit 0,
+#  having checked no ledger at all - a caller that mistyped the path got a
+#  clean delivery gate. A blocking rule with a missing input FAILS and names
+#  the input; it never passes quietly. Dot-sourcing this file for its
+#  functions asks for neither and must stay silent, so the refusal is bound
+#  to -Check having been asked for.
+if ($Check) {
+    if (-not $BuildDir) {
+        Write-Host '  X Stage-Ledger: -Check was asked for without -BuildDir. There is no ledger to check.' -ForegroundColor Red
+        Write-Host '    Pass -BuildDir <build>. This gate does not pass on a missing input.' -ForegroundColor Yellow
+        exit 2
+    }
+    if (-not (Test-Path -LiteralPath $BuildDir)) {
+        Write-Host ("  X Stage-Ledger: build directory not found: {0}" -f $BuildDir) -ForegroundColor Red
+        exit 2
+    }
     $r = Test-StageLedger -BuildDir $BuildDir
     $r | Write-StageLedgerReport
     if (-not $r.Ok) { exit 6 }

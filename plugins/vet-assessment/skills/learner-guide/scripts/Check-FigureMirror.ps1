@@ -182,6 +182,11 @@ param(
     #  The withholding vocabulary. A row whose LABEL or CELLS carry any of it
     #  is a withheld row, pointer text and all. Tested on the raw text.
     [string] $WithheldRx = '(?i)\b(your turn|yours to (complete|work|fill)|you write this|write here|left for you|complete this row|for you to complete|to be completed)\b',
+    #  Where the table channel of this gate is written for Test-GridDisposition
+    #  to fold in. Written on EVERY run, pass or fail, because a gate that only
+    #  reports when it fails leaves the disposition gate unable to tell a clean
+    #  table channel from an absent one.
+    [string] $ReportPath,
     [switch] $Quiet
 )
 
@@ -712,6 +717,7 @@ if (-not $Quiet) {
 }
 
 $found = 0
+$reportRows = New-Object System.Collections.Generic.List[object]
 #  Spine pairs are judged first, then rendered ones, because a RENDERED COPY
 #  of a cleared spine table is the same table: when every answered row of the
 #  rendered pair is an answered row of a cleared spine pair on the same grid,
@@ -722,7 +728,26 @@ $clearedRows = @{}   # grid id -> hashset of answered-row signatures cleared on 
 $ordered = @($acc.Keys | Sort-Object | Where-Object { -not $acc[$_].Rendered }) + @($acc.Keys | Sort-Object | Where-Object { $acc[$_].Rendered })
 foreach ($k in $ordered) {
     $a = $acc[$k]
-    if ($a.Filled -le $MaxWorkedPerGrid) { continue }
+    #  EVERY pair is recorded, including the ones under the exemplar allowance
+    #  and the ones an allow-list clears, because the disposition gate needs to
+    #  know a grid was examined and found within limits - which is a different
+    #  fact from a grid this gate never saw.
+    $reportRows.Add([pscustomobject]@{
+        file        = $a.File
+        grid        = $a.Grid
+        filled      = $a.Filled
+        rendered    = [bool]$a.Rendered
+        slots       = @($a.Slots)
+        matchedOn   = @($a.How)
+        where       = @($a.Where)
+        allowKey    = ("{0}|{1}" -f $a.File, $a.Grid)
+        overLimit   = ($a.Filled -gt $MaxWorkedPerGrid)
+        disposition = 'pending'
+        clearedBy   = ''
+        reason      = ''
+    })
+    $rec = $reportRows[$reportRows.Count - 1]
+    if ($a.Filled -le $MaxWorkedPerGrid) { $rec.disposition = 'within-allowance'; continue }
 
     $cleared = $null; $clearedBy = ''
     foreach ($s in $a.Slots) { if ($allow.ContainsKey($s)) { $cleared = $allow[$s]; $clearedBy = "slot $s" } }
@@ -738,6 +763,9 @@ foreach ($k in $ordered) {
             if (-not $clearedRows.ContainsKey($a.Grid)) { $clearedRows[$a.Grid] = [pscustomobject]@{ Key = $clearedBy; Why = $cleared; Rows = (New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)) } }
             foreach ($s in $a.Rows) { [void]$clearedRows[$a.Grid].Rows.Add($s) }
         }
+        $rec.disposition = 'cleared'
+        $rec.clearedBy = $clearedBy
+        $rec.reason = [string]$cleared
         if (-not $Quiet) {
             Write-Host ''
             Write-Host ("  ok {0} vs {1} - {2} assessed row(s) answered, cleared at Stage 3d on {3}: {4}" -f $a.File, $a.Grid, $a.Filled, $clearedBy, $cleared) -ForegroundColor DarkGray
@@ -746,6 +774,7 @@ foreach ($k in $ordered) {
     }
 
     $found++
+    $rec.disposition = 'over-limit'
     Write-Host ''
     Write-Host ("  X {0}{1}" -f $a.File, $(if ($a.Rendered) { '  (rendered table - the placed document)' } else { '' })) -ForegroundColor Red
     Write-Host ("     reproduces {0}  (matched on {1})" -f $a.Grid, ($a.How -join '; ')) -ForegroundColor Yellow
@@ -754,6 +783,29 @@ foreach ($k in $ordered) {
     if ($a.Sample) { Write-Host ("       for instance: {0}" -f $a.Sample) -ForegroundColor DarkGray }
     if ($a.Slots.Count) { Write-Host ("       figure slot(s): {0}" -f ($a.Slots -join ', ')) -ForegroundColor DarkGray }
     Write-Host ("       allow key if cleared by reading the task: {0}" -f $fileKey) -ForegroundColor DarkGray
+}
+
+#  The table channel, written on every run. Test-GridDisposition reads it by
+#  the contract documented in its header: file, grid, filled. Everything else
+#  here is context for a human reading the same file.
+if (-not $ReportPath) { $ReportPath = Join-Path $BuildDir 'figure-mirror-report.json' }
+try {
+    $payload = [pscustomobject]@{
+        gate            = $GATE
+        ranAt           = (Get-Date).ToString('s')
+        buildDir        = $BuildDir
+        maxWorkedPerGrid = $MaxWorkedPerGrid
+        pairs           = $reportRows.ToArray()
+        overLimit       = $found
+        verdict         = $(if ($found -eq 0) { 'pass' } else { 'fail' })
+    }
+    [IO.File]::WriteAllText($ReportPath, ($payload | ConvertTo-Json -Depth 8), (New-Object System.Text.UTF8Encoding($false)))
+    if (-not $Quiet) { Write-Host ("  table channel written to {0} ({1} pair(s))" -f $ReportPath, $reportRows.Count) -ForegroundColor DarkGray }
+}
+catch {
+    #  A report that cannot be written is a gate defect, not a content verdict:
+    #  say so loudly and keep the content verdict intact.
+    Write-Host ("  ! {0}: could not write {1}: {2}" -f $GATE, $ReportPath, $_.Exception.Message) -ForegroundColor Yellow
 }
 
 Write-Host ''

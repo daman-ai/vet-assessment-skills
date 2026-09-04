@@ -48,6 +48,98 @@
 
 # No Set-StrictMode - dot-sourced.
 
+function Get-DeckIdentityStringFromAssets {
+    <#  The identity strings of EVERY brand whose profile is on disk, plus the
+        tagline words the templates ship, harvested from the branding profiles
+        rather than typed. Read the field NAMES from the RTO profile schema
+        where it declares them, so a field added to the schema is covered here
+        without editing this file - a hand-listed check set is the failure this
+        skill has shipped more than once.
+
+        Returns every brand's strings, not just the template's, because the
+        caller may not know which brand's template it was handed, and a string
+        that belongs to some RTO's identity is never a placeholder to fill.  #>
+    [CmdletBinding()]
+    param([string] $AssetsDir)
+
+    $out = New-Object System.Collections.Generic.List[string]
+    $roots = New-Object System.Collections.Generic.List[string]
+    if ($AssetsDir) { $roots.Add($AssetsDir) }
+    else {
+        #  $PSScriptRoot is set when this file is dot-sourced by path, which is
+        #  how every caller loads it. It is EMPTY when the text is run as a
+        #  scriptblock - a known harness artefact on this machine - so each
+        #  candidate is guarded and an unresolved root is skipped rather than
+        #  crashing. Deriving nothing is then caught by the caller, loudly.
+        $here = ''
+        $cands = @($PSScriptRoot)
+        if ($MyInvocation.MyCommand.Path) { $cands += (Split-Path -Parent $MyInvocation.MyCommand.Path) }
+        if (Get-Variable -Name SkillDir -Scope Global -ErrorAction SilentlyContinue) { $cands += (Join-Path $global:SkillDir 'scripts') }
+        foreach ($c in $cands) {
+            if ("$c".Trim() -and (Test-Path -LiteralPath "$c")) { $here = "$c"; break }
+        }
+        if ($here) {
+            $skill = Split-Path -Parent $here
+            if ($skill) {
+                $roots.Add((Join-Path $skill 'assets'))
+                $sib = Split-Path -Parent $skill
+                if ($sib) { $roots.Add((Join-Path $sib 'assessment\assets')) }
+            }
+        }
+    }
+
+    #  Field names from the schema when it declares them; the four that name an
+    #  organisation otherwise. Codes and names only - never an address or a
+    #  phone number, which are long enough to collide with real slide text.
+    $fields = @('tradingName', 'legalEntity', 'shortName', 'rtoCode', 'cricosCode', 'website', 'domain', 'accreditationBody')
+    foreach ($r in $roots) {
+        $schema = Join-Path $r 'rto-profile.schema.json'
+        if (Test-Path -LiteralPath $schema) {
+            try {
+                $sj = [IO.File]::ReadAllText($schema) | ConvertFrom-Json
+                $decl = @()
+                if ($sj.PSObject.Properties.Name -contains 'identityFields') {
+                    foreach ($k in @('required', 'optional')) {
+                        if ($sj.identityFields.PSObject.Properties.Name -contains $k) {
+                            $decl += @($sj.identityFields.$k | ForEach-Object { [string]$_ })
+                        }
+                    }
+                }
+                if ($decl.Count -gt 0) { $fields = @($decl | Where-Object { $_ -notmatch '(?i)address|phone' }) }
+            }
+            catch { }
+        }
+    }
+
+    foreach ($r in $roots) {
+        if (-not (Test-Path -LiteralPath $r)) { continue }
+        foreach ($f in @(Get-ChildItem -LiteralPath $r -Filter 'branding.*.json' -File -ErrorAction SilentlyContinue)) {
+            try { $j = [IO.File]::ReadAllText($f.FullName) | ConvertFrom-Json } catch { continue }
+            #  Identity lives under an "rto" object in a branding profile and
+            #  at the root in an RTO profile pack. Search both, plus the
+            #  tagline the templates print, which is template text and never a
+            #  placeholder. Looking only at the root returned nothing at all
+            #  and would have thrown on every build.
+            $bags = New-Object System.Collections.Generic.List[object]
+            $bags.Add($j)
+            foreach ($nest in @('rto', 'identity', 'organisation')) {
+                if ($j.PSObject.Properties.Name -contains $nest -and $j.$nest -is [pscustomobject]) { $bags.Add($j.$nest) }
+            }
+            $wanted = @($fields) + @('tagline')
+            foreach ($bag in $bags) {
+                foreach ($name in $wanted) {
+                    if ($bag.PSObject.Properties.Name -notcontains $name) { continue }
+                    $v = "$($bag.$name)".Trim()
+                    if ($v.Length -lt 4) { continue }
+                    if (-not $out.Contains($v)) { $out.Add($v) }
+                    if ($name -eq 'rtoCode')    { $x = "RTO $v";    if (-not $out.Contains($x)) { $out.Add($x) } }
+                    if ($name -eq 'cricosCode') { $x = "CRICOS $v"; if (-not $out.Contains($x)) { $out.Add($x) } }
+                }
+            }
+        }
+    }
+    return $out.ToArray()
+}
 function Get-DeckPlaceholderPhrase {
     <#  Every distinct run of text the TEMPLATE ships, as the placeholder
         vocabulary. Harvested rather than hard-coded, so the list cannot drift
@@ -56,7 +148,26 @@ function Get-DeckPlaceholderPhrase {
         Footer, RTO and tagline strings are excluded: those are template text
         that is SUPPOSED to survive into the built deck.  #>
     [CmdletBinding()]
-    param([Parameter(Mandatory)][string] $TemplatePath)
+    param(
+        [Parameter(Mandatory)][string] $TemplatePath,
+        #  The template RTO's own identity strings - trading name, RTO code,
+        #  CRICOS code, tagline. They are template text that is SUPPOSED to
+        #  survive into the built deck, so they must not enter the placeholder
+        #  vocabulary. Until 4 Sep 2026 one RTO's were TYPED HERE, which made
+        #  this gate wrong for every other RTO: a second college's template
+        #  would have its own branding read as unfilled placeholder text. The
+        #  caller passes them; absent, they are derived from the branding
+        #  profiles on disk. Nothing about any RTO is written into this file.
+        [string[]] $TemplateIdentity
+    )
+
+    if ($null -eq $TemplateIdentity -or @($TemplateIdentity | Where-Object { "$_".Trim() }).Count -eq 0) {
+        $TemplateIdentity = @(Get-DeckIdentityStringFromAssets)
+    }
+    $identityRx = @()
+    foreach ($s in @($TemplateIdentity | Where-Object { "$_".Trim().Length -ge 4 })) {
+        $identityRx += [regex]::Escape("$s".Trim())
+    }
 
     $wd = Expand-Docx -Path $TemplatePath
     try {
@@ -66,9 +177,11 @@ function Get-DeckPlaceholderPhrase {
             foreach ($m in [regex]::Matches($xml, '<a:t>([^<]*)</a:t>')) {
                 $t = $m.Groups[1].Value.Trim()
                 if ($t.Length -lt 8) { continue }                       # digits, bullets, arrows
-                if ($t -match 'Meridian Vocational College') { continue }
-                if ($t -match 'RTO 45039|CRICOS 03551M')     { continue }
-                if ($t -match 'INNOVATION')                  { continue }
+                #  Derived, never typed: the template RTO's own identity and
+                #  tagline text belongs to the template and is not a placeholder.
+                $isIdentity = $false
+                foreach ($rx in $identityRx) { if ($t -match $rx) { $isIdentity = $true; break } }
+                if ($isIdentity) { continue }
                 # A single ALL-CAPS word is a structural KICKER - "OVERVIEW",
                 # "SECTION", "REFERENCE" - not an instruction to replace
                 # something. A correct agenda slide legitimately reuses the

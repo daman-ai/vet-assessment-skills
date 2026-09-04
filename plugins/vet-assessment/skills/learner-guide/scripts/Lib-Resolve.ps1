@@ -1,4 +1,4 @@
-<#
+﻿<#
     Lib-Resolve.ps1
 
     Locate and load the shared document library. DOT-SOURCE THIS FILE:

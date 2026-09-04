@@ -85,7 +85,7 @@
 param(
     [string] $BuildDir,
     [string] $PackDir,
-    [string] $SkillDir = (Split-Path -Parent $PSScriptRoot),
+    [string] $SkillDir,
     [string] $Brand,
     [string] $Variant,
     [string] $Rto,
@@ -100,6 +100,9 @@ param(
     [string] $Deck,
     [string] $PlanPath,
     [string] $UnitExtract,
+    #  Where this runner's verdict is written so a later stage can prove the
+    #  gates postdate the last mutation. Default <BuildDir>\7c-results.json.
+    [string] $ResultPath,
     [string] $MirrorScript,
     [string] $LeakageScript,
     #  Extra arguments for those two gates, e.g. -LeakageArgs @{ Shingle = 15;
@@ -122,6 +125,18 @@ param(
     [int] $TimeoutMinutes = 30,
     [switch] $SelfTest
 )
+
+#  $PSScriptRoot is EMPTY inside a PARAMETER DEFAULT when the script is run as
+#  `powershell -File`, so a default that called Split-Path on it threw inside
+#  the parameter block: the script exited 1 having never run a single check -
+#  the same exit code it uses for a real finding, which is why nobody noticed.
+#  Resolved here instead, where the automatic variable is populated, with a
+#  guarded fallback for the scriptblock case.
+if (-not $SkillDir) {
+    $__here = $PSScriptRoot
+    if (-not $__here -and $MyInvocation.MyCommand.Path) { $__here = Split-Path -Parent $MyInvocation.MyCommand.Path }
+    if ($__here) { $SkillDir = Split-Path -Parent $__here }
+}
 
 $ErrorActionPreference = 'Stop'
 
@@ -394,6 +409,37 @@ function New-GateInvocationPlan {
             $plan.Add((Entry -Name 'mirror' -Kind 'script' -Title 'ANSWER-GRID MIRROR (Check-FigureMirror)' -Script $In.MirrorScript -GateArgs $ma -Refused $bad))
         }
 
+        # ---- the grid band: shape mirror, row coverage, then ONE disposition
+        #  Placement is a mutation of the page, and the standing rule is that a
+        #  mutation is followed by the WHOLE gate set. These three block at 3c
+        #  on the spine; they re-run here because a placed figure, a caption or
+        #  an alt-text string can answer an assessed row that the spine did not.
+        #  Coverage and leakage are ONE verdict for the reason section 15 gives:
+        #  gated apart, remediating one manufactures the other.
+        $gridBand = [ordered]@{
+            'shape-mirror'  = @{ Script = (Join-Path $scripts 'Check-ShapeMirror.ps1');  Title = 'ANSWER-SHAPE MIRROR (Check-ShapeMirror)' }
+            'row-coverage'  = @{ Script = (Join-Path $scripts 'Check-RowCoverage.ps1');  Title = 'ROW COVERAGE, whole spine (Check-RowCoverage)' }
+            'grid-disposal' = @{ Script = (Join-Path $scripts 'Test-GridDisposition.ps1'); Title = 'GRID DISPOSITION - one verdict per grid (Test-GridDisposition)' }
+        }
+        foreach ($gbName in $gridBand.Keys) {
+            $gbScript = $gridBand[$gbName].Script
+            $gbParams = @(Get-ScriptParameterName -Path $gbScript)
+            if ($gbParams.Count -eq 0) {
+                #  A gate that is absent or will not parse is a FAILURE naming it,
+                #  never a skip: a stage that lists a gate nobody ran is the false
+                #  green this runner exists to prevent.
+                $plan.Add((Entry -Name $gbName -Kind 'script' -Title $gridBand[$gbName].Title -Script $gbScript -GateArgs @{} -Refused "gate script not found or unparseable: $gbScript"))
+                continue
+            }
+            $gbArgs = [ordered]@{ BuildDir = $In.BuildDir }
+            if ($gbParams -contains 'SpineDir' -and $In.SpineDir) { $gbArgs['SpineDir'] = $In.SpineDir }
+            #  -Whole is not decoration: the disposition gate REFUSES a per-file
+            #  coverage report, because the floor that disposes a grid is the
+            #  whole-spine one.
+            if ($gbParams -contains 'Whole') { $gbArgs['Whole'] = $true }
+            if ($gbParams -contains 'UnitExtract' -and $In.UnitExtract) { $gbArgs['UnitExtract'] = $In.UnitExtract }
+            $plan.Add((Entry -Name $gbName -Kind 'script' -Title $gridBand[$gbName].Title -Script $gbScript -GateArgs $gbArgs))
+        }
         # ---- crossover, BOTH artefacts in one call
         $arts = @(@($In.Guide, $In.Deck) | Where-Object { $_ })
         $ia = [ordered]@{ Path = $arts; BuildDir = $In.BuildDir; Brand = $In.Brand }
@@ -704,6 +750,23 @@ if ($SelfTest) {
         if (@($id.Args['Path']).Count -eq 2) { Ok 'Check-Identity is handed BOTH artefacts in one call' } else { Bad 'Check-Identity not handed both artefacts' }
         $pl = @($p1 | Where-Object { $_.Name -eq 'placed' })
         if ($pl.Count -eq 1) { Ok 'Check-Figures runs after artwork' } else { Bad 'Check-Figures missing after artwork' }
+        # ---- the grid band: present, ordered, and -Whole threaded
+        #  The disposition gate REFUSES a per-file coverage report, so a band
+        #  that ran the coverage gate without -Whole would produce a verdict
+        #  the disposition gate then throws away - a pass that checked nothing.
+        $band = @('shape-mirror', 'row-coverage', 'grid-disposal')
+        $inBand = @($band | Where-Object { $gbn = $_; @($p1 | Where-Object { $_.Name -eq $gbn }).Count -eq 1 })
+        if ($inBand.Count -eq 3) { Ok 'the grid band runs after placement: shape mirror, row coverage, one disposition' }
+        else { Bad ('grid band incomplete after placement: ' + ((@($band | Where-Object { $inBand -notcontains $_ })) -join ', ')) }
+        $iShape = [array]::IndexOf(@($p1 | ForEach-Object { $_.Name }), 'shape-mirror')
+        $iCov   = [array]::IndexOf(@($p1 | ForEach-Object { $_.Name }), 'row-coverage')
+        $iDisp  = [array]::IndexOf(@($p1 | ForEach-Object { $_.Name }), 'grid-disposal')
+        $iMir = [array]::IndexOf(@($p1 | ForEach-Object { $_.Name }), 'mirror')
+        if ($iDisp -gt $iShape -and $iDisp -gt $iCov -and $iShape -ge 0 -and $iCov -ge 0 -and $iDisp -gt $iMir -and $iMir -ge 0) { Ok 'the disposition gate runs AFTER all three reports it reads, the table mirror included' }
+        else { Bad 'the disposition gate does not run after the three gates whose reports it reads' }
+        $cov = @($p1 | Where-Object { $_.Name -eq 'row-coverage' })
+        if ($cov.Count -eq 1 -and $null -ne $cov[0].Args -and $cov[0].Args.Contains('Whole') -and $cov[0].Args['Whole']) { Ok 'the coverage gate is threaded -Whole, the floor the disposition gate requires' }
+        else { Bad 'the coverage gate is not threaded -Whole; the disposition gate would refuse its report' }
         $lines = Get-ThreadedParameterLine -Plan (@($p1) + @($p2))
         $joined = $lines -join "`n"
         $missingInPrint = @($required | Where-Object { $joined -notmatch ('-' + [regex]::Escape($_) + '=') })
@@ -736,11 +799,21 @@ if ($SelfTest) {
         # ---- the job wrapper collects a result and survives a script that exits non-zero
         $stub = Join-Path $tmp 'stub_gate.ps1'
         [System.IO.File]::WriteAllText($stub, "param([string] `$BuildDir)`r`nWrite-Host 'X planted failure'`r`nexit 1`r`n", (New-Object System.Text.UTF8Encoding($true)))
+        #  READ THE PLANT BACK BEFORE ASSERTING ANYTHING ABOUT IT. A stub never
+        #  written, or written without its marker, makes the check below prove
+        #  nothing while still printing PASS - the shape that once recorded a
+        #  no-op plant as proof of a gate.
+        if (-not (Test-Path -LiteralPath $stub)) { Bad 'the planted failing stub was never written' }
+        elseif ([System.IO.File]::ReadAllText($stub).IndexOf('X planted failure', [System.StringComparison]::Ordinal) -lt 0) { Bad 'the planted failing stub does not carry its marker' }
+        else { Ok 'the planted failing stub was read back and carries its marker' }
         $se = [pscustomobject]@{ Name = 'stub'; Kind = 'script'; Title = 'stub'; Script = $stub; Args = @{ BuildDir = $build }; Produces = $null; Refused = $null }
         $sr = Invoke-GatePlan -Plan @($se) -SkillDir $SkillDir -TimeoutSeconds 120
         if (@($sr).Count -eq 1 -and -not @($sr)[0].Ok -and @($sr)[0].Text -match 'planted failure') { Ok 'the job wrapper captures a gate script''s text and its non-zero exit as a failure' } else { Bad ("job wrapper: ok=$(@($sr)[0].Ok) text='$(@($sr)[0].Text)' err='$(@($sr)[0].Error)'") }
         $stub2 = Join-Path $tmp 'stub_slow.ps1'
         [System.IO.File]::WriteAllText($stub2, "param([string] `$BuildDir)`r`nStart-Sleep -Seconds 60`r`nexit 0`r`n", (New-Object System.Text.UTF8Encoding($true)))
+        if (-not (Test-Path -LiteralPath $stub2)) { Bad 'the planted slow stub was never written' }
+        elseif ([System.IO.File]::ReadAllText($stub2).IndexOf('Start-Sleep', [System.StringComparison]::Ordinal) -lt 0) { Bad 'the planted slow stub does not carry its sleep' }
+        else { Ok 'the planted slow stub was read back and carries its sleep' }
         $se2 = [pscustomobject]@{ Name = 'slow'; Kind = 'script'; Title = 'slow'; Script = $stub2; Args = @{ BuildDir = $build }; Produces = $null; Refused = $null }
         $sr2 = Invoke-GatePlan -Plan @($se2) -SkillDir $SkillDir -TimeoutSeconds 3
         if (@($sr2).Count -eq 1 -and -not @($sr2)[0].Ok -and @($sr2)[0].Error -match 'timed out') { Ok 'a gate that overruns the timeout is stopped and reported as a failure' } else { Bad ("timeout: ok=$(@($sr2)[0].Ok) err='$(@($sr2)[0].Error)'") }
@@ -942,6 +1015,52 @@ foreach ($ln in (Get-ThreadedParameterLine -Plan $allPlan)) {
 }
 
 Write-Host ''
+#  THE RESULTS FILE. Until 4 Sep 2026 this runner printed its verdict and wrote
+#  nothing, so nothing on disk dated its own gates: Assert-FullRegateAfterMutation
+#  found seven of sixteen 7c members with no result at all, not because they had
+#  not run but because running them left no trace. A verdict that exists only in
+#  a terminal cannot be re-read by the stage that must prove the gates postdate
+#  the last mutation. Same shape as Run-SpineGates' 3c-results.json, on purpose.
+if (-not $ResultPath) { $ResultPath = Join-Path $BuildDir '7c-results.json' }
+try {
+    $gateRecords = New-Object System.Collections.Generic.List[object]
+    foreach ($e in $allPlan) {
+        $r = @($allRes | Where-Object { $_.Name -eq $e.Name })[0]
+        if ($null -eq $r) { continue }
+        $skipped = ($e.Name -eq 'deck' -and $e.Refused -and $SkipDeck)
+        $gateRecords.Add([pscustomobject]@{
+            name     = $e.Name
+            title    = $e.Title
+            script   = $e.Script
+            params   = @($e.Args.Keys | ForEach-Object { [string]$_ })
+            seconds  = $r.Seconds
+            verdict  = $(if ($skipped) { 'skipped-by-request' } elseif ($r.Refused) { 'refused' } elseif ($r.Ok) { 'pass' } else { 'fail' })
+            refused  = [bool]$r.Refused
+            reason   = [string]$r.Error
+            partial  = @($r.Partial)
+            produces = [string]$e.Produces
+        })
+    }
+    $payload = [pscustomobject]@{
+        runner       = 'Run-Gates'
+        ranAt        = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+        buildDir     = $BuildDir
+        guide        = $Guide
+        deck         = $Deck
+        afterArtwork = [bool]$AfterArtwork
+        skipDeck     = [bool]$SkipDeck
+        seconds      = [int]$sw.Elapsed.TotalSeconds
+        gates        = $gateRecords.ToArray()
+        verdict      = $(if ($rc -eq 0) { 'pass' } else { 'fail' })
+    }
+    [System.IO.File]::WriteAllText($ResultPath, ($payload | ConvertTo-Json -Depth 8), (New-Object System.Text.UTF8Encoding($false)))
+    Write-Host ("results written to {0} ({1} gate(s))" -f $ResultPath, $gateRecords.Count) -ForegroundColor DarkGray
+}
+catch {
+    #  A results file that cannot be written is a runner defect, not a content
+    #  verdict: say so and leave the content verdict alone.
+    Write-Host ("! could not write {0}: {1}" -f $ResultPath, $_.Exception.Message) -ForegroundColor Yellow
+}
 $failed = @($allRes | Where-Object { -not $_.Ok -and -not ($_.Name -eq 'deck' -and $SkipDeck) } | ForEach-Object { $_.Name })
 if ($rc -eq 0) { Write-Host ("ALL GATES PASS  ({0} gate(s), {1}s)" -f $allRes.Count, [int]$sw.Elapsed.TotalSeconds) -ForegroundColor Green }
 else           { Write-Host ("GATES FAILED: {0}  ({1}s)" -f ($failed -join ', '), [int]$sw.Elapsed.TotalSeconds) -ForegroundColor Red }

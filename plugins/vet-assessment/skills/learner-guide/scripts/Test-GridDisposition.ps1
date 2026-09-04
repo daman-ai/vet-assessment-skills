@@ -137,7 +137,7 @@ $mirrorEntries = 0
 if ($null -ne $mirror) {
     $entries = @()
     if ($mirror -is [System.Collections.IEnumerable] -and $mirror -isnot [string]) { $entries = @($mirror) }
-    else { $entries = @(Get-GateProp -Object $mirror -Names @('hits', 'grids', 'entries', 'results', 'findings') -Default @()) }
+    else { $entries = @(Get-GateProp -Object $mirror -Names @('hits', 'grids', 'pairs', 'entries', 'results', 'findings') -Default @()) }
     foreach ($e in $entries) {
         if ($null -eq $e) { continue }
         $mirrorEntries++
