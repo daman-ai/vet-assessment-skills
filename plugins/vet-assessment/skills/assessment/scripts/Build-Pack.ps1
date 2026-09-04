@@ -62,12 +62,25 @@ function Split-TemplateAtBody {
     if ($Kind -eq 'uat') {
         $sec = @(); foreach ($m in [regex]::Matches($DocumentXml, '<w:sectPr')) { $sec += $m.Index }
         if ($sec.Count -lt 3) {
-            throw "Expected 3 sectPr blocks in the UAT template, found $($sec.Count). The template has changed shape - re-check the seam before building."
+            throw "Expected at least 3 sectPr blocks in the UAT template, found $($sec.Count). The template has changed shape - re-check the seam before building."
         }
+        # RESUME AT THE LAST sectPr, NOT THE THIRD.
+        #
+        # The seam is defined by what it KEEPS and what it DROPS: keep the cover
+        # sheet (section 1) and the title page (section 2), drop every sample
+        # body section between them and the end, and pick the closing section
+        # properties back up. With exactly three sections the third IS the last,
+        # so this is identical to the previous behaviour.
+        #
+        # The MVC template issued 3 September 2026 carries FOUR sections - two
+        # sample body sections rather than one - and resuming at index 2 would
+        # have spliced the second sample body into every document behind the
+        # generated content. Indexing from the end is the shape-independent way
+        # to say "the closing section properties".
         $close = $DocumentXml.IndexOf('</w:p>', $sec[1])
         return @{
             Prefix = $DocumentXml.Substring(0, $close + 6)
-            Suffix = $DocumentXml.Substring($sec[2])
+            Suffix = $DocumentXml.Substring($sec[$sec.Count - 1])
         }
     }
 
