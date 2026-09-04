@@ -1,0 +1,81 @@
+{
+  "_comment": "Primary sources. Every requirement this skill cites must trace to a row here. Re-verify anything whose checkedOn is more than 90 days old and update checkedOn — never cite from memory.",
+  "checkedOn": "2026-09-04",
+  "sources": [
+    {
+      "id": "OS2025",
+      "title": "National Vocational Education and Training Regulator (Outcome Standards for NVR Registered Training Organisations) Instrument 2025",
+      "registerId": "F2025L00354",
+      "url": "https://www.legislation.gov.au/F2025L00354/asmade/text",
+      "textUrl": "https://www.legislation.gov.au/F2025L00354/asmade/2025-03-14/text/original/epub/OEBPS/document_1/document_1.html",
+      "commenced": "2025-07-01",
+      "checkedOn": "2026-09-04",
+      "structureVerified": true
+    },
+    {
+      "id": "CS2025",
+      "title": "National Vocational Education and Training Regulator (Compliance Standards for NVR Registered Training Organisations and Fit and Proper Person Requirements) Instrument 2025",
+      "registerId": "F2025L00355",
+      "url": "https://www.legislation.gov.au/F2025L00355/asmade/text",
+      "textUrl": "https://www.legislation.gov.au/F2025L00355/asmade/2025-03-14/text/original/epub/OEBPS/document_1/document_1.html",
+      "commenced": "2025-07-01",
+      "checkedOn": "2026-09-04",
+      "structureVerified": true,
+      "note": "Schedule 3 repeals the Standards for Registered Training Organisations (NVR registered training organisations) 2015 in full."
+    },
+    {
+      "id": "CRED2025",
+      "title": "Credential Policy — Standards for Registered Training Organisations",
+      "url": "https://content.training.gov.au/sites/default/files/2025-03/Credential%20Policy.pdf",
+      "practiceGuide": "https://www.asqa.gov.au/how-we-regulate/revised-standards-rtos/practice-guides/practice-guide-credential-policy",
+      "checkedOn": "2026-09-04",
+      "structureVerified": false,
+      "note": "Clause numbering NOT verified against the instrument. Fetch before citing a clause. Core credentials confirmed from ASQA/DEWR guidance: TAE40122, TAE40116 or TAE40110 to assess without direction; a person actively working towards TAE40122 or TAE50122 may deliver under direction and may not make assessment judgements, with satisfactory progress to completion within two years."
+    },
+    {
+      "id": "NC2018",
+      "title": "National Code of Practice for Providers of Education and Training to Overseas Students 2018",
+      "registerId": "F2017L01182",
+      "url": "https://www.legislation.gov.au/Details/F2017L01182",
+      "departmentUrl": "https://www.education.gov.au/esos-framework/national-code-practice-providers-education-and-training-overseas-students-2018",
+      "checkedOn": "2026-09-04",
+      "structureVerified": true,
+      "note": "Standard titles verified. Sub-clause numbering NOT verified — fetch before citing one."
+    },
+    {
+      "id": "ESOS2000",
+      "title": "Education Services for Overseas Students Act 2000",
+      "url": "https://www.legislation.gov.au/C2004A00757",
+      "checkedOn": "2026-09-04",
+      "structureVerified": false
+    },
+    {
+      "id": "INTEGRITY2025",
+      "title": "Education Legislation Amendment (Integrity and Other Measures) Act 2025",
+      "assent": "2025-12-04",
+      "inForce": "2025-12-05",
+      "url": "https://www.education.gov.au/esos-framework/changes-legislative-framework-overseas-students",
+      "asqaUrl": "https://www.asqa.gov.au/newsroom/latest-news/amendments-education-services-overseas-students-act-2000",
+      "checkedOn": "2026-09-04",
+      "structureVerified": false,
+      "note": "Section numbering of the amended ESOS Act NOT verified. Amends the ESOS Act to automatically cancel the registration of a provider (other than an approved school provider) that delivers to no overseas student for 12 consecutive months, measured from 1 January 2026."
+    },
+    {
+      "id": "CRICOSFREEZE",
+      "title": "Suspension on new CRICOS provider and course applications",
+      "url": "https://www.asqa.gov.au/newsroom/latest-news/suspension-new-cricos-applications",
+      "window": ["2026-05-19", "2027-05-19"],
+      "checkedOn": "2026-09-04",
+      "structureVerified": true,
+      "note": "No new CRICOS registration applications and no applications to add courses to an existing CRICOS registration, for private VET and ELICOS providers regulated by ASQA, for 12 months from 19 May 2026."
+    },
+    {
+      "id": "PRACTICEGUIDES",
+      "title": "ASQA Practice Guides to the 2025 Standards",
+      "url": "https://www.asqa.gov.au/how-we-regulate/revised-standards-rtos/practice-guides",
+      "checkedOn": "2026-09-04",
+      "class": "GUIDANCE",
+      "note": "Regulator guidance, not law. Cite as GUIDANCE, never as MANDATORY."
+    }
+  ]
+}

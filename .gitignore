@@ -18,3 +18,21 @@ mk*roll.json
 *_roll.json
 rpt_WiseNET*
 *.xls
+
+# Nothing from an auditor RUN belongs in here. An assurance ledger and its
+# deliverables describe an RTO's compliance failures in detail and often name
+# staff. They stay in the working folder on the RTO's own machine.
+assurance*.json
+deliverables/
+00-document-register.md
+01-gap-analysis*
+02-uplifted-policies/
+04-compliance-calendar*
+06-risk-register*
+08-verification-report.md
+
+# Working backups kept beside the scripts - not part of any skill
+*.bak
+*.bak2
+*.orig
+.bak-*/

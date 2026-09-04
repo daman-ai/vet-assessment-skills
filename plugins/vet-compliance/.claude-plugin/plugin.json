@@ -1,0 +1,8 @@
+{
+  "name": "vet-compliance",
+  "version": "1.0.0",
+  "description": "The RTO's own quality system, as opposed to its student-facing materials: the auditor skill (forward-looking RTO and CRICOS compliance work - registers every supplied document and flags references to the repealed 2015 Standards, builds one gap analysis row per requirement of the 2025 Standards for RTOs and the ESOS framework with a maturity rating that cannot be raised by a policy alone, uplifts the policies, then designs the evidence architecture, compliance calendar, RACI, registers, risk register, 12-month roadmap and three scenario tests, every requirement cited to a verified instrument and every deliverable rendered from one assurance ledger so they cannot disagree), and the pd skill (builds a ready-to-run professional development session pack for trainers and assessors - facilitator guide, slide deck, activity worksheets, group allocation cards, completed model-answer copies, and an attendance and evaluation record).",
+  "author": {
+    "name": "Meridian Vocational College / Adelaide Culinary Institute"
+  }
+}

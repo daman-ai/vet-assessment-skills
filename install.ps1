@@ -33,6 +33,8 @@ $skills = [ordered] @{
     'learner-guide' = 'vet-assessment'
     'docx-images'   = 'vet-assessment'
     'marking'       = 'vet-marking'
+    'auditor'       = 'vet-compliance'
+    'pd'            = 'vet-compliance'
 }
 
 # NOTE: rto-validation-docs is versioned in this repo (plugins/vet-marking/skills)
@@ -70,3 +72,5 @@ Write-Host '  - For marking: Microsoft Excel, to read the WiseNet .xls enrolment
 Write-Host ''
 Write-Host 'Use it in Claude Code with:  /assessment <UNITCODE> <QUALIFICATION> <MVC|ACI>' -ForegroundColor Green
 Write-Host '                            /marking <UNITCODE>' -ForegroundColor Green
+Write-Host '                            /auditor  - RTO and CRICOS compliance against the 2025 Standards' -ForegroundColor Green
+Write-Host '                            /pd       - a professional development session pack' -ForegroundColor Green

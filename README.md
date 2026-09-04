@@ -33,6 +33,7 @@ In Claude Code:
 /plugin marketplace add daman-ai/vet-assessment-skills
 /plugin install vet-assessment@vet-skills
 /plugin install vet-marking@vet-skills
+/plugin install vet-compliance@vet-skills
 ```
 
 **Zero-command for a whole team:** commit this to a shared project's `.claude/settings.json` and everyone who opens that project gets the plugin automatically:
@@ -42,7 +43,7 @@ In Claude Code:
   "extraKnownMarketplaces": {
     "vet-skills": { "source": { "source": "github", "repo": "daman-ai/vet-assessment-skills" } }
   },
-  "enabledPlugins": { "vet-assessment@vet-skills": true, "vet-marking@vet-skills": true }
+  "enabledPlugins": { "vet-assessment@vet-skills": true, "vet-marking@vet-skills": true, "vet-compliance@vet-skills": true }
 }
 ```
 
@@ -82,6 +83,18 @@ After a pack is delivered, build its teaching resources with:
 /learner-guide <UNITCODE>
 ```
 
+Assess the RTO itself against the 2025 Standards and the ESOS framework, and design the system that keeps it compliant:
+
+```
+/auditor
+```
+
+Build a professional development session pack for trainers and assessors:
+
+```
+/pd
+```
+
 ## What's inside
 
 ```
@@ -106,6 +119,16 @@ plugins/vet-marking/
                         the controlled assessment-validation document set: Parts A/B/C, the
                         Validation Plan, the Continuous Improvement Register and panel rosters,
                         against the Standards for RTOs 2025 (versioned here; installed per-project)
+
+plugins/vet-compliance/
+  skills/auditor/       the compliance architect: registers the RTO's documents, builds one gap
+                        analysis row per requirement of the 2025 Standards and the ESOS framework,
+                        uplifts the policies, then designs the evidence architecture, compliance
+                        calendar, registers, risk register and 12-month roadmap - all rendered from
+                        one assurance ledger, every requirement cited to a verified instrument
+  skills/pd/            the professional development pack: facilitator guide, slide deck, activity
+                        worksheets, group allocation cards, model-answer copies, attendance and
+                        evaluation record
 ```
 
 Brand facts live in `skills/assessment/assets/branding.<brand>.json` and the measured house profiles beside it. **A new RTO is added by measuring its approved artefacts** (see `references/house-standard.md`), never by copying another brand's profile.
