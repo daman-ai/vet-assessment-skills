@@ -525,8 +525,16 @@ function Get-BodyContentBox {
       or a table sized in percent rather than twips. The caller then leaves the
       front block at the margin, which is the current behaviour and is never
       worse than a guess.
+
+      -After takes a body-level node and measures the first table BELOW it.
+      The builder needs no such thing: it measures before it inserts anything,
+      so the first table in the body is the student's. A checker reading the
+      FINISHED file does — by then the first table is the feedback sheet the
+      builder just added, and measuring that would only ask whether the sheet
+      agrees with itself. Passing the page break measures the student's own
+      content, which is the thing the sheet is supposed to line up with.
     #>
-    param([Parameter(Mandatory)]$Pkg)
+    param([Parameter(Mandatory)]$Pkg, $After)
 
     $ns = $Pkg.Ns
 
@@ -545,7 +553,23 @@ function Get-BodyContentBox {
     $textW  = $pageW - $marL - $marR
     if ($textW -le 0) { return $null }
 
-    $tbl = $Pkg.Body.SelectSingleNode('.//w:tbl', $ns)
+    $tbl = $null
+    if ($After) {
+        $n = $After.NextSibling
+        while ($n) {
+            if ($n.LocalName -eq 'tbl' -and $n.NamespaceURI -eq $script:W) { $tbl = $n; break }
+            # A content control (w:sdt) WRAPS its content, so the student's own
+            # first table is very often not a body-level sibling at all. Walking
+            # siblings alone steps straight over it and measures the next table
+            # down — a different width — and the front block then reads as
+            # misaligned against a table the reader never sees first.
+            $inner = $n.SelectSingleNode('.//w:tbl', $ns)
+            if ($inner) { $tbl = $inner; break }
+            $n = $n.NextSibling
+        }
+    } else {
+        $tbl = $Pkg.Body.SelectSingleNode('.//w:tbl', $ns)
+    }
     if (-not $tbl) { return $null }
 
     $indNode = $tbl.SelectSingleNode('w:tblPr/w:tblInd', $ns)
@@ -669,6 +693,290 @@ function Add-ParagraphAfter {
     $NewParagraph
 }
 
+function New-SheetTable {
+    <#
+      Builds an empty w:tbl laid out like the RTO's Student Feedback Sheet:
+      hairline rules in the sheet's rule colour, cell margins that match the
+      template's, and a grid of the caller's column widths in twips.
+
+      WHY A TABLE AND NOT PARAGRAPHS. The standalone Student Feedback Sheet is
+      a table — banner rows in the accent colour, label cells on a tint, one
+      row per item across five columns. A marked copy whose feedback page was
+      a run of indented paragraphs read as a different document from the sheet
+      a non-submitting student in the same class received, which is exactly the
+      second layout the declaration page exists to avoid. Same tables, same
+      palette, one document to learn.
+
+      Indent is twips from the section's text margin and MAY BE NEGATIVE — the
+      student's own tables are often outdented past it, and the sheet has to
+      sit on their edge, not the margin's. Get-BodyContentBox measures it.
+    #>
+    param(
+        [Parameter(Mandatory)]$Doc,
+        [Parameter(Mandatory)][int[]]$Widths,
+        [int]$Indent = 0,
+        [string]$RuleColor = 'C3CBDA'
+    )
+    $tbl   = $Doc.CreateElement('w', 'tbl',   $script:W)
+    $tblPr = $Doc.CreateElement('w', 'tblPr', $script:W)
+    [void]$tbl.AppendChild($tblPr)
+
+    $total = ($Widths | Measure-Object -Sum).Sum
+    $tblW  = $Doc.CreateElement('w', 'tblW', $script:W)
+    [void]$tblW.SetAttribute('w',    $script:W, "$total")
+    [void]$tblW.SetAttribute('type', $script:W, 'dxa')
+    [void]$tblPr.AppendChild($tblW)
+
+    # tblPr children go in CT_TblPrBase order: tblW, tblInd, tblBorders,
+    # tblCellMar, tblLook. Out of order corrupts the document while still
+    # passing every well-formedness check.
+    if ($Indent -ne 0) {
+        $ind = $Doc.CreateElement('w', 'tblInd', $script:W)
+        [void]$ind.SetAttribute('w',    $script:W, "$Indent")
+        [void]$ind.SetAttribute('type', $script:W, 'dxa')
+        [void]$tblPr.AppendChild($ind)
+    }
+
+    $brd = $Doc.CreateElement('w', 'tblBorders', $script:W)
+    foreach ($side in 'top', 'left', 'bottom', 'right', 'insideH', 'insideV') {
+        $e = $Doc.CreateElement('w', $side, $script:W)
+        [void]$e.SetAttribute('val',   $script:W, 'single')
+        [void]$e.SetAttribute('sz',    $script:W, '4')
+        [void]$e.SetAttribute('space', $script:W, '0')
+        [void]$e.SetAttribute('color', $script:W, $RuleColor)
+        [void]$brd.AppendChild($e)
+    }
+    [void]$tblPr.AppendChild($brd)
+
+    $mar = $Doc.CreateElement('w', 'tblCellMar', $script:W)
+    foreach ($side in 'left', 'right') {
+        $e = $Doc.CreateElement('w', $side, $script:W)
+        [void]$e.SetAttribute('w',    $script:W, '10')
+        [void]$e.SetAttribute('type', $script:W, 'dxa')
+        [void]$mar.AppendChild($e)
+    }
+    [void]$tblPr.AppendChild($mar)
+
+    $look = $Doc.CreateElement('w', 'tblLook', $script:W)
+    [void]$look.SetAttribute('val',         $script:W, '04A0')
+    [void]$look.SetAttribute('firstRow',    $script:W, '1')
+    [void]$look.SetAttribute('lastRow',     $script:W, '0')
+    [void]$look.SetAttribute('firstColumn', $script:W, '1')
+    [void]$look.SetAttribute('lastColumn',  $script:W, '0')
+    [void]$look.SetAttribute('noHBand',     $script:W, '0')
+    [void]$look.SetAttribute('noVBand',     $script:W, '1')
+    [void]$tblPr.AppendChild($look)
+
+    $grid = $Doc.CreateElement('w', 'tblGrid', $script:W)
+    foreach ($w in $Widths) {
+        $gc = $Doc.CreateElement('w', 'gridCol', $script:W)
+        [void]$gc.SetAttribute('w', $script:W, "$w")
+        [void]$grid.AppendChild($gc)
+    }
+    [void]$tbl.AppendChild($grid)
+    $tbl
+}
+
+function Add-SheetRow {
+    <#
+      Appends one row to a table built by New-SheetTable.
+
+      $Cells is an array of hashtables, one per cell:
+        Width      twips the cell spans        (required)
+        Span       grid columns it covers      (default 1)
+        Fill       cell shading, hex, or none  (default none)
+        Paragraphs one or more w:p elements    (required)
+
+      A cell shaded in the accent colour gets WHITE rules rather than the
+      sheet's grey, which is what makes a banner row read as a solid band
+      instead of a boxed cell. That is the template's own treatment, measured.
+
+      -Header marks the row w:tblHeader, so a long item table repeats its
+      column headings on every page it runs onto. A student reading page two
+      of their own feedback should not have to page back to learn which column
+      is the issue and which is the fix.
+    #>
+    param(
+        [Parameter(Mandatory)]$Doc,
+        [Parameter(Mandatory)]$Table,
+        [Parameter(Mandatory)][hashtable[]]$Cells,
+        [int]$Height = 0,
+        [switch]$Header,
+        [string]$RuleColor = 'C3CBDA',
+        [string]$AccentColor = '234B8C'
+    )
+    $tr   = $Doc.CreateElement('w', 'tr',   $script:W)
+    $trPr = $Doc.CreateElement('w', 'trPr', $script:W)
+    [void]$tr.AppendChild($trPr)
+    [void]$trPr.AppendChild($Doc.CreateElement('w', 'cantSplit', $script:W))
+    if ($Height -gt 0) {
+        $h = $Doc.CreateElement('w', 'trHeight', $script:W)
+        [void]$h.SetAttribute('val', $script:W, "$Height")
+        [void]$trPr.AppendChild($h)
+    }
+    if ($Header) { [void]$trPr.AppendChild($Doc.CreateElement('w', 'tblHeader', $script:W)) }
+
+    foreach ($c in $Cells) {
+        $fill = if ($c.ContainsKey('Fill')) { "$($c.Fill)" } else { '' }
+        $span = if ($c.ContainsKey('Span')) { [int]$c.Span } else { 1 }
+
+        $tc   = $Doc.CreateElement('w', 'tc',   $script:W)
+        $tcPr = $Doc.CreateElement('w', 'tcPr', $script:W)
+        [void]$tc.AppendChild($tcPr)
+
+        # CT_TcPrBase order: tcW, gridSpan, tcBorders, shd, tcMar, vAlign.
+        $tcW = $Doc.CreateElement('w', 'tcW', $script:W)
+        [void]$tcW.SetAttribute('w',    $script:W, "$([int]$c.Width)")
+        [void]$tcW.SetAttribute('type', $script:W, 'dxa')
+        [void]$tcPr.AppendChild($tcW)
+
+        if ($span -gt 1) {
+            $gs = $Doc.CreateElement('w', 'gridSpan', $script:W)
+            [void]$gs.SetAttribute('val', $script:W, "$span")
+            [void]$tcPr.AppendChild($gs)
+        }
+
+        $edge = if ($fill -eq $AccentColor) { 'FFFFFF' } else { $RuleColor }
+        $brd  = $Doc.CreateElement('w', 'tcBorders', $script:W)
+        foreach ($side in 'top', 'left', 'bottom', 'right') {
+            $e = $Doc.CreateElement('w', $side, $script:W)
+            [void]$e.SetAttribute('val',   $script:W, 'single')
+            [void]$e.SetAttribute('sz',    $script:W, '4')
+            [void]$e.SetAttribute('space', $script:W, '0')
+            [void]$e.SetAttribute('color', $script:W, $edge)
+            [void]$brd.AppendChild($e)
+        }
+        [void]$tcPr.AppendChild($brd)
+
+        if ($fill) {
+            $shd = $Doc.CreateElement('w', 'shd', $script:W)
+            [void]$shd.SetAttribute('val',   $script:W, 'clear')
+            [void]$shd.SetAttribute('color', $script:W, 'auto')
+            [void]$shd.SetAttribute('fill',  $script:W, $fill)
+            [void]$tcPr.AppendChild($shd)
+        }
+
+        $mar = $Doc.CreateElement('w', 'tcMar', $script:W)
+        foreach ($pair in @(@('top', '50'), @('left', '90'), @('bottom', '50'), @('right', '90'))) {
+            $e = $Doc.CreateElement('w', $pair[0], $script:W)
+            [void]$e.SetAttribute('w',    $script:W, $pair[1])
+            [void]$e.SetAttribute('type', $script:W, 'dxa')
+            [void]$mar.AppendChild($e)
+        }
+        [void]$tcPr.AppendChild($mar)
+
+        $va = $Doc.CreateElement('w', 'vAlign', $script:W)
+        [void]$va.SetAttribute('val', $script:W, 'center')
+        [void]$tcPr.AppendChild($va)
+
+        # A w:tc with no w:p in it is the one table malformation Word refuses
+        # to open, so an empty cell still gets an empty paragraph.
+        $paras = @($c.Paragraphs | Where-Object { $_ })
+        if ($paras.Count -eq 0) { $paras = @($Doc.CreateElement('w', 'p', $script:W)) }
+        foreach ($p in $paras) { [void]$tc.AppendChild($p) }
+
+        [void]$tr.AppendChild($tc)
+    }
+    [void]$Table.AppendChild($tr)
+    $tr
+}
+
+function New-SheetParagraph {
+    <#
+      A paragraph sized and spaced for a feedback-sheet cell: the template's
+      tight line rule, and Arial by name.
+
+      THE FONT IS EXPLICIT ON PURPOSE. The standalone sheet's document default
+      is Arial 9pt; a student's own assessment is usually a themed 11pt. The
+      same runs dropped into their document without an rFonts would come out in
+      their theme font, and the sheet would read as a near-miss of itself
+      rather than the same sheet. Naming the face is what makes the two
+      documents match.
+    #>
+    param(
+        [Parameter(Mandatory)]$Doc,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Text,
+        [string]$Color = '000000',
+        [switch]$Bold,
+        [switch]$Italic,
+        [int]$SizeHalfPoints = 18,
+        [string]$Align,
+        [string]$Font = 'Arial'
+    )
+    $p   = $Doc.CreateElement('w', 'p',   $script:W)
+    $pPr = $Doc.CreateElement('w', 'pPr', $script:W)
+    [void]$p.AppendChild($pPr)
+
+    $sp = $Doc.CreateElement('w', 'spacing', $script:W)
+    [void]$sp.SetAttribute('before',   $script:W, '20')
+    [void]$sp.SetAttribute('after',    $script:W, '20')
+    [void]$sp.SetAttribute('line',     $script:W, '230')
+    [void]$sp.SetAttribute('lineRule', $script:W, 'auto')
+    [void]$pPr.AppendChild($sp)
+
+    if ($Align) {
+        $jc = $Doc.CreateElement('w', 'jc', $script:W)
+        [void]$jc.SetAttribute('val', $script:W, $Align)
+        [void]$pPr.AppendChild($jc)
+    }
+
+    $r   = $Doc.CreateElement('w', 'r',   $script:W)
+    $rPr = $Doc.CreateElement('w', 'rPr', $script:W)
+    [void]$r.AppendChild($rPr)
+
+    # CT_RPr order: rFonts, b, bCs, i, iCs, color, sz, szCs.
+    $rf = $Doc.CreateElement('w', 'rFonts', $script:W)
+    foreach ($a in 'ascii', 'eastAsia', 'hAnsi', 'cs') { [void]$rf.SetAttribute($a, $script:W, $Font) }
+    [void]$rPr.AppendChild($rf)
+    if ($Bold) {
+        [void]$rPr.AppendChild($Doc.CreateElement('w', 'b',   $script:W))
+        [void]$rPr.AppendChild($Doc.CreateElement('w', 'bCs', $script:W))
+    }
+    if ($Italic) {
+        [void]$rPr.AppendChild($Doc.CreateElement('w', 'i',   $script:W))
+        [void]$rPr.AppendChild($Doc.CreateElement('w', 'iCs', $script:W))
+    }
+    $col = $Doc.CreateElement('w', 'color', $script:W)
+    [void]$col.SetAttribute('val', $script:W, $Color)
+    [void]$rPr.AppendChild($col)
+    $sz = $Doc.CreateElement('w', 'sz', $script:W)
+    [void]$sz.SetAttribute('val', $script:W, "$SizeHalfPoints")
+    [void]$rPr.AppendChild($sz)
+    $szCs = $Doc.CreateElement('w', 'szCs', $script:W)
+    [void]$szCs.SetAttribute('val', $script:W, "$SizeHalfPoints")
+    [void]$rPr.AppendChild($szCs)
+
+    $t = $Doc.CreateElement('w', 't', $script:W)
+    $t.InnerText = $Text
+    Set-XmlSpacePreserve $t
+    [void]$r.AppendChild($t)
+    [void]$p.AppendChild($r)
+    $p
+}
+
+function Get-ScaledGrid {
+    <#
+      Scales a set of proportional column widths onto a real table width, with
+      the rounding error absorbed by the widest column so the parts still sum
+      to the whole. A grid whose columns do not add up to w:tblW draws at a
+      width nobody chose.
+    #>
+    param(
+        [Parameter(Mandatory)][int[]]$Proportions,
+        [Parameter(Mandatory)][int]$TotalWidth
+    )
+    $sum = ($Proportions | Measure-Object -Sum).Sum
+    if ($sum -le 0 -or $TotalWidth -le 0) { return $Proportions }
+    $out = @($Proportions | ForEach-Object { [int][Math]::Round($_ * $TotalWidth / $sum) })
+    $drift = $TotalWidth - ($out | Measure-Object -Sum).Sum
+    if ($drift -ne 0) {
+        $widest = 0
+        for ($i = 1; $i -lt $out.Count; $i++) { if ($out[$i] -gt $out[$widest]) { $widest = $i } }
+        $out[$widest] += $drift
+    }
+    $out
+}
+
 function New-PageBreakParagraph {
     <#
       A paragraph carrying nothing but a page break.
@@ -708,6 +1016,22 @@ function Get-ParagraphCell {
     $n = $Paragraph.ParentNode
     while ($n -and $n.Name -ne 'w:body') {
         if ($n.LocalName -eq 'tc') { return $n }
+        $n = $n.ParentNode
+    }
+    $null
+}
+
+function Get-ParagraphTable {
+    <#
+      The w:tbl a paragraph sits in, or $null where it sits in the body flow.
+      The builder uses it to keep an outcome line out of the heading rows of the
+      next question's table; the gate uses it to find the table an anchor names.
+      It lives here because both read it off the same file and must agree.
+    #>
+    param($Paragraph)
+    $n = $Paragraph.ParentNode
+    while ($n -and $n.Name -ne 'w:body') {
+        if ($n.LocalName -eq 'tbl') { return $n }
         $n = $n.ParentNode
     }
     $null
@@ -767,7 +1091,16 @@ function Add-CellLine {
 
     $runs = @($p.SelectNodes('.//w:r', $Ns))
     for ($i = 1; $i -lt $runs.Count; $i++) { [void]$runs[$i].ParentNode.RemoveChild($runs[$i]) }
-    if ($runs.Count -eq 0) { return $p }
+    # THE LAST PARAGRAPH IN A CELL IS OFTEN EMPTY. Cloning it gives a paragraph
+    # with no run to put the text in, and returning here appended a blank line
+    # and threw the value away â€” silently, and the build still reported the line
+    # as written. A cell that already carried text lost every comment appended
+    # to it. Make the run instead.
+    if ($runs.Count -eq 0) {
+        $r = $Cell.OwnerDocument.CreateElement('w', 'r', $script:W)
+        [void]$p.AppendChild($r)
+        $runs = @($r)
+    }
     $ts = @($runs[0].SelectNodes('.//w:t', $Ns))
     for ($i = 1; $i -lt $ts.Count; $i++) { [void]$ts[$i].ParentNode.RemoveChild($ts[$i]) }
     if ($ts.Count -eq 0) {

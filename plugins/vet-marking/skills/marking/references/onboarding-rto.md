@@ -32,19 +32,49 @@ types:
 - a **BSB** unit takes the variant of the qualification it sits in — **ask**
   where that is not obvious. Never guess a trading name onto a student record.
 
-**ACI's two sets of marking templates are not the same files.** That question is
-settled — measured 1 September 2026 — so do not point both profiles at one file.
-They differ in three ways that each matter:
+**All nine templates share one palette, and the feedback sheet shares one layout
+across the three brands** — the RTO's instruction of 2 September 2026. The three
+feedback templates are the same document and differ **only in the RTO row**; the
+SAR and the marking record keep each brand's own structure and were recoloured to
+the same values:
+
+| | |
+|---|---|
+| Accent — section headers | `234B8C` |
+| Row fills | `F0F2F7` / `F7F9FC` |
+| Rules | `C3CBDA` |
+| Unfilled field text | `8E96A3` |
+
+Page one of every marked copy takes the same accent, through
+`markedAssessment.headingColor`, so a class receiving some marked copies and some
+standalone sheets reads one document.
+
+**A shared layout is not a shared file.** The header, the footer, the logo and
+the document number stay each brand's own — Bush Tukka cannot issue a record
+under Meridian's logo, and a footer reading `MVC-CMS RTO # 45039` on an ACI
+record is a mis-issued document however right the body is. When a layout is
+carried across, replace **`word/document.xml` only**, in a copy of the receiving
+brand's own file, and check afterwards that every other part is byte-identical to
+what that brand supplied.
+
+The gate's `NoForeignRtoIdentity` reads every part of every record, headers and
+footers included, and fails on another registered provider's name. Nothing else
+in the gate reads a header, so a logo swap is otherwise invisible.
+
+**The SAR and the marking record are still each brand's own files**, measured
+1 September 2026, so do not point two profiles at one of those. They differ in
+ways that each matter:
 
 | | `aci-culinary` | `aci-construction` |
 |---|---|---|
 | RTO row | pre-filled with the identity line | `[ Insert RTO name and code ]`, filled by the builder |
-| Placeholder grey | `9AA3B2` | `8A939C` |
-| Feedback sheet | details table carries an RTO row | no RTO row |
+| Document numbers | its own | its own |
 
-The placeholder colour is the one that bites quietly: the gate's
-`NoPlaceholderStyling` check looks for that exact value, so a profile carrying
-the other variant's grey cannot see a field that was never filled.
+`styling.placeholderColor` is the setting that bites quietly: the gate's
+`NoPlaceholderStyling` looks for that exact value, so a profile left on a colour
+its templates no longer use cannot see a field that was never filled. All three
+now read `8E96A3`, which is the grey the shared feedback layout uses; it was
+`9AA3B2` and `8A939C` while the two ACI sheets were their own designs.
 
 ## Onboarding a new RTO, or a revised template
 
@@ -88,6 +118,12 @@ against the measurement. The fields that matter most:
   including the punctuation. A label matched loosely will match the wrong box.
 - **`styling.placeholderColor`** — so the gate can see a field that was never
   filled.
+- **`styling.feedbackAccentColor`**, **`styling.feedbackSheetFill`**,
+  **`styling.feedbackSheetRule`** — the Student Feedback Sheet's banner, label
+  tint and hairline rule, measured from that RTO's own sheet. The marked copy
+  rebuilds the sheet on page one from these, so a profile that leaves them out
+  gets the house values (`234B8C` / `F0F2F7` / `C3CBDA`) and a feedback page
+  that does not match the standalone sheet the same class receives.
 
 ### 4. Remove the hard stop
 

@@ -1,0 +1,13 @@
+[
+  {
+    "_comment": "Two students, one observation sheet, same checklist. Fictional. Two paragraphs each, twenty words a paragraph, per the RTO's revised standard of 2 September 2026. Neither opening sentence, sentence shape nor descriptive phrase is shared, and either comment identifies its student with the name covered. Run scripts/Test-ObservationComments.ps1 over this file to see the standard pass.",
+    "student": "Amara Nwosu",
+    "box": "Occasion 1",
+    "text": "Selected the loading dock and rated the pallet stack 4 for likelihood. Boots and hi-vis went on first.\n\nEscalated the blocked exit to the site supervisor. The damaged pallet was tagged out on the spot."
+  },
+  {
+    "student": "Tomas Ruiz",
+    "box": "Occasion 1",
+    "text": "Chose the cold store and measured the aisle at 900 mm. Freezer jacket and gloves went on before entry.\n\nHis hazard sheet named ice build-up near the evaporator. Another participant's broken light was added and attributed."
+  }
+]

@@ -1,0 +1,163 @@
+﻿{
+    "_comment":  "Cached training.gov.au Pre-requisite unit lookups, keyed by unit code. Each entry records the endpoint it came from and the date it was read, so a marking run is reproducible and an auditor can see when the check was made. Only successful lookups are cached: an unknown is never stored, because a cached unknown would look like an answer.",
+    "_endpoint":  "https://training.gov.au/api/training/\u003cCODE\u003e?api-version=1.0\u0026include=all",
+    "BSBESB401":  {
+                      "unit":  "BSBESB401",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBESB401?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBESB401/unitdetails",
+                      "checkedOn":  "2026-09-02",
+                      "note":  null
+                  },
+    "CPCCCM2008":  {
+                       "unit":  "CPCCCM2008",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "CPCCWHS2001",
+                                                 "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/CPCCCM2008?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCCM2008/unitdetails",
+                       "checkedOn":  "2026-09-02",
+                       "note":  null
+                   },
+    "CPCCCM2012":  {
+                       "unit":  "CPCCCM2012",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "CPCCWHS2001",
+                                                 "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/CPCCCM2012?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCCM2012/unitdetails",
+                       "checkedOn":  "2026-09-02",
+                       "note":  null
+                   },
+    "CPCCCO2013":  {
+                       "unit":  "CPCCCO2013",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "CPCCWHS2001",
+                                                 "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/CPCCCO2013?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCCO2013/unitdetails",
+                       "checkedOn":  "2026-09-03",
+                       "note":  null
+                   },
+    "CPCCOM1014":  {
+                       "unit":  "CPCCOM1014",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCOM1014?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCOM1014/unitdetails",
+                       "checkedOn":  "2026-09-02",
+                       "note":  null
+                   },
+    "CPCCOM2001":  {
+                       "unit":  "CPCCOM2001",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "CPCCWHS2001",
+                                                 "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/CPCCOM2001?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCOM2001/unitdetails",
+                       "checkedOn":  "2026-09-03",
+                       "note":  null
+                   },
+    "CPCCWHS1001":  {
+                        "unit":  "CPCCWHS1001",
+                        "status":  "none",
+                        "prerequisites":  [
+
+                                          ],
+                        "prerequisitesConfirmedNone":  true,
+                        "source":  "https://training.gov.au/api/training/CPCCWHS1001?api-version=1.0\u0026include=all",
+                        "pageUrl":  "https://training.gov.au/training/details/CPCCWHS1001/unitdetails",
+                        "checkedOn":  "2026-09-03",
+                        "note":  null
+                    },
+    "CPCCWHS2001":  {
+                        "unit":  "CPCCWHS2001",
+                        "status":  "none",
+                        "prerequisites":  [
+
+                                          ],
+                        "prerequisitesConfirmedNone":  true,
+                        "source":  "https://training.gov.au/api/training/CPCCWHS2001?api-version=1.0\u0026include=all",
+                        "pageUrl":  "https://training.gov.au/training/details/CPCCWHS2001/unitdetails",
+                        "checkedOn":  "2026-09-03",
+                        "note":  null
+                    },
+    "CPCWHS1001":  {
+                       "unit":  "CPCWHS1001",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCWHS1001?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCWHS1001/unitdetails",
+                       "checkedOn":  "2026-09-03",
+                       "note":  null
+                   },
+    "SITHPAT016":  {
+                       "unit":  "SITHPAT016",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "SITXFSA005",
+                                                 "title":  "Use hygienic practices for food safety"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/SITHPAT016?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITHPAT016/unitdetails",
+                       "checkedOn":  "2026-09-02",
+                       "note":  null
+                   },
+    "SITXFSA006":  {
+                       "unit":  "SITXFSA006",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXFSA006?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXFSA006/unitdetails",
+                       "checkedOn":  "2026-09-02",
+                       "note":  null
+                   },
+    "SITXWHS006":  {
+                       "unit":  "SITXWHS006",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXWHS006?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXWHS006/unitdetails",
+                       "checkedOn":  "2026-09-02",
+                       "note":  null
+                   }
+}

@@ -55,10 +55,25 @@ should make alone, and it is not one that should happen by silence.
 
 One learner can hold two enrolments in the same course offer and appear on two
 rows with the same name and different `RefInternal` IDs. The example report has
-exactly that: two rows reading *Mei Tanaka*, `MVC00366` and `MVC00387`,
+exactly that: two rows reading *Alex Fairweather*, `MVC3000901` and `MVC3000902`,
 attached to different sets of units.
 
 Match on the ID. A name-based match merges two students into one record.
+
+## Pending enrolment — listed, never marked
+
+A student whose **Status** column reads *Pending* has an enrolment that has not
+started. There is nothing to expect from them and no result to record, so they
+are not marked, whatever their unit cell says. A SAR produced for one of them
+states that an assessment happened on a date they were not yet enrolled for.
+
+They are reported under **PENDING ENROLMENT**, with the date their enrolment
+starts, rather than dropped in silence: *not on the list* and *not yet enrolled*
+are different answers to the question the assessor is asking.
+`Resolve-MarkingLedger.ps1` refuses a ledger that carries one of them.
+
+This is not the same as **ENROLLED, RESULT PENDING**, which is about outcome
+codes 70, 85 and 90 recorded against the unit itself.
 
 ## Missing surnames
 
@@ -91,7 +106,67 @@ A legacy `.xls` is an OLE compound file; there is no reading it without Excel.
 The importer says so plainly rather than half-working, and suggests saving the
 report as `.xlsx` or supplying the student list directly.
 
+## Does the student hold the unit's prerequisite?
+
+The matrix carries one column per unit, so the prerequisite has a column too.
+Pass it in and the importer classifies every student required to submit:
+
+```bash
+powershell -File scripts/Import-WisenetMatrix.ps1 -Path rpt_WiseNET_0217.xls -Unit SITHPAT016 -Prerequisite SITXFSA005
+```
+
+| Cell in the prerequisite's column | Status |
+|---|---|
+| **20, 51, 53, 60, 70AP, 81** | `completed` |
+| Blank, or **30, 40, 70, 82, 85, 90** | `notCompleted` |
+| **Blacked out**, or no column for it on the report | `notCompleted` |
+
+Blacked-out is read by **cell fill colour**, exactly as for the unit being
+marked. Never from text.
+
+### There is no `unknown` on this axis
+
+Where the matrix does not positively show the prerequisite as held, it is **not
+completed**, and the student's result is withheld as **RW**. The report is the
+record; an absence in it is a statement, not a gap.
+
+This is the **opposite** of the training.gov.au rule in
+[prerequisite-lookup.md](prerequisite-lookup.md), and deliberately so. There, an
+absence means the skill failed to read the source, so it stops and asks. Here, an
+absence is a statement about the student, so it decides.
+
+### The assessor override
+
+A student may hold the prerequisite from **another RTO**, in which case it cannot
+appear on this matrix and the default above would withhold their result wrongly.
+The assessor records the confirmation and what they saw:
+
+```jsonc
+"prerequisiteStatus": {
+  "SITXFSA005": {
+    "status": "confirmedExternally",
+    "evidence": "Statement of Attainment, Adelaide Culinary Institute, 14/03/2025"
+  }
+}
+```
+
+`confirmedExternally` requires a non-empty `evidence` string and is the **only**
+way to move a student off `notCompleted`.
+
+**What counts as evidence:** an AQF testamur or Statement of Attainment issued by
+an RTO, or an authenticated USI/VET transcript.
+
+**What does not:** a verbal claim, a licence card, or a white card. None of these
+records a unit of competency, and the skill says so wherever the assessor is
+asked.
+
+The importer's fifth list, **PREREQUISITE NOT COMPLETED**, names each student,
+each prerequisite and which of the three cases put them there. The *no column on
+this report* case is listed separately, because it is the one an assessor most
+often needs to override.
+
 ## Related
 
 - [ledger.md](ledger.md) — where the student list goes
+- [prerequisite-lookup.md](prerequisite-lookup.md) — finding what the prerequisite is
 - [result-rules.md](result-rules.md) — what happens to each student once selected

@@ -44,6 +44,9 @@ used.
   "qualification": { "code": "SIT30821", "title": "Certificate III in Commercial Cookery" },
 
   "assessor": "Priya Raman",
+  "dueDate": "19 / 08 / 2026",       // optional; when the work was due back from
+                                     // the student. Defaults to the date of
+                                     // assessment, and prints on the cover sheet.
   "markingDate": "2026-09-02",       // the ONLY date you supply
   "resultsEnteredDate": "2026-09-03", // optional; defaults to the marking date
 
@@ -58,6 +61,28 @@ used.
     { "id": "rw", "name": "Recipe Workbook and Observation of Direct Competency — Practical Demonstration",
       "isObservation": true }
   ],
+
+  // The assessment pack's own cover sheet, mapped once for the whole class.
+  // Values may be literals or any of these fields: {{studentName}},
+  // {{studentId}}, {{unit}}, {{unitCode}}, {{qualification}},
+  // {{qualificationCode}}, {{assessor}}, {{markingDate}}, {{assessmentDate}},
+  // {{dueDate}}, {{resubmissionDue}}, {{overall}}, {{tools}}.
+  // A cell the student already filled is left alone; every label on the sheet
+  // must end up with a value, including one this map never names.
+  "coverSheet": {
+    "anchor":    "RTO- Bush Tukka",          // text that appears ONCE at the sheet
+    "endAnchor": "Assessment Overview",      // optional; bounds it
+    "fields": [
+      { "label": "Student ACI ID:",     "value": "{{studentId}}" },
+      { "label": "Due Date:",           "value": "{{dueDate}}" },
+      { "label": "Trainer / Assessor:", "value": "{{assessor}}" }
+    ],
+    "boxes": [
+      { "label": "First submission",  "whenAttempt": 1 },
+      { "label": "Resit No.",         "whenAttempt": 2 },
+      { "label": "Online submission", "ticked": true }
+    ]
+  },
 
   "students": [
     {
@@ -80,14 +105,31 @@ used.
           "evidence": "submissions/MVC00318_RW.docx",
           "aiFlagged": [],           // question labels CONFIRMED as not own work
 
+          // THE WRONG ASSESSMENT. Something was submitted, but it is not this
+          // unit's assessment. Forces NYS, writes its own feedback item, and
+          // requires the class comment 'Incorrect assessment submitted'. It is
+          // never filed as a non-submission — the student knows they sent
+          // something. No marked copy is produced, so they receive the
+          // standalone feedback sheet.
+          "wrongAssessment": false,
+          "submittedInstead": null,  // required where wrongAssessment is true
+
           // per-question outcomes drive the MARKED COPY of the submission:
           // a green or red line under each answer. List EVERY question — one
           // left out comes back to the student with no remark on it. Omit the
           // array entirely only for a tool that does not decompose into
           // numbered questions, and give that tool 'observations' instead.
+          //
+          // 'anchorAfter' is for a heading the assessment prints TWICE — once
+          // in its list of tasks and again over the task itself. It narrows the
+          // search to what follows text that appears once; the anchor must
+          // still match exactly once inside that.
           "questions": [
             { "ref": "Q1", "anchor": "Q1.", "outcome": "S"   },
-            { "ref": "Q3", "anchor": "Q3.", "outcome": "NYS" }
+            { "ref": "Q3", "anchor": "Q3.", "outcome": "NYS" },
+            { "ref": "Activity 2", "anchor": "Activity 2: Draft a business plan",
+              "anchorAfter": "Template 1: Report on elements of a business plan",
+              "outcome": "S" }
           ],
           "questionsEndAnchor": "End of assessment",   // where the last answer stops
 
@@ -110,7 +152,21 @@ used.
           // Where the submission truly carries no sheet, say so explicitly with
           // { "inSubmission": false } and the record prints on the declaration
           // page instead. Leaving it out is refused, not assumed.
+          //
+          // THREE SHEET SHAPES. The default, 'labelled', has boxes that carry
+          // their own word: '☐ Yes'. A sheet that instead heads two COLUMNS Yes
+          // and No, leaving a bare '☐' in each cell, is read row by row off its
+          // tables and must say so: "layout": "columns". Then 'outcomes' is one
+          // per criterion row, 'comments' is one note per row of the comments
+          // column, and 'sufficientLabels' names an overall box that does not
+          // read Yes and No.
+          //
+          // The third, "layout": "inlinePairs", heads ONE decision column and
+          // puts both boxes in its cell with their words: '☐ S ☐ NS'. It names
+          // 'decisionHeader', 'yesLabel' and 'noLabel', and its anchor has to
+          // sit ABOVE the table — see references/marked-assessment.md.
           "observationSheet": {
+            "layout":           "labelled",              // or 'columns', 'inlinePairs'
             "anchor":           "Observation Checklist 1: Practical demonstration",
             "endAnchor":        "Observation Checklist 2",   // optional; bounds this sheet
             "notesAnchor":      "Observation notes",         // the record goes under this
@@ -182,9 +238,59 @@ it summarises. If you want a different value, change the input it comes from.
   otherwise pick leaves the sheet blank under a signed record;
 - an `observationSheet` field carries a value, its `outcomes` read `Yes` or `No`,
   its `feedback` names a `feedbackAnchor`, and its `sufficient` names a
-  `sufficientAnchor`.
+  `sufficientAnchor`;
+- **every submitted tool's `feedback` meets the assessor-comment standard** — at
+  least two paragraphs of at least twenty words each. A non-submission carries
+  the RTO's standing wording and is exempt; a withheld result is not, because the
+  work was still marked and the student still reads the comment;
+- every entry in `results[].tasks[]` names a `ref` and an `anchor`, reads `S` or
+  `NYS`, and carries a `comment` meeting the same standard. A Satisfactory tool
+  cannot hold a Not Yet Satisfactory task, and an NYS tool with tasks has to name
+  which task was not met;
+- every row of `observationSheet.verification[]` names an `item`, reads `Yes` or
+  `No`, and its `note` meets the row-note standard.
 
 It reports **every** problem at once and builds nothing. Fix them together.
+
+## Tasks inside a tool
+
+A tool made of **tasks** rather than questions — three practical activities in a
+unit project — is judged task by task, and each task carries its own coloured
+outcome and the assessor's comment on it:
+
+```jsonc
+"tasks": [
+  {
+    "ref":     "Activity 1",
+    "anchor":  "Activity 1 - Apply cement render",   // text that appears ONCE
+    "outcome": "S",
+    "comment": "First paragraph, at least twenty words.\n\nSecond paragraph, likewise."
+  }
+]
+```
+
+`tasksEndAnchor` on the result bounds the last task the way `questionsEndAnchor`
+bounds the last question. Without it the build warns and marks the last task at
+the end of the document.
+
+## The pre-start verification checklist
+
+The small assessor table inside an activity — *Assessor / supervisor to confirm
+before commencement* — is filled from the sheet:
+
+```jsonc
+"observationSheet": {
+  "verification": [
+    { "item": "Platform is stable and suitable for the task",
+      "outcome": "Yes",
+      "note": "The scaffold platform was checked for stability before access." }
+  ]
+}
+```
+
+Rows are found by their `item` text, never by position. **Only blank halves are
+filled.** Where a student completed the checklist on site in their own words,
+that is evidence and it is left exactly as they wrote it.
 
 ## Synthesised feedback items
 

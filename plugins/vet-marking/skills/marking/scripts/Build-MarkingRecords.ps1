@@ -117,7 +117,7 @@ function Build-Sar {
         Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'Insert trainer / assessor name' -Value $L.assessor) 'assessor (details)'
         Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'dd / mm / yyyy' -Value $L.dates.assessmentDateText) 'date of assessment'
         Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'Insert unit code and title' -Value ("{0} {1}" -f $L.unit.code, $L.unit.title)) 'unit'
-        Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'Insert pre-requisite unit, or N/A' -Value $L.unit.prerequisite) 'prerequisite'
+        Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'Insert pre-requisite unit, or N/A' -Value $L.unit.prerequisiteText) 'prerequisite'
         Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'Core / Elective' -Value $L.unit.coreElective) 'core/elective'
         Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'Insert location' -Value $L.location) 'location'
         Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'Simulated environment / Workplace — specify' -Value $L.environment) 'environment'
@@ -249,7 +249,7 @@ function Build-Amrr {
         Assert-Filled (Set-Placeholder -Node $tHead -Ns $ns -Name 'Insert qualification code and title' -Value ("{0} {1}" -f $L.qualification.code, $L.qualification.title)) 'qualification'
         Assert-Filled (Set-Placeholder -Node $tHead -Ns $ns -Name 'dd / mm / yyyy' -Value $L.dates.assessmentDateText) 'date of assessment'
         Assert-Filled (Set-Placeholder -Node $tHead -Ns $ns -Name 'Insert unit code and title' -Value ("{0} {1}" -f $L.unit.code, $L.unit.title)) 'unit'
-        Assert-Filled (Set-Placeholder -Node $tHead -Ns $ns -Name 'Insert pre-requisite unit, or N/A' -Value $L.unit.prerequisite) 'prerequisite'
+        Assert-Filled (Set-Placeholder -Node $tHead -Ns $ns -Name 'Insert pre-requisite unit, or N/A' -Value $L.unit.prerequisiteText) 'prerequisite'
 
         # ---- tool columns ---------------------------------------------------
         $st    = $spec.studentTable
@@ -359,7 +359,19 @@ function Build-Feedback {
         # revision which drops a bracket cannot silently strand ' or N/A'.
         Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'dd / mm / yyyy or N/A' -Value $Student.resubmissionDueText) 'resubmission due'
         Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'dd / mm / yyyy' -Value $L.dates.markingDateText) 'date of marking'
-        Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'C / NYC' -Value $Student.overall) 'overall result'
+        # THE RESULT IS COLOUR CODED, as it is on page one of a marked copy and
+        # in the outcome line under every answer: green Competent, red Not Yet
+        # Competent, amber withheld. The letters carry the meaning on their own,
+        # so a greyscale print or a reader who cannot separate the two colours
+        # loses nothing — the colour is what makes it findable at a glance.
+        $overallColour =
+            switch ($Student.overall) {
+                'C'  { $Rto.markedAssessment.satisfactoryColor }
+                'RW' { $Rto.styling.resultWithheldColor }
+                default { $Rto.markedAssessment.notSatisfactoryColor }
+            }
+        if (-not $overallColour) { throw "RTO profile declares no colour for result '$($Student.overall)'." }
+        Assert-Filled (Set-Placeholder -Node $tDetails -Ns $ns -Name 'C / NYC' -Value $Student.overall -Color $overallColour) 'overall result'
 
         # ---- items ----------------------------------------------------------
         $it = $spec.itemTable
@@ -448,16 +460,43 @@ foreach ($s in @($L.students)) {
     Write-Output ("  SAR       {0,-46} {1}" -f (Split-Path -Leaf $file), $s.overall)
 }
 
-$amrr = Build-Amrr
-$built += $amrr
-Write-Output ("  RECORD    {0}" -f (Split-Path -Leaf $amrr))
-
-foreach ($s in @($L.students | Where-Object { $_.needsFeedbackSheet })) {
-    $r = Build-Feedback -Student $s
-    $built += $r.Path
-    $note = if ($r.Overflow -gt 0) { "  ($($r.Items) listed, $($r.Overflow) carried to a closing note)" } else { "  ($($r.Items) item(s))" }
-    Write-Output ("  FEEDBACK  {0,-46}{1}" -f (Split-Path -Leaf $r.Path), $note)
+# The Assessment Marking and Results Record is a CLASS-WIDE summary. A one-row
+# summary of one student adds nothing the SAR does not already say, and can only
+# disagree with it. So it is not built — and the absence is stated, never silent,
+# because an unexplained missing document reads as a build failure.
+if ($L.summary.buildMarkingRecord -eq $false) {
+    Write-Output '  RECORD    not produced — one student, so there is no class to summarise'
+} else {
+    $amrr = Build-Amrr
+    $built += $amrr
+    Write-Output ("  RECORD    {0}" -f (Split-Path -Leaf $amrr))
 }
+
+# ---- the feedback ----------------------------------------------------------
+#
+# Page one of the marked assessment carries it for every student who has an
+# assessment coming back. A student who has none — nothing submitted, or the
+# wrong assessment submitted — gets the standalone Student Feedback Sheet in the
+# same format, because otherwise their feedback would exist only on the SAR,
+# which is an internal record and not a document the student is handed.
+#
+# Which case a student is in is decided by the resolver, from whether a marked
+# copy exists, so the builder and the gate cannot disagree about who gets a
+# sheet.
+$sheetsBuilt = 0
+foreach ($student in @($L.students | Where-Object { $_.needsFeedbackSheet })) {
+    $fb = Build-Feedback -Student $student
+    $built += $fb.Path
+    $sheetsBuilt++
+    $tail = if ($fb.Overflow -gt 0) { " ($($fb.Items) item(s) listed, $($fb.Overflow) more marked in the assessment)" } else { " ($($fb.Items) item(s))" }
+    Write-Output ("  FEEDBACK  {0}{1}" -f (Split-Path -Leaf $fb.Path), $tail)
+}
+if ($sheetsBuilt -eq 0) {
+    Write-Output '  FEEDBACK  on page one of each marked assessment — every student has one coming back'
+} else {
+    Write-Output ("  FEEDBACK  {0} standalone sheet(s) for students with nothing to return; every other student reads it on page one of their marked copy" -f $sheetsBuilt)
+}
+
 # ---- marked copies of the students' own submissions ------------------------
 # Built last, because they depend on files outside this skill. A submission
 # that cannot be found stops the marked copy and says so; it never stops the

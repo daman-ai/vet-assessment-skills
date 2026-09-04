@@ -74,7 +74,7 @@ Mark a batch of submitted student assessments with:
 /marking <UNITCODE>
 ```
 
-The marking skill reads the WiseNet 0217 Unit Enrolment Outcome Matrix **by cell colour** to work out who was actually enrolled and is required to submit. Real roll exports carry student names and IDs - they are gitignored, never commit one.
+The marking skill reads the WiseNet 0217 Unit Enrolment Outcome Matrix **by cell colour** to work out who was actually enrolled and is required to submit. It reads the unit's prerequisites from training.gov.au and withholds the result as **RW** where the matrix does not positively show the student holding them. Every student is handed their feedback, not only those assessed NYC. Real roll exports carry student names and IDs - they are gitignored, never commit one.
 
 After a pack is delivered, build its teaching resources with:
 
@@ -95,11 +95,13 @@ plugins/vet-assessment/
                         OpenAI image model, places pictures back into the .docx
 
 plugins/vet-marking/
-  skills/marking/       the marking engine: reads the WiseNet 0217 enrolment matrix by cell colour
-                        to decide who must submit, then produces the four records an RTO keeps -
-                        a marked copy per student, a Student Assessment Record each, one class
-                        Assessment Marking and Results Record, and a Student Feedback Sheet for
-                        every student assessed NYC - all derived from one ledger
+  skills/marking/       the marking engine: reads the unit prerequisites from training.gov.au and
+                        the WiseNet 0217 enrolment matrix by cell colour to decide who must submit
+                        and who is withheld RW, then produces the records an RTO keeps - a marked
+                        copy per student carrying a filled cover sheet and a feedback page, a
+                        standalone Student Feedback Sheet for anyone with nothing coming back, a
+                        Student Assessment Record each, and one class Assessment Marking and
+                        Results Record - all derived from one ledger
   skills/rto-validation-docs/
                         the controlled assessment-validation document set: Parts A/B/C, the
                         Validation Plan, the Continuous Improvement Register and panel rosters,

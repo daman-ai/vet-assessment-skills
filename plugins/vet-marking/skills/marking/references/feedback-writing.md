@@ -1,13 +1,39 @@
 # Writing the feedback
 
-Feedback appears in three places, at three lengths. All three come from the
-ledger, so they cannot contradict each other.
+Feedback appears in **two** places, at two lengths. Both come from the ledger, so
+they cannot contradict each other.
 
 | Where | Length | Written to |
 |---|---|---|
-| SAR, per tool row | 2–4 sentences | the student |
+| SAR per tool row — and the same text on the marked copy's feedback page | 2–4 sentences | the student |
 | Marking record, Comments column | a short phrase | the assessor and auditor |
-| Student Feedback Sheet, per item | 1–2 sentences per cell | the student |
+
+**Where the feedback is issued depends on whether anything comes back.** A
+student with a marked assessment reads it on **page one** of their own returned
+work, laid out as the RTO's Student Feedback Sheet: the details block, the items
+to fix, what happens next, the assessor's name and date. A student with **no**
+marked copy — nothing submitted, or the wrong assessment submitted — is issued
+that same sheet **standalone**, built from the RTO's template.
+
+Neither is optional, and the SAR is not a substitute for either: the SAR is an
+internal record and the student never sees it. The one-to-two-sentences-per-cell
+rule and the two-comma rule apply to both.
+
+The standalone sheet is named like the SAR, and its result is coloured like the
+marked copy's:
+
+```
+SAR_BSBESB401_Jordan RILEY_ADL3000901_NYC.docx
+FEEDBACK_BSBESB401_Jordan RILEY_ADL3000901_NYC.docx
+```
+
+`Overall result` prints green for Competent, red for Not Yet Competent and amber
+for a withheld result, from the same profile values the marked copy reads. The
+letters carry the meaning on their own, so a greyscale print loses nothing.
+
+Page one may run past one physical page where the feedback is long. That is
+accepted; what matters is the page break before the student's own content, which
+the gate's `MarkedCopyFeedbackPage` check reads off the delivered file.
 
 ## The two-comma rule
 
@@ -125,4 +151,6 @@ a second page.
 ## Related
 
 - [marking-standard.md](marking-standard.md) — what you may and may not comment on
+- [observation-comments.md](observation-comments.md) — the stricter standard for an
+  observation sheet's assessor comments area
 - [ledger.md](ledger.md) — where each piece of feedback is written once

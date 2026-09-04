@@ -141,6 +141,45 @@ try {
     if ($excel) { try { $excel.Quit() } catch {}; [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($excel) }
 }
 
+# ------------------------------------------- 9b. the new v2 assets ----------
+
+$missingRef = @()
+foreach ($r in @('references\prerequisite-lookup.md', 'references\observation-comments.md')) {
+    if (-not (Test-Path -LiteralPath (Join-Path $root $r))) { $missingRef += $r }
+}
+if ($missingRef.Count -eq 0) { Say 'PASS' 'V2References' 'prerequisite-lookup.md and observation-comments.md present' }
+else { Say 'FAIL' 'V2References' ($missingRef -join ', ') }
+
+$cache = Join-Path $root 'assets\prerequisites.cache.json'
+if (Test-Path -LiteralPath $cache) {
+    try {
+        $cj = Get-Content -Raw -Encoding UTF8 -LiteralPath $cache | ConvertFrom-Json
+        $n = @($cj.PSObject.Properties | Where-Object { $_.Name -notlike '_*' }).Count
+        Say 'PASS' 'PrerequisiteCache' "$n unit(s) cached, each with its source and the date read"
+    } catch { Say 'FAIL' 'PrerequisiteCache' "will not parse: $($_.Exception.Message)" }
+} else {
+    Say 'WARN' 'PrerequisiteCache' 'no cache yet - it is written on the first Get-UnitPrerequisites.ps1 run'
+}
+
+# ------------------------------------------- 9c. training.gov.au ------------
+#
+# The one part of this skill that depends on a third party. Offline it must
+# BLOCK a run and ask, never resolve to Nil — so an unreachable register is a
+# warning here and a hard stop there.
+
+try {
+    try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
+    $probe = Invoke-RestMethod -Uri 'https://training.gov.au/api/training/CPCCOM1014?api-version=1.0&include=all' `
+                               -Method Get -TimeoutSec 20 -UseBasicParsing -Headers @{ Accept = 'application/json' }
+    if ($probe -and $probe.PSObject.Properties.Name.Contains('preRequisites')) {
+        Say 'PASS' 'TrainingGovAuLookup' 'the register answers and still returns a preRequisites object'
+    } else {
+        Say 'FAIL' 'TrainingGovAuLookup' "the endpoint answered but carries no 'preRequisites' object - the API contract may have changed. See references/prerequisite-lookup.md."
+    }
+} catch {
+    Say 'WARN' 'TrainingGovAuLookup' "unreachable ($($_.Exception.Message)). Get-UnitPrerequisites.ps1 will return 'unknown' and STOP a run rather than assuming Nil, which is the safe behaviour - but no unit can be checked until this is reachable."
+}
+
 # ------------------------------------------------------- 10. the full build ---
 
 if ($Full) {

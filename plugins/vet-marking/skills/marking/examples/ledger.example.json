@@ -1,13 +1,18 @@
-{
+﻿{
   "_comment": "Worked example of a marking ledger — the input to Resolve-MarkingLedger.ps1. Fictional students. Everything a marking run needs and nothing it can derive: no overall results, no dates other than the marking date, no filenames, no invoice flags. Those are computed, and stating them by hand is how a marking record ends up disagreeing with the SAR it summarises.",
 
   "rto": "mvc",
 
+  "_prerequisiteComment": "Looked up with Get-UnitPrerequisites.ps1 on 2026-09-02. SITHPAT016 DOES have a prerequisite — this example previously read 'N/A', which was wrong. That is what the old free-text field made easy: 'N/A' could not tell 'the register says Nil' apart from 'nobody checked'. An empty prerequisites array is now a hard failure unless prerequisitesConfirmedNone is set.",
   "unit": {
     "code": "SITHPAT016",
     "title": "Produce desserts",
-    "prerequisite": "N/A",
-    "coreElective": "Elective"
+    "coreElective": "Elective",
+    "prerequisites": [
+      { "code": "SITXFSA005", "title": "Use hygienic practices for food safety" }
+    ],
+    "prerequisiteSource": "training.gov.au",
+    "prerequisiteCheckedOn": "2026-09-02"
   },
 
   "qualification": {
@@ -35,6 +40,7 @@
       "firstName": "Mei",
       "surname": "Tanaka",
       "studentId": "MVC00312",
+      "prerequisiteStatus": { "SITXFSA005": { "status": "completed" } },
       "comment": "All tasks satisfactory",
       "results": [
         {
@@ -57,7 +63,9 @@
           ],
           "_endAnchorComment": "Her workbook does not end after Q12 — the recipe cards and the observation sheet follow it in the same file. So the knowledge questions stop at Part B, not at 'End of assessment'. Point it at the end of the document and Q12's outcome lands inside the observation sheet.",
           "questionsEndAnchor": "Part B.",
-          "feedback": "You answered all twelve knowledge questions and your explanations of gelatine ratios and of the three dessert sauce faults met the requirements of the unit. Your answer on storing sponge components covered temperature and covering. This assessment is satisfactory."
+          "feedback": "You answered all twelve knowledge questions and your explanations of gelatine ratios and of the three dessert sauce faults met the requirements of the unit.
+
+Your answer on storing sponge components covered both the temperature and the covering. Your account of the three sauce faults named the cause and the correction for each. This assessment is satisfactory."
         },
         {
           "toolId": "rw",
@@ -77,6 +85,9 @@
             "outcomes": ["Yes", "Yes", "Yes", "Yes"],
             "sufficientAnchor": "Sufficient",
             "sufficient": true,
+            "comments": [
+              "Mise en place was completed before service began and all three desserts were portioned to the standard recipe. Each was plated within the service period.\n\nHolding temperatures were checked at the pass and logged against each dessert. Wastage went onto the daily sheet at close of service."
+            ],
             "feedbackAnchor": "Feedback to Student",
             "feedback": "You produced all three desserts to the standard recipes. Your temperature checks and wastage control met the requirements.",
             "fields": [
@@ -85,7 +96,9 @@
               { "label": "Finish time", "value": "12:00 pm" }
             ]
           },
-          "feedback": "You produced the crème caramel, the chocolate mousse and the poached pear to the standard recipes, and you were observed portioning and plating all three within the service period. Your mise en place and your wastage control met the requirements of the unit. This assessment is satisfactory."
+          "feedback": "You produced the crème caramel, the chocolate mousse and the poached pear to the standard recipes, and you were observed portioning and plating all three within the service period.
+
+Your mise en place was complete before service began and your wastage control met the requirements of the unit. This assessment is satisfactory."
         }
       ]
     },
@@ -95,6 +108,7 @@
       "firstName": "Daniel",
       "surname": "Okafor",
       "studentId": "MVC00318",
+      "prerequisiteStatus": { "SITXFSA005": { "status": "completed" } },
       "comment": "Recipe workbook: 2 dishes not to standard",
       "results": [
         {
@@ -118,7 +132,9 @@
             { "ref": "Q12", "anchor": "Q12.", "outcome": "S" }
           ],
           "questionsEndAnchor": "End of assessment",
-          "feedback": "You answered all twelve knowledge questions. Your explanation of why a custard splits met the requirements of the unit. Your account of the two thickening agents was also correct. This assessment is satisfactory."
+          "feedback": "You answered all twelve knowledge questions and your explanation of why a custard splits met the requirements of the unit.
+
+Your account of the two thickening agents was correct and named the setting behaviour of each. This assessment is satisfactory."
         },
         {
           "toolId": "rw",
@@ -134,9 +150,13 @@
           "observationSheet": {
             "anchor": "Observation of Direct Competency — Practical Demonstration",
             "notesAnchor": "Observation notes",
-            "outcomes": ["Yes", "Yes", "No", "No"],
+            "_ruleComment": "THIS SHEET USED TO CARRY TWO 'No' OUTCOMES AND sufficient: false. The RTO's process, confirmed 2 September 2026, is that the practical is conducted BEFORE marking and always overseen by a trainer, with oral feedback given at the time; the sheet is then ticked Yes for all submitted work. So the sheet records that the observation happened and was watched, and the printed sheet still shows both columns. Daniel's practical is still NYS — the shortfall is in his recipe workbook, and it lives in the TOOL RESULT, the SAR feedback and the two feedback items below. See SKILL.md, 'The practical observation, and why the sheet reads Yes'.",
+            "outcomes": ["Yes", "Yes", "Yes", "Yes"],
             "sufficientAnchor": "Sufficient",
-            "sufficient": false,
+            "sufficient": true,
+            "comments": [
+              "All three desserts were produced inside the service period and the poached pear matched the standard recipe in method and finish.\n\nThe mousse recipe card recorded no setting time and no holding temperature. The caramel was poured without a colour check, and both points were raised with Daniel afterwards."
+            ],
             "feedbackAnchor": "Feedback to Student",
             "feedback": "You produced all three desserts within the service period. The mousse card and the caramel colour check are outstanding.",
             "fields": [
@@ -145,7 +165,9 @@
               { "label": "Finish time", "value": "12:00 pm" }
             ]
           },
-          "feedback": "You produced all three desserts and your poached pear met the standard recipe. The chocolate mousse recipe card records no setting time and no holding temperature, and the crème caramel was served without the caramel being checked for colour, so two of the unit's requirements are not yet demonstrated. Correct the two items listed on your feedback sheet and resubmit both your original and corrected attempts by 09 / 09 / 2026.",
+          "feedback": "You produced all three desserts and your poached pear met the standard recipe, so that part of the task is satisfactory.
+
+The chocolate mousse recipe card records no setting time and no holding temperature, and the crème caramel was served without the caramel being checked for colour. Correct the two items listed on your feedback sheet and resubmit both attempts by 09 / 09 / 2026.",
           "items": [
             {
               "questionNo": "Recipe card 2 — chocolate mousse",
@@ -167,6 +189,7 @@
       "firstName": "Aisha",
       "surname": "Rahman",
       "studentId": "MVC00327",
+      "prerequisiteStatus": { "SITXFSA005": { "status": "completed" } },
       "comment": "No submission",
       "results": [
         {
@@ -189,6 +212,7 @@
       "firstName": "Luca",
       "surname": "Bianchi",
       "studentId": "MVC00334",
+      "prerequisiteStatus": { "SITXFSA005": { "status": "completed" } },
       "comment": "Q6 flagged — not own work",
       "results": [
         {
@@ -212,7 +236,7 @@
             { "ref": "Q12", "anchor": "Q12.", "outcome": "S" }
           ],
           "questionsEndAnchor": "End of assessment",
-          "feedback": "You answered all twelve knowledge questions and eleven of them met the requirements of the unit. Your response to question 6 does not appear to be your own work and has not been accepted, so this assessment is Not Yet Satisfactory. Rewrite question 6 in your own words and resubmit both your original and corrected attempts by 09 / 09 / 2026.",
+          "feedback": "You answered all twelve knowledge questions and eleven of the twelve met the requirements of the unit at this attempt.\n\nYour response to question 6 does not appear to be your own work and has not been accepted, so this assessment is Not Yet Satisfactory. Rewrite question 6 in your own words and resubmit both your original and corrected attempts by 09 / 09 / 2026.",
           "items": [
             {
               "questionNo": "Q6",
@@ -237,6 +261,9 @@
             "outcomes": ["Yes", "Yes", "Yes", "Yes"],
             "sufficientAnchor": "Sufficient",
             "sufficient": true,
+            "comments": [
+              "Each dessert was plated inside the service period and probe readings were taken at the pass before service. Readings went onto the temperature log.\n\nThe bench and the floor were cleared before handover to the next section. Luca recorded the wastage figures himself at close of service."
+            ],
             "feedbackAnchor": "Feedback to Student",
             "feedback": "You produced all three desserts to the standard recipes. Your temperature checks and wastage control met the requirements.",
             "fields": [
@@ -245,7 +272,67 @@
               { "label": "Finish time", "value": "12:00 pm" }
             ]
           },
-          "feedback": "You produced all three desserts to the standard recipes and were observed plating each within the service period. Your temperature checks and your wastage control met the requirements of the unit. This assessment is satisfactory."
+          "feedback": "You produced all three desserts to the standard recipes and you were observed plating each of them within the service period.\n\nYour temperature checks and your wastage control both met the requirements of the unit at this assessment. This assessment is satisfactory."
+        }
+      ]
+    },
+
+    {
+      "_case": "RESULT WITHHELD. Ravi's work is fine — every tool satisfactory — but the WiseNet matrix does not show him holding SITXFSA005, the prerequisite. He carries NO prerequisiteStatus entry, which is what makes him RW: the matrix must positively show the unit as held, and silence is a statement, not a gap. RW overrides the C he would otherwise have earned. His work is still marked, his answers still carry green outcome lines, and neither Invoice Raised nor Re-enrol is ticked — RW is not an adverse outcome and does not use an attempt. Resubmission Due carries the normal five-working-day date, as it does for every withheld result - that is when the prerequisite question falls due, whether or not he also has work to redo. To clear it he completes SITXFSA005, or the assessor records a confirmedExternally status with the evidence they saw.",
+      "firstName": "Ravi",
+      "surname": "Deshmukh",
+      "studentId": "MVC00350",
+      "comment": "All tasks satisfactory",
+      "results": [
+        {
+          "toolId": "kq",
+          "result": "S",
+          "evidence": "submissions/MVC00350_SITHPAT016_KQ.docx",
+          "questions": [
+            { "ref": "Q1", "anchor": "Q1.", "outcome": "S" },
+            { "ref": "Q2", "anchor": "Q2.", "outcome": "S" },
+            { "ref": "Q3", "anchor": "Q3.", "outcome": "S" },
+            { "ref": "Q4", "anchor": "Q4.", "outcome": "S" },
+            { "ref": "Q5", "anchor": "Q5.", "outcome": "S" },
+            { "ref": "Q6", "anchor": "Q6.", "outcome": "S" },
+            { "ref": "Q7", "anchor": "Q7.", "outcome": "S" },
+            { "ref": "Q8", "anchor": "Q8.", "outcome": "S" },
+            { "ref": "Q9", "anchor": "Q9.", "outcome": "S" },
+            { "ref": "Q10", "anchor": "Q10.", "outcome": "S" },
+            { "ref": "Q11", "anchor": "Q11.", "outcome": "S" },
+            { "ref": "Q12", "anchor": "Q12.", "outcome": "S" }
+          ],
+          "questionsEndAnchor": "End of assessment",
+          "feedback": "You answered all twelve knowledge questions and every one of them met the requirements of the unit at this attempt.\n\nYour account of the two thickening agents was correct and named the setting behaviour of each. This assessment is satisfactory."
+        },
+        {
+          "toolId": "rw",
+          "result": "S",
+          "evidence": "submissions/MVC00350_SITHPAT016_RW.docx",
+          "observations": [
+            "Observed mise en place complete before service.",
+            "Observed all three desserts plated to the standard recipe.",
+            "Observed probe checks recorded on the temperature log.",
+            "Observed benches cleared and wastage recorded."
+          ],
+          "observationSheet": {
+            "anchor": "Observation of Direct Competency — Practical Demonstration",
+            "notesAnchor": "Observation notes",
+            "outcomes": ["Yes", "Yes", "Yes", "Yes"],
+            "sufficientAnchor": "Sufficient",
+            "sufficient": true,
+            "comments": [
+              "The three desserts were produced in recipe order and the bench was kept clear of equipment and trim throughout the service period.\n\nProbe checks were taken at the pass and went onto the temperature log. Benches were wiped down and the wastage figures were recorded at close."
+            ],
+            "feedbackAnchor": "Feedback to Student",
+            "feedback": "You produced all three desserts to the standard recipes. Your probe checks and bench hygiene met the requirements.",
+            "fields": [
+              { "label": "Date", "value": "02 / 09 / 2026" },
+              { "label": "Start time", "value": "9:00 am" },
+              { "label": "Finish time", "value": "12:00 pm" }
+            ]
+          },
+          "feedback": "You produced all three desserts to the standard recipes and you were observed plating each of them within the service period.\n\nYour probe checks and your bench hygiene both met the requirements of the unit at this assessment. This assessment is satisfactory."
         }
       ]
     },
@@ -255,6 +342,7 @@
       "firstName": "Sofia",
       "surname": "Marchetti",
       "studentId": "MVC00341",
+      "prerequisiteStatus": { "SITXFSA005": { "status": "completed" } },
       "attempt": 2,
       "comment": "2nd attempt — knowledge still NYS",
       "results": [
@@ -262,6 +350,8 @@
           "toolId": "kq",
           "result": "NYS",
           "evidence": "submissions/MVC00341_SITHPAT016_KQ_attempt2.docx",
+          "_priorComment": "ATTEMPT 2 MARKS THE FILE ALREADY MARKED AT ATTEMPT 1, not the raw submission. Attempt 1's feedback page and its outcome lines travel forward untouched and the new page goes on top, so the marked file is the audit trail of every attempt. Marking the raw submission again would silently destroy attempt 1's record.",
+          "priorMarkedCopy": "submissions/MVC00341_SITHPAT016_KQ_attempt1_MARKED.docx",
           "questions": [
             { "ref": "Q1", "anchor": "Q1.", "outcome": "S" },
             { "ref": "Q2", "anchor": "Q2.", "outcome": "S" },
@@ -277,7 +367,7 @@
             { "ref": "Q12", "anchor": "Q12.", "outcome": "S" }
           ],
           "questionsEndAnchor": "End of assessment",
-          "feedback": "You resubmitted the Knowledge Questions and your answers on sauce faults and on portion control now meet the requirements of the unit. Question 9 still does not name a food safety control for holding a dairy-based dessert, which the unit requires. Correct question 9 and resubmit both attempts by 09 / 09 / 2026.",
+          "feedback": "You resubmitted the Knowledge Questions and your answers on sauce faults and on portion control now meet the requirements of the unit.\n\nQuestion 9 still does not name a food safety control for holding a dairy-based dessert, which the unit requires. Correct question 9 and resubmit both attempts by 09 / 09 / 2026.",
           "items": [
             {
               "questionNo": "Q9",
@@ -290,6 +380,7 @@
           "toolId": "rw",
           "result": "S",
           "evidence": "submissions/MVC00341_SITHPAT016_RW.docx",
+          "priorMarkedCopy": "submissions/MVC00341_SITHPAT016_RW_attempt1_MARKED.docx",
           "observations": [
             "Observed mise en place complete before service.",
             "Observed all three desserts produced to the standard recipes.",
@@ -297,7 +388,7 @@
           ],
           "_sheetComment": "Sofia's workbook was printed and scanned, so it carries no observation sheet the builder can write into. That is declared, not left to a fallback: the record prints on her declaration page instead, and the resolver reports the choice as a CHECK so it stays visible.",
           "observationSheet": { "inSubmission": false },
-          "feedback": "You produced all three desserts to the standard recipes and your recipe cards record every quality check the unit asks for. This assessment is satisfactory."
+          "feedback": "You produced all three desserts to the standard recipes and your recipe cards record every quality check the unit asks for.\n\nEach recipe card names both the setting time and the holding temperature that the unit requires. This assessment is satisfactory."
         }
       ],
       "resit": {

@@ -146,8 +146,8 @@ assets/
 examples/
   ledger.example.json           five students covering every case
   submissions/                  seven synthetic submissions, and the script that makes them
-references/                     ten reference documents
-scripts/                        eleven PowerShell scripts
+references/                     twelve reference documents
+scripts/                        fourteen PowerShell scripts
 _source_RTO_Marking_Instruction.docx   the RTO's original instruction, kept for provenance
 ```
 

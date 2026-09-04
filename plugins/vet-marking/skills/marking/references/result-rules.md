@@ -12,17 +12,65 @@ resolver rejects a ledger that states a derived value.
 | The evidence is submitted but does not meet the requirements | **NYS** (Not Yet Satisfactory) |
 | A response confirmed as AI generated under the marking standard | **NYS** for that tool |
 | No assessment document is attached or can be found | **NYS**, comment `No submission` |
+| The assessment submitted is for another unit, or another unit's tool | **NYS**, comment `Incorrect assessment submitted` |
 
 Use the marking standard in [marking-standard.md](marking-standard.md) to make
 this judgement. Do not be strict.
+
+### The wrong assessment is not a non-submission
+
+A student who hands in another unit's work HAS submitted something. Filing it as
+`No submission` tells them nothing about the file they know they sent, and they
+resubmit the same thing. So the ledger says what happened:
+
+```jsonc
+{ "toolId": "uat1", "result": "NYS",
+  "wrongAssessment": true,
+  "submittedInstead": "an assessment for CPCCBC4001 Apply building codes and standards",
+  "feedback": "The work submitted is an assessment for CPCCBC4001. …" }
+```
+
+The resolver forces NYS, writes the item that names what arrived and what to send
+instead, and requires the class comment to read exactly `Incorrect assessment
+submitted`. There is no marked copy — the file is not this unit's assessment — so
+the student is issued a standalone Student Feedback Sheet.
 
 ## Step 2 — determine the overall result
 
 - Any tool assessed NYS → overall **NYC** (Not Yet Competent).
 - All tools assessed S → overall **C** (Competent).
 
-There is no third outcome and no partial result. A student with four
-Satisfactory tools and one NYS is NYC.
+There is no partial result. A student with four Satisfactory tools and one NYS
+is NYC.
+
+### Step 2b — RW overrides both
+
+**Until 2 September 2026 this section read "There is no third outcome."** There
+is now, and the sentence is rewritten rather than deleted so the history of the
+rule stays legible.
+
+- Any prerequisite the student does not hold → overall **RW** (Result Withheld),
+  whatever the tool results say.
+
+RW is applied **after** the S/NYS derivation and overrides it. It withholds a
+result; it does not skip the assessment. Every tool is still judged, the work is
+still marked, and the marked copy still carries a coloured outcome under every
+answer.
+
+| Derived value | Under RW |
+|---|---|
+| `overall` | `RW` |
+| Marking record comment | exactly `Result withheld - Prerequisite not completed - Continuing enrolment` |
+| Resubmission Due | **five working days from the marking date, always** — that is when the prerequisite question falls due, whether or not the student also has work to redo |
+| Invoice Raised | ☐ never. RW is not an adverse outcome and does not use an attempt |
+| Re-enrol in unit | ☐ never |
+| WiseNet outcome code | **70 — Continuing Enrolment** |
+| Per-tool S / NYS ticks | unchanged — judged normally |
+| Colour | amber `B45F06`, against green `1E7B34` for C and red `C00000` for NYC |
+
+Where the prerequisite is held at another RTO it cannot appear on the matrix.
+The assessor records `confirmedExternally` with the evidence they saw — see
+[wisenet-roll.md](wisenet-roll.md).
 
 ## Step 3 — resit and invoicing
 

@@ -96,6 +96,17 @@ it — run them after any change to the checks:
 | Add a paragraph to a footer | `TemplateUntouched` |
 | Bind the xml namespace to a made-up prefix | `NoInventedNamespacePrefix`, `OpensInWord` |
 | Recolour one red outcome line green on a marked copy | `MarkedCopyOutcomes` |
+| Set an RW student's overall to NYC | `OverallResultRule`, `CrossDocumentAgreement`, `WithheldComment`, `MarkedCopyOutcomes`, `DateRules` |
+| Change one character of the withheld comment | `WithheldComment` |
+| Strip the withheld notice from an RW student's page one | `RwNoticePresent` |
+| Build a marking record for a one-student class | `SingleStudentNoMarkingRecord` |
+| Delete an earlier attempt's feedback page | `ResubmissionStacked` |
+| Remove a tool's feedback from a page one | `FeedbackPageEveryStudent` |
+| Tick one observation box No | refused at the resolver, before any build |
+| Set `prerequisites: []` with no `prerequisitesConfirmedNone` | refused at the resolver |
+| Return an empty page from the training.gov.au lookup | the run stops and asks; it never resolves to `Nil` |
+| Rename a marked copy to the old convention | `MarkedCopyName` |
+| Drop the `SAR_` prefix so a SAR and a marked copy collide | `NoDuplicateOutputName` |
 | Left-align the overall result on a marked copy | `MarkedCopyOutcomes` |
 | Delete one observation point from a marked copy | `MarkedCopyOutcomes` |
 | Move one outcome line out of its answer box onto the spacer below | `MarkedCopyInAnswerSpace` |

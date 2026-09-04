@@ -47,29 +47,120 @@ declaration that the work is their own. Crowding a result onto it competes with
 their own heading and leaves neither room to be read. A separate first page gives
 the declaration space and returns page one exactly as they submitted it.
 
+**And it IS the RTO's own Student Feedback Sheet** — the same tables, the same
+palette — so a class where some students get a marked copy and some get the
+standalone sheet is reading one document rather than two. The headings, labels
+and standing lines come from `markedAssessment.feedbackPage` in the RTO profile,
+which carries that RTO's wording:
+
 ```
                                       Overall result: Not Yet Competent   ← TOP RIGHT
-MARKED ASSESSMENT                        green if Competent, red if not
+              Student Feedback Sheet — Attempt 1  ·  02 / 09 / 2026       ← CENTRED
 
-Student:           Daniel Okafor  ·  MVC00318
-Qualification:     SIT30821 Certificate III in Commercial Cookery
-Unit:              SITHPAT016 Produce desserts
-Assessment:        Knowledge Questions  ·  Recipe Workbook
-Assessor:          Priya Raman  ·  Date of marking: 02 / 09 / 2026
-Resubmission due:  09 / 09 / 2026
+┌────────────────────────────────────────────────────────────────────────────┐
+│                          Student and Unit Details                          │  ← accent banner
+├──────────────────┬─────────────────────────────────────────────────────────┤
+│ RTO              │ Golden Wattle Group Pty Ltd T/A Meridian … · RTO 45039  │
+├──────────────────┼──────────────────────┬────────────────┬─────────────────┤
+│ Student name     │ Daniel Okafor        │ Student ID     │ MVC00318        │
+│ Unit assessed    │ SITHPAT016 Produce…  │ Qualification  │ SIT30821 Cert…  │
+├──────────────────┼──────────────────────┴────────────────┴─────────────────┤
+│ Assessment       │ Knowledge Questions  ·  Recipe Workbook                 │
+├──────────────────┼──────────────────────┬────────────────┬─────────────────┤
+│ Trainer/Assessor │ Priya Raman          │ Date of marking│ 02 / 09 / 2026  │
+│ Overall result   │ Not Yet Competent…   │ Resubmission…  │ 09 / 09 / 2026  │
+├──────────────────┴──────────────────────┴────────────────┴─────────────────┤
+│ See the feedback on this page for the items to correct …        ← italic    │
+├────────────────────────────────────────────────────────────────────────────┤
+│                        Feedback on your assessment                         │  ← accent banner
+├──────────────────┬─────────────────────────────────────────────────────────┤
+│ <tool>           │ <the same words the SAR carries for that tool>           │
+├──────────────────┴─────────────────────────────────────────────────────────┤
+│               Questions and Tasks to be Fixed and Resubmitted              │  ← accent banner
+├────┬─────────────┬──────────────┬──────────────────┬───────────────────────┤
+│ No.│ Assessment  │ Question /   │ Issue identified │ What you need to do   │  ← repeats per page
+│    │ tool        │ task         │                  │                       │
+├────┼─────────────┼──────────────┼──────────────────┼───────────────────────┤
+│ 1  │ Recipe Work…│ Recipe card 2│ …                │ …                     │
+└────┴─────────────┴──────────────┴──────────────────┴───────────────────────┘
 
-See your Student Feedback Sheet for the items to correct and the resubmission date.
+┌──────────────────┬─────────────────────────────────────────────────────────┐
+│ What happens next│ Correct only the items listed above. …                   │
+│ Assessor         │ Name: Priya Raman          Date: 02 / 09 / 2026          │
+└──────────────────┴─────────────────────────────────────────────────────────┘
                           ─── page break ───
 ```
 
-The **overall result is right-aligned at the top**, so it is the first thing a
-student sees on opening the file. Green `1E7B34` for Competent, red `C00000` for
-Not Yet Competent. `Assessment:` names every tool the file covers.
-`Resubmission due:` reads `N/A` where the student is Competent — a blank says
-nothing, `N/A` says the question was asked and answered.
+**Why a table and not indented paragraphs.** The standalone sheet is a table.
+Built here as a run of paragraphs the page carried the right words in the wrong
+document — a near-miss of the sheet rather than the sheet — which is exactly the
+second layout the declaration page exists to avoid. Same tables, same palette,
+one document to learn.
+
+The palette comes from the profile: `styling.feedbackAccentColor` for the banner
+rows, `styling.feedbackSheetFill` for label cells, `styling.feedbackSheetRule`
+for the hairline rules. A banner cell takes **white** rules rather than grey,
+which is what makes it read as a solid band instead of a boxed cell. **The face
+is named explicitly (Arial).** The standalone sheet's document default is Arial
+9pt and a student's own assessment is usually a themed 11pt; runs dropped in
+without an `rFonts` come out in the student's theme, and the sheet reads as a
+near-miss of itself.
+
+**The sheet is scaled onto the student's own content width.** Its eight columns
+keep the template's proportions, but the total is the width the student's first
+table actually draws at and the indent is that table's own `w:tblInd` — often
+not the text margin at all. A sheet on the margin sits visibly out of line with
+every page beneath it.
+
+The **overall result is right-aligned above the sheet**, so it is the first thing
+a student sees on opening the file. Green `1E7B34` for Competent, red `C00000`
+for Not Yet Competent. `Assessment` names every tool the file covers.
+`Resubmission due` reads `N/A` where the student is Competent — a blank says
+nothing, `N/A` says the question was asked and answered. A Competent student's
+items section reads *There is nothing to correct* as one plain row rather than
+five empty columns, and the resubmission line of *What happens next* is dropped,
+because neither applies to them. The item table's heading row is marked
+`w:tblHeader`, so a student reading page two of their own feedback does not have
+to page back to learn which column is the issue and which is the fix.
 
 `MarkedCopyDeclarationPage` checks the delivered file for the page break, for the
 result above it, and for the student's own content below it.
+`MarkedCopyFrontBlockAligned` checks that every paragraph AND every table in the
+block sits on the edges of the student's own first table — measured **below** the
+page break, because above it the first table is now the sheet itself and
+measuring that would only ask whether the sheet agrees with itself.
+
+## The cover sheet comes back filled
+
+The assessment's own cover sheet sits below the page break, at the front of the
+student's document, and half its fields are the RTO's to complete. The ledger's
+`coverSheet` maps each label to a value:
+
+```jsonc
+"coverSheet": {
+  "anchor":    "RTO- Bush Tukka",           // text that appears ONCE at the sheet
+  "endAnchor": "Assessment Overview",
+  "fields": [
+    { "label": "Student ACI ID:",     "value": "{{studentId}}" },
+    { "label": "Due Date:",           "value": "{{dueDate}}" },
+    { "label": "Trainer / Assessor:", "value": "{{assessor}}" }
+  ],
+  "boxes": [ { "label": "First submission", "whenAttempt": 1 } ]
+}
+```
+
+- The value goes in the **cell beside the label**, or — where the label is the
+  last cell in its row, as ACI's `Due Date:` is — after the label in that cell.
+- **A cell the student already filled is left alone.** Their words are not ours
+  to restate, and `Ramandeep Singh` does not need correcting to `Ramandeep
+  SINGH`.
+- A box is ticked by `whenAttempt` (the attempt this copy is) or by `ticked`. The
+  cover sheet's boxes are not always the ballot box the rest of the marking uses:
+  ACI prints `□` U+25A1, and each glyph in circulation is tried before the build
+  fails rather than ticking nothing.
+- **Then every label on the sheet is checked for a value**, including labels the
+  map never named, and one without a value stops the build. The gate's
+  `CoverSheetFilled` reads the delivered file and checks it again.
 
 ## The outcome line goes IN the answer
 
@@ -88,6 +179,60 @@ oversight rather than a judgement.
 the empty paragraph below the answer table. That failure is quiet and specific:
 every word right, every colour right, and the student's eye goes to the box and
 finds nothing in it.
+
+### Tasks get an outcome too, in the box the instrument provides
+
+A tool made of **tasks** rather than questions — three practical activities in a
+unit project — is judged task by task. Without it a student saw thirty-two
+coloured judgements on their knowledge test and none at all on the three
+activities they actually performed, with one tool-level line at the foot of the
+observation sheet standing for all three.
+
+**It goes in the instrument's own boxes, not in paragraphs after them.** These
+templates already carry an assessor's column beside every criterion and, at the
+foot of an activity, a cell headed `Assessor / Supervisor comments`. A judgement
+written as loose paragraphs after the table reads as an annotation someone
+added; written into those boxes it reads as the instrument being completed.
+
+- **every criterion row** takes its own coloured outcome, in that row's comments
+  cell under the note already there;
+- **the task's comment** goes in the labelled cell — `tasks[].commentCellLabel`
+  names it — followed by that task's coloured outcome;
+- only where the template provides **neither** does the ledger's `anchor` place
+  an `ASSESSOR COMMENT — <task>` block in the body. That is the fallback now,
+  not the rule.
+
+`results[].checklistRowsMarked` records how many criterion rows were judged; the
+count varies with the instrument, so it cannot be assumed.
+`TaskOutcomeColoured` finds each task's comment and checks that its outcome
+follows in the colour of that outcome.
+
+**Read a colour from the run, never from the paragraph.** `.//w:rPr/w:color`
+matches a paragraph mark's `w:pPr/w:rPr/w:color` first, and an outcome added
+inside a table cell was read as its pilcrow's colour and went uncounted. The
+checks read `.//w:r/w:rPr/w:color`.
+
+**A tick is not always text.** Students in this cohort confirm a box with a
+Webdings symbol — `<w:sym w:font="Webdings" w:char="F061"/>` — which carries no
+`w:t`. A text-only test reads that row as unticked and adds a second mark beside
+the first, so anything that ticks a box looks for a `w:sym` too.
+
+**A comments column is often one vertically merged cell**, not one per row. A
+note written into each row lands in merge continuations, which Word does not
+draw — the page shows one comment and eleven blanks. Write to the `w:vMerge`
+master.
+
+### The pre-start verification checklist
+
+The small assessor table inside an activity — *Assessor / supervisor to confirm
+before commencement* — is filled from `observationSheet.verification`. Nine
+untouched boxes and nine empty comment cells on a sheet the assessor has signed
+reads, to an auditor, as a check nobody carried out.
+
+**Only blank halves are filled.** Some students complete this checklist on site
+before the assessor sees it, in their own words. That is evidence: a row already
+carrying a decision or a note is left exactly as they wrote it, and only the
+empty half is completed.
 
 ### How the end of a response block is found
 
@@ -126,6 +271,27 @@ which is the end of the student's answer.
 buried inside it. The line for question N is placed relative to the anchor of
 question N+1, so an anchor set too late leaves the previous question's judgement
 stranded among the next question's headings.
+
+### `anchorAfter` — when the heading is printed twice
+
+An assessment routinely prints its task headings twice: once in the list of what
+the student will do, and again over the task itself. Both paragraphs read the
+same, word for word, so **no anchor text can tell them apart** and the build
+refuses the ambiguity rather than taking the first.
+
+`anchorAfter` names something that appears **once** and sits before the copy that
+is meant — the scenario, the previous task's template:
+
+```jsonc
+{ "ref": "Activity 2",
+  "anchor":      "Activity 2: Draft a business plan",
+  "anchorAfter": "Template 1: Report on elements of a business plan",
+  "outcome": "S" }
+```
+
+It narrows the search and nothing else. The anchor must still match exactly once
+in what is left, so this disambiguates without ever choosing a match on its own.
+`anchorAfter` itself must be unique, or the build says so and stops.
 
 ### `questionsEndAnchor` — where the last answer stops
 
@@ -206,6 +372,98 @@ The boxes must read Yes then No, in order, or the pairing is refused. `endAnchor
 and `sufficientAnchor` bound the search, so a submission carrying two sheets
 cannot have one sheet's labels matched against the other's.
 
+### Two sheet shapes: labelled boxes, and Yes/No columns
+
+The sheet above is **labelled**: each box carries its own word, `☐ Yes`, so the
+decision reads off the box. ACI's construction checklists are not. They head two
+columns `Yes` and `No` and leave a bare `☐` in every cell beneath, so a box
+paragraph carries no label at all and the labelled reader finds nothing to tick —
+silently, which is the failure that looks most like success: every box on a
+signed sheet still empty.
+
+The ledger says which shape it is. `"layout": "columns"` reads the sheet row by
+row off its tables instead:
+
+```jsonc
+"observationSheet": {
+  "layout":           "columns",
+  "anchor":           "INSTRUCTIONS FOR ASSESSOR",
+  "notesAnchor":      "Tick YES if demonstrated satisfactorily",
+  "outcomes":         ["Yes", "Yes", "Yes", "…"],   // one per criterion row, in sheet order
+  "comments":         ["Stated the plan guides decisions in the Activity 1 report.", "…"],
+  "sufficientAnchor": "OVERALL PERFORMANCE RESULT",
+  "sufficientLabels": ["Competent", "Not Yet Competent"],
+  "sufficient":       true,
+  "fields": [
+    { "label": "Assessor Signature", "value": "Simran Singh" },
+    { "label": "Date",               "value": "02 / 09 / 2026" }
+  ]
+}
+```
+
+- **Which column means Yes is read from the heading row, never from position.** A
+  sheet that gains a column, or prints No before Yes, must not shift the ticks
+  one to the left. The first column is the criterion whatever it is headed — ACI
+  heads four sections `Criteria` and the fifth `Skill`.
+- A **criterion row** is a row after a heading row whose Yes and No cells hold a
+  lone box. Section titles, notes and spacer rows are skipped rather than
+  counted, and the count is checked against `outcomes` before anything is ticked.
+- `comments` are the **comments column** — one note per criterion row, in sheet
+  order, held to the row-note standard rather than to the two-paragraph standard
+  written for an `Assessor comments` box. See
+  [observation-comments.md](observation-comments.md).
+- `sufficientLabels` names an overall box that does not read Yes and No, the
+  satisfied label first. Without it the sufficiency box is read as a Yes/No pair,
+  which is what a labelled sheet carries.
+- `fields` writes into the cell beside a label, and where the label is not in a
+  table it writes onto the printed rule after it: `Assessor Signature: ______`
+  becomes `Assessor Signature: Simran Singh`. Label and rule are matched
+  together, because the shorter rule after `Date` is a substring of the longer
+  one after `Signature`.
+
+The record itself goes under `notesAnchor` as it always has, and the gate checks
+it lies **between the sheet's own anchors** — not that it lies inside a table.
+A column sheet's instructions and notes line are body text above its section
+tables, so a record written where the sheet asks for it is at body level and in
+the sheet, which is what the rule was always about.
+
+### A third shape: both boxes inside one cell
+
+ACI's **older** CPCC packs head a single decision column `S / NS` and print
+**both** boxes in that one cell, each with its word beside it: `☐ S ☐ NS`. The
+labelled reader looks for a paragraph that is only a box and a word and finds
+none; the column reader looks for a second heading to pair with the first and
+finds none. Both return no rows, silently, and every criterion on a signed sheet
+stays unjudged.
+
+```jsonc
+"observationSheet": {
+  "layout":         "inlinePairs",
+  "decisionHeader": "S / NS",              // the one decision column's heading
+  "commentsHeader": "Assessor Comments",
+  "yesLabel":       "S",
+  "noLabel":        "NS",
+  "anchor":         "All six items must be correctly annotated",
+  "notesAnchor":    "To be completed by the Assessor only",
+  "outcomes":       ["Yes", "Yes", "…"],   // one per criterion row, in sheet order
+  "comments":       ["…", "…"]             // one row note per row, same order
+}
+```
+
+- The decision column is found by `decisionHeader`, never by position, and a
+  **criterion row** is one whose decision cell holds exactly the two labelled
+  boxes and nothing else. Section titles and the decision-rule row are skipped.
+- The count is checked against `outcomes` **before a box is written**, the same
+  way a column sheet checks it.
+- `comments` are held to the **row-note** standard, not the two-paragraph one —
+  see [observation-comments.md](observation-comments.md).
+
+**The anchor must sit ABOVE the table.** On this pack the obvious line, *To be
+completed by the Assessor only*, is inside the checklist's own first row, and a
+sheet anchored there excludes the very table it names: no rows found, nothing
+ticked, no error. Anchor on the last body paragraph before the table and use the
+line inside it as `notesAnchor`.
+
 ### When the submission has no sheet
 
 Say so. The resolver **refuses** an observation record with no `observationSheet`
@@ -221,6 +479,16 @@ tool's outcome. The resolver reports the choice as a CHECK, so it stays visible.
 
 Keep each point short and factual — what you saw, not what you concluded. The
 two-comma rule applies to them, as it does to all assessor-written prose.
+
+### The sheet's Assessor comments area
+
+`observations` are the terse points that go under `notesAnchor`. A sheet's
+**Assessor comments** area is a different thing and has its own standard: 3 to 5
+paragraphs, 2 sentences and 30 words each, at least three specifics from that
+student's own work, and no phrase shared with any other student in the cohort.
+
+Write those to [observation-comments.md](observation-comments.md) and check them
+with `scripts/Test-ObservationComments.ps1` before they reach a ledger.
 
 **The student's own words are never altered, and nothing is deleted.** The
 declaration page, the outcome lines and the observation record are the only
