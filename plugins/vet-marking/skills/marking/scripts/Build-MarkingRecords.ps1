@@ -22,7 +22,8 @@ param(
     [switch]$Resolve,
     [string]$RtoProfile,
     [string]$SubmissionRoot,
-    [switch]$NoMarkedCopies
+    [switch]$NoMarkedCopies,
+    [switch]$RecordOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -94,6 +95,96 @@ function Assert-Filled { param($Count, [string]$What)
 }
 
 # =============================================================== SAR ==========
+
+function Remove-SignatureLine {
+    <#
+      Removes 'Signature: ______' from a certification block, keeping whatever
+      follows it in the same paragraph — the date usually shares that line.
+
+      Works on RUNS rather than on the paragraph's text, because the label, the
+      rule and the date label are separate runs with their own formatting.
+      Rewriting the text would flatten all three into one. Returns the number of
+      paragraphs changed; zero is a normal answer for a template that has no
+      such line.
+    #>
+    param(
+        [Parameter(Mandatory)]$Table,
+        [Parameter(Mandatory)]$Ns,
+        [string]$Label = 'Signature:',
+        [string]$KeepFrom = 'Date:'
+    )
+    $changed = 0
+    foreach ($p in @($Table.SelectNodes('.//w:p', $Ns))) {
+        $runs = @($p.SelectNodes('./w:r', $Ns))
+        if ($runs.Count -eq 0) { continue }
+        $text = @($runs | ForEach-Object { (($_.SelectNodes('.//w:t', $Ns) | ForEach-Object { $_.InnerText }) -join '') })
+        if (($text -join '') -notmatch [regex]::Escape($Label)) { continue }
+
+        # the run that starts the signature, and the run that starts what stays
+        $from = -1; $to = $runs.Count
+        for ($i = 0; $i -lt $runs.Count; $i++) {
+            if ($from -lt 0 -and $text[$i].Contains($Label)) { $from = $i; continue }
+            if ($from -ge 0 -and $KeepFrom -and $text[$i].Contains($KeepFrom)) { $to = $i; break }
+        }
+        if ($from -lt 0) { continue }
+
+        for ($i = $to - 1; $i -ge $from; $i--) { [void]$p.RemoveChild($runs[$i]) }
+
+        # the kept run begins with the spacing that separated it from the rule
+        if ($to -lt $runs.Count) {
+            $tn = $runs[$to].SelectSingleNode('.//w:t', $Ns)
+            if ($tn) {
+                $tn.InnerText = $tn.InnerText.TrimStart()
+                Set-XmlSpacePreserve $tn
+            }
+        }
+        $changed++
+    }
+    $changed
+}
+
+function Remove-PageBreaks {
+    <#
+      Removes the explicit page breaks from a record's body, and the spacer
+      paragraphs left holding nothing once they are gone.
+
+      WHY THE BREAK GOES. The SAR template breaks to a second page so the
+      reasonable-adjustment panel and the certification start fresh. That works
+      on an empty template, whose page 1 has room to spare. Fill a real
+      assessment in — a student's feedback runs to a paragraph, a resit row
+      appears — and page 1 overflows by a line or two. What follows is not a
+      tidy second page: a single small table lands on page 2 with eighty
+      characters on it, the break then fires from there, and the certification
+      goes to page 3. On the 5 September run every record came out that way; on
+      the 6th, page 2 was completely empty on all fifteen.
+
+      Nobody sees this in the XML and nobody sees it in the template. It appears
+      only in a rendered, filled-in record, which is why Test-MarkingRecords.ps1
+      now opens every SAR and looks.
+
+      Letting the content flow costs the form nothing: every field, every table
+      and their order are unchanged, and the record runs to the number of pages
+      its content actually needs.
+    #>
+    param([Parameter(Mandatory)]$Body, [Parameter(Mandatory)]$Ns)
+    $removed = 0
+    foreach ($br in @($Body.SelectNodes('.//w:br[@w:type="page"]', $Ns))) {
+        [void]$br.ParentNode.RemoveChild($br)
+        $removed++
+    }
+    if ($removed -eq 0) { return 0 }
+
+    # A paragraph whose only content was the break is now an empty line that
+    # pushes the page down for no reason.
+    foreach ($p in @($Body.SelectNodes('./w:p', $Ns))) {
+        $txt = (($p.SelectNodes('.//w:t', $Ns) | ForEach-Object { $_.InnerText }) -join '')
+        if ($txt.Trim() -ne '') { continue }
+        if ($p.SelectSingleNode('.//w:drawing | .//w:pict | .//w:br | .//w:tbl', $Ns)) { continue }
+        if (-not $p.SelectSingleNode('./w:r', $Ns)) { continue }   # keep true spacer paragraphs
+        [void]$Body.RemoveChild($p)
+    }
+    $removed
+}
 
 function Build-Sar {
     param($Student)
@@ -223,6 +314,21 @@ function Build-Sar {
             [void](Set-LabelledBox -Node $tAdmin -Ns $ns -Label $lab -Ticked $true)
         }
         Assert-Filled (Set-Placeholder -Node $tAdmin -Ns $ns -Name 'dd / mm / yyyy' -Value $L.dates.resultsEnteredText) 'results entered date'
+
+        # ---- the signature line ---------------------------------------------
+        #
+        # The RTO signs this record in the student management system, not on the
+        # page, so the ruled line is removed at the RTO's direction. It shares a
+        # paragraph with the certification date, which stays: only the runs from
+        # 'Signature:' up to 'Date:' go, and the leading spacing that separated
+        # them goes with them. Where a template has no such label, nothing
+        # happens — this is not an error.
+        [void](Remove-SignatureLine -Table $tCert -Ns $ns -Label 'Signature:' -KeepFrom 'Date:')
+
+        # ---- the blank page -------------------------------------------------
+        # See Remove-PageBreaks: the template's break produces a blank or
+        # near-blank page as soon as a filled-in page 1 overflows.
+        [void](Remove-PageBreaks -Body $pkg.Body -Ns $ns)
 
         $dest = Join-Path $OutDir $Student.sarFile
         [void](Save-Docx -Package $pkg -Destination $dest)
@@ -454,10 +560,13 @@ Write-Output ("Building marking records for {0} {1} — {2} student(s), {3} tool
 Write-Output ("RTO: {0}  ·  marking date {1}" -f $Rto.rto.tradingName, $L.dates.markingDateText)
 Write-Output ''
 
-foreach ($s in @($L.students)) {
-    $file = Build-Sar -Student $s
-    $built += $file
-    Write-Output ("  SAR       {0,-46} {1}" -f (Split-Path -Leaf $file), $s.overall)
+# The SARs are not rebuilt for a consolidated group record; see -RecordOnly below.
+if (-not $RecordOnly) {
+    foreach ($s in @($L.students)) {
+        $file = Build-Sar -Student $s
+        $built += $file
+        Write-Output ("  SAR       {0,-46} {1}" -f (Split-Path -Leaf $file), $s.overall)
+    }
 }
 
 # The Assessment Marking and Results Record is a CLASS-WIDE summary. A one-row
@@ -470,6 +579,19 @@ if ($L.summary.buildMarkingRecord -eq $false) {
     $amrr = Build-Amrr
     $built += $amrr
     Write-Output ("  RECORD    {0}" -f (Split-Path -Leaf $amrr))
+}
+
+# -RecordOnly stops here: the class record and nothing else. It exists for
+# CONSOLIDATION — a per-group record drawn from marking runs whose SARs,
+# feedback sheets and marked copies were built, gated and issued at the time.
+# Rebuilding those would need the original submissions back, and would replace
+# documents an assessor has already signed with fresh ones nobody has read.
+if ($RecordOnly) {
+    Write-Output ''
+    Write-Output ("{0} document(s) written to {1}" -f $built.Count, (Resolve-Path -LiteralPath $OutDir).Path)
+    Write-Output 'Record only: the SARs, feedback sheets and marked copies of the runs this record consolidates are not rebuilt.'
+    $built
+    return
 }
 
 # ---- the feedback ----------------------------------------------------------

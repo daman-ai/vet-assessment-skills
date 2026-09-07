@@ -12,7 +12,7 @@
     {
       "name": "vet-marking",
       "source": "./plugins/vet-marking",
-      "description": "Mark a batch of submitted student assessments for one unit and produce the records an RTO keeps - marked copies carrying a cover sheet, a feedback page and a coloured outcome in every response, standalone Student Feedback Sheets for anyone with nothing coming back, Student Assessment Records and the class Assessment Marking and Results Record - from the unit prerequisites on training.gov.au, the WiseNet enrolment matrix and the RTO's own templates. Includes the rto-validation-docs skill for the controlled assessment-validation document set."
+      "description": "Mark a batch of submitted student assessments for one unit and produce the records an RTO keeps - marked copies carrying a cover sheet, a feedback page and a coloured outcome in every response, standalone Student Feedback Sheets for anyone with nothing coming back, Student Assessment Records and the class Assessment Marking and Results Record - from the unit prerequisites on training.gov.au, the WiseNet enrolment matrix and the RTO's own templates. Consolidates several marking runs into one record per WiseNet course-offer group and lays the result out as a handover package, one folder per group and per student. Includes the rto-validation-docs skill for the controlled assessment-validation document set."
     },
     {
       "name": "vet-compliance",

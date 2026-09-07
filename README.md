@@ -75,7 +75,7 @@ Mark a batch of submitted student assessments with:
 /marking <UNITCODE>
 ```
 
-The marking skill reads the WiseNet 0217 Unit Enrolment Outcome Matrix **by cell colour** to work out who was actually enrolled and is required to submit. It reads the unit's prerequisites from training.gov.au and withholds the result as **RW** where the matrix does not positively show the student holding them. Every student is handed their feedback, not only those assessed NYC. Real roll exports carry student names and IDs - they are gitignored, never commit one.
+The marking skill reads the WiseNet 0217 Unit Enrolment Outcome Matrix **by cell colour** to work out who was actually enrolled and is required to submit. It reads the unit's prerequisites from training.gov.au and withholds the result as **RW** where the matrix does not positively show the student holding them. Every student is handed their feedback, not only those assessed NYC. A 0217 export carries **one worksheet per course offer**, and where the RTO files by group rather than by marking day, several runs consolidate into one record per group and a handover package - one folder per group, one per student inside it. Real roll exports carry student names and IDs - they are gitignored, never commit one.
 
 After a pack is delivered, build its teaching resources with:
 
@@ -114,7 +114,9 @@ plugins/vet-marking/
                         copy per student carrying a filled cover sheet and a feedback page, a
                         standalone Student Feedback Sheet for anyone with nothing coming back, a
                         Student Assessment Record each, and one class Assessment Marking and
-                        Results Record - all derived from one ledger
+                        Results Record - all derived from one ledger. Consolidates several marking
+                        runs into one record per WiseNet course-offer group and lays the result
+                        out as a handover package, one folder per group and per student
   skills/rto-validation-docs/
                         the controlled assessment-validation document set: Parts A/B/C, the
                         Validation Plan, the Continuous Improvement Register and panel rosters,

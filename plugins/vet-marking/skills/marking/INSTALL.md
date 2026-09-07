@@ -142,12 +142,14 @@ assets/
   rto.aci-culinary.json         measured template map, SIT variant
   rto.aci-construction.json     measured template map, CPC variant
   public-holidays.sa.json       observed SA holidays, 2026-2028
-  templates/                    MVC's three approved .docx templates
+  templates/                    nine approved .docx templates — a SAR, a marking
+                                record and a feedback sheet for each of the three RTOs
 examples/
-  ledger.example.json           five students covering every case
-  submissions/                  seven synthetic submissions, and the script that makes them
-references/                     twelve reference documents
-scripts/                        fourteen PowerShell scripts
+  ledger.example.json           six students covering every case, RW included
+  submissions/                  nine synthetic submissions and two prior marked attempts,
+                                with the script that makes them
+references/                     thirteen reference documents
+scripts/                        nineteen PowerShell scripts
 _source_RTO_Marking_Instruction.docx   the RTO's original instruction, kept for provenance
 ```
 
@@ -175,3 +177,27 @@ powershell -File "$S\Build-MarkingRecords.ps1" -Ledger resolved.json -OutDir out
 # the blocking gate - nothing is delivered until this passes
 powershell -File "$S\Test-MarkingRecords.ps1" -Ledger resolved.json -Dir out
 ```
+
+And where the RTO files by WiseNet course-offer group rather than by marking day:
+
+```powershell
+# every worksheet of the 0217 export - one per group
+powershell -File "$S\Read-Groups.ps1" -Path rpt_WiseNET_0217.xls -Unit CPCCWHS2001 -Json roster.json
+
+# one resolved ledger per group, refusing duplicates and cross-group members
+powershell -File "$S\Merge-MarkingLedgers.ps1" -Ledger run1\resolved.json,run2\resolved.json -Roster roster.json -OutDir groups
+
+# the group's own marking record, without rebuilding documents already issued
+powershell -File "$S\Build-MarkingRecords.ps1" -Ledger groups\group_Group_1.json -OutDir records -RecordOnly
+
+# group folders, a folder per student, and the zip
+powershell -File "$S\Build-GroupPackage.ps1" -GroupLedgerDir groups -RecordDir records -OutDir package -SourceDir run1,run2 -Zip package.zip
+
+# the blocking gate for the package
+powershell -File "$S\Test-GroupPackage.ps1" -GroupLedgerDir groups -Dir package -Zip package.zip
+```
+
+**Build the package somewhere with a short path.** Windows' 260-character limit
+is reached easily by a package root plus a group folder plus a student folder
+plus a document name; the builder measures before it copies and tells you, but a
+folder on the Desktop saves the round trip.

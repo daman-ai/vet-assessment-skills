@@ -88,6 +88,16 @@ try {
     }
     $sheetName = "$($ws.Name)"
 
+    # ONE WORKSHEET PER COURSE-OFFER GROUP. An export covering four groups is
+    # four worksheets, and reading only the first is how a run once concluded
+    # that nobody had to submit while thirteen learners waited on sheets 2 to 4.
+    # Defaulting to sheet 1 is right for a single-sheet export and silently
+    # wrong for any other, so say so rather than answer a quarter of the cohort
+    # confidently. Read-Groups.ps1 reads them all.
+    if ($sheetNames.Count -gt 1 -and -not $PSBoundParameters.ContainsKey('Sheet')) {
+        Write-Warning ("This workbook has {0} worksheets ({1}) and no -Sheet was given, so only '{2}' was read. A 0217 export carries one sheet per course offer: run once per sheet, or use Read-Groups.ps1 to read every one." -f $sheetNames.Count, ($sheetNames -join ', '), $sheetName)
+    }
+
     $rows = $ws.UsedRange.Rows.Count
     $cols = $ws.UsedRange.Columns.Count
 

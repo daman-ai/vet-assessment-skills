@@ -55,6 +55,20 @@ function Save-Docx {
     <#
       Writes the DOM back and rezips to $Destination. Any existing file at the
       destination is replaced. The working directory is removed unless -Keep.
+
+      ENTRY NAMES USE A FORWARD SLASH, and [Content_Types].xml is written first.
+
+      CreateFromDirectory would be one line, and on .NET Framework it puts a
+      BACKSLASH in every entry name — 'word\document.xml'. Word opens those
+      files, so nothing complains: the build succeeds, the gate goes green and
+      the documents are issued. Then Moodle's preview will not render them,
+      Google Docs will not import them, macOS Quick Look shows nothing,
+      LibreOffice refuses and python-docx cannot find a single part, because the
+      ZIP spec (APPNOTE 4.4.17.1) and OPC both require '/'. That cost a whole
+      delivered batch, which then had to be repacked by hand.
+
+      So the archive is written entry by entry, here, at the one point every
+      document this skill produces passes through.
     #>
     param(
         [Parameter(Mandatory)]$Package,
@@ -67,9 +81,38 @@ function Save-Docx {
     if ($dir -and -not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
     if (Test-Path -LiteralPath $Destination) { Remove-Item -LiteralPath $Destination -Force }
 
-    [System.IO.Compression.ZipFile]::CreateFromDirectory(
-        $Package.Work, $Destination,
-        [System.IO.Compression.CompressionLevel]::Optimal, $false)
+    $workFull = (Resolve-Path -LiteralPath $Package.Work).Path.TrimEnd('\')
+
+    # ENUMERATE AND STRIP WITH THE SAME STRING. $env:TEMP is handed to us in
+    # 8.3 short form whenever the account name is over eight characters
+    # (C:\Users\ACI-AD~1\... for ACI-Admin), while Get-ChildItem reports
+    # FullName in long form. Substring($workFull.Length) then cuts one
+    # character short and the tail of the work directory's own name leaks into
+    # every entry path — 'e/[Content_Types].xml' — and the save dies on a file
+    # that is plainly there. GetFiles builds its results from the root string
+    # it was given, so both sides match whichever form arrived, and the full
+    # path is carried alongside the entry name rather than rebuilt from it.
+    $entries = @([System.IO.Directory]::GetFiles(
+            $workFull, '*', [System.IO.SearchOption]::AllDirectories) |
+        ForEach-Object {
+            [pscustomobject]@{
+                Full = $_
+                Rel  = $_.Substring($workFull.Length).TrimStart('\', '/').Replace('\', '/')
+            }
+        })
+    $entries = @($entries | Where-Object { $_.Rel -eq '[Content_Types].xml' }) +
+               @($entries | Where-Object { $_.Rel -ne '[Content_Types].xml' } | Sort-Object Rel)
+
+    $fs = [System.IO.File]::Open($Destination, [System.IO.FileMode]::CreateNew)
+    $za = New-Object System.IO.Compression.ZipArchive($fs, [System.IO.Compression.ZipArchiveMode]::Create)
+    try {
+        foreach ($e in $entries) {
+            $entry = $za.CreateEntry($e.Rel, [System.IO.Compression.CompressionLevel]::Optimal)
+            $in  = [System.IO.File]::OpenRead($e.Full)
+            $out = $entry.Open()
+            try { $in.CopyTo($out) } finally { $out.Close(); $in.Close() }
+        }
+    } finally { $za.Dispose(); $fs.Dispose() }
 
     if (-not $Keep) { Remove-Item -LiteralPath $Package.Work -Recurse -Force }
     $Destination

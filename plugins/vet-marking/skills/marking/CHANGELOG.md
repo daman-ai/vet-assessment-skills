@@ -1,5 +1,87 @@
 # Changelog
 
+## v2.7.0 — 7 September 2026
+
+Merged the 6 September group-packaging branch onto v2.6.0. That branch was cut
+before v2.6.0 and carried its own fixes, so this is a merge in both directions:
+its work came across, and nothing v2.6.0 added — prerequisites and RW
+withholding, `inlinePairs` observation sheets, cover-sheet filling, observation
+comments, resubmission stacking — was taken back out.
+
+### Consolidation by WiseNet course-offer group
+
+A marking run is scoped to a **day**. What the RTO files is scoped to a
+**course-offer group**, and a group's learners are marked on whatever day their
+work came in — so the records that go on the file are cut differently from the
+runs that made them. Five scripts do the cutting, and Stage 8 of SKILL.md
+describes the workflow.
+
+- **`Read-Groups.ps1`** reads *every* worksheet of the 0217 export — one per
+  course offer — and returns each group's roster. The importer read only the
+  first, which silently lost every group but one.
+- **`Merge-MarkingLedgers.ps1`** consolidates several resolved ledgers into one
+  per group. It refuses the same student in two ledgers, a student on two
+  worksheets, and a marked student on no worksheet at all: each is a record an
+  auditor would reject. Every learner keeps their own feedback-given and
+  resubmission dates; serials are renumbered per group and rows sorted by
+  surname.
+- **`Build-GroupPackage.ps1`** lays the documents out the way they are filed and
+  handed back — a folder per group, its record at the top, a folder per student
+  inside — copying every file by the exact name its ledger holds.
+- **`Test-GroupPackage.ps1`** is the blocking gate for a package: eleven checks,
+  including that each record names its own group's students and nobody else, and
+  that no student ID sits under two group folders.
+- **`Set-AmrrColumns.ps1`** re-lays a record's column widths, writing the grid
+  and every cell together so Word does not reflow to the one that was not
+  changed.
+- **`Build-MarkingRecords.ps1 -RecordOnly`** builds the class record alone. The
+  SARs, feedback sheets and marked copies were built, gated and issued by the
+  runs being consolidated; rebuilding them would need the submissions back and
+  would replace signed documents with fresh ones nobody has read.
+
+### Two zip defects, one of which had a gate agreeing with it
+
+`Save-Docx` used `ZipFile::CreateFromDirectory`, which on .NET Framework writes
+**backslash entry names** — `word\document.xml`. Word opens those files, so
+nothing complains, but Moodle will not preview them, Google Docs will not import
+them and macOS Quick Look shows nothing. Every document this skill produced
+carried it. The archive is now written entry by entry with `/`, and
+`[Content_Types].xml` first.
+
+The same class of defect sat in `Build-GroupPackage.ps1`, and there the gate
+repeated the builder's arithmetic and agreed with it. Both computed a zip entry
+name by subtracting `$dirFull.Length` from a `Get-ChildItem` `FullName`. Where
+the account name runs past eight characters, `$env:TEMP` arrives in **8.3 short
+form** (`C:\Users\ACI-AD~1\...`) while `FullName` comes back long, so the
+subtraction cut one character short and the tail of the package folder's own
+name became a directory inside the zip — every path under a phantom `e/`.
+`ZipMatchesFolders` passed because it was wrong in exactly the same way. Builder
+and gate now both enumerate with `Directory::GetFiles` from the same root
+string.
+
+### The SAR's blank page and its signature line
+
+Filled in, a SAR's page 1 overflows by a line or two; what follows the template's
+page break is then a page with eighty characters on it, or nothing at all. On the
+5 September run every record came out that way; on the 6th, page 2 was completely
+empty on all fifteen. `Remove-PageBreaks` lets the content flow — every field,
+every table and their order unchanged — and the RTO's signature line goes with
+`Remove-SignatureLine`, since the RTO signs in the student management system and
+a ruled line on an issued record asks for something nobody will provide.
+
+Neither is visible in the XML or in the template, only in a rendered, filled-in
+record, so the gate now opens every SAR and looks: `SarNoBlankPage` and
+`SarNoSignatureLine`.
+
+### The gate steps over text boxes
+
+`Get-BodyParagraphs` selects on the descendant axis, so a paragraph inside a
+`w:txbxContent` sits in the list between an answer and the outcome line written
+after it. `MarkedCopyInAnswerSpace` took `$i-1` blindly, compared the outcome
+against a floating caption, and reported a correctly placed line as sitting
+outside its response box. It now walks back past text-box paragraphs.
+
+
 ## v2.6.0 — 3 September 2026
 
 ### A third observation-sheet shape: both boxes in one cell

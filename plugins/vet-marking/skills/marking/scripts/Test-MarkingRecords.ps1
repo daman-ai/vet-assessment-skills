@@ -1023,6 +1023,17 @@ Add-Check 'MarkedCopyFrontBlockAligned' ($alignProbs.Count -eq 0) `
 # inserts as a sibling. It is checked anyway: the guarantee is a property of one
 # helper, and this is the gate that would notice if that ever changed.
 
+function Test-ParaInShape {
+    <# True when the paragraph sits inside a text box rather than the page body. #>
+    param($Paragraph)
+    $n = $Paragraph.ParentNode
+    while ($n -and $n.Name -ne 'w:body') {
+        if ($n.LocalName -eq 'txbxContent') { return $true }
+        $n = $n.ParentNode
+    }
+    $false
+}
+
 $spaceProbs = @()
 $looseLines = 0
 if ($M) {
@@ -1048,7 +1059,16 @@ if ($M) {
                 if ($cVal -ne $M.satisfactoryColor -and $cVal -ne $M.notSatisfactoryColor) { continue }
                 if ($i -eq 0) { $spaceProbs += "${name}: an outcome line is the first paragraph in the document"; continue }
 
-                $prev = $paras[$i - 1]
+                # STEP OVER PARAGRAPHS THAT LIVE IN A TEXT BOX. Get-BodyParagraphs
+                # selects on the descendant axis, so a w:p inside a w:txbxContent
+                # is in this list at its document-order position — between the
+                # answer and the outcome line that was inserted after it. Taking
+                # $i-1 blindly then compares the outcome against a floating
+                # caption and reports a correctly placed line as sitting outside
+                # its response box.
+                $p = $i - 1
+                while ($p -gt 0 -and (Test-ParaInShape $paras[$p])) { $p-- }
+                $prev = $paras[$p]
                 if ([string]::IsNullOrWhiteSpace((Get-RunText $prev $pkg.Ns))) {
                     $spaceProbs += "${name}: an outcome line sits under an empty paragraph, not under an answer"
                     continue
@@ -1717,7 +1737,8 @@ if (-not $SkipRender) {
         $word.DisplayAlerts = 0
 
         $openProbs = @()
-        $pageProbs = @()
+        $blankProbs = @()
+        $sigProbs   = @()
         foreach ($f in $files) {
             try {
                 $doc = $word.Documents.Open($f.FullName, $false, $true)
@@ -1726,6 +1747,29 @@ if (-not $SkipRender) {
                 # physical page where it is long. The page break before the
                 # student's own content is what matters, and
                 # MarkedCopyFeedbackPage checks that on the file itself.
+
+                # A BLANK PAGE IN A SAR. The form breaks to a second page by
+                # design, and a spacer paragraph in front of that break lands
+                # alone on a page of its own as soon as page 1 fills up — so the
+                # record goes out with an empty sheet in the middle of it. It
+                # cannot be seen in the XML and it cannot be seen in the
+                # template; only a rendered, filled-in record shows it.
+                # Remove-PageBreaks in Build-MarkingRecords.ps1 is what prevents
+                # it; this is the check that proves it worked.
+                if ($f.Name -like 'SAR_*') {
+                    $pages = $doc.ComputeStatistics(2)          # wdStatisticPages
+                    for ($pg = 1; $pg -le $pages; $pg++) {
+                        $st = $doc.GoTo(1, 1, $pg).Start        # wdGoToPage
+                        $en = if ($pg -lt $pages) { $doc.GoTo(1, 1, $pg + 1).Start } else { $doc.Content.End }
+                        if ((($doc.Range($st, $en).Text) -replace '[\s\r\n\f\a\x07\x0c]', '') -eq '') {
+                            $blankProbs += "$($f.Name): page $pg of $pages is blank"
+                        }
+                    }
+                    # The RTO signs in the student management system, not on the
+                    # page. A ruled signature line left on an issued record asks
+                    # for something nobody is going to provide.
+                    if ($doc.Content.Text -match 'Signature\s*:') { $sigProbs += "$($f.Name) still carries a signature line" }
+                }
                 $doc.Close($false)
             } catch {
                 $openProbs += "$($f.Name) will not open in Word"
@@ -1733,6 +1777,10 @@ if (-not $SkipRender) {
         }
         Add-Check 'OpensInWord' ($openProbs.Count -eq 0) `
             $(if ($openProbs.Count) { ($openProbs | Select-Object -First 6) -join ' · ' } else { "all $($files.Count) file(s) open in Word" })
+        Add-Check 'SarNoBlankPage' ($blankProbs.Count -eq 0) `
+            $(if ($blankProbs.Count) { ($blankProbs | Select-Object -First 4) -join ' · ' } else { 'no SAR renders a blank page' })
+        Add-Check 'SarNoSignatureLine' ($sigProbs.Count -eq 0) `
+            $(if ($sigProbs.Count) { ($sigProbs | Select-Object -First 4) -join ' · ' } else { 'no SAR carries a signature line' })
     } catch {
         Add-Check 'OpensInWord' $true "Word is not available on this machine, so the render check did not run. NoInventedNamespacePrefix and the structural checks stand in its place, and they are weaker: open one file by hand before issuing these records. ($($_.Exception.Message))" -Warn
     } finally {

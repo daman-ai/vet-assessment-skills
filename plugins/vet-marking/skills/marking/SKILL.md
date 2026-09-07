@@ -1,6 +1,6 @@
 ---
 name: marking
-description: Mark a batch of submitted student assessments for one unit of competency and produce the records an Australian RTO keeps - a marked copy of each student's own assessment carrying a filled cover sheet, a feedback page and a green Satisfactory or red Not yet Satisfactory inside every response, a standalone Student Feedback Sheet for any student with nothing coming back, a Student Assessment Record per student, and one Assessment Marking and Results Record for the class (not built for a class of one). Every student is handed their feedback, not only those assessed Not Yet Competent. Reads the unit's prerequisites from training.gov.au and confirms each student holds them from the WiseNet 0217 Unit Enrolment Outcome Matrix, withholding the result as RW where they do not. Works out who is required to submit from that same matrix, by cell colour rather than text. Fills the RTO's own supplied Word templates without touching their headers, footers or numbering; judges substance rather than English, so no student is marked down for spelling or grammar; keeps feedback to two commas a sentence; stacks resubmissions so an earlier attempt is never overwritten; derives every result, date, tick and filename from one ledger so fifty documents cannot disagree; and blocks delivery on a gate that reads the finished files back. Serves Meridian Vocational College, ACI Culinary and ACI Construction, and any RTO that supplies its templates. Use when asked to mark assessments, mark student submissions, complete a SAR or student assessment record, produce a marking record or results record, write student feedback, return marked assessments to students, record assessment outcomes, or process a batch of marking for a unit of competency.
+description: Mark a batch of submitted student assessments for one unit of competency and produce the records an Australian RTO keeps - a marked copy of each student's own assessment carrying a filled cover sheet, a feedback page and a green Satisfactory or red Not yet Satisfactory inside every response, a standalone Student Feedback Sheet for any student with nothing coming back, a Student Assessment Record per student, and one Assessment Marking and Results Record for the class (not built for a class of one). Every student is handed their feedback, not only those assessed Not Yet Competent. Reads the unit's prerequisites from training.gov.au and confirms each student holds them from the WiseNet 0217 Unit Enrolment Outcome Matrix, withholding the result as RW where they do not. Works out who is required to submit from that same matrix, by cell colour rather than text. Fills the RTO's own supplied Word templates without touching their headers, footers or numbering; judges substance rather than English, so no student is marked down for spelling or grammar; keeps feedback to two commas a sentence; stacks resubmissions so an earlier attempt is never overwritten; derives every result, date, tick and filename from one ledger so fifty documents cannot disagree; and blocks delivery on a gate that reads the finished files back. Consolidates several marking runs into one record per WiseNet course-offer group and lays the result out as a handover package, one folder per group and one per student inside it. Serves Meridian Vocational College, ACI Culinary and ACI Construction, and any RTO that supplies its templates. Use when asked to mark assessments, mark student submissions, complete a SAR or student assessment record, produce a marking record or results record, write student feedback, return marked assessments to students, record assessment outcomes, process a batch of marking for a unit of competency, consolidate marking runs into per-group records, or build a group handover package.
 ---
 
 # Assessment Marking
@@ -15,7 +15,7 @@ of competency**, for **one class**, on **one marking date**.
 | **Marked assessment** | one per submitted **file** | the student's own work returned, with an outcome inside every response box, a filled cover sheet, and a **feedback page** in front carrying the overall result and the feedback |
 | **Student Feedback Sheet** | one per student with **no** marked copy | the same feedback, standalone, for a student who has nothing coming back |
 | Student Assessment Record (SAR) | one per student | the individual record of that student's outcome |
-| Assessment Marking and Results Record | one per class/unit | the class-wide summary, one row per student. **Not built for a class of one** |
+| Assessment Marking and Results Record | one per class/unit, or **one per WiseNet course-offer group** where the RTO files by group | the class-wide summary, one row per student. **Not built for a class of one** |
 
 **EVERY STUDENT IS HANDED THEIR FEEDBACK.** A student with work coming back reads
 it on page one of their own marked assessment, where it cannot be separated from
@@ -380,6 +380,69 @@ Say what was produced, the outcome split, and anything the assessor must decide:
 authorship flags confirmed, students excluded by the matrix and why, evidence
 that could not be found, any feedback sheet that overflowed ten items.
 
+### Stage 8 — consolidate by group, where the RTO files by group
+
+A marking run is scoped to a **day**. What the RTO files is scoped to a
+**course-offer group** — and a group's learners are marked on whatever day their
+work came in, so the records that go on the file are cut differently from the
+runs that made them. Where a unit has been marked over more than one day, or
+where one run spans several groups, consolidate:
+
+```bash
+powershell -File scripts/Merge-MarkingLedgers.ps1 -Ledger run1/resolved.json,run2/resolved.json -Matrix rpt_0217.xls -OutDir groups
+powershell -File scripts/Build-MarkingRecords.ps1 -Ledger groups/group_Group_1.json -OutDir records -RecordOnly
+powershell -File scripts/Build-GroupPackage.ps1 -GroupLedgerDir groups -RecordDir records -OutDir package -SourceDir run1,run2 -Zip package.zip
+powershell -File scripts/Test-GroupPackage.ps1 -GroupLedgerDir groups -Dir package -Zip package.zip
+```
+
+The merge reads **every worksheet** of the 0217 export — one per course offer —
+and refuses three things outright, because each is a record an auditor would
+reject: the **same student in two ledgers** (a resit is one entry with attempt 2,
+never two entries), a student **on two worksheets** (fix the enrolment in WiseNet
+first — whichever group is picked, the other record is wrong), and a marked
+student **on no worksheet at all**.
+
+Each learner keeps their own feedback-given and resubmission dates, so a group
+record covering two marking days shows every learner the day their own feedback
+was given. The record's own sign-off date is the latest run it draws on. Serial
+numbers are renumbered per group and rows are sorted by surname, because the
+record is read down the page by somebody looking for one learner.
+
+`-RecordOnly` builds the class record alone. The SARs, feedback sheets and marked
+copies were built, gated and issued by the runs that produced them; rebuilding
+them would need the submissions back, and would replace documents an assessor has
+already signed with fresh ones nobody has read.
+
+The package is the shape the documents are handed over in:
+
+```
+Group 1 - Certificate III in Commercial Cookery/
+  AMLC_SITHPAT016_Group_1_02092026.docx
+  01 Daniel Okafor (MVC00318)/
+    SAR_SITHPAT016_Daniel Okafor_MVC00318_NYC.docx
+    SITHPAT016_Daniel Okafor_MVC00318_NYC_kq.docx
+```
+
+Every file is copied by the name the ledger holds — nothing is matched by
+pattern, because a pattern that matched two students would file one learner's
+marked work in another learner's folder, and the folder is what a student is
+handed. `Test-GroupPackage.ps1` is the blocking gate: eleven checks, including
+that each record names its own group's students **and nobody else**, that no
+student ID sits under two group folders, and that the zip holds exactly what the
+folders hold.
+
+Two things bite on Windows, and both are checked rather than discovered. The
+**260 character path limit** — the package root, a group folder, a student folder
+and a document name together clear it easily, so the builder measures before it
+copies and tells you to choose a shorter `-OutDir`. And **8.3 short paths**:
+`$env:TEMP` arrives as `C:\Users\ACI-AD~1\...` wherever the account name runs
+past eight characters, while `Get-ChildItem` reports the long form, so a relative
+name built by subtracting one string's length from the other keeps the tail of
+the folder's own name — every zip entry under a phantom `e/`. Builder and gate
+both enumerate with `Directory::GetFiles` from the same root string for that
+reason, and a gate that repeats the builder's arithmetic agrees with it and
+proves nothing.
+
 ## The result rules
 
 - **Per tool:** meets the requirements → S. Submitted but does not → NYS.
@@ -493,6 +556,15 @@ gate.
   UAT 1 and UAT 2 comes back once, marked throughout.
 - **Never use the word the RTO has banned** — the software-jargon term for a
   fill-in field. Say *field*. `NoBannedWord` blocks any document containing it.
+- **Never record one student twice, and never put them in two groups.** One
+  student, one marking entry, one group folder, one row on one group record. A
+  resit is `attempt: 2` on that single entry, not a second entry. Where the 0217
+  export itself lists a learner on two worksheets, the enrolment is wrong and
+  the merge stops until WiseNet is fixed.
+- **Never file a document by matching a pattern.** Every marked copy, SAR and
+  feedback sheet is copied into a group package by the exact name its ledger
+  holds. A pattern that matched two students would put one learner's marked work
+  in another learner's folder, and the folder is what a student is handed.
 
 ## Files
 
@@ -535,6 +607,11 @@ scripts/
   Test-MarkingRecords.ps1       the blocking gate
   Test-AiFlag.ps1               the authorship rule, with its evidence
   Test-ObservationComments.ps1  the observation-comment standard, cohort-wide
+  Read-Groups.ps1               read every worksheet of 0217, the roster of each group
+  Merge-MarkingLedgers.ps1      consolidate runs into one resolved ledger per group
+  Set-AmrrColumns.ps1           re-lay a record's column widths, grid and cells together
+  Build-GroupPackage.ps1        group folders, a folder per student, the zip
+  Test-GroupPackage.ps1         the blocking gate for a consolidated group package
   Test-Install.ps1              prove the skill runs on this machine
 ```
 

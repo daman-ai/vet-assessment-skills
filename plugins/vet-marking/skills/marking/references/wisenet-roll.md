@@ -170,3 +170,25 @@ often needs to override.
 - [ledger.md](ledger.md) — where the student list goes
 - [prerequisite-lookup.md](prerequisite-lookup.md) — finding what the prerequisite is
 - [result-rules.md](result-rules.md) — what happens to each student once selected
+
+## One worksheet per course-offer group — read all of them
+
+A 0217 export covering four groups is **four worksheets**, one per course offer,
+each with its own header block and its own learner list. Reading only the first
+answers about a quarter of the cohort, and answers it confidently: on one
+CPCCWHS2001 run, sheet 1 alone showed *zero* students required to submit while
+thirteen waited on sheets 2 to 4.
+
+`Import-WisenetMatrix.ps1` reads one sheet. `-Sheet` takes a 1-based index or a
+sheet name, and where the workbook holds more than one and none was asked for it
+warns rather than answering quietly from sheet 1. Run it once per sheet, or use
+the reader that takes all of them:
+
+```bash
+powershell -File scripts/Read-Groups.ps1 -Path rpt_WiseNET_0217.xls -Unit CPCCWHS2001 -Json roster.json
+```
+
+Group membership is what the sheet a learner sits on says it is. A learner
+appearing on two sheets is **reported, not silently placed** in the last one
+seen — the enrolment is wrong, and whichever group were picked the other record
+would be wrong too. Fix it in WiseNet before filing a group record.
