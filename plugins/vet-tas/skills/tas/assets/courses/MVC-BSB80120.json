@@ -1,0 +1,181 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "MVC-BSB80120",
+    "qualificationCode":  "BSB80120",
+    "qualificationTitle":  "Graduate Diploma of Management (Learning)",
+    "productType":  "qualification",
+    "aqfLevel":  "Graduate Diploma",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "institute":  "Meridian Vocational College",
+    "siblingCourse":  null,
+    "durationWeeks":  52,
+    "packagingRule":  {
+                          "rule":  "8 units - 3 core plus 5 electives; 3 from the listed electives and up to 2 from elsewhere.",
+                          "core":  3,
+                          "totalUnits":  8,
+                          "statedInTas":  true,
+                          "elective":  5
+                      },
+    "unitCount":  8,
+    "deliveredCount":  8,
+    "priorCourse":  null,
+    "sequencing":  {
+                       "model":  "sequence",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB80120 Graduate Diploma of Management (Learning).docx",
+                       "clusters":  [
+
+                                    ],
+                       "order":  [
+
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "BSBLDR811",
+                      "title":  "Lead strategic transformation",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBHRM613",
+                      "title":  "Contribute to the development of learning and development strategies",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "TAELED803",
+                      "title":  "Implement improved learning practice",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBCRT611",
+                      "title":  "Apply critical thinking for complex problem solving",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBSTR801",
+                      "title":  "Lead innovative thinking and practice",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBLDR812",
+                      "title":  "Develop and cultivate collaborative partnerships and relationships",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  6,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBLDR601",
+                      "title":  "Lead and manage organisational change",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  7,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBOPS601",
+                      "title":  "Develop and implement business plans",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  8,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+                             {
+                                 "code":  "BSBHRM613",
+                                 "what":  "unit code",
+                                 "tas":  "BSBHRM6153",
+                                 "register":  "BSBHRM613"
+                             }
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB80120 Graduate Diploma of Management (Learning).docx",
+                   "tasSha256":  "7C0C48C2366A35CA7B719DF9A159C3A2AC407DAE9B0EC4E28369D0D74FF36038",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:44Z"
+               },
+    "notes":  [
+                  "52 weeks including 4 weeks term break. All 8 units delivered."
+              ],
+    "openItems":  [
+                      "The TAS types BSBHRM613 Contribute to the development of learning and development strategies as BSBHRM6153 - one digit too many, and no such unit exists on training.gov.au. Corrected on the way in and recorded in titleCorrections. A student training plan for this qualification carries the same table and marks only two units as Core where the packaging rule requires three; check the designations against the rule."
+                  ]
+}

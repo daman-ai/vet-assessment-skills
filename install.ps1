@@ -35,6 +35,7 @@ $skills = [ordered] @{
     'marking'       = 'vet-marking'
     'auditor'       = 'vet-compliance'
     'pd'            = 'vet-compliance'
+    'tas'           = 'vet-tas'
 }
 
 # NOTE: rto-validation-docs is versioned in this repo (plugins/vet-marking/skills)

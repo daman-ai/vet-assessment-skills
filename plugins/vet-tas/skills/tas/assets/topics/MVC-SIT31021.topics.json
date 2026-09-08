@@ -1,0 +1,950 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "MVC-SIT31021",
+    "qualificationCode":  "SIT31021",
+    "qualificationTitle":  "Certificate III in Patisserie",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "priorCourse":  null,
+    "generatedUtc":  "2026-09-07T07:21:10Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/MVC-SIT31021.families.json",
+                   "decisions":  "assets/topics/decisions/MVC-SIT31021.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  25,
+    "topics":  [
+                   {
+                       "id":  "SIT31021-T01",
+                       "name":  "Selecting, assembling and safely operating commercial kitchen and patisserie equipment",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC023",
+                       "ownerCluster":  2,
+                       "rationale":  "Eleven units restate safe operational practices using essential functions and features of equipment, and ten carry the element about preparing food safely with selected equipment. SITHCCC023 Use food preparation equipment in Theme 2 is the unit whose subject it is, and it is delivered before the whole patisserie stream.",
+                       "teachingRule":  "Each Theme 4 unit names the equipment its own products need and the settings peculiar to them - a dough sheeter gauge, a deck oven with steam injection, a tempering machine curve - and does not re-teach assembly or safe operation. ONE EXCEPTION, AND IT IS AN ARTEFACT: SITXFSA006 sits in Theme 1, ahead of the owner, and cannot recall what it has not met. The detector chained it into this family on its element Prepare food safely, which is about safe HANDLING rather than equipment operation. SITXFSA006 teaches its own food-safety content in full, including the thermometers and sanitising equipment food safety needs, and nothing here is withheld from it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC023",
+                                              "section":  "KE",
+                                              "text":  "safe operational practices using essential functions and features of equipment used in the performance evidence."
+                                          },
+                                          {
+                                              "unit":  "SITHCCC023",
+                                              "section":  "EL",
+                                              "text":  "2. Use equipment to prepare food."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP009",
+                                                "SITHCCC027",
+                                                "SITHPAT016",
+                                                "SITHPAT011",
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015",
+                                                "SITHPAT017",
+                                                "SITHCCC034",
+                                                "SITXFSA006"
+                                            ],
+                       "families":  [
+                                        "F01",
+                                        "F02"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T02",
+                       "name":  "Mise en place: what it means and why it governs the kitchen",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC023",
+                       "ownerCluster":  2,
+                       "rationale":  "The meaning and role of mise en place is stated in SITHCCC023 and again in SITHCCC027. It is one idea and belongs where a learner first organises a workstation.",
+                       "teachingRule":  "Later units plan their own mise en place and are assessed on the plan working, not on defining the term.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC023",
+                                              "section":  "KE",
+                                              "text":  "meaning and role of mise en place in the process of preparing, cooking and presenting food"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC027"
+                                            ],
+                       "families":  [
+                                        "F36"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T03",
+                       "name":  "Portioning and preparing ingredients to a standard recipe",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC027",
+                       "ownerCluster":  3,
+                       "rationale":  "Eight units carry the element Portion and prepare ingredients. SITHCCC027 Prepare dishes using basic methods of cookery opens Theme 3 and is the first cookery unit. Accurate scaling matters more in patisserie than anywhere else, which is why it is taught before Theme 4 rather than inside it.",
+                       "teachingRule":  "Theme 4 units scale their own formulas and are assessed on accuracy, not on how to weigh.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC027",
+                                              "section":  "EL",
+                                              "text":  "3. Portion and prepare ingredients."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT016",
+                                                "SITHPAT011",
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015",
+                                                "SITHPAT017"
+                                            ],
+                       "families":  [
+                                        "F06"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T04",
+                       "name":  "Keeping food safe and saleable in storage: date codes, rotation, freshness, storage conditions and shelf life",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXINV006",
+                       "ownerCluster":  2,
+                       "rationale":  "Four families - date codes and rotation labels in nine units, storage conditions in eight, shelf life in eight and freshness indicators in seven - are one topic and the subject of SITXINV006 Receive, store and maintain stock in Theme 2. Thirty-two restatements of how to store food, almost all of them in the seven Theme 4 units saying it about their own product.",
+                       "teachingRule":  "A patisserie unit states only what is SPECIFIC to its product - that a cream-filled item is a potentially hazardous food, that a baked meringue is hygroscopic, that marzipan is wrapped against drying - and cites SITXINV006 for the storage system and the labelling.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXINV006",
+                                              "section":  "KE",
+                                              "text":  "contents of date codes and rotation labels for stock"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC027",
+                                                "SITHPAT016",
+                                                "SITHPAT011",
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015",
+                                                "SITHPAT017",
+                                                "SITHCCC038"
+                                            ],
+                       "families":  [
+                                        "F03",
+                                        "F04",
+                                        "F05",
+                                        "F07"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T05",
+                       "name":  "Organisational hygiene and food safety procedures",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA005",
+                       "ownerCluster":  1,
+                       "rationale":  "SITXFSA005 Use hygienic practices for food safety is delivered in Theme 1 precisely because most later units name it as a prerequisite.",
+                       "teachingRule":  "SITXFSA006 follows the procedure and is assessed on following it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA005",
+                                              "section":  "KE",
+                                              "text":  "contents of organisational hygiene and food safety procedures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA006"
+                                            ],
+                       "families":  [
+                                        "F29"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T06",
+                       "name":  "Food safety law, the Food Standards Code and the meaning of contamination",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXFSA005",
+                       "ownerCluster":  1,
+                       "rationale":  "One account of the Code, of contaminants and potentially hazardous foods, and of the regulator.",
+                       "teachingRule":  "SITXFSA006 and SITXINV006 name the specific requirement governing their activity and cite the clause rather than re-summarising the Code.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA005",
+                                              "section":  "KE",
+                                              "text":  "basic aspects of commonwealth, state or territory food safety laws, standards and codes as follows:meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA006",
+                                                "SITXINV006"
+                                            ],
+                       "families":  [
+                                        "F22"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T07",
+                       "name":  "Safe handling of high-risk food types",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA006",
+                       "ownerCluster":  1,
+                       "rationale":  "Dairy, eggs and other high-risk types are named in SITXFSA006 Participate in safe food handling practices and again in SITHCCC023. Patisserie runs on cream, custard and egg, so this is load-bearing for the whole qualification.",
+                       "teachingRule":  "SITHCCC023 handles those foods with the equipment it teaches and cites the handling rules.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA006",
+                                              "section":  "KE",
+                                              "text":  "safe food handling practices for the following different food types:dairy"
+                                          },
+                                          {
+                                              "unit":  "SITXFSA006",
+                                              "section":  "KE",
+                                              "text":  "food safety monitoring techniques:bacterial swabs and counts"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC023"
+                                            ],
+                       "families":  [
+                                        "F23"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T08",
+                       "name":  "Work health and safety: legislation, duties, hazards and the consequences of failure",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXWHS005",
+                       "ownerCluster":  1,
+                       "rationale":  "Five families covering the Act, the duties, the hazards and the penalty are one body of law. SITXWHS005 Participate in safe work practices opens Theme 1.",
+                       "teachingRule":  "SITXWHS006 teaches the DELTA - risk assessment, hierarchy of control, monitoring - which is new work. The food safety units cite SITXWHS005 for duty, breach and penalty and name the Food Act as their own instrument.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "ramifications of failure to observe WHS legislation and organisational policies and procedures"
+                                          },
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "employee responsibilities to participate in WHS practices"
+                                          },
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "workplace hazards and associated health, safety and security risks"
+                                          },
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "basic aspects of the relevant state or territory work health and safety (WHS) legislation:actions that must be adhered to by businesses"
+                                          },
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "safe work practices for individual job roles"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA005",
+                                                "SITXFSA006",
+                                                "SITXWHS006"
+                                            ],
+                       "families":  [
+                                        "F21",
+                                        "F24",
+                                        "F25",
+                                        "F26",
+                                        "F30"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T09",
+                       "name":  "Cleaning products, chemicals and their safe use",
+                       "kind":  "progressive-depth",
+                       "owner":  "SITXFSA005",
+                       "ownerCluster":  1,
+                       "rationale":  "The original ruling gave this to SITHKOP009 Clean kitchen premises and equipment, which carries the deeper content. But SITXFSA005 is delivered in Theme 1 and SITHKOP009 in Theme 2, and SITXFSA005 cannot explain why a surface must be sanitised without naming what sanitises it. A learner cannot recall a chemical they have not met, so the introduction belongs to the earlier unit.",
+                       "teachingRule":  "SITXFSA005 introduces cleaning and sanitising at the level food safety requires - what a sanitiser is, why contact time matters, and that a chemical carries a safety data sheet. SITHKOP009 in Theme 2 then teaches the DELTA, which is substantial and genuinely new: the full product range, dilution ratios, chemical storage and segregation, the PPE each product demands, and reading an SDS end to end.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA005",
+                                              "section":  "KE",
+                                              "text":  "using cleaning products or chemicals"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP009"
+                                            ],
+                       "families":  [
+                                        "F27"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T10",
+                       "name":  "Environmentally sound disposal of kitchen waste",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP009",
+                       "ownerCluster":  2,
+                       "rationale":  "Separation, recycling and disposal of broken service-ware are the cleaning unit\u0027s own ground in Theme 2.",
+                       "teachingRule":  "SITXINV006 disposes of out-of-date stock to that procedure and cites it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHKOP009",
+                                              "section":  "KE",
+                                              "text":  "correct and environmentally sound disposal methods for kitchen waste:broken service-ware"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXINV006"
+                                            ],
+                       "families":  [
+                                        "F37"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T11",
+                       "name":  "Identifying customer preferences as a recipe input",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP010",
+                       "ownerCluster":  2,
+                       "rationale":  "SITHKOP010 Plan and cost recipes opens Theme 2 and carries the element Identify customer preferences.",
+                       "teachingRule":  "SITHCCC042 reads a preference or restriction and acts on it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHKOP010",
+                                              "section":  "EL",
+                                              "text":  "1. Identify customer preferences."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC042"
+                                            ],
+                       "families":  [
+                                        "F28"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T12",
+                       "name":  "Special dietary requirements: allergies, consequences and substitute ingredients",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC042",
+                       "ownerCluster":  3,
+                       "rationale":  "Three families - food allergy types, the health and legal consequences of failing to address a requirement, and the culinary terms for substitute ingredients - are one topic. SITHCCC042 in Theme 3 is delivered before the whole patisserie stream, which matters because gluten, dairy, egg and nut are the four allergens patisserie is built on.",
+                       "teachingRule":  "SITHPAT016 teaches the dessert-specific substitutions and cites SITHCCC042 for the allergy knowledge and the legal consequence. SITHCCC034 applies it during service.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC042",
+                                              "section":  "KE",
+                                              "text":  "main types and characteristics of:food allergy"
+                                          },
+                                          {
+                                              "unit":  "SITHCCC042",
+                                              "section":  "KE",
+                                              "text":  "culinary terms and trade names for:substitute ingredients used to produce dishes with special dietary recipes"
+                                          },
+                                          {
+                                              "unit":  "SITHCCC042",
+                                              "section":  "KE",
+                                              "text":  "key health, legal and reputational consequences of failing to address special requirements, including:allergic reactions"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC034",
+                                                "SITHPAT016"
+                                            ],
+                       "families":  [
+                                        "F32",
+                                        "F38",
+                                        "F40"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T13",
+                       "name":  "Culinary terms and trade names for ingredients",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC038",
+                       "ownerCluster":  3,
+                       "rationale":  "Seven units require the terms for THEIR OWN ingredients. The vocabulary of yeast doughs is not the vocabulary of petits fours. Only the idea that a trade name, a convenience product and a classical term can name one thing is set once, in the earliest unit to require it.",
+                       "teachingRule":  "Every unit teaches its own product vocabulary in full and is assessed on it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC038",
+                                              "section":  "KE",
+                                              "text":  "culinary terms and trade names for:ingredients commonly used to produce buffet items"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT016",
+                                                "SITHPAT011",
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015"
+                                            ],
+                       "families":  [
+                                        "F08"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T14",
+                       "name":  "Fundamental patisserie techniques: sifting, stirring, aerating, whisking, folding, piping, spreading and mould preparation",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT016",
+                       "ownerCluster":  4,
+                       "rationale":  "Five families covering the same hand skills appear in six units in identical words. SITHPAT016 Produce desserts opens Theme 4 and is where a learner first performs them. This is the largest single duplication in the patisserie stream: five techniques restated up to six times each.",
+                       "teachingRule":  "Each later Theme 4 unit applies the techniques and teaches only what its own product adds - gluten development in SITHPAT014, sugar work in SITHPAT015, tempering and modelling in SITHPAT017.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "cookery methods and processes used when preparing desserts:adding fats and liquids to dry ingredients"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "sifting dry ingredients"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "stirring and aerating to achieve required consistency and texture"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "whisking, folding, piping and spreading"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "selecting and preparing appropriate dessert moulds"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT011",
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015"
+                                            ],
+                       "families":  [
+                                        "F09",
+                                        "F10",
+                                        "F11",
+                                        "F12",
+                                        "F14"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T15",
+                       "name":  "Mise en place for cake, sponge and filling production",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT011",
+                       "ownerCluster":  4,
+                       "rationale":  "Scaling, tin preparation, oven pre-heating and ingredient temperature are one preparation routine across five units. SITHPAT011 Produce cakes is the first Theme 4 unit after SITHPAT016 to require it at production scale.",
+                       "teachingRule":  "Later Theme 4 units set up for their own product and are assessed on the setup being right, not on the routine.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "KE",
+                                              "text":  "mise en place requirements for producing cakes, sponges and fillings"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015"
+                                            ],
+                       "families":  [
+                                        "F15"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T16",
+                       "name":  "Pre-bake finishes and decorations",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT011",
+                       "ownerCluster":  4,
+                       "rationale":  "Glazing, docking, scoring, seeding and egg-washing before bake is one set of techniques shared by five units.",
+                       "teachingRule":  "SITHPAT013 and SITHPAT014 apply the finish their own product needs and cite the technique.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "KE",
+                                              "text":  "preparing and using pre-bake finishes and decorations"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015"
+                                            ],
+                       "families":  [
+                                        "F16"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T17",
+                       "name":  "Expected product characteristics: appearance, texture, crumb, colour and flavour",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT011",
+                       "ownerCluster":  4,
+                       "rationale":  "The vocabulary a pastry chef uses to judge a finished product is one vocabulary, restated in six units.",
+                       "teachingRule":  "Each unit states the characteristics expected of ITS OWN products against that vocabulary. The vocabulary itself is taught once.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "KE",
+                                              "text":  "expected product characteristics of cakes and sponges specified in the performance evidence:appearance"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015",
+                                                "SITHPAT017"
+                                            ],
+                       "families":  [
+                                        "F13"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T18",
+                       "name":  "Baking temperatures, times and how to judge doneness",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT011",
+                       "ownerCluster":  4,
+                       "rationale":  "Why a temperature is chosen, what a hot oven does to a batter and how doneness is tested is one body of theory appearing in four units.",
+                       "teachingRule":  "Each unit states the temperature and time for its own products and cites the theory.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "KE",
+                                              "text":  "appropriate baking temperatures and cooking times for cakes, sponges and fillings specified in the Performance Evidence"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014"
+                                            ],
+                       "families":  [
+                                        "F18"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T19",
+                       "name":  "Batter quantity and its effect on the finished product",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT011",
+                       "ownerCluster":  4,
+                       "rationale":  "Depositing the right amount of batter for a desired height, crumb and bake is one skill named in four units.",
+                       "teachingRule":  "Later units deposit to their own product specification.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "KE",
+                                              "text":  "using required amount of batter according to desired characteristics of finished products"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT012",
+                                                "SITHPAT014",
+                                                "SITHPAT015"
+                                            ],
+                       "families":  [
+                                        "F20"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T20",
+                       "name":  "Decorating, presenting and storing finished patisserie products",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT011",
+                       "ownerCluster":  4,
+                       "rationale":  "The element Decorate, present and store appears in four Theme 4 units. The sequence - cool, fill, coat, decorate, present, store - is one sequence.",
+                       "teachingRule":  "SITHPAT012 Produce specialised cakes teaches the DELTA: advanced decoration, structural assembly and the finishes a specialised cake demands. It does not restate the sequence.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "EL",
+                                              "text":  "5. Decorate, present and store cakes."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT012",
+                                                "SITHPAT013",
+                                                "SITHPAT014"
+                                            ],
+                       "families":  [
+                                        "F17"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T21",
+                       "name":  "Historical and cultural origins of patisserie products",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHPAT011",
+                       "ownerCluster":  4,
+                       "rationale":  "Four units require the origins of their own products. The history of a Sachertorte is not the history of a croissant. Only the expectation - that a pastry chef can place a product in its tradition - is set once.",
+                       "teachingRule":  "Each unit covers the origins of the products in its own performance evidence.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "KE",
+                                              "text":  "historical and cultural origins of a variety of cakes and sponges"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT013",
+                                                "SITHPAT014",
+                                                "SITHPAT015"
+                                            ],
+                       "families":  [
+                                        "F19"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T22",
+                       "name":  "The cake and sponge repertoire, and cooking it",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHPAT011",
+                       "ownerCluster":  4,
+                       "rationale":  "SITHPAT011 Produce cakes and SITHPAT012 Produce specialised cakes name the cakes and sponges in their own performance evidence and both carry the element Cook cakes and sponges. The two repertoires are deliberately different - that difference is why the qualification carries both units.",
+                       "teachingRule":  "No consolidation. SITHPAT011 teaches the standard repertoire and SITHPAT012 the specialised one, each in full.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "KE",
+                                              "text":  "cakes and sponges specified in the performance evidence"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT011",
+                                              "section":  "EL",
+                                              "text":  "4. Cook cakes and sponges."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT012"
+                                            ],
+                       "families":  [
+                                        "F31",
+                                        "F33"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T23",
+                       "name":  "The pastry and yeast product repertoire",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHPAT013",
+                       "ownerCluster":  4,
+                       "rationale":  "SITHPAT013 Produce pastries and SITHPAT014 Produce yeast-based bakery products each name the products in their own performance evidence. Short, choux, puff and filo are not brioche, sourdough and enriched doughs.",
+                       "teachingRule":  "Each unit teaches its own repertoire in full.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT013",
+                                              "section":  "KE",
+                                              "text":  "pastries and pastry products specified in the performance evidence"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT014"
+                                            ],
+                       "families":  [
+                                        "F34"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T24",
+                       "name":  "Chilling ingredients and work surfaces for pastry work",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT013",
+                       "ownerCluster":  4,
+                       "rationale":  "Keeping fat firm and gluten relaxed by working cold is one technique that decides whether laminated and short pastes work at all. SITHPAT013 Produce pastries is where it matters first and most.",
+                       "teachingRule":  "SITHPAT014 applies it to laminated yeast doughs and teaches the difference - that a yeast dough must stay cold enough to laminate and warm enough to prove.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT013",
+                                              "section":  "KE",
+                                              "text":  "chilling ingredients and work surfaces"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT014"
+                                            ],
+                       "families":  [
+                                        "F39"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT31021-T25",
+                       "name":  "Cigarette paste and applied decoration techniques",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT012",
+                       "ownerCluster":  4,
+                       "rationale":  "Cigarette paste and the stencilled and piped decoration built from it appear in SITHPAT012 Produce specialised cakes and SITHPAT015 Produce petits fours. SITHPAT012 is delivered first in Theme 4.",
+                       "teachingRule":  "SITHPAT015 applies the technique at petit-four scale and teaches what changes at that size.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT012",
+                                              "section":  "KE",
+                                              "text":  "cigarette paste decoration techniques"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT015"
+                                            ],
+                       "families":  [
+                                        "F35"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "SITXWHS005":  {
+                                              "owns":  [
+                                                           "SIT31021-T08"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXWHS006":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T08"
+                                                                   ]
+                                          },
+                           "SITXHRM007":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITHKOP010":  {
+                                              "owns":  [
+                                                           "SIT31021-T11"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXINV007":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXFSA005":  {
+                                              "owns":  [
+                                                           "SIT31021-T05",
+                                                           "SIT31021-T06",
+                                                           "SIT31021-T09"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T08"
+                                                                   ]
+                                          },
+                           "SITXFSA006":  {
+                                              "owns":  [
+                                                           "SIT31021-T07"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T05",
+                                                                       "SIT31021-T06",
+                                                                       "SIT31021-T08"
+                                                                   ]
+                                          },
+                           "SITHKOP009":  {
+                                              "owns":  [
+                                                           "SIT31021-T10"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T09"
+                                                                   ]
+                                          },
+                           "SITXINV006":  {
+                                              "owns":  [
+                                                           "SIT31021-T04"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T06",
+                                                                       "SIT31021-T10"
+                                                                   ]
+                                          },
+                           "SITHCCC023":  {
+                                              "owns":  [
+                                                           "SIT31021-T01",
+                                                           "SIT31021-T02"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T07"
+                                                                   ]
+                                          },
+                           "SITHCCC027":  {
+                                              "owns":  [
+                                                           "SIT31021-T03"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T02",
+                                                                       "SIT31021-T04"
+                                                                   ]
+                                          },
+                           "SITHPAT016":  {
+                                              "owns":  [
+                                                           "SIT31021-T14"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T03",
+                                                                       "SIT31021-T04",
+                                                                       "SIT31021-T12",
+                                                                       "SIT31021-T13"
+                                                                   ]
+                                          },
+                           "SITHCCC042":  {
+                                              "owns":  [
+                                                           "SIT31021-T12"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T11"
+                                                                   ]
+                                          },
+                           "SITHCCC038":  {
+                                              "owns":  [
+                                                           "SIT31021-T13"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T04"
+                                                                   ]
+                                          },
+                           "SITHPAT011":  {
+                                              "owns":  [
+                                                           "SIT31021-T15",
+                                                           "SIT31021-T16",
+                                                           "SIT31021-T17",
+                                                           "SIT31021-T18",
+                                                           "SIT31021-T19",
+                                                           "SIT31021-T20",
+                                                           "SIT31021-T21",
+                                                           "SIT31021-T22"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T03",
+                                                                       "SIT31021-T04",
+                                                                       "SIT31021-T13",
+                                                                       "SIT31021-T14"
+                                                                   ]
+                                          },
+                           "SITHPAT012":  {
+                                              "owns":  [
+                                                           "SIT31021-T25"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T03",
+                                                                       "SIT31021-T04",
+                                                                       "SIT31021-T13",
+                                                                       "SIT31021-T14",
+                                                                       "SIT31021-T15",
+                                                                       "SIT31021-T16",
+                                                                       "SIT31021-T17",
+                                                                       "SIT31021-T18",
+                                                                       "SIT31021-T19",
+                                                                       "SIT31021-T20",
+                                                                       "SIT31021-T22"
+                                                                   ]
+                                          },
+                           "SITHPAT013":  {
+                                              "owns":  [
+                                                           "SIT31021-T23",
+                                                           "SIT31021-T24"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T03",
+                                                                       "SIT31021-T04",
+                                                                       "SIT31021-T13",
+                                                                       "SIT31021-T14",
+                                                                       "SIT31021-T15",
+                                                                       "SIT31021-T16",
+                                                                       "SIT31021-T17",
+                                                                       "SIT31021-T18",
+                                                                       "SIT31021-T20",
+                                                                       "SIT31021-T21"
+                                                                   ]
+                                          },
+                           "SITHPAT014":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T03",
+                                                                       "SIT31021-T04",
+                                                                       "SIT31021-T13",
+                                                                       "SIT31021-T14",
+                                                                       "SIT31021-T15",
+                                                                       "SIT31021-T16",
+                                                                       "SIT31021-T17",
+                                                                       "SIT31021-T18",
+                                                                       "SIT31021-T19",
+                                                                       "SIT31021-T20",
+                                                                       "SIT31021-T21",
+                                                                       "SIT31021-T23",
+                                                                       "SIT31021-T24"
+                                                                   ]
+                                          },
+                           "SITHPAT015":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T03",
+                                                                       "SIT31021-T04",
+                                                                       "SIT31021-T13",
+                                                                       "SIT31021-T14",
+                                                                       "SIT31021-T15",
+                                                                       "SIT31021-T16",
+                                                                       "SIT31021-T17",
+                                                                       "SIT31021-T19",
+                                                                       "SIT31021-T21",
+                                                                       "SIT31021-T25"
+                                                                   ]
+                                          },
+                           "SITHPAT017":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T03",
+                                                                       "SIT31021-T04",
+                                                                       "SIT31021-T17"
+                                                                   ]
+                                          },
+                           "SITHCCC034":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT31021-T01",
+                                                                       "SIT31021-T12"
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

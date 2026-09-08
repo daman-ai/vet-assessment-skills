@@ -1,0 +1,23 @@
+{
+  "_comment": "AUTHORED OWNERSHIP DECISIONS for BSB80120. Every family in families/MVC-BSB80120.families.json appears exactly once below.",
+  "courseId": "MVC-BSB80120",
+  "_deliveredNote": "Eight units over 52 weeks, all delivered, in the order BSBLDR811, BSBHRM613, TAELED803, BSBCRT611, BSBSTR801, BSBLDR812, BSBLDR601, BSBOPS601. BSBLDR811 Lead strategic transformation opens the course and is the anchor unit - all three detected overlaps run from it.",
+  "topics": [
+    {
+      "families": ["F01"],
+      "name": "Developing a change management strategy",
+      "kind": "shared-scaffold",
+      "owner": "BSBLDR811",
+      "rationale": "BSBLDR811 Lead strategic transformation opens the qualification and owns the content and process of a change management strategy. BSBLDR601 Lead and manage organisational change, delivered seventh, carries the same knowledge point.",
+      "teachingRule": "BSBLDR601 teaches what is new at its own scope - running a defined change programme, communication planning, resistance and reinforcement - and cites BSBLDR811 for the strategy document itself."
+    },
+    {
+      "families": ["F02", "F03"],
+      "name": "Organisational mission and values, and the stages of transformation",
+      "kind": "shared-scaffold",
+      "owner": "BSBLDR811",
+      "rationale": "Two families - organisational mission, purpose and values, and organisational transformation with the management of the stages of change - are one topic: what the organisation is for, and how it moves from one state to another. Both are BSBLDR811's own subject matter and it is delivered first.",
+      "teachingRule": "BSBLDR812 Develop and cultivate collaborative partnerships builds partnerships that serve the mission and manages relationships through the stages. It cites this topic rather than restating the mission framework or the change model."
+    }
+  ]
+}

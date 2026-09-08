@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFFDM4012",
+    "title":  "Produce computer-aided line and component production drawings",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-06-03",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Design documentation and machine interface",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to use computing and software capabilities to produce line and component production drawings intended for use in a furnishing industry production, manufacturing or marketing environment.\nThis unit applies to individuals required to create line drawings as part of their job role in design, manufacturing and similar workplaces for production purposes.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Produce line drawings\n1.1 Identify and obtain essential information that informs drawing requirements\n1.2 Select presentation style and appropriate software to achieve desired result\n1.3 Create clear drawings that accurately reflect product specification and presentation requirements\n2. Prepare component production drawings\n2.1 Obtain essential information on component specifications, dimensions and drawing and labelling management\n2.2 Identify drawing conventions and specifications to be noted on drawing\n2.3 Plot dimensions and connect to match appropriate drawing view or perspective\n2.4 Identify and note required production information, special requirements and drawing information\n2.5 Check drawing for accuracy, clarity and compliance with workplace documentation requirements\n2.6 Label, store and process drawing in accordance with workplace requirements",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nNumeracy skills to interpret and present technical information and calculate measurements.\nReading skills to interpret requirements.\nWriting skills to communicate production information and requirements.\nOther foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\nproduce three computer-aided line and production drawings, of which one must be 3D, and:interpret specifications and measurements in two and three-dimensional (2D and 3D) forms across the three drawings.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\ntypical features and functions of computer-aided drawing programs and their application in producing detailed line and production drawings: drawing tools\nview displays\nedit functioning\nworking layers\nplotting\nbasic elements of line and component production drawings:size and shape of component or product\nprojection and production method\nlimits, fits and tolerances of size, form and position\nsurface treatments\nmaterials specifications\nregulatory requirements, recognised standards and codes, and industry practices for drawing.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including: design concepts\nspecifications\ncomputer-aided design equipment included current industry-standard software.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFFDM4012/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:17Z"
+}

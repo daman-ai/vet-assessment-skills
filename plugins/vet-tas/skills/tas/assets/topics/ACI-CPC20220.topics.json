@@ -1,0 +1,245 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "ACI-CPC20220",
+    "qualificationCode":  "CPC20220",
+    "qualificationTitle":  "Certificate II in Construction Pathways",
+    "provider":  "ACI",
+    "brandVariant":  "construction",
+    "priorCourse":  null,
+    "generatedUtc":  "2026-09-07T06:13:26Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/ACI-CPC20220.families.json",
+                   "decisions":  "assets/topics/decisions/ACI-CPC20220.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  6,
+    "topics":  [
+                   {
+                       "id":  "CPC20220-T01",
+                       "name":  "Reporting hazards, incidents and injuries",
+                       "kind":  "progressive-depth",
+                       "owner":  "CPCWHS1001",
+                       "ownerCluster":  1,
+                       "rationale":  "CPCWHS1001 is the White Card - the statutory general construction induction - and is delivered in the first week of Term 1. Hazard and incident reporting is content the induction is required by law to cover, so a learner meets it there before anything else. CPCCWHS2001 follows in the same cluster and goes deeper.",
+                       "teachingRule":  "CPCCWHS2001 does not re-teach what a hazard is or why it is reported. It teaches the DELTA: the organisation\u0027s own reporting procedure, the forms and registers that record it, and the notifiable-incident duty that sends a report to the regulator rather than to a supervisor.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCWHS1001",
+                                              "section":  "KE",
+                                              "text":  "identifying and reporting hazards, incidents and injuries in the workplace"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCWHS2001"
+                                            ],
+                       "families":  [
+                                        "F06"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC20220-T02",
+                       "name":  "Personal protective equipment: selection, fitting, use and care",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCCM2012",
+                       "ownerCluster":  3,
+                       "rationale":  "PPE is named by three units. CPCCCM2012 Work safely at heights, delivered first in Term 3, carries the fullest statement of it - selection, fitting AND use - because fall-arrest equipment is the case where fitting actually decides whether the equipment works. Teaching it there gives the plastering units a fitted-PPE standard to apply rather than a second, thinner account of the same thing.",
+                       "teachingRule":  "CPCCSP2002 and CPCCSP2003 name the PPE their task requires and the reason for it - eye protection against splashback, respiratory protection against silica dust - and do not restate selection or fitting.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCCM2012",
+                                              "section":  "KE",
+                                              "text":  "selection, fitting and use of personal protective equipment (PPE)"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCSP2002",
+                                                "CPCCSP2003"
+                                            ],
+                       "families":  [
+                                        "F03"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC20220-T03",
+                       "name":  "Safety data sheets and hazardous material information",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCCM2012",
+                       "ownerCluster":  3,
+                       "rationale":  "Reading an SDS is one skill regardless of the substance. It is owned in the same unit as PPE because the two are read together: the SDS is what tells a worker which PPE the substance requires.",
+                       "teachingRule":  "The plastering units point at the SDS for the specific product in front of the learner - cement, lime, additives - and read the exposure and first-aid sections from it. They do not re-teach the sixteen-section structure of the document.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCCM2012",
+                                              "section":  "KE",
+                                              "text":  "safety data sheets (SDSs)"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCSP2002",
+                                                "CPCCSP2003"
+                                            ],
+                       "families":  [
+                                        "F02"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC20220-T04",
+                       "name":  "Job safety analyses and safe work method statements",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCSP2002",
+                       "ownerCluster":  3,
+                       "rationale":  "Three units require a JSA or SWMS prepared to the Safe Work Australia Code of Practice for Construction Work. CPCCSP2002, first in Term 3, is the earliest of them, and a SWMS is a document a learner writes once and then reuses with a different task in the task column.",
+                       "teachingRule":  "CPCCSP2003, CPCCCO2013 and CPCCVE1011 each produce a SWMS for their own task. They are assessed on the CONTENT being right for that task, not on knowing what a SWMS is. The risk-control reasoning behind it belongs to CPCCWHS2001 in Cluster 1 and is cited, not repeated.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCSP2002",
+                                              "section":  "KE",
+                                              "text":  "safety requirements for using solid plastering tools and equipment, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCVE1011",
+                                                "CPCCSP2003"
+                                            ],
+                       "families":  [
+                                        "F01"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC20220-T05",
+                       "name":  "Workplace quality policies and standards for trade work",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCSP2002",
+                       "ownerCluster":  3,
+                       "rationale":  "What \u0027to standard\u0027 means - tolerance, finish, rectification, sign-off - is a single idea shared by the two plastering units, and CPCCSP2002 is delivered first.",
+                       "teachingRule":  "CPCCSP2003 states the tolerance that applies to a prepared surface and moves on.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCSP2002",
+                                              "section":  "KE",
+                                              "text":  "workplace quality policies and standards for using solid plastering tools and equipment"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCSP2003"
+                                            ],
+                       "families":  [
+                                        "F05"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC20220-T06",
+                       "name":  "National Construction Code and Australian Standards compliance",
+                       "kind":  "regulatory-recall",
+                       "owner":  "CPCCCO2013",
+                       "ownerCluster":  4,
+                       "rationale":  "Both Term 4 units cite the NCC and Australian Standards. The TAS delivery sequence puts CPCCCO2013 before CPCCVE1011, so the concreting unit introduces what the Code is, how a Standard is called up by it, and how to find the clause that governs a task. The capstone project unit then applies it. NOTE: the detector suggested CPCCVE1011 because it sits earlier in the TAS unit TABLE; the delivery sequence is the authority and it says otherwise.",
+                       "teachingRule":  "CPCCVE1011 identifies the clauses relevant to its own project and demonstrates compliance. It does not re-explain the Code\u0027s structure.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCCO2013",
+                                              "section":  "KE",
+                                              "text":  "compliance requirements of the National Construction Code and Australian Standards relevant to concreting to simple forms"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCVE1011"
+                                            ],
+                       "families":  [
+                                        "F04"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "CPCCVE1011":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC20220-T04",
+                                                                       "CPC20220-T06"
+                                                                   ]
+                                          },
+                           "CPCCWHS2001":  {
+                                               "owns":  [
+
+                                                        ],
+                                               "appliedNotTaught":  [
+                                                                        "CPC20220-T01"
+                                                                    ]
+                                           },
+                           "CPCCOM1012":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCCOM1013":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCCOM1015":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCCSP2002":  {
+                                              "owns":  [
+                                                           "CPC20220-T04",
+                                                           "CPC20220-T05"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC20220-T02",
+                                                                       "CPC20220-T03"
+                                                                   ]
+                                          },
+                           "CPCCCO2013":  {
+                                              "owns":  [
+                                                           "CPC20220-T06"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCCSP2003":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC20220-T02",
+                                                                       "CPC20220-T03",
+                                                                       "CPC20220-T04",
+                                                                       "CPC20220-T05"
+                                                                   ]
+                                          },
+                           "CPCCCM2012":  {
+                                              "owns":  [
+                                                           "CPC20220-T02",
+                                                           "CPC20220-T03"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCWHS1001":  {
+                                              "owns":  [
+                                                           "CPC20220-T01"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

@@ -1,0 +1,235 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "MVC-BSB60420",
+    "qualificationCode":  "BSB60420",
+    "qualificationTitle":  "Advanced Diploma of Leadership and Management",
+    "productType":  "qualification",
+    "aqfLevel":  "Advanced Diploma",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "institute":  "Meridian Vocational College",
+    "siblingCourse":  null,
+    "durationWeeks":  52,
+    "packagingRule":  {
+                          "rule":  "10 units - 5 core plus 5 electives; 3 from the listed electives and up to 2 from elsewhere.",
+                          "core":  5,
+                          "totalUnits":  10,
+                          "statedInTas":  true,
+                          "elective":  5
+                      },
+    "unitCount":  10,
+    "deliveredCount":  10,
+    "priorCourse":  null,
+    "sequencing":  {
+                       "model":  "sequence",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB60420 - Advanced Diploma of Leadership and Management.docx",
+                       "clusters":  [
+
+                                    ],
+                       "order":  [
+
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "BSBOPS601",
+                      "title":  "Develop and implement business plans",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBPEF501",
+                      "title":  "Manage personal and professional development",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBXCM501",
+                      "title":  "Lead communication in the workplace",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBHRM613",
+                      "title":  "Contribute to the development of learning and development strategies",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBSUS601",
+                      "title":  "Lead corporate social responsibility",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBHRM614",
+                      "title":  "Contribute to strategic workforce planning",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  6,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBCRT611",
+                      "title":  "Apply critical thinking for complex problem solving",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  7,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBSTR601",
+                      "title":  "Manage innovation and continuous improvement",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  8,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBLDR601",
+                      "title":  "Lead and manage organisational change",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  9,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBLDR602",
+                      "title":  "Provide leadership across the organisation",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  10,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+                             {
+                                 "code":  "BSBOPS601",
+                                 "what":  "unit title",
+                                 "tas":  "Develop and Implement Business Plans (BSBMGT617)",
+                                 "register":  "Develop and implement business plans"
+                             },
+                             {
+                                 "code":  "BSBHRM614",
+                                 "what":  "unit title",
+                                 "tas":  "Contribute to Strategic Workforce Planning (BSBHRM602)",
+                                 "register":  "Contribute to strategic workforce planning"
+                             },
+                             {
+                                 "code":  "BSBSTR601",
+                                 "what":  "unit title",
+                                 "tas":  "Manage Innovation and Continuous Improvement (BSBMGT608)",
+                                 "register":  "Manage innovation and continuous improvement"
+                             },
+                             {
+                                 "code":  "BSBLDR601",
+                                 "what":  "unit title",
+                                 "tas":  "Lead and Manage Organisational Change (BSBINN601)",
+                                 "register":  "Lead and manage organisational change"
+                             },
+                             {
+                                 "code":  "BSBLDR602",
+                                 "what":  "unit title",
+                                 "tas":  "Provide Leadership across the Organisation (BSBMGT605)",
+                                 "register":  "Provide leadership across the organisation"
+                             }
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB60420 - Advanced Diploma of Leadership and Management.docx",
+                   "tasSha256":  "1520B83E0E9FFD6239969DEE11BA38D094883982669296F3DECEDD4B3CADDF49",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:44Z"
+               },
+    "notes":  [
+                  "52 weeks including 4 weeks term break. All 10 units delivered."
+              ],
+    "openItems":  [
+
+                  ]
+}

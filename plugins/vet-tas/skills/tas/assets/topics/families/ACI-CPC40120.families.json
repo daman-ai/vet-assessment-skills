@@ -1,0 +1,839 @@
+﻿{
+    "courseId":  "ACI-CPC40120",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:09Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053",
+                                       "CPCCBC4009",
+                                       "CPCCBC4007",
+                                       "CPCCBC4012",
+                                       "CPCCBC4014",
+                                       "CPCCBC4004",
+                                       "CPCCBC4005",
+                                       "CPCCBC4006",
+                                       "CPCCBC4008",
+                                       "CPCCBC4021",
+                                       "CPCCBC4010"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "government building legislation, codes and standards:the NCC:Performance Requirements and General Requirements"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "government building legislation, codes and standards"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4009",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction industry contracts"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4007",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "relevant government building and construction legislation, codes and standards"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4007",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction industry subcontractor system"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4007",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "types of building and construction industry contracts"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction regulations, standards and codes"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4014",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction regulations, standards and codes"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4004",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction standards and codes"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4004",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "government building and construction regulations"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "relevant government building legislation and regulations"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction codes and standards"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction contractor and supplier contracts"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "relevant government building and construction legislation"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction industry contracts"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4021",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction standards and codes"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4021",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "government building and construction regulations"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "industry building and construction standards and codes"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "government building and construction legislation and regulations"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4002",
+                                       "CPCCBC4012",
+                                       "CPCCBC4014",
+                                       "CPCCBC4004",
+                                       "CPCCBC4005",
+                                       "CPCCBC4021",
+                                       "CPCCBC4010"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4002",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisation’s workplace safety policies and procedures:workplace safety and reporting requirements"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "workplace processes, workplace safety and environmental requirements."
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4014",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "workplace processes, workplace safety and environmental requirements."
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4004",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "workplace procedures, workplace safety and environmental requirements."
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "workplace procedures, workplace safety and environmental requirements."
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4021",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "workplace procedures and workplace safety requirements"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "workplace procedures, workplace safety and environmental requirements"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4009",
+                                       "CPCCBC4004",
+                                       "CPCCBC4005",
+                                       "CPCCBC4024",
+                                       "CPCCBC4010",
+                                       "BSBPMG422"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4009",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4009",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policies and procedures."
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4004",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policies and procedures:costing and ordering materials"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4024",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational quality documentation:policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "BSBPMG422",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policy and procedures for project quality"
+                                            },
+                                            {
+                                                "Code":  "BSBPMG422",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "2. Apply quality policies and procedures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4053",
+                                       "CPCCBC4009",
+                                       "CPCCBC4007",
+                                       "CPCCBC4006",
+                                       "CPCCBC4008"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4053",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "work health and safety (WHS)"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4009",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "work health and safety (WHS)"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4007",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "workplace safety:work health and safety (WHS) Acts and regulations"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "workplace safety:relevant work health and safety (WHS) Act and regulations"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "work health and safety (WHS):hierarchy of control"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053",
+                                       "CPCCBC4007",
+                                       "CPCCBC4006",
+                                       "CPCCBC4010"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "project plans, specifications, working drawings and structural details"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "project plans, specifications and structural details"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4007",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "project plans and specifications"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "relevant project plans, specifications, standards and codes"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "project documentation:approval project plans and specifications"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4002",
+                                       "CPCCBC4003",
+                                       "CPCCBC4024",
+                                       "CPCCBC4021",
+                                       "CPCSUS4002"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4002",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "digital tools and devices to communicate and collaborate effectively with others"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4003",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "digital tools and devices to communicate and collaborate effectively with others"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4024",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "digital tools and devices to communicate and collaborate effectively with others"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4021",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "digital tools and devices to communicate and collaborate effectively with others"
+                                            },
+                                            {
+                                                "Code":  "CPCSUS4002",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "digital tools and devices to communicate and collaborate effectively with others"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4002",
+                                       "CPCCBC4006",
+                                       "CPCCBC4003",
+                                       "CPCCBC4024"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4002",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "a range of digitally-based technology and applications to access, extract, integrate and compile information."
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "digital technology and applications to access, extract, integrate and compile information"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4003",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "range of digitally-based technology and applications to access, extract, integrate and compile information."
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4024",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "a range of digitally-based technology and applications to access, extract integrate and compile information."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053",
+                                       "CPCCBC4010"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "causes and implications of building defects related to failure of applying building codes and standards to residential and commercial buildings"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "causes and implications of building defects related to failure of applying building codes and standards to residential and commercial buildings"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "causes and implications of structural detects related to failure of applying structural principles to residential and commercial buildings"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053",
+                                       "CPCCBC4010"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "extent of remedial work required for various defects cause by inadequate design and application of building codes and practices"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "extent of remedial work required for various defects caused by inadequate design and application of building codes and practices"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "extent of remedial work required for various defects cause by inadequate design and application of structural principles."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053",
+                                       "CPCCBC4006"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "evidence of suitability for building materials and products"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "evidence of suitability for building materials and products"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "the National Construction Code (NCC):evidence of suitability relating to non-conforming building materials and products"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4004",
+                                       "CPCCBC4005",
+                                       "CPCCBC4003"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4004",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4004",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "construction drawings and specifications"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "construction drawings and specifications"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4003",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "construction drawings and specifications"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4012",
+                                       "CPCCBC4014",
+                                       "CPCCBC4021"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4012",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction methods and terminology"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4014",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction methods and terminology"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4021",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building and construction methods and principles"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4004",
+                                       "CPCCBC4021",
+                                       "CPCSUS4002"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4004",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4004",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "the National Construction Code (NCC)"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4021",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "the National Construction Code (NCC)"
+                                            },
+                                            {
+                                                "Code":  "CPCSUS4002",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "the National Construction Code (NCC)"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053",
+                                       "CPCCBC4006"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "properties, characteristics and limitations of specified building materials and components"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "properties, characteristics and limitations of specified building materials and components"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "properties, applications and limitations of specified building materials, products and components:cements"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "classes of building and types of construction"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "classes of building and types of construction"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4002",
+                                       "CPCCBC4009"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4002",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "waste management and environmental practices"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4009",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "waste management and environmental protection"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4002",
+                                       "CPCCBC4007"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4002",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "operation of plant and equipment"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4007",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "scheduling plant and equipment."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "Performance Solutions and Assessment Methods"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "Performance Solutions and Assessment Methods"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4012",
+                                       "CPCCBC4014"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4012",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "computer-aided design (CAD) drawings"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4014",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "computer-aided design (CAD) drawings"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4012",
+                                       "CPCCBC4014"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4012",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building information modelling (BIM)"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4014",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "building information modelling (BIM)"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4021",
+                                       "CPCSUS4002"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4021",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4021",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "a range of digitally-based technology and applications to research environmental guidelines and standards and compile information electronically."
+                                            },
+                                            {
+                                                "Code":  "CPCSUS4002",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "a range of digitally-based technology and applications for researching information."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4012",
+                                       "CPCCBC4010"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4012",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "parts of a plan:site plan"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contour site plan"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policies and procedures, quality systems and best practice approaches"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policies and procedures, quality systems and best practice approaches"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "basic building design principles and the behaviour of structures under stress, strain, compression, bending or combined actions"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "basic commercial building design principles and the behaviour of structures under stress, strain, compression, bending or combined actions"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCBC4001",
+                                       "CPCCBC4053"
+                                   ],
+                         "suggestedOwner":  "CPCCBC4001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCBC4001",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "environmental requirements and sustainability principles and concepts"
+                                            },
+                                            {
+                                                "Code":  "CPCCBC4053",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "environmental requirements and sustainability principles and concepts"
+                                            }
+                                        ]
+                     }
+                 ]
+}

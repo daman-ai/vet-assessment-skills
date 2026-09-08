@@ -1,0 +1,39 @@
+{
+  "_comment": "AUTHORED OWNERSHIP DECISIONS for the Adelaide Culinary Institute delivery of SIT50422. Every family in families/ACI-SIT50422.families.json appears exactly once below.",
+  "courseId": "ACI-SIT50422",
+  "_deliveredNote": "Five of the twenty-eight units are delivered, on an advanced-standing pathway, in the order SITXGLC002, SITXFIN010, SITXCCS016, SITXMGT005, SITXCCS015. The other 23 arrive by credit transfer. MERIDIAN DELIVERS THE SAME FIVE UNITS IN A DIFFERENT ORDER and holds a different 28-unit set, which is why the two institutes keep separate registers.",
+  "topics": [
+    {
+      "families": ["F01", "F02"],
+      "name": "Professional service standards and the attributes expected of service personnel",
+      "kind": "shared-scaffold",
+      "owner": "SITXCCS016",
+      "rationale": "Two families - professional service standards, and the attitudes and attributes the industry expects - are one topic: what good service looks like and who is expected to deliver it. SITXCCS016 Develop and manage quality customer service practices is the unit that WRITES the standard and is delivered third; SITXCCS015 works to it, delivered fifth.",
+      "teachingRule": "SITXCCS015 opens by naming the standard set in SITXCCS016 and moves straight to its own ground: reading an individual customer, anticipating a need, and recovering a service failure in the moment."
+    },
+    {
+      "families": ["F04"],
+      "name": "Organisational and management restructures as a planning input",
+      "kind": "shared-scaffold",
+      "owner": "SITXFIN010",
+      "rationale": "SITXFIN010 Prepare and monitor budgets is delivered second and must treat a restructure as a factor that moves a budget. SITXCCS016, delivered third, treats the same restructure as a factor that dates a service policy. One event, explained once, in the unit that meets it first.",
+      "teachingRule": "SITXCCS016 refers back in a line and teaches only the consequence peculiar to it - that a restructure invalidates the service standards written for the old structure."
+    },
+    {
+      "families": ["F05"],
+      "name": "Complaint and dispute management",
+      "kind": "shared-scaffold",
+      "owner": "SITXCCS016",
+      "rationale": "The complaint system - how complaints are captured, escalated, resolved and fed back into policy - is designed in SITXCCS016. SITXCCS015 handles the complaint in front of the learner.",
+      "teachingRule": "SITXCCS015 teaches the interaction, not the system: acknowledging, taking ownership, offering a remedy inside delegation. It cites the SITXCCS016 escalation path rather than restating it."
+    },
+    {
+      "families": ["F03"],
+      "name": "Consulting staff when developing customer service policy",
+      "kind": "shared-scaffold",
+      "owner": "SITXCCS016",
+      "rationale": "Consultation is part of writing the policy, which is SITXCCS016's own work. SITXCCS015 contributes suggestions rather than running the consultation.",
+      "teachingRule": "In SITXCCS015 this is a single line about where a frontline observation goes. The consultation method itself is not repeated."
+    }
+  ]
+}

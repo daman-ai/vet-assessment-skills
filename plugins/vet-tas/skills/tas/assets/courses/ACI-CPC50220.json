@@ -1,0 +1,596 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "ACI-CPC50220",
+    "qualificationCode":  "CPC50220",
+    "qualificationTitle":  "Diploma of Building and Construction (Building)",
+    "productType":  "qualification",
+    "aqfLevel":  "Diploma",
+    "provider":  "ACI",
+    "brandVariant":  "construction",
+    "institute":  "Adelaide Construction Institute",
+    "siblingCourse":  null,
+    "durationWeeks":  104,
+    "packagingRule":  {
+                          "rule":  "TAS states 27 units - 24 core units plus 3 electives.",
+                          "core":  24,
+                          "totalUnits":  27,
+                          "statedInTas":  true,
+                          "elective":  3
+                      },
+    "unitCount":  27,
+    "deliveredCount":  27,
+    "priorCourse":  null,
+    "sequencing":  {
+                       "model":  "cluster",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC50220 Diploma of Building and Construction - Building (1).docx",
+                       "clusters":  [
+                                        {
+                                            "number":  1,
+                                            "name":  "WHS \u0026 Risk Management",
+                                            "focus":  "Workplace health, safety, and business risk mitigation",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBWHS513",
+                                                          "BSBOPS504"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Legal and Contractual Compliance",
+                                            "focus":  "Legal frameworks and contract management",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4003",
+                                                          "CPCCBC4009",
+                                                          "CPCCBC5007"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Building Codes \u0026 Compliance",
+                                            "focus":  "Application of building codes across building types",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4001",
+                                                          "CPCCBC4053",
+                                                          "CPCCBC5001"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  4,
+                                            "name":  "Estimating and Procurement",
+                                            "focus":  "Cost estimation, tendering, and procurement",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4004",
+                                                          "CPCCBC4005",
+                                                          "CPCCBC4013",
+                                                          "CPCCBC5002"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  5,
+                                            "name":  "Construction Site Operations",
+                                            "focus":  "Site supervision and contractor management",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4008",
+                                                          "CPCCBC5003",
+                                                          "CPCCBC5005",
+                                                          "CPCCBC5010"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  6,
+                                            "name":  "Structural and Technical Design",
+                                            "focus":  "Structural principles, plans, and technical reporting",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4010",
+                                                          "CPCCBC5018",
+                                                          "CPCCBC4012",
+                                                          "CPCCBC4014",
+                                                          "CPCCBC5013"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  7,
+                                            "name":  "Surveying and Setout",
+                                            "focus":  "Site survey and set-out practices",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4018"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  8,
+                                            "name":  "Environmental and Sustainable Practices",
+                                            "focus":  "Sustainable and environmental responsibilities",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC5011",
+                                                          "CPCSUS5001"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  9,
+                                            "name":  "Quality and Stakeholder Engagement",
+                                            "focus":  "Quality systems and project communication",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBPMG532",
+                                                          "BSBPMG538"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  10,
+                                            "name":  "Financial and Business Management",
+                                            "focus":  "Financial control and business management",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC5019"
+                                                      ]
+                                        }
+                                    ],
+                       "order":  [
+
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "BSBOPS504",
+                      "title":  "Manage business risk",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBWHS513",
+                      "title":  "Lead WHS risk management",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4001",
+                      "title":  "Apply building codes and standards to the construction process for Class 1 and 10 buildings",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4003",
+                      "title":  "Select, prepare and administer a construction contract",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4004",
+                      "title":  "Identify and produce estimated costs for building and construction projects",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4005",
+                      "title":  "Produce labour and material schedules for ordering",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  6,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4008",
+                      "title":  "Supervise site communication and administration processes for building and construction projects ",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  5,
+                      "sequence":  7,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4009",
+                      "title":  "Apply legal requirements to building and construction projects",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  8,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4010",
+                      "title":  "Apply structural principles to residential and commercial constructions",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  6,
+                      "sequence":  9,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "CPCCBC4001",
+                                            "CPCCBC4053"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4053",
+                      "title":  "Apply building codes and standards to the construction process for Class 2 to 9 Type C buildings",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  10,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4012",
+                      "title":  "Read and interpret plans and specifications",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  6,
+                      "sequence":  11,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4013",
+                      "title":  "Prepare and evaluate tender documentation",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  12,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4014",
+                      "title":  "Prepare simple building sketches and drawings",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  6,
+                      "sequence":  13,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4018",
+                      "title":  "Apply site surveys and set-out procedures to building and construction projects",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  7,
+                      "sequence":  14,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5001",
+                      "title":  "Apply building codes and standards to the construction process for Type B construction",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  15,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5002",
+                      "title":  "Monitor costing systems on complex building and construction projects",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  16,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5003",
+                      "title":  "Supervise the planning of on-site building and construction work",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  5,
+                      "sequence":  17,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5005",
+                      "title":  "Select and manage building and construction contractors",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  5,
+                      "sequence":  18,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5007",
+                      "title":  "Administer the legal obligations of a building and construction contractor",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  19,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5010",
+                      "title":  "Manage construction work",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  5,
+                      "sequence":  20,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5011",
+                      "title":  "Manage environmental management practices and processes in building and construction",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  8,
+                      "sequence":  21,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5013",
+                      "title":  "Manage professional technical and legal reports on building and construction projects",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  6,
+                      "sequence":  22,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5018",
+                      "title":  "Apply structural principles to the construction of buildings up to three storeys",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  6,
+                      "sequence":  23,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "CPCCBC4053",
+                                            "CPCCBC5001"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC5019",
+                      "title":  "Manage building and construction business finances",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  10,
+                      "sequence":  24,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBPMG532",
+                      "title":  "Manage project quality",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  9,
+                      "sequence":  25,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBPMG538",
+                      "title":  "Manage project stakeholder engagement",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  9,
+                      "sequence":  26,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCSUS5001",
+                      "title":  "Develop workplace policies and procedures for sustainability",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  8,
+                      "sequence":  27,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+                             {
+                                 "code":  "CPCCBC4008",
+                                 "what":  "unit title",
+                                 "tas":  "Supervise site communication and administration processes for building and construction projects",
+                                 "register":  "Supervise site communication and administration processes for building and construction projects "
+                             },
+                             {
+                                 "code":  "CPCCBC5003",
+                                 "what":  "unit title",
+                                 "tas":  "Supervise the planning of onsite building and construction work",
+                                 "register":  "Supervise the planning of on-site building and construction work"
+                             },
+                             {
+                                 "code":  "CPCCBC5018",
+                                 "what":  "unit title",
+                                 "tas":  "Apply structural principles to the construction of buildings up to 3 storeys",
+                                 "register":  "Apply structural principles to the construction of buildings up to three storeys"
+                             }
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC50220 Diploma of Building and Construction - Building (1).docx",
+                   "tasSha256":  "0C2182D78DFFF86EF997279D04024B60DA1D6E112E8EFA07C7F3ED80B86AA3E2",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:43Z"
+               },
+    "notes":  [
+                  "Cluster 3 is marked in the TAS as carrying the prerequisite units for the codes clusters, and is sequenced before them."
+              ],
+    "openItems":  [
+
+                  ]
+}

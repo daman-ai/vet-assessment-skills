@@ -1,0 +1,450 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "ACI-MSF30322",
+    "qualificationCode":  "MSF30322",
+    "qualificationTitle":  "Certificate III in Cabinet Making and Timber Technology",
+    "provider":  "ACI",
+    "brandVariant":  "construction",
+    "priorCourse":  null,
+    "generatedUtc":  "2026-09-07T06:14:13Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/ACI-MSF30322.families.json",
+                   "decisions":  "assets/topics/decisions/ACI-MSF30322.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  9,
+    "topics":  [
+                   {
+                       "id":  "MSF30322-T01",
+                       "name":  "Reporting hazards, incidents and injuries",
+                       "kind":  "progressive-depth",
+                       "owner":  "CPCWHS1001",
+                       "ownerCluster":  1,
+                       "rationale":  "Both construction WHS units sit in Cluster 1. CPCWHS1001 is the White Card statutory induction and is the first thing a learner does; CPCCWHS2001 follows it in the same cluster with the organisational procedure.",
+                       "teachingRule":  "CPCCWHS2001 teaches only the delta - the employer\u0027s own procedure, the register, and the notifiable-incident duty owed to the regulator.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCWHS1001",
+                                              "section":  "KE",
+                                              "text":  "identifying and reporting hazards, incidents and injuries in the workplace"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCWHS2001"
+                                            ],
+                       "families":  [
+                                        "F05"
+                                    ]
+                   },
+                   {
+                       "id":  "MSF30322-T02",
+                       "name":  "Workplace health and safety procedures in a furniture workshop",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM2013",
+                       "ownerCluster":  3,
+                       "rationale":  "Six units name workplace WHS procedures. The construction WHS units in Cluster 1 own the LEGAL frame; MSFFM2013 Use furniture making hand and power tools, first in Cluster 3, owns the workshop-floor procedure - machine guarding, isolation, housekeeping, dust - because that is the first unit where a learner picks up a tool.",
+                       "teachingRule":  "Later units name the procedure that governs their own operation and the specific risk it controls. None of them restate the general duty, which belongs to Cluster 1.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "MSFFM2013",
+                                              "section":  "KE",
+                                              "text":  "workplace health and safety procedures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "MSFFM2016",
+                                                "MSFFM2017",
+                                                "MSFFF2012",
+                                                "MSFFM3041",
+                                                "MSFKB2003"
+                                            ],
+                       "families":  [
+                                        "F02"
+                                    ]
+                   },
+                   {
+                       "id":  "MSF30322-T03",
+                       "name":  "Personal protective equipment for furniture and cabinetry work",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM2013",
+                       "ownerCluster":  3,
+                       "rationale":  "Seven units name PPE. Every one of them names the SAME equipment for a different operation - eye, hearing, respiratory and hand protection against the same timber dust, noise and blade hazards. Teaching it seven times teaches nothing new six of those times.",
+                       "teachingRule":  "MSFFM2013 teaches selection, fit, inspection and care once. Every later unit states which items its operation requires and why, in a line, and is assessed on WEARING them rather than on knowing what they are.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "MSFFM2013",
+                                              "section":  "KE",
+                                              "text":  "personal protective equipment (PPE) requirements for hand and power tools used in furniture production."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "MSFFM2017",
+                                                "MSFFM2018",
+                                                "MSFFM3029",
+                                                "MSFFF2012",
+                                                "MSFFM3042",
+                                                "MSFKB2003"
+                                            ],
+                       "families":  [
+                                        "F01"
+                                    ]
+                   },
+                   {
+                       "id":  "MSF30322-T04",
+                       "name":  "Reporting machinery faults and material defects",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM2016",
+                       "ownerCluster":  3,
+                       "rationale":  "A fault report is one procedure - tag out, report, do not use. MSFFM2016 Join solid timber is the earliest of the three units in Cluster 3 to require it.",
+                       "teachingRule":  "MSFFM2018 and MSFFM3042 identify the faults and defects specific to their own machines and materials. The reporting procedure itself is cited.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "MSFFM2016",
+                                              "section":  "KE",
+                                              "text":  "reporting of machinery faults and material defects"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "MSFFM2018",
+                                                "MSFFM3042"
+                                            ],
+                       "families":  [
+                                        "F03"
+                                    ]
+                   },
+                   {
+                       "id":  "MSF30322-T05",
+                       "name":  "Workplace records, reporting and the legislation behind them",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSMSUP106",
+                       "ownerCluster":  1,
+                       "rationale":  "Two families - record keeping requirements, and the legislative requirements attaching to work activities - are one topic in Cluster 1: what has to be written down, and which instrument requires it. MSMSUP106 Work in a team is delivered in Cluster 1 and carries organisational procedure as its own subject matter.",
+                       "teachingRule":  "MSFFF2012 records its own surface-preparation results to that format. MSFFDM4002 identifies the specific legislation bearing on production processes, and does not restate what legislation is.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "MSMSUP106",
+                                              "section":  "KE",
+                                              "text":  "organisation procedures, including:record keeping requirements"
+                                          },
+                                          {
+                                              "unit":  "MSMSUP106",
+                                              "section":  "EL",
+                                              "text":  "1. Identify work activities"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "MSFFF2012",
+                                                "MSFFDM4002"
+                                            ],
+                       "families":  [
+                                        "F04",
+                                        "F06"
+                                    ]
+                   },
+                   {
+                       "id":  "MSF30322-T06",
+                       "name":  "Characteristics, features and components of cabinetry products",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM3041",
+                       "ownerCluster":  6,
+                       "rationale":  "MSFFM3041 Determine and document requirements for cabinetry installation is delivered first in Cluster 6 and must name the components before it can specify them. MSFFM3042 Fabricate cabinetry then builds them.",
+                       "teachingRule":  "MSFFM3042 teaches how each component is MADE - the machining, the edge treatment, the assembly - not what it is called or what it is for.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "MSFFM3041",
+                                              "section":  "KE",
+                                              "text":  "characteristics and features of cabinetry products and components"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "MSFFM3042"
+                                            ],
+                       "families":  [
+                                        "F09"
+                                    ]
+                   },
+                   {
+                       "id":  "MSF30322-T07",
+                       "name":  "Door and drawer systems, and their alignment",
+                       "kind":  "progressive-depth",
+                       "owner":  "MSFKB2003",
+                       "ownerCluster":  6,
+                       "rationale":  "MSFKB2003 Prepare for cabinetry installation, in Cluster 6, owns the hardware - hinge types, runner types, how each is specified and set out. MSFFM3043 Install cabinetry, in Cluster 7, owns adjusting them true on site, which is a different skill and is genuinely new.",
+                       "teachingRule":  "MSFFM3043 does not re-teach hardware selection. It teaches the three-way adjustment and the sequence for bringing a run of doors into line.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "MSFKB2003",
+                                              "section":  "KE",
+                                              "text":  "door and drawer systems"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "MSFFM3043"
+                                            ],
+                       "families":  [
+                                        "F08"
+                                    ]
+                   },
+                   {
+                       "id":  "MSF30322-T08",
+                       "name":  "Reading the building: wall and floor construction and out-of-square conditions",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM3041",
+                       "ownerCluster":  6,
+                       "rationale":  "A cabinetmaker measures the room before making anything, and again before fixing anything. MSFFM3041 in Cluster 6 owns it because the survey is what its documentation is FOR.",
+                       "teachingRule":  "MSFFM3043 applies the scribing and packing techniques that an out-of-square condition demands, and cites MSFFM3041 for how the condition was identified.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "MSFFM3041",
+                                              "section":  "KE",
+                                              "text":  "angles of floor to walls"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "MSFFM3043"
+                                            ],
+                       "families":  [
+                                        "F07"
+                                    ]
+                   },
+                   {
+                       "id":  "MSF30322-T09",
+                       "name":  "Statutory planning regulations affecting cabinetry installation",
+                       "kind":  "regulatory-recall",
+                       "owner":  "MSFFM3041",
+                       "ownerCluster":  6,
+                       "rationale":  "Local and state planning requirements are a single body of regulation. It is explained where a learner first has to check it - at the documentation stage, in MSFFM3041.",
+                       "teachingRule":  "MSFFM3043 confirms the approval is in place before installing and names the consequence of installing without it. It does not re-explain the planning system.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "MSFFM3041",
+                                              "section":  "KE",
+                                              "text":  "statutory local and state or territory planning regulations affecting cabinetry installations"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "MSFFM3043"
+                                            ],
+                       "families":  [
+                                        "F10"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "MSFFM2013":  {
+                                             "owns":  [
+                                                          "MSF30322-T02",
+                                                          "MSF30322-T03"
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSFFM3030":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSFFM3031":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSFGN2001":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSFGN3005":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSMENV272":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSMSUP102":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSMSUP106":  {
+                                             "owns":  [
+                                                          "MSF30322-T05"
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSFFM2016":  {
+                                             "owns":  [
+                                                          "MSF30322-T04"
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T02"
+                                                                  ]
+                                         },
+                           "MSFFM2017":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T02",
+                                                                      "MSF30322-T03"
+                                                                  ]
+                                         },
+                           "MSFFM2018":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T03",
+                                                                      "MSF30322-T04"
+                                                                  ]
+                                         },
+                           "MSFFM3029":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T03"
+                                                                  ]
+                                         },
+                           "MSFFM3041":  {
+                                             "owns":  [
+                                                          "MSF30322-T06",
+                                                          "MSF30322-T08",
+                                                          "MSF30322-T09"
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T02"
+                                                                  ]
+                                         },
+                           "MSFFM3042":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T03",
+                                                                      "MSF30322-T04",
+                                                                      "MSF30322-T06"
+                                                                  ]
+                                         },
+                           "MSFFM3043":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T07",
+                                                                      "MSF30322-T08",
+                                                                      "MSF30322-T09"
+                                                                  ]
+                                         },
+                           "MSFKB2003":  {
+                                             "owns":  [
+                                                          "MSF30322-T07"
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T02",
+                                                                      "MSF30322-T03"
+                                                                  ]
+                                         },
+                           "MSFKB3012":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSFFDM4002":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "MSF30322-T05"
+                                                                   ]
+                                          },
+                           "MSFFDM4012":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "BSBOPS304":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSFFF2012":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "MSF30322-T02",
+                                                                      "MSF30322-T03",
+                                                                      "MSF30322-T05"
+                                                                  ]
+                                         },
+                           "MSFGN3006":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "MSMOPS363":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "CPCCWHS2001":  {
+                                               "owns":  [
+
+                                                        ],
+                                               "appliedNotTaught":  [
+                                                                        "MSF30322-T01"
+                                                                    ]
+                                           },
+                           "CPCWHS1001":  {
+                                              "owns":  [
+                                                           "MSF30322-T01"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

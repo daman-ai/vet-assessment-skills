@@ -1,0 +1,236 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "MVC-BSB50420",
+    "qualificationCode":  "BSB50420",
+    "qualificationTitle":  "Diploma of Leadership and Management",
+    "productType":  "qualification",
+    "aqfLevel":  "Diploma",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "institute":  "Meridian Vocational College",
+    "siblingCourse":  null,
+    "durationWeeks":  52,
+    "packagingRule":  {
+                          "rule":  "12 units - 6 core plus 6 electives; 4 from the listed electives and up to 2 from elsewhere.",
+                          "core":  6,
+                          "totalUnits":  12,
+                          "statedInTas":  true,
+                          "elective":  6
+                      },
+    "unitCount":  12,
+    "deliveredCount":  12,
+    "priorCourse":  null,
+    "sequencing":  {
+                       "model":  "sequence",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB50420 Diploma of Leadership and Management.docx",
+                       "clusters":  [
+
+                                    ],
+                       "order":  [
+
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "BSBCMM511",
+                      "title":  "Communicate with influence",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBCRT511",
+                      "title":  "Develop critical thinking in others",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBLDR523",
+                      "title":  "Lead and manage effective workplace relationships",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBOPS502",
+                      "title":  "Manage business operational plans",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBPEF502",
+                      "title":  "Develop and use emotional intelligence",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBTWK502",
+                      "title":  "Manage team effectiveness",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  6,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBSUS511",
+                      "title":  "Develop workplace policies and procedures for sustainability",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  7,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBSTR502",
+                      "title":  "Facilitate continuous improvement",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  8,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBWHS521",
+                      "title":  "Ensure a safe workplace for a work area",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  9,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBTEC404",
+                      "title":  "Use digital technologies to collaborate in a work environment",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  10,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBOPS501",
+                      "title":  "Manage business resources",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  11,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBFIN501",
+                      "title":  "Manage budgets and financial plans",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  12,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB50420 Diploma of Leadership and Management.docx",
+                   "tasSha256":  "4B6865BE06603B1B1C5A28C0A9826588204BC778049497663ACC1377F7EE0885",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:44Z"
+               },
+    "notes":  [
+                  "52 weeks including 4 weeks term break. All 12 units are delivered - there is no credit-transfer pathway into this qualification. The unit table is numbered and that numbering is the delivery order."
+              ],
+    "openItems":  [
+
+                  ]
+}

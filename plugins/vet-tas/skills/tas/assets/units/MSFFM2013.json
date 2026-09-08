@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFFM2013",
+    "title":  "Use furniture making hand and power tools",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Cabinetry and furniture",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to select and use hand and power tools to perform common furniture making tasks such as cutting, joining, planning and sanding wood and other materials. It includes tool safety and basic tool sharpening. Workers with this competency complete routine tasks in industries such as cabinet and furniture making and wood machining.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1 Prepare for tool use\n1.1 Identify task requirements from work instructions\n1.2 Select tool to meet task requirements and identify work health and safety requirements for its use\n1.3 Check that tool is safe and functional and report any faults to supervisor\n1.4 Select equipment to hold or support material being worked on\n1.5 Prepare material and hold in position for safe and efficient work\n2 Use tools\n2.1 Use tools safely and in accordance with workplace procedures and manufacturer specifications\n2.2 Use tools to workplace efficiency standards\n2.3 Ensure tools are in a safe state, position and location when not in immediate use\n2.4 Follow safety procedures for the use of power\n3 Clean up work area and tools\n3.1 Clean tools and equipment using appropriate cleaning materials and agents\n3.2 Complete routine operator maintenance on tools in accordance with workplace procedures and manufacturer instructions\n3.3 Store tools and equipment according to their specific storage needs and workplace requirements",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nReading skills to interpret familiar workplace procedures\nNumeracy skills to interpret work instructions associated with number or measurement.\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\nchoose appropriate hand tools and safely and efficiently use them to industry standards on at least 2 separate occasions for furniture making tasks, including at least 9 of the following tools:chisel\nfile or rasp\nclaw, Warrington or tack hammer\nplane\nsaw\nholding tool\nlevelling equipment\nmallet\nmarking-out and measuring tools\nscraper\nscrewdriver\nchoose appropriate power tools and use safely to industry standards on at least 2 separate occasions for furniture making tasks, including at least 5 of the following tools:brad, nail or staple gun\ndrill and impact driver\nbiscuit or domino joining machine\nmulti-tool\nplaner\nrouter\ntrimmer\nbelt or orbital sander\ncircular, drop or jig saw\nconduct operator maintenance on hand and power tools, including:grinding and sharpening 2 of the following: chisel\ndrill bit\nhard plane blade\nchanging and setting up cutters in a planer or router\nchanging the blade on a power saw.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nworkplace health and safety procedures\ngeneral use, maintenance and safety requirements for hand and power tools used in furniture production\npersonal protective equipment (PPE) requirements for hand and power tools used in furniture production.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including:hand and power tools required for performance evidence\nmaterials on which tools are used\nancillary holding equipment\nPPE\npower sources\nworkplace procedures.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFFM2013/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:18Z"
+}

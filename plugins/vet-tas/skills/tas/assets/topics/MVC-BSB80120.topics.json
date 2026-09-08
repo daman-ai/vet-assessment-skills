@@ -1,0 +1,138 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "MVC-BSB80120",
+    "qualificationCode":  "BSB80120",
+    "qualificationTitle":  "Graduate Diploma of Management (Learning)",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "priorCourse":  null,
+    "generatedUtc":  "2026-09-08T00:36:20Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/MVC-BSB80120.families.json",
+                   "decisions":  "assets/topics/decisions/MVC-BSB80120.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  2,
+    "topics":  [
+                   {
+                       "id":  "BSB80120-T01",
+                       "name":  "Developing a change management strategy",
+                       "kind":  "shared-scaffold",
+                       "owner":  "BSBLDR811",
+                       "ownerCluster":  null,
+                       "rationale":  "BSBLDR811 Lead strategic transformation opens the qualification and owns the content and process of a change management strategy. BSBLDR601 Lead and manage organisational change, delivered seventh, carries the same knowledge point.",
+                       "teachingRule":  "BSBLDR601 teaches what is new at its own scope - running a defined change programme, communication planning, resistance and reinforcement - and cites BSBLDR811 for the strategy document itself.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "BSBLDR811",
+                                              "section":  "KE",
+                                              "text":  "content of and process for developing a change management strategy"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "BSBLDR601"
+                                            ],
+                       "families":  [
+                                        "F01"
+                                    ]
+                   },
+                   {
+                       "id":  "BSB80120-T02",
+                       "name":  "Organisational mission and values, and the stages of transformation",
+                       "kind":  "shared-scaffold",
+                       "owner":  "BSBLDR811",
+                       "ownerCluster":  null,
+                       "rationale":  "Two families - organisational mission, purpose and values, and organisational transformation with the management of the stages of change - are one topic: what the organisation is for, and how it moves from one state to another. Both are BSBLDR811\u0027s own subject matter and it is delivered first.",
+                       "teachingRule":  "BSBLDR812 Develop and cultivate collaborative partnerships builds partnerships that serve the mission and manages relationships through the stages. It cites this topic rather than restating the mission framework or the change model.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "BSBLDR811",
+                                              "section":  "KE",
+                                              "text":  "organisational mission, purpose and values"
+                                          },
+                                          {
+                                              "unit":  "BSBLDR811",
+                                              "section":  "KE",
+                                              "text":  "organisational transformation and the management of the stages of change."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "BSBLDR812"
+                                            ],
+                       "families":  [
+                                        "F02",
+                                        "F03"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "BSBLDR811":  {
+                                             "owns":  [
+                                                          "BSB80120-T01",
+                                                          "BSB80120-T02"
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBHRM613":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "TAELED803":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBCRT611":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBSTR801":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBLDR812":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "BSB80120-T02"
+                                                                  ]
+                                         },
+                           "BSBLDR601":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "BSB80120-T01"
+                                                                  ]
+                                         },
+                           "BSBOPS601":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

@@ -1,0 +1,692 @@
+﻿{
+    "courseId":  "ACI-SIT20421",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:16Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "SITHCCC023",
+                                       "SITHCCC024",
+                                       "SITHKOP009",
+                                       "SITHCCC025",
+                                       "SITHCCC027",
+                                       "SITHCCC028",
+                                       "SITHCCC029",
+                                       "SITHCCC030",
+                                       "SITHCCC034"
+                                   ],
+                         "suggestedOwner":  "SITHCCC023",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC023",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used in the performance evidence."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC024",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to prepare simple dishes."
+                                            },
+                                            {
+                                                "Code":  "SITHKOP009",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to clean kitchen premises and equipment"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce sandwiches."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used in the above cookery methods."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce appetisers and salads."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce stocks, sauces and soups."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce vegetable, fruit, egg and farinaceous dishes."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC034",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment in use."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC023",
+                                       "SITXFSA006",
+                                       "SITHCCC027",
+                                       "SITHCCC028",
+                                       "SITHCCC029",
+                                       "SITHCCC030"
+                                   ],
+                         "suggestedOwner":  "SITHCCC023",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC023",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "2. Use equipment to prepare food."
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "3. Prepare food safely."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXINV006",
+                                       "SITHCCC025",
+                                       "SITHCCC027",
+                                       "SITHCCC028",
+                                       "SITHCCC029",
+                                       "SITHCCC030"
+                                   ],
+                         "suggestedOwner":  "SITXINV006",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXINV006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC024",
+                                       "SITHCCC025",
+                                       "SITHCCC028",
+                                       "SITHCCC029",
+                                       "SITHCCC030"
+                                   ],
+                         "suggestedOwner":  "SITHCCC024",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC024",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "food safety practices for preparing and storing ingredients and simple dishes:appropriate environmental conditions to ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions and methods for storing sandwiches to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing appetiser and salad products to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing stock, sauces and soups products to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing food products to:ensure food safety"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC024",
+                                       "SITHCCC025",
+                                       "SITHCCC028",
+                                       "SITHCCC029",
+                                       "SITHCCC030"
+                                   ],
+                         "suggestedOwner":  "SITHCCC024",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC024",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate methods to optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC025",
+                                       "SITHCCC028",
+                                       "SITHCCC029",
+                                       "SITHCCC030"
+                                   ],
+                         "suggestedOwner":  "SITHCCC025",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "freshness and other quality indicators"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "freshness and other quality indicators"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "freshness and other quality indicators"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "freshness and other quality indicators"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC027",
+                                       "SITHCCC028",
+                                       "SITHCCC029",
+                                       "SITHCCC030"
+                                   ],
+                         "suggestedOwner":  "SITHCCC027",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC025",
+                                       "SITHCCC028",
+                                       "SITHCCC029",
+                                       "SITHCCC030"
+                                   ],
+                         "suggestedOwner":  "SITHCCC025",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "classical and contemporary variations"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "classical and contemporary variations"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "classical and contemporary variations"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "classical and contemporary variations"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC023",
+                                       "SITHCCC025",
+                                       "SITHCCC027"
+                                   ],
+                         "suggestedOwner":  "SITHCCC023",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC023",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "meaning and role of mise en place in the process of preparing, cooking and presenting food"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "meaning and role of mise en place in the process of preparing sandwiches"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "meaning and role of mise en place in the process of preparing, cooking and presenting food"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS005",
+                                       "SITXFSA005",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITXWHS005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe WHS legislation and organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC025",
+                                       "SITHCCC028",
+                                       "SITHCCC030"
+                                   ],
+                         "suggestedOwner":  "SITHCCC025",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "plating methods for practicality of service and customer consumption"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "plating methods for practicality of service and customer consumption"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC030",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "plating methods for practicality of service and customer consumption"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITXINV006",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "basic aspects of commonwealth, state or territory food safety laws, standards and codes as follows:meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                            },
+                                            {
+                                                "Code":  "SITXINV006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS005",
+                                       "SITXFSA005"
+                                   ],
+                         "suggestedOwner":  "SITXWHS005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "employee responsibilities to participate in WHS practices"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "employee and employer responsibility to participate in hygienic practices"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC023",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITHCCC023",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC023",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "food safety practices for handling different food types"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe food handling practices for the following different food types:dairy"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "food safety monitoring techniques:bacterial swabs and counts"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS005",
+                                       "SITXFSA005"
+                                   ],
+                         "suggestedOwner":  "SITXWHS005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe work practices for individual job roles"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "hygienic work practices for individual job roles and responsibilities"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC025",
+                                       "SITHCCC029"
+                                   ],
+                         "suggestedOwner":  "SITHCCC025",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "characteristics of different sandwiches specified in the performance evidence:appearance and presentation:balance"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "characteristics of sauces and soups listed in the performance evidence:appearance and presentation"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC025",
+                                       "SITHCCC027"
+                                   ],
+                         "suggestedOwner":  "SITHCCC025",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC025",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "3. Present and store sandwiches."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "5. Present and store dishes."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC028",
+                                       "SITHCCC029"
+                                   ],
+                         "suggestedOwner":  "SITHCCC028",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC028",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and trade names for ingredients commonly used in the production of different appetisers and salads"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC029",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and trade names for ingredients commonly used in the production of different stocks, sauces and soups relating to:convenience products"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC024",
+                                       "SITHCCC027"
+                                   ],
+                         "suggestedOwner":  "SITHCCC024",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC024",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "processes for cookery methods described in the Performance Evidence"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "essential culinary terms relating to the cookery methods described in the Performance Evidence"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITHKOP009"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "using cleaning products or chemicals"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP009",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "uses of different types of cleaning and sanitising products and chemicals for kitchens and equipment"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of organisational hygiene and food safety procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of organisational food safety program, including procedures, associated requirements, and monitoring documents"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXINV006",
+                                       "SITHKOP009"
+                                   ],
+                         "suggestedOwner":  "SITXINV006",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXINV006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "correct and environmentally sound disposal methods for spoilt stock."
+                                            },
+                                            {
+                                                "Code":  "SITHKOP009",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "correct and environmentally sound disposal methods for kitchen waste:broken service-ware"
+                                            }
+                                        ]
+                     }
+                 ]
+}

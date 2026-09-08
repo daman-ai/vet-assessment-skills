@@ -1,0 +1,59 @@
+{
+  "_comment": "THE TWO REGISTERED ENTITIES AND THE THREE TRADING NAMES THEY OPERATE UNDER. Every course in this registry belongs to exactly one provider and, for ACI, exactly one trading-name variant. Identity strings are NOT copied here - they live in the assessment skill's branding profiles and are named below, because two copies of an address are two addresses free to drift apart.",
+
+  "schemaVersion": "1.0",
+  "registryVersion": "1.0.0",
+  "updated": "2026-09-07",
+
+  "providers": {
+    "MVC": {
+      "shortName": "MVC",
+      "tradingName": "Meridian Vocational College",
+      "legalEntity": "Golden Wattle Group Pty Ltd T/A Meridian Vocational College",
+      "rtoCode": "45039",
+      "cricosCode": "03551M",
+      "brandingProfile": "assessment/assets/branding.mvc.json",
+      "variants": null,
+      "_variantsComment": "MVC trades under one name. There is nothing to resolve.",
+      "trainingPackages": ["SIT", "BSB"],
+      "courseIdPrefix": "MVC"
+    },
+
+    "ACI": {
+      "shortName": "ACI",
+      "tradingName": null,
+      "_tradingNameComment": "DELIBERATELY NULL. ACI is one registered entity trading under two names, and the name a document carries is decided by the VOCATION OF THE UNIT, never by anything a user types. Read the variant, never this field.",
+      "legalEntity": "Bush Tukka Pty Ltd",
+      "rtoCode": "45797",
+      "cricosCode": "03978F",
+      "brandingProfile": "assessment/assets/branding.aci.json",
+      "courseIdPrefix": "ACI",
+      "variants": {
+        "culinary": {
+          "tradingName": "Adelaide Culinary Institute",
+          "trainingPackages": ["SIT"],
+          "vocation": "Cookery, hospitality and patisserie"
+        },
+        "construction": {
+          "tradingName": "Adelaide Construction Institute",
+          "trainingPackages": ["CPC", "MSF", "MSM"],
+          "_packagesComment": "CPC alone is NOT enough. Adelaide Construction Institute delivers MSF30322 Certificate III in Cabinet Making and Timber Technology, whose units carry MSF, MSM and BSB prefixes. The assessment skill's Resolve-BrandVariant maps CPC only and THROWS on an MSF unit - see openItems in assets/courses/ACI-MSF30322.json. Recorded here as the correct mapping.",
+          "vocation": "Construction, building, cabinet making and timber technology"
+        }
+      },
+      "variantResolution": {
+        "rule": "training-package-prefix",
+        "byPrefix": { "SIT": "culinary", "CPC": "construction", "MSF": "construction", "MSM": "construction" },
+        "ambiguous": ["BSB"],
+        "_ambiguousComment": "A BSB unit takes the variant of the COURSE it is being built for, which the course record states. Where a BSB unit is requested with no course, ASK. Never guess a trading name."
+      }
+    }
+  },
+
+  "sharedUnitPolicy": {
+    "_comment": "A unit of competency is national and identical wherever it is delivered. What differs between courses is WHAT IS TAUGHT INSIDE IT - the topic allocation - because the same unit sits in a different neighbourhood of sibling units in each course.",
+    "unitCacheIsShared": true,
+    "topicAllocationIsPerCourse": true,
+    "_allocationComment": "SITXFSA005 in SIT30821 owns food-safety topics outright. The SAME unit in SIT50422 owns almost none of them, because SIT50422 learners arrive holding SIT30821. Never read a topic allocation without its course."
+  }
+}

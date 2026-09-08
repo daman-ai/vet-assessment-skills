@@ -1,0 +1,235 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "ACI-SIT40521",
+    "qualificationCode":  "SIT40521",
+    "qualificationTitle":  "Certificate IV in Kitchen Management",
+    "provider":  "ACI",
+    "brandVariant":  "culinary",
+    "priorCourse":  "MVC-SIT30821",
+    "generatedUtc":  "2026-09-07T06:12:58Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/ACI-SIT40521.families.json",
+                   "decisions":  "assets/topics/decisions/ACI-SIT40521.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  5,
+    "topics":  [
+                   {
+                       "id":  "SIT40521-T01",
+                       "name":  "Recipe and menu costing arithmetic: yield tests, portion yields, GST and budgeted sales price",
+                       "kind":  "progressive-depth",
+                       "owner":  "SITHKOP012",
+                       "ownerCluster":  null,
+                       "rationale":  "Four separate families - standard yield tests, budgeted sales price, portion yield and cost formulas, and GST arithmetic - are one body of arithmetic taught once. SITHKOP012 Develop recipes for special dietary requirements is delivered eighth and SITHKOP015 Design and cost menus tenth, so the arithmetic lands with the recipe unit and the menu unit spends its time on menu structure and profitability instead of recalculating a portion cost. The foundation was laid in SITHKOP010 Plan and cost recipes, which this cohort credit-transfers from the Certificate III.",
+                       "teachingRule":  "SITHKOP012 teaches the calculations in full at Certificate IV depth. SITHKOP015 states the formula once as a reminder and applies it to a whole menu, teaching contribution margin and menu engineering, which SITHKOP012 does not cover.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHKOP012",
+                                              "section":  "KE",
+                                              "text":  "standard yield tests"
+                                          },
+                                          {
+                                              "unit":  "SITHKOP012",
+                                              "section":  "KE",
+                                              "text":  "budgeted sales price"
+                                          },
+                                          {
+                                              "unit":  "SITHKOP012",
+                                              "section":  "KE",
+                                              "text":  "methods and formulas for calculating portion yields and costs from ingredients:standard measures"
+                                          },
+                                          {
+                                              "unit":  "SITHKOP012",
+                                              "section":  "KE",
+                                              "text":  "GST addition or subtraction"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP015"
+                                            ],
+                       "families":  [
+                                        "F01",
+                                        "F02",
+                                        "F04",
+                                        "F07"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT40521-T02",
+                       "name":  "Customer preferences and aversions as a design input",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP012",
+                       "ownerCluster":  null,
+                       "rationale":  "Both recipe units read the same evidence about what customers want and will not eat. SITHKOP012 is delivered first and needs it to justify a substitution; SITHKOP015 needs it to justify a menu item.",
+                       "teachingRule":  "SITHKOP015 does not repeat how preference data is gathered. It teaches how a preference profile shapes the balance of a menu.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHKOP012",
+                                              "section":  "KE",
+                                              "text":  "customer preferences and aversions"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP015"
+                                            ],
+                       "families":  [
+                                        "F03"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT40521-T03",
+                       "name":  "Food production records",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA008",
+                       "ownerCluster":  null,
+                       "rationale":  "SITXFSA008 Develop and implement a food safety program is delivered seventh and SITHKOP013 Plan cooking operations ninth. The record is the same document; in the food safety program it is evidence of control, and in cooking operations it is a planning input. It is designed once, where it is designed - in the food safety program.",
+                       "teachingRule":  "SITHKOP013 does not re-teach the record\u0027s format or its retention period. It teaches reading yesterday\u0027s record to plan today\u0027s production.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA008",
+                                              "section":  "KE",
+                                              "text":  "food production records"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP013"
+                                            ],
+                       "families":  [
+                                        "F05"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT40521-T04",
+                       "name":  "Hazard identification and control at critical control points",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA008",
+                       "ownerCluster":  null,
+                       "rationale":  "HACCP is the subject matter of SITXFSA008 and nothing else in this course teaches it. SITHKOP013 schedules production around the control points that unit establishes.",
+                       "teachingRule":  "SITHKOP013 assumes the critical control points are known and teaches sequencing production so that cooling, holding and reheating windows are not breached.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA008",
+                                              "section":  "KE",
+                                              "text":  "hazards:control methods for each critical point"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP013"
+                                            ],
+                       "families":  [
+                                        "F08"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT40521-T05",
+                       "name":  "Consequences of failing to observe WHS and food safety law",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXWHS007",
+                       "ownerCluster":  null,
+                       "rationale":  "SITXWHS007 Implement and monitor work health and safety practices is delivered fourth and carries the legislative frame - duty of care, penalties, prosecution, the regulator. SITXFSA008 restates the same consequence structure for food safety law three units later. One account of what happens when a duty holder fails, taught once, is also one account an auditor has to reconcile.",
+                       "teachingRule":  "SITXFSA008 names the Food Standards Code and the state food authority as the specific instrument and regulator, and cites SITXWHS007 for the general structure of duty, breach and penalty.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXWHS007",
+                                              "section":  "KE",
+                                              "text":  "ramifications of failure to observe WHS legislation and organisational policies and procedures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA008"
+                                            ],
+                       "families":  [
+                                        "F06"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "SITHKOP012":  {
+                                              "owns":  [
+                                                           "SIT40521-T01",
+                                                           "SIT40521-T02"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITHKOP013":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT40521-T03",
+                                                                       "SIT40521-T04"
+                                                                   ]
+                                          },
+                           "SITHKOP015":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT40521-T01",
+                                                                       "SIT40521-T02"
+                                                                   ]
+                                          },
+                           "SITXCOM010":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXFIN009":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXFSA008":  {
+                                              "owns":  [
+                                                           "SIT40521-T03",
+                                                           "SIT40521-T04"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT40521-T05"
+                                                                   ]
+                                          },
+                           "SITXHRM008":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXHRM009":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXMGT004":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXWHS007":  {
+                                              "owns":  [
+                                                           "SIT40521-T05"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

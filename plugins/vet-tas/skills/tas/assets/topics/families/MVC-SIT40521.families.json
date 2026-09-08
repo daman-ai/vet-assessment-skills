@@ -1,0 +1,91 @@
+﻿{
+    "courseId":  "MVC-SIT40521",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:34Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "SITXWHS007",
+                                       "SITXFSA008"
+                                   ],
+                         "suggestedOwner":  "SITXWHS007",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS007",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe WHS legislation and organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "BSBTWK501",
+                                       "SITXHRM009"
+                                   ],
+                         "suggestedOwner":  "BSBTWK501",
+                         "statements":  [
+                                            {
+                                                "Code":  "BSBTWK501",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational diversity policy"
+                                            },
+                                            {
+                                                "Code":  "SITXHRM009",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "changes in organisational policies"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA008",
+                                       "SITHKOP013"
+                                   ],
+                         "suggestedOwner":  "SITXFSA008",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "food production records"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP013",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "1. Plan food production requirements."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA008",
+                                       "SITHKOP013"
+                                   ],
+                         "suggestedOwner":  "SITXFSA008",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "hazards:control methods for each critical point"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP013",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "critical control points in food production where food hazards must be controlled"
+                                            }
+                                        ]
+                     }
+                 ]
+}

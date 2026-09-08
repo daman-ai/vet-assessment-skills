@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSMSUP106",
+    "title":  "Work in a team",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "2",
+    "releaseDate":  "2018-12-05",
+    "currency":  "current",
+    "trainingPackage":  "MSM",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Support",
+    "application":  "This unit describes the skills and knowledge required to organise own activities within a team to fit with work schedules and to meet operational guidelines.\nThis unit applies to team members who are required to use interpersonal and communication skills to plan, organise and complete their work activities according to instructions and with limited discretionary powers.\nThis unit applies to all work environments.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must also be applied.",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Identify work activities\n1.1 Identify task requirements of the team\n1.2 Identify own tasks that are part of the team requirement\n1.3 Prioritise team and individual activities as directed\n2. Organise daily work plan\n2.1 Break work activities down into small achievable components\n2.2 Record activities as required by procedures\n2.3 Seek assistance from other team members when difficulties in achieving allocated tasks arise\n3. Participate in a team\n3.1 Use communication and interpersonal skills to ensure effective teamwork\n3.2 Acknowledge information and feedback provided by other team members in work group\n3.3 Acknowledge team roles and support team members in achieving their role",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance.\nFoundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and:\nparticipated in at least 1 work team to achieve allocated tasks\nused communication and interpersonal skills with:team members\nteam leaders\nsupervisors.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\norganisation procedures, including:record keeping requirements\nown role in team and meeting team requirements and the role of other team members, team leaders and supervisors\norganisation work standards and how the team contributes to them\ninterpersonal and communication techniques that promote effective teamwork including:listening\nquestioning\nparaphrasing\nnon-verbal communication\ngiving and receiving feedback.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies, as well as, using suitable facilities, equipment and resources.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSMSUP106/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:27Z"
+}

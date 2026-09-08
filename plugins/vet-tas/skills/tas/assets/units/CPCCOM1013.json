@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "CPCCOM1013",
+    "title":  "Plan and organise work",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "3",
+    "releaseDate":  "2024-12-24",
+    "currency":  "current",
+    "trainingPackage":  "CPC",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Common",
+    "application":  "This unit of competency specifies the skills and knowledge required to plan and organise basic work tasks on a construction site.\nThe unit is suitable for those with basic skills and knowledge undertaking routine work tasks under the direction of more experienced workers.\nCompletion of the general construction induction training program specified by the model Code of Practice for Construction Work is required for any person who is to carry out construction work. Achievement of unit CPCWHS1001 Prepare to work safely in the construction industry meets this requirement.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe what needs to be done to demonstrate achievement of the element.\n1\nDetermine and plan basic work task activities.\n1.1\nDetermine work task outcomes and other requirements.\n1.2\nBreak the work task into its component tasks.\n1.3\nAssess the component tasks to determine what needs to be done and how it is to be done.\n1.4\nEstimate the time and the number of personnel required to complete each component task.\n1.5\nIdentify the tools and equipment required, including personal protective equipment (PPE) for each stage of the task\n1.6\nPlan the sequence of the component tasks in a logical order and to maximise efficient use of resources.\n1.7\nPrepare a written work plan and a list of resources required to complete the overall work task.\n2\nOrganise performance of basic work task.\n2.1\nWork with team members to review the work plan, schedule the work, allocate roles and responsibilities, and review work health and safety requirements.\n2.2\nConfirm availability of required tools and equipment, including PPE.",
+    "foundationSkills":  "Foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "To demonstrate competency, a candidate must satisfy all the elements, performance criteria and foundation skills of this unit by planning and organising a basic work task on a construction site that includes a minimum of ten component tasks and a team of at least three people.\nAll work must be performed to the standard required in the workplace and must comply with appropriate work health and safety (WHS) and environmental requirements, workplace requirements, drawings and specifications.",
+    "knowledgeEvidence":  "To be competent in this unit, a candidate must demonstrate knowledge of:\npolicies and standards for planning and organising work\nenvironmental and workplace requirements for basic work tasks\ndrawings and specifications relevant to basic work tasks\nprocesses for: determining task requirements\nundertaking all aspects of planning and organising work tasks\nestimating requirements for work time, personnel, tools and equipment\nplanning of component tasks to complete work tasks\norganising the implementation of work task planning\nrecording work task planning and organising activities\nprocesses for working with team members to review a work plan, schedule the work, allocate roles and responsibilities, and review work health and safety requirements.",
+    "assessmentConditions":  "Assessors must meet the requirements for assessors contained in the Standards for Registered Training Organisations.\nThis unit must be assessed while undertaking workplace tasks:\nin the workplace or a close simulation of the workplace environment, provided that simulated or project-based assessment techniques replicate construction workplace conditions, materials, activities, responsibilities and procedures\nusing realistic tasks or simulated tasks, relevant specifications and work instructions, standard work practices, safety requirements and environmental constraints.",
+    "sourceUrl":  "https://training.gov.au/training/details/CPCCOM1013/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:07Z"
+}

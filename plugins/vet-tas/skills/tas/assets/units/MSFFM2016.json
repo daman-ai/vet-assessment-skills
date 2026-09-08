@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFFM2016",
+    "title":  "Join solid timber",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Cabinetry and furniture",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to join timber to manufacture solid timber flat surfaces.\nWorkers with this competency follow established procedures in timber technology industries such as cabinet and furniture making using discretion, judgement and some problem solving.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1 Prepare for task\n1.1 Identify task requirements from work documentation\n1.2 Plan work sequence and identify procedures for checking quality at each stage\n1.3 Identify and follow work health and safety procedures\n1.4 Select suitable work area for task\n1.5 Select tools and equipment to meet task requirements and check that they are safe and functional\n2 Lay out and prepare materials\n2.1 Obtain timbers and check they meet task quality requirements\n2.2 Identify joining process to meet task requirements\n2.3 Prepare and lay out timbers to facilitate efficient joining process\n3 Join timber\n3.1 Accurately measure, mark and cut timbers to size\n3.2 Use tools and equipment safely and in accordance with manufacturer specifications\n3.3 Apply adhesives in accordance with workplace procedures and manufacturer instructions\n3.4 Complete final trim and finishing to meet task specifications\n3.5 Check that joint meets required quality standards and rectify any deficiencies\n4 Finalise task\n4.1 Clean work area, safely dispose of waste and identify items for recycling in accordance with workplace procedures and environmental standards\n4.2 Clean machinery, complete routine maintenance and leave in a safe mode in accordance with workplace procedures\n4.3 Identify, tag and report faulty equipment in accordance with workplace procedures\n4.4 Complete task documentation in accordance with workplace procedures",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nReading skills to interpret familiar workplace procedures and work documentation\nWriting skills to communicate simple factual information in familiar workplace documents\nNumeracy skills to measure and calculate lengths and areas and material requirements\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\njoin at least 4 solid timber tops, shelves or panels, each with a minimum of 3 sections\nuse each of the following edge joining methods at least once to achieve workplace quality standards:butt and dowel\nmoulded edge joint (finger-joint, tongue in groove, or zigzag)\nbiscuit joint or domino\nslip-tongue (aka tongue-in-groove) joint.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nworkplace procedures for:work health and safety\nquality assurance\nreporting of machinery faults and material defects\nthe following wood characteristics and defects:bowing\ncupping\nexpansion\ngrain direction\nspring\ntwisting\ncharacteristics of different types of adhesives used to join solid timber and their application methods\ntypes of sawing methods, including back sawn and quarter sawn, and the impact of these on joining\ntools, materials, equipment, personal protective equipment (PPE) and processes used in timber joining.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including:work documentation\ntools, equipment and machinery required for performance evidence\nPPE\ntimber materials for joining\nworkplace procedures.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFFM2016/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:18Z"
+}

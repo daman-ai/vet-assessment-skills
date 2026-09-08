@@ -1,0 +1,28 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "CPCCOM2001",
+    "title":  "Read and interpret plans and specifications",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "3",
+    "releaseDate":  "2024-12-24",
+    "currency":  "current",
+    "trainingPackage":  "CPC",
+    "prerequisites":  [
+                          {
+                              "code":  "CPCCWHS2001",
+                              "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                          }
+                      ],
+    "competencyField":  "",
+    "unitSector":  "",
+    "application":  "This unit of competency specifies the skills and knowledge required to read and interpret plans and specifications relevant to construction operations at a basic level.\nThe unit is suitable for those with basic skills and knowledge undertaking routine work tasks under the direction of more experienced workers.\nCompletion of the general construction induction training program specified by the model Code of Practice for Construction Work is required for any person who is to carry out construction work. Achievement of unit CPCWHS1001 Prepare to work safely in the construction industry meets this requirement.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe what needs to be done to demonstrate achievement of the element.\n1\nExplain features and functions of plans /drawings and specifications.\n1.1\nExplain the key features and functions of each of the main types of plans/drawings used in the construction industry.\n1.2\nLocate and explain the purpose of the legend on plans/drawings used in the construction industry.\n1.3\nExplain the meaning of construction symbols and abbreviations used on plans/drawings in the construction industry.\n1.4\nCheck title panels on plans/drawings and specifications to verify latest amendments are included, and report inconsistencies.\n2\nLocate key features on a site from site plan/drawings.\n2.1\nSelect and use personal protective equipment (PPE) required to enter a proposed construction site.\n2.2\nOrientate the site plan with the site.\n2.3\nLocate existing services, key features and boundaries of the site from the site plan and associated drawings.\n3\nIdentify project requirements from plans/drawings and specifications.\n3.1\nIdentify construction types, project dimensions and nominated locations from project plans/drawings and specifications.\n3.2\nIdentify environmental requirements, controls and locations from environmental plans, project plans/drawings and specifications.\n3.3\nIdentify standards of work, finishes and tolerances from project plans/drawings and specifications.\n3.4\nIdentify required materials from project plans/drawings and specifications.",
+    "foundationSkills":  "Foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "To demonstrate competency, a candidate must satisfy all the elements, performance criteria and foundation skills of this unit by reading, interpreting and describing, at a basic level, the requirements for a proposed construction project from a set of plans/drawings and specifications.\nAll work must be performed to the standard required in the workplace and must comply with work health and safety (WHS) requirements.",
+    "knowledgeEvidence":  "To be competent in this unit, a candidate must demonstrate knowledge of:\nfeatures and functions of different types of plans, drawings and specifications at a basic level, including:construction plans\ncross-sectional plans\ndimensions and notes\nillustrations\nproject specifications including structural detail and specification providing illustrations and dimensions\nsite plans\nengineering plans\nlegends, symbols and abbreviations used on construction plans and drawings\ntitle panels\nprocesses for:checking amendments to plans, drawings and specifications at a basic level\norientating site plans to sites\ndetermining information from site plans, drawings and specifications, including:site locations\nkey features\nconstruction types\nproject dimensions,\nenvironmental requirements\nmaterials types.",
+    "assessmentConditions":  "Assessors must meet the requirements for assessors contained in the Standards for Registered Training Organisations.\nThis unit must be assessed while undertaking workplace tasks:\nin the workplace or a close simulation of the workplace environment, provided that simulated or project-based assessment techniques replicate construction workplace conditions, materials, activities, responsibilities and procedures\nusing realistic tasks or simulated tasks, relevant specifications and work instructions, standard work practices, safety requirements and environmental constraints.",
+    "sourceUrl":  "https://training.gov.au/training/details/CPCCOM2001/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:09Z"
+}

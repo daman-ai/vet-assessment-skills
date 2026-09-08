@@ -1,0 +1,254 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "ACI-CPC20220",
+    "qualificationCode":  "CPC20220",
+    "qualificationTitle":  "Certificate II in Construction Pathways",
+    "productType":  "qualification",
+    "aqfLevel":  "Certificate II",
+    "provider":  "ACI",
+    "brandVariant":  "construction",
+    "institute":  "Adelaide Construction Institute",
+    "siblingCourse":  null,
+    "durationWeeks":  26,
+    "packagingRule":  {
+                          "rule":  "TAS states 10 units of competency.",
+                          "totalUnits":  10,
+                          "statedInTas":  true
+                      },
+    "unitCount":  10,
+    "deliveredCount":  10,
+    "priorCourse":  null,
+    "sequencing":  {
+                       "model":  "cluster",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC20220 Certificate II in Construction Pathways.docx",
+                       "clusters":  [
+                                        {
+                                            "number":  1,
+                                            "name":  "Industry Induction \u0026 WHS",
+                                            "focus":  "White card, legal WHS requirements, sustainable work practices",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCWHS1001",
+                                                          "CPCCWHS2001",
+                                                          "CPCCOM1012"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Work Planning \u0026 Measurements",
+                                            "focus":  "Basic work planning, organising tasks, measuring and calculating",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCOM1013",
+                                                          "CPCCOM1015"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Practical Tools \u0026 Site Safety",
+                                            "focus":  "Using hand tools and equipment for plastering, working safely at heights",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCCM2012",
+                                                          "CPCCSP2002"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  4,
+                                            "name":  "Trade Skills Application",
+                                            "focus":  "Prepare surfaces for plastering, carry out basic concreting, complete a basic construction project",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCSP2003",
+                                                          "CPCCCO2013",
+                                                          "CPCCVE1011"
+                                                      ]
+                                        }
+                                    ],
+                       "order":  [
+
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "CPCCVE1011",
+                      "title":  "Undertake a basic construction project",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "CPCCWHS2001"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCWHS2001",
+                      "title":  "Apply WHS requirements, policies and procedures in the construction industry",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCOM1012",
+                      "title":  "Work effectively and sustainably in the construction industry",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCOM1013",
+                      "title":  "Plan and organise work",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCOM1015",
+                      "title":  "Carry out measurements and calculations",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCSP2002",
+                      "title":  "Use solid plastering tools and equipment",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  6,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "CPCCWHS2001"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCCO2013",
+                      "title":  "Carry out concreting to simple forms",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  7,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "CPCCWHS2001"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCSP2003",
+                      "title":  "Prepare surfaces for plastering",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  8,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "CPCCWHS2001"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCCM2012",
+                      "title":  "Work safely at heights",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  9,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "CPCCWHS2001"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCWHS1001",
+                      "title":  "Prepare to work safely in the construction industry",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  10,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+                             {
+                                 "code":  "CPCCWHS2001",
+                                 "what":  "unit title",
+                                 "tas":  "Work effectively and sustainably in the Construction Industry",
+                                 "register":  "Apply WHS requirements, policies and procedures in the construction industry"
+                             }
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC20220 Certificate II in Construction Pathways.docx",
+                   "tasSha256":  "ABA436E0ED0DDB2559204A073E99555C4DD2161D90EA90F865714539022EF222",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:43Z"
+               },
+    "notes":  [
+                  "Delivered over four terms, one cluster per term, with a term break between each."
+              ],
+    "openItems":  [
+                      "CPC20220 nationally packages 12 units (6 core + 6 elective). This TAS states and lists 10. Confirm against the RTO scope of registration before the next intake."
+                  ]
+}

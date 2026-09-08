@@ -1,0 +1,193 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "MVC-SIT40521",
+    "qualificationCode":  "SIT40521",
+    "qualificationTitle":  "Certificate IV in Kitchen Management",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "priorCourse":  "MVC-SIT30821",
+    "generatedUtc":  "2026-09-08T00:35:56Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/MVC-SIT40521.families.json",
+                   "decisions":  "assets/topics/decisions/MVC-SIT40521.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  4,
+    "topics":  [
+                   {
+                       "id":  "SIT40521-T01",
+                       "name":  "Organisational diversity policy",
+                       "kind":  "shared-scaffold",
+                       "owner":  "BSBTWK501",
+                       "ownerCluster":  null,
+                       "rationale":  "BSBTWK501 Lead diversity and inclusion opens the course and is the unit whose entire subject this is. SITXHRM009 Lead and manage people, delivered second, needs the same policy as the frame for recruitment, rostering and performance conversations. THIS TOPIC EXISTS ONLY IN THE MERIDIAN REGISTER - ACI does not carry BSBTWK501 at all, so its kitchen-management learners meet diversity policy nowhere in this qualification.",
+                       "teachingRule":  "SITXHRM009 applies the policy to a team situation - allocating work fairly, adjusting for a cultural or religious requirement, handling a complaint of exclusion - and cites BSBTWK501 for the policy itself and the legislation behind it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "BSBTWK501",
+                                              "section":  "KE",
+                                              "text":  "organisational diversity policy"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXHRM009"
+                                            ],
+                       "families":  [
+                                        "F02"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT40521-T02",
+                       "name":  "Consequences of failing to observe WHS and food safety law",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXWHS007",
+                       "ownerCluster":  null,
+                       "rationale":  "SITXWHS007 Implement and monitor work health and safety practices is delivered fourth and carries the legislative frame - duty of care, penalties, prosecution, the regulator. SITXFSA008 restates the same consequence structure for food safety law four units later. One account of what happens when a duty holder fails is also one account an auditor has to reconcile.",
+                       "teachingRule":  "SITXFSA008 names the Food Standards Code and the state food authority as its own instrument and regulator, and cites SITXWHS007 for the general structure of duty, breach and penalty.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXWHS007",
+                                              "section":  "KE",
+                                              "text":  "ramifications of failure to observe WHS legislation and organisational policies and procedures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA008"
+                                            ],
+                       "families":  [
+                                        "F01"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT40521-T03",
+                       "name":  "Food production records",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA008",
+                       "ownerCluster":  null,
+                       "rationale":  "SITXFSA008 Develop and implement a food safety program is delivered eighth and SITHKOP013 Plan cooking operations ninth. The record is the same document; in the food safety program it is evidence of control, in cooking operations it is a planning input. It is designed once, where it is designed.",
+                       "teachingRule":  "SITHKOP013 does not re-teach the record\u0027s format or its retention period. It teaches reading yesterday\u0027s record to plan today\u0027s production.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA008",
+                                              "section":  "KE",
+                                              "text":  "food production records"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP013"
+                                            ],
+                       "families":  [
+                                        "F03"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT40521-T04",
+                       "name":  "Hazard identification and control at critical control points",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA008",
+                       "ownerCluster":  null,
+                       "rationale":  "HACCP is the subject matter of SITXFSA008 and nothing else in this course teaches it. SITHKOP013 schedules production around the control points that unit establishes.",
+                       "teachingRule":  "SITHKOP013 assumes the critical control points are known and teaches sequencing production so cooling, holding and reheating windows are not breached.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA008",
+                                              "section":  "KE",
+                                              "text":  "hazards:control methods for each critical point"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP013"
+                                            ],
+                       "families":  [
+                                        "F04"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "BSBTWK501":  {
+                                             "owns":  [
+                                                          "SIT40521-T01"
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "SITXHRM009":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT40521-T01"
+                                                                   ]
+                                          },
+                           "SITXCOM010":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXWHS007":  {
+                                              "owns":  [
+                                                           "SIT40521-T02"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXFIN009":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXMGT004":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXHRM008":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXFSA008":  {
+                                              "owns":  [
+                                                           "SIT40521-T03",
+                                                           "SIT40521-T04"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT40521-T02"
+                                                                   ]
+                                          },
+                           "SITHKOP013":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT40521-T03",
+                                                                       "SIT40521-T04"
+                                                                   ]
+                                          },
+                           "SITHKOP015":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

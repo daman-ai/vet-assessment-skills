@@ -1,0 +1,28 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "CPCCSP3003",
+    "title":  "Apply trowelled texture coat finishes",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "3",
+    "releaseDate":  "2024-12-24",
+    "currency":  "current",
+    "trainingPackage":  "CPC",
+    "prerequisites":  [
+                          {
+                              "code":  "CPCCWHS2001",
+                              "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                          }
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Plastering",
+    "application":  "This unit specifies the skills and knowledge required to mix and apply trowelled texture coat finishes.\nA person working at this level would be expected to take responsibility for organising and completing tasks assigned to them, without close supervision.\nCompletion of the general construction induction training program specified by the model Code of Practice for Construction Work is required for any person who is to carry out construction work. Achievement of unit CPCWHS1001Prepare to work safely in the construction industry meets this requirement.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe what needs to be done to demonstrate achievement of the element.\n1\nPlan and prepare to apply trowelled texture coat finishes.\n1.1\nRead and interpret work instructions and plan sequence of work.\n1.2\nPlan all work to comply with laws and regulations, Australian Standards, work health and safety (WHS) and environmental requirements, manufacturers’ specifications, and workplace requirements.\n1.3\nSelect and use personal protective equipment (PPE) for each stage of the task.\n1.4\nInspect work site, assess hazards and apply risk controls, including required signage and barricades.\n1.5\nSelect tools and equipment, check for serviceability and report any faults.\n1.6\nSelect materials required for task, calculate quantities, handle safely and prepare and position ready for use.\n2\nPrepare surface and mix and apply texture coat.\n2.1\nPrepare substrate for the specified trowelled texture coat finish.\n2.2\nMix texture coating materials to designed proportion and consistency.\n2.3\nApply texture coat with trowel to a uniform finish to Australian Standards. with specified thickness.\n3\nFinish and cure texture coat\n3.1\nFinish texture coat plumb and level.\n3.2\nCure texture coat to weather and/or temperature conditions.\n4\nClean up.\n4.1\nClear work area, dispose of materials, and reuse or recycle in compliance with legislation, regulations and codes of practice.\n4.2\nClean, check, maintain and store tools and equipment in accordance with manufacturers’ specifications.",
+    "foundationSkills":  "Foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "To demonstrate competency, a candidate must satisfy all of the elements, performance criteria and foundation skills of this unit by:\napplying a trowelled texture coat finish to a minimum of 4 square metres of curved wall\napplying a different trowelled texture coat finish to a minimum of 4 square metres of masonry wall containing an internal and external corner and an opening with a head, reveals and a sill.\nAll work must be performed to the standard required in the workplace and must comply with laws and regulations, Australian Standards, work health and safety (WHS) and environmental requirements, manufacturers’ specifications, workplace requirements, drawings and specifications.",
+    "knowledgeEvidence":  "To be competent in this unit, a candidate must demonstrate knowledge of:\ncompliance requirements of Australian Standards for applying trowelled texture finishes\nquality policies and standards for applying trowelled texture finishes\nsafety requirements for applying trowelled texture finishes, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent\nsafety data sheets (SDS)\npersonal protective equipment (PPE)\nenvironmental requirements for applying trowelled texture finishes\ntechniques for applying trowelled texture finishes\ntypes and uses of decorative finishes, including: Stucco Venezia\nTravertine\ntypes and uses of materials and components for solid plastering, including:acrylic or styrene/acrylate coatings\nproprietary texture coat finishes products\ntypes and uses of tools and equipment for applying trowelled texture finishes\ntypes and uses of plans, drawings and specifications for applying trowelled texture finishes.",
+    "assessmentConditions":  "Assessors must meet the requirements for assessors contained in the Standards for Registered Training Organisations.\nThis unit must be assessed in the workplace or a close simulation using realistic workplace conditions, materials, activities, responsibilities, procedures, safety requirements and environmental considerations.",
+    "sourceUrl":  "https://training.gov.au/training/details/CPCCSP3003/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:12Z"
+}

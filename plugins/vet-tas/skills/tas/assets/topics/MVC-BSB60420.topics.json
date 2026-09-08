@@ -1,0 +1,104 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "MVC-BSB60420",
+    "qualificationCode":  "BSB60420",
+    "qualificationTitle":  "Advanced Diploma of Leadership and Management",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "priorCourse":  null,
+    "generatedUtc":  "2026-09-08T00:35:18Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/MVC-BSB60420.families.json",
+                   "decisions":  "assets/topics/decisions/MVC-BSB60420.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  0,
+    "topics":  [
+
+               ],
+    "unitTopicIndex":  {
+                           "BSBOPS601":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBPEF501":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBXCM501":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBHRM613":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBSUS601":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBHRM614":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBCRT611":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBSTR601":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBLDR601":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBLDR602":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

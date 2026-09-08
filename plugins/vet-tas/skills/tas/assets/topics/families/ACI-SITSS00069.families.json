@@ -1,0 +1,70 @@
+﻿{
+    "courseId":  "ACI-SITSS00069",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:25Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "basic aspects of commonwealth, state or territory food safety laws, standards and codes as follows:meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of organisational hygiene and food safety procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "contents of organisational food safety program, including procedures, associated requirements, and monitoring documents"
+                                            }
+                                        ]
+                     }
+                 ]
+}

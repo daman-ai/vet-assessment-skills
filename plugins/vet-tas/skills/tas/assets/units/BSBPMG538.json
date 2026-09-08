@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "BSBPMG538",
+    "title":  "Manage project stakeholder engagement",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2020-10-19",
+    "currency":  "current",
+    "trainingPackage":  "BSB",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Business Competence – Project Management",
+    "application":  "This unit describes the skills and knowledge required to manage stakeholder relationships.\nThe unit applies to individuals responsible for managing and leading a project in an organisation, business or as a consultant.\nNo licensing, legislative, regulatory or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Element\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Assess stakeholder interests\n1.1 Identify project objectives and relevant stakeholders\n1.2 Establish stakeholder interests and expectations and determine forms of engagement\n1.3 Determine and agree with relevant stakeholders on forms of engagement, communication methods, project content, budget and timelines\n1.4 Identify and apply actions to address differing interests\n1.5 Consider and advise stakeholders on project management issues\n2. Monitor stakeholder engagement\n2.1 Assign roles and responsibilities to team members according to interests and expectations and confirm defined project roles are followed\n2.2 Develop knowledge management systems to capture team progress, insights and experiences\n2.3 Conduct and lead stakeholder performance reviews\n2.4 Identify and address team member development needs and opportunities\n2.5 Support development of interpersonal skills of the team for stakeholder engagement\n3.Review and manage stakeholder engagement\n3.1 Communicate information as planned and according to authority levels, identifying and addressing variances\n3.2 Seek and respond to feedback from relevant stakeholders on management of stakeholder engagement\n3.3 Document identified improvements and feedback received for future management of stakeholder engagements",
+    "foundationSkills":  "This section describes language, literacy, numeracy and employment skills incorporated in the performance criteria that are required for competent performance.\nSKILL\nDESCRIPTION\nReading\nIdentifies and interprets workplace documentation to determine relevant information\nWriting\nDocuments information about stakeholder interests and communication needs using appropriate vocabulary and formats\nOral Communication\nParticipates in verbal exchanges using clear and detailed language to provide and seek information\nUses active listening and questioning to confirm understanding\nSelf-management\nIdentifies and works according to role parameters\nTeamwork\nIdentifies requirements of important communication exchanges, selecting appropriate channels, format and content to suit purpose and audience\nCollaborates with others to achieve joint outcomes, playing an active role in facilitating and leading activities\nPlanning and organising\nTakes responsibility for decisions in complex situations involving multiple variables and constraints\nUses analytical skills to identify and address problems",
+    "performanceEvidence":  "The candidate must demonstrate the ability to complete the tasks outlined in the elements, performance criteria and foundation skills of this unit, including evidence of the ability to:\nmanage project stakeholder engagements on at least two occasions.\nIn the course of above, the candidate must:\ndevelop and implement stakeholder engagement for a project\nimplement a range of appropriate stakeholder communication mechanisms\ndemonstrate team leadership for project team and stakeholders.",
+    "knowledgeEvidence":  "The candidate must be able to demonstrate knowledge to complete the tasks outlined in the elements, performance criteria and foundation skills of this unit, including knowledge of:\nstakeholder engagement approaches\nstakeholder interests and expectations\nstakeholder engagement methods\nstakeholder engagement theory\ntypes of project stakeholders\nconducting performance reviews.",
+    "assessmentConditions":  "Skills in this unit must be demonstrated in a workplace or simulated environment where the conditions are typical of those in a working environment in this industry.\nThis includes access to:\nexamples of project management documentation for stakeholder engagement\nrecords of project team leadership in stakeholder engagement activities.\nAssessors of this unit must satisfy the requirements for assessors in applicable vocational education and training legislation, frameworks and/or standards.",
+    "sourceUrl":  "https://training.gov.au/training/details/BSBPMG538/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:53:48Z"
+}

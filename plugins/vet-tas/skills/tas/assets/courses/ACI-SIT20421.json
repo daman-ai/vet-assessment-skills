@@ -1,0 +1,258 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "ACI-SIT20421",
+    "qualificationCode":  "SIT20421",
+    "qualificationTitle":  "Certificate II in Cookery",
+    "productType":  "qualification",
+    "aqfLevel":  "Certificate II",
+    "provider":  "ACI",
+    "brandVariant":  "culinary",
+    "institute":  "Adelaide Culinary Institute",
+    "siblingCourse":  null,
+    "durationWeeks":  24,
+    "packagingRule":  {
+                          "rule":  "13 units - 7 core plus 6 electives; 4 from Group A, B or C and 2 from Group A, B, C or D.",
+                          "core":  7,
+                          "totalUnits":  13,
+                          "statedInTas":  true,
+                          "elective":  6
+                      },
+    "unitCount":  13,
+    "deliveredCount":  13,
+    "priorCourse":  null,
+    "sequencing":  {
+                       "model":  "sequence",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT20421 Certificate II in Cookery.docx",
+                       "clusters":  [
+
+                                    ],
+                       "order":  [
+
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "SITXWHS005",
+                      "title":  "Participate in safe work practices",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC023",
+                      "title":  "Use food preparation equipment",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFSA005",
+                      "title":  "Use hygienic practices for food safety",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXINV006",
+                      "title":  "Receive, store and maintain stock",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC024",
+                      "title":  "Prepare and present simple dishes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHKOP009",
+                      "title":  "Clean kitchen premises and equipment",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  6,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFSA006",
+                      "title":  "Participate in safe food handling practices",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  7,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC025",
+                      "title":  "Prepare and present sandwiches",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  8,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC027",
+                      "title":  "Prepare dishes using basic methods of cookery",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  9,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC028",
+                      "title":  "Prepare appetisers and salads",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  10,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC029",
+                      "title":  "Prepare stocks, sauces and soups",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  11,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC030",
+                      "title":  "Prepare vegetable, fruit, eggs and farinaceous dishes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  12,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITHCCC027",
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC034",
+                      "title":  "Work effectively in a commercial kitchen",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  13,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITHCCC027",
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+                             {
+                                 "code":  "SITHCCC030",
+                                 "what":  "unit title",
+                                 "tas":  "Prepare vegetable, fruit, egg, and farinaceous dishes",
+                                 "register":  "Prepare vegetable, fruit, eggs and farinaceous dishes"
+                             }
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT20421 Certificate II in Cookery.docx",
+                   "tasSha256":  "71834BE9973FF23DAA2B4B13C8015F59658833B1A73F61D74B1EE453363199F6",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:43Z"
+               },
+    "notes":  [
+                  "24 weeks: 20 weeks face to face, 2 weeks term break, and 12 service periods of work placement. The unit table is numbered and that numbering is the delivery order."
+              ],
+    "openItems":  [
+
+                  ]
+}

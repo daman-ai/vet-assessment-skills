@@ -1,0 +1,70 @@
+﻿{
+    "courseId":  "MVC-BSB80120",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:40Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "BSBLDR811",
+                                       "BSBLDR601"
+                                   ],
+                         "suggestedOwner":  "BSBLDR811",
+                         "statements":  [
+                                            {
+                                                "Code":  "BSBLDR811",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "content of and process for developing a change management strategy"
+                                            },
+                                            {
+                                                "Code":  "BSBLDR601",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "1. Develop change management strategy"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "BSBLDR811",
+                                       "BSBLDR812"
+                                   ],
+                         "suggestedOwner":  "BSBLDR811",
+                         "statements":  [
+                                            {
+                                                "Code":  "BSBLDR811",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational mission, purpose and values"
+                                            },
+                                            {
+                                                "Code":  "BSBLDR812",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational and partner organisation’s mission, purpose, values, objectives and strategies"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "BSBLDR811",
+                                       "BSBLDR812"
+                                   ],
+                         "suggestedOwner":  "BSBLDR811",
+                         "statements":  [
+                                            {
+                                                "Code":  "BSBLDR811",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational transformation and the management of the stages of change."
+                                            },
+                                            {
+                                                "Code":  "BSBLDR812",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational transformation and the management of the stages of change."
+                                            }
+                                        ]
+                     }
+                 ]
+}

@@ -1,0 +1,1092 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "MVC-SIT30821",
+    "qualificationCode":  "SIT30821",
+    "qualificationTitle":  "Certificate III in Commercial Cookery",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "priorCourse":  null,
+    "generatedUtc":  "2026-09-07T06:24:17Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/MVC-SIT30821.families.json",
+                   "decisions":  "assets/topics/decisions/MVC-SIT30821.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  29,
+    "topics":  [
+                   {
+                       "id":  "SIT30821-T01",
+                       "name":  "Selecting, assembling and safely operating commercial kitchen equipment",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC023",
+                       "ownerCluster":  2,
+                       "rationale":  "Fifteen of the twenty-five units carry a knowledge-evidence point reading safe operational practices using essential functions and features of equipment, changing only the dish it names, and fourteen carry the element Select, prepare and use equipment. SITHCCC023 Use food preparation equipment, in Theme 2, is the unit whose entire subject this is. Teaching it fifteen times teaches nothing new fourteen of those times and inflates every downstream assessment tool with a question already answered. The detector suggested SITHKOP009 because it appears first in the unit table, but SITHKOP009 Clean kitchen premises and equipment owns CLEANING equipment, which is a different topic.",
+                       "teachingRule":  "Every later cookery unit names the equipment its own dishes need and any setting peculiar to them - a blast chiller programme, a combi oven mode, a pastry sheeter gauge - in a few lines. It does not re-teach assembly, safe operation or the manufacturer instruction, and its assessment tool does not re-ask them.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC023",
+                                              "section":  "KE",
+                                              "text":  "safe operational practices using essential functions and features of equipment used in the performance evidence."
+                                          },
+                                          {
+                                              "unit":  "SITHCCC023",
+                                              "section":  "EL",
+                                              "text":  "2. Use equipment to prepare food."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHKOP009",
+                                                "SITHCCC027",
+                                                "SITHPAT016",
+                                                "SITHCCC031",
+                                                "SITHCCC028",
+                                                "SITHCCC029",
+                                                "SITHCCC030",
+                                                "SITHCCC032",
+                                                "SITHCCC035",
+                                                "SITHCCC036",
+                                                "SITHCCC037",
+                                                "SITHCCC041",
+                                                "SITHCCC044",
+                                                "SITHCCC043",
+                                                "SITXFSA006"
+                                            ],
+                       "families":  [
+                                        "F01",
+                                        "F02",
+                                        "F17"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T02",
+                       "name":  "Mise en place: what it means and why it governs the kitchen",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC023",
+                       "ownerCluster":  2,
+                       "rationale":  "The meaning and role of mise en place is stated as knowledge evidence in SITHCCC023 and again in SITHCCC027. It is a single idea and belongs where a learner first organises a workstation.",
+                       "teachingRule":  "SITHCCC027 and every later unit plan their own mise en place and are assessed on the plan working, not on defining the term.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC023",
+                                              "section":  "KE",
+                                              "text":  "meaning and role of mise en place in the process of preparing, cooking and presenting food"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC027"
+                                            ],
+                       "families":  [
+                                        "F25"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T03",
+                       "name":  "Portioning and preparing ingredients to a standard recipe",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC027",
+                       "ownerCluster":  3,
+                       "rationale":  "Twelve units carry the element Portion and prepare ingredients. SITHCCC027 Prepare dishes using basic methods of cookery opens Theme 3 and is the first cookery unit, so weighing, measuring, trimming and portioning are taught there.",
+                       "teachingRule":  "Later units portion their own commodity to their own recipe. The technique is applied, not retaught.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC027",
+                                              "section":  "EL",
+                                              "text":  "3. Portion and prepare ingredients."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHPAT016",
+                                                "SITHCCC031",
+                                                "SITHCCC028",
+                                                "SITHCCC029",
+                                                "SITHCCC030",
+                                                "SITHCCC032",
+                                                "SITHCCC035",
+                                                "SITHCCC036",
+                                                "SITHCCC037",
+                                                "SITHCCC041",
+                                                "SITHCCC044"
+                                            ],
+                       "families":  [
+                                        "F04"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T04",
+                       "name":  "Keeping food safe and saleable in storage: date codes, rotation, freshness, storage conditions and shelf life",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXINV006",
+                       "ownerCluster":  2,
+                       "rationale":  "Four families - date codes and rotation labels in thirteen units, environmental storage conditions in eleven, optimising shelf life in ten, and freshness and quality indicators in ten - are one topic, and it is the subject of SITXINV006 Receive, store and maintain stock in Theme 2. This is the single largest source of repetition in the qualification: forty-four restatements of how to store food, spread across twelve cookery units that each say it about their own ingredient.",
+                       "teachingRule":  "A cookery unit states only what is SPECIFIC to its commodity - that fish is stored on ice and used within a day, that a cooked custard is a potentially hazardous food, that yeast dough is retarded not frozen. The storage principles, the rotation system and the labelling are cited to SITXINV006 and are not re-assessed.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXINV006",
+                                              "section":  "KE",
+                                              "text":  "contents of date codes and rotation labels for stock"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC027",
+                                                "SITHPAT016",
+                                                "SITHCCC031",
+                                                "SITHCCC028",
+                                                "SITHCCC029",
+                                                "SITHCCC030",
+                                                "SITHCCC032",
+                                                "SITHCCC035",
+                                                "SITHCCC036",
+                                                "SITHCCC037",
+                                                "SITHCCC041",
+                                                "SITHCCC044",
+                                                "SITHCCC038"
+                                            ],
+                       "families":  [
+                                        "F03",
+                                        "F05",
+                                        "F06",
+                                        "F07"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T05",
+                       "name":  "Organisational hygiene and food safety procedures",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA005",
+                       "ownerCluster":  2,
+                       "rationale":  "SITXFSA005 Use hygienic practices for food safety is a prerequisite to most cookery units and is delivered early in Theme 2 for that reason. The contents of the organisation\u0027s hygiene procedures are its own subject matter.",
+                       "teachingRule":  "SITXFSA006, SITHCCC023 and SITHCCC043 follow the procedure and are assessed on following it, not on reciting what it contains.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA005",
+                                              "section":  "KE",
+                                              "text":  "contents of organisational hygiene and food safety procedures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA006",
+                                                "SITHCCC023",
+                                                "SITHCCC043"
+                                            ],
+                       "families":  [
+                                        "F12"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T06",
+                       "name":  "Food safety law, the Food Standards Code and the meaning of contamination",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXFSA005",
+                       "ownerCluster":  2,
+                       "rationale":  "One account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the regulator\u0027s role. Three units carry it; an auditor reading three summaries of one Code finds three chances to be wrong.",
+                       "teachingRule":  "SITXFSA006 and SITXINV006 name the specific requirement governing their activity - a temperature, a record, a disposal rule - and cite the Code clause rather than re-summarising the Code.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA005",
+                                              "section":  "KE",
+                                              "text":  "basic aspects of commonwealth, state or territory food safety laws, standards and codes as follows:meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA006",
+                                                "SITXINV006"
+                                            ],
+                       "families":  [
+                                        "F15"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T07",
+                       "name":  "Work health and safety: legislation, duties, hazards and the consequences of failure",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXWHS005",
+                       "ownerCluster":  1,
+                       "rationale":  "Five families - ramifications of failing to observe legislation, safe work practices for a job role, employee responsibilities, workplace hazards and risks, and the basic aspects of the state WHS Act - are one body of law and duty. SITXWHS005 Participate in safe work practices opens Theme 1 in week 1 and is the earliest owner.",
+                       "teachingRule":  "SITXWHS006 Identify hazards, assess and control safety risks teaches the DELTA - conducting a risk assessment, applying the hierarchy of control, monitoring a control - which is genuinely new work. It does not restate the Act. The food safety units cite SITXWHS005 for the structure of duty, breach and penalty and name the Food Act as their own instrument.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "ramifications of failure to observe WHS legislation and organisational policies and procedures"
+                                          },
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "safe work practices for individual job roles"
+                                          },
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "employee responsibilities to participate in WHS practices"
+                                          },
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "workplace hazards and associated health, safety and security risks"
+                                          },
+                                          {
+                                              "unit":  "SITXWHS005",
+                                              "section":  "KE",
+                                              "text":  "basic aspects of the relevant state or territory work health and safety (WHS) legislation:actions that must be adhered to by businesses"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA005",
+                                                "SITXFSA006",
+                                                "SITXWHS006"
+                                            ],
+                       "families":  [
+                                        "F23",
+                                        "F26",
+                                        "F27",
+                                        "F28",
+                                        "F30"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T08",
+                       "name":  "Cleaning products, chemicals and their safe use",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP009",
+                       "ownerCluster":  2,
+                       "rationale":  "SITHKOP009 Clean kitchen premises and equipment owns the chemicals - dilution, contact time, safety data sheets, storage and the PPE they demand. SITXFSA005 needs them only as a means of achieving a hygienic surface.",
+                       "teachingRule":  "SITXFSA005 states why a surface must be sanitised and cites SITHKOP009 for how.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHKOP009",
+                                              "section":  "KE",
+                                              "text":  "uses of different types of cleaning and sanitising products and chemicals for kitchens and equipment"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA005"
+                                            ],
+                       "families":  [
+                                        "F29"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T09",
+                       "name":  "Environmentally sound disposal of kitchen waste",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP009",
+                       "ownerCluster":  2,
+                       "rationale":  "Separation, recycling, oil disposal and broken service-ware are the cleaning unit\u0027s own ground, and it sits in Theme 2 alongside SITXINV006.",
+                       "teachingRule":  "SITXINV006 disposes of out-of-date stock to that procedure and cites it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHKOP009",
+                                              "section":  "KE",
+                                              "text":  "correct and environmentally sound disposal methods for kitchen waste:broken service-ware"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXINV006"
+                                            ],
+                       "families":  [
+                                        "F24"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T10",
+                       "name":  "Identifying customer preferences as a recipe input",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP010",
+                       "ownerCluster":  2,
+                       "rationale":  "SITHKOP010 Plan and cost recipes opens Theme 2 and carries the element Identify customer preferences. SITHCCC042 needs the same evidence to justify a dietary substitution.",
+                       "teachingRule":  "SITHCCC042 reads a preference or restriction and acts on it. How preference data is gathered is not repeated.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHKOP010",
+                                              "section":  "EL",
+                                              "text":  "1. Identify customer preferences."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC042"
+                                            ],
+                       "families":  [
+                                        "F31"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T11",
+                       "name":  "Effects of cookery methods on the major food types",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC027",
+                       "ownerCluster":  3,
+                       "rationale":  "What heat does to protein, starch, fat and cell structure is the theory that makes every cookery method make sense, and SITHCCC027 is the unit that teaches the methods.",
+                       "teachingRule":  "SITHCCC031 applies it to plant proteins and meat substitutes, which behave differently, and teaches only that difference.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC027",
+                                              "section":  "KE",
+                                              "text":  "effects of cookery methods on the major food types listed in the Performance Evidence"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC031"
+                                            ],
+                       "families":  [
+                                        "F32"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T12",
+                       "name":  "Presenting and storing finished dishes",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC027",
+                       "ownerCluster":  3,
+                       "rationale":  "The element Present and store dishes appears in four units. SITHCCC027 opens Theme 3 and owns the sequence of finishing, garnishing, holding at temperature and storing leftovers.",
+                       "teachingRule":  "Later units present their own dish to its own standard and store its own by-products.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC027",
+                                              "section":  "EL",
+                                              "text":  "5. Present and store dishes."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC031",
+                                                "SITHCCC035",
+                                                "SITHCCC036"
+                                            ],
+                       "families":  [
+                                        "F13"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T13",
+                       "name":  "Plating for practicality of service and customer consumption",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC028",
+                       "ownerCluster":  3,
+                       "rationale":  "Five units carry plating methods as knowledge evidence. SITHCCC028 Prepare appetisers and salads is the earliest of them and the unit where presentation is most of the product.",
+                       "teachingRule":  "Later units plate their own dish and are judged on the result. Balance, colour, height, sauce placement and service practicality are taught once.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC028",
+                                              "section":  "KE",
+                                              "text":  "plating methods for practicality of service and customer consumption"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC030",
+                                                "SITHCCC035",
+                                                "SITHCCC037",
+                                                "SITHCCC041"
+                                            ],
+                       "families":  [
+                                        "F09"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T14",
+                       "name":  "Using by-products and off-cuts to reduce waste and maximise profitability",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC035",
+                       "ownerCluster":  4,
+                       "rationale":  "Carcass, bone, trim and shell all become stock, and the commercial argument for using them is one argument. SITHCCC035 Prepare poultry dishes is the first of the three protein units in Theme 4.",
+                       "teachingRule":  "SITHCCC036 and SITHCCC037 name the by-products of their own commodity and what each becomes. The yield and profitability reasoning is cited.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC035",
+                                              "section":  "KE",
+                                              "text":  "safe and effective methods of using poultry by-products and off cuts to reduce wastage and maximise profitability"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC036",
+                                                "SITHCCC037"
+                                            ],
+                       "families":  [
+                                        "F19"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T15",
+                       "name":  "Knife selection, care and maintenance",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC035",
+                       "ownerCluster":  4,
+                       "rationale":  "Knife care appears as knowledge evidence in the three protein units, which is where butchery makes it matter. SITHCCC023 owns equipment generally; knives are called out separately because the three units naming them do so in the same words and none of them is SITHCCC023.",
+                       "teachingRule":  "SITHCCC036 and SITHCCC037 name the knives their own commodity needs - boning, filleting, scimitar - and are assessed on using them safely, not on sharpening theory.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC035",
+                                              "section":  "KE",
+                                              "text":  "equipment used to produce poultry dishes:knife care and maintenance"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC036",
+                                                "SITHCCC037"
+                                            ],
+                       "families":  [
+                                        "F20"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T16",
+                       "name":  "Judging product quality: appearance, balance, colour, consistency and texture",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC035",
+                       "ownerCluster":  4,
+                       "rationale":  "The vocabulary a cook uses to judge a finished product is one vocabulary, and it appears identically in the three protein units.",
+                       "teachingRule":  "SITHCCC036 and SITHCCC037 state the characteristics expected of their own dishes against that vocabulary.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC035",
+                                              "section":  "KE",
+                                              "text":  "characteristics of poultry products and poultry dishes:appearance:balance"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC036",
+                                                "SITHCCC037"
+                                            ],
+                       "families":  [
+                                        "F21"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T17",
+                       "name":  "Special dietary requirements: allergies, intolerances, consequences and substitute ingredients",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC042",
+                       "ownerCluster":  3,
+                       "rationale":  "Three families - the types and characteristics of food allergy, the health and legal consequences of failing to address a dietary requirement, and substitute ingredients - are one topic, and SITHCCC042 Prepare food to meet special dietary requirements is the unit whose subject it is.",
+                       "teachingRule":  "SITHPAT016 teaches the substitutions specific to desserts - gluten-free flours, egg replacers, non-dairy setting agents - and cites SITHCCC042 for the allergy knowledge and the legal consequence. SITHCCC043 applies it during service.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC042",
+                                              "section":  "KE",
+                                              "text":  "main types and characteristics of:food allergy"
+                                          },
+                                          {
+                                              "unit":  "SITHCCC042",
+                                              "section":  "KE",
+                                              "text":  "key health, legal and reputational consequences of failing to address special requirements, including:allergic reactions"
+                                          },
+                                          {
+                                              "unit":  "SITHCCC042",
+                                              "section":  "KE",
+                                              "text":  "culinary terms and trade names for:substitute ingredients used to produce dishes with special dietary recipes"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC043",
+                                                "SITHPAT016"
+                                            ],
+                       "families":  [
+                                        "F35",
+                                        "F41",
+                                        "F42"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T18",
+                       "name":  "Food safety risks of raw and alternative egg products",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC031",
+                       "ownerCluster":  3,
+                       "rationale":  "Raw egg is a named high-risk ingredient and the two units carrying it word it identically. SITHCCC031 Prepare vegetarian and vegan dishes is the earlier and has the strongest reason - egg substitution is its business.",
+                       "teachingRule":  "SITHCCC030 applies the rule to its own egg dishes and cites it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC031",
+                                              "section":  "KE",
+                                              "text":  "food safety risks associated with raw egg products and alternative egg products"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC030"
+                                            ],
+                       "families":  [
+                                        "F36"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T19",
+                       "name":  "Cooking and portioning bulk food items",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC032",
+                       "ownerCluster":  4,
+                       "rationale":  "Bulk production is a different discipline from a la carte, and SITHCCC032 Produce cook-chill and cook-freeze foods opens Theme 4 ahead of SITHCCC044.",
+                       "teachingRule":  "SITHCCC044 portions its own specialised items and cites the bulk-production method.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC032",
+                                              "section":  "EL",
+                                              "text":  "4. Cook and portion bulk food items."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC044"
+                                            ],
+                       "families":  [
+                                        "F39"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T20",
+                       "name":  "Planning mise en place for a production run",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC038",
+                       "ownerCluster":  3,
+                       "rationale":  "Planning a whole service or buffet - what is prepped when, what holds, what is finished to order - is different from the concept of mise en place owned by SITHCCC023. SITHCCC038 Produce and serve food for buffets is the earliest unit to require it at scale.",
+                       "teachingRule":  "SITHCCC032 plans a bulk run and the protein units plan their own section. None re-teaches the planning method.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC038",
+                                              "section":  "KE",
+                                              "text":  "mise en place requirements for producing and presenting foods for buffets"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC031",
+                                                "SITHCCC035",
+                                                "SITHCCC036",
+                                                "SITHCCC037",
+                                                "SITHCCC032"
+                                            ],
+                       "families":  [
+                                        "F10",
+                                        "F34"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T21",
+                       "name":  "Fundamental patisserie techniques: sifting, stirring, aerating, whisking, folding, piping and mould preparation",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT016",
+                       "ownerCluster":  3,
+                       "rationale":  "Five families covering the same hand skills appear in SITHPAT016 and SITHCCC041 in identical words. SITHPAT016 Produce desserts is delivered in Theme 3 and SITHCCC041 Produce cakes, pastries and breads in Theme 4, so the techniques are taught first where desserts need them.",
+                       "teachingRule":  "SITHCCC041 applies the same hands to bread, pastry and cake and teaches what is new there - gluten development, lamination, proving and baking to a crumb structure.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "cookery methods and processes used when preparing desserts:adding fats and liquids to dry ingredients"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "selecting and preparing appropriate dessert moulds"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "whisking, folding, piping and spreading"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "sifting dry ingredients"
+                                          },
+                                          {
+                                              "unit":  "SITHPAT016",
+                                              "section":  "KE",
+                                              "text":  "stirring and aerating to achieve required consistency and texture"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC041"
+                                            ],
+                       "families":  [
+                                        "F40",
+                                        "F43",
+                                        "F44",
+                                        "F45",
+                                        "F46"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T22",
+                       "name":  "Culinary terms and trade names for ingredients",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC038",
+                       "ownerCluster":  3,
+                       "rationale":  "Nine units require the culinary terms and trade names for THEIR OWN ingredients. The terms for poultry are not the terms for pastry, so this is not one body of vocabulary taught nine times - it is nine vocabularies. What IS taught once is the idea that a trade name, a convenience product and a classical term all name the same thing, and SITHCCC038 is the earliest unit in the delivery order to require it.",
+                       "teachingRule":  "Every unit teaches the terms for its own commodity in full and is assessed on them. No unit re-explains what a trade name is or why convenience products carry different names.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC038",
+                                              "section":  "KE",
+                                              "text":  "culinary terms and trade names for:ingredients commonly used to produce buffet items"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC028",
+                                                "SITHCCC029",
+                                                "SITHCCC035",
+                                                "SITHCCC036",
+                                                "SITHCCC037",
+                                                "SITHCCC041",
+                                                "SITHCCC031",
+                                                "SITHCCC030"
+                                            ],
+                       "families":  [
+                                        "F08",
+                                        "F33"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T23",
+                       "name":  "Historical and cultural origins of dishes",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC031",
+                       "ownerCluster":  3,
+                       "rationale":  "Four units require the origins of their own dishes. The origins of a dal are not the origins of a confit, so each unit teaches its own. Only the expectation - that a cook can place a dish in its tradition and cook it respectfully - is set once.",
+                       "teachingRule":  "Each unit covers the origins of the dishes in its own performance evidence. None repeats another\u0027s.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC031",
+                                              "section":  "KE",
+                                              "text":  "historical and cultural origin of different vegetarian and vegan dishes and products"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC030",
+                                                "SITHCCC035",
+                                                "SITHCCC036"
+                                            ],
+                       "families":  [
+                                        "F11"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T24",
+                       "name":  "Cookery methods applied to a commodity",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC028",
+                       "ownerCluster":  3,
+                       "rationale":  "Four units name the cookery methods for their own commodity. Poaching a fish is not braising a shoulder. The GENERIC method theory is owned by SITHCCC027 as topic Effects of cookery methods; what remains here is per-commodity and is taught per unit.",
+                       "teachingRule":  "Each unit teaches the methods its own performance evidence lists, and cites SITHCCC027 for why the method behaves as it does.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC028",
+                                              "section":  "KE",
+                                              "text":  "cookery methods for appetisers and salads specified in the performance evidence"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC035",
+                                                "SITHCCC036",
+                                                "SITHCCC037"
+                                            ],
+                       "families":  [
+                                        "F14"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T25",
+                       "name":  "Cooking dishes of a commodity",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC035",
+                       "ownerCluster":  4,
+                       "rationale":  "The element Cook poultry dishes, Cook meat dishes and Cook seafood dishes is the same element wearing three commodity names. The element is the qualification\u0027s core work and each unit carries it in full.",
+                       "teachingRule":  "No consolidation. Each protein unit cooks and is assessed on its own commodity.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC035",
+                                              "section":  "EL",
+                                              "text":  "4. Cook poultry dishes."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC036",
+                                                "SITHCCC037"
+                                            ],
+                       "families":  [
+                                        "F16"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T26",
+                       "name":  "Classical and contemporary dishes of a commodity",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC035",
+                       "ownerCluster":  4,
+                       "rationale":  "Each protein unit requires a repertoire of classical and contemporary dishes in its own commodity. The repertoires do not overlap.",
+                       "teachingRule":  "Each unit teaches its own repertoire in full.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC035",
+                                              "section":  "KE",
+                                              "text":  "a variety of classical and contemporary poultry dishes"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC036",
+                                                "SITHCCC037"
+                                            ],
+                       "families":  [
+                                        "F18"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T27",
+                       "name":  "Classical and contemporary variations of a preparation",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC028",
+                       "ownerCluster":  3,
+                       "rationale":  "Variations on a salad, a sauce and a farinaceous dish are three different bodies of knowledge sharing one phrase.",
+                       "teachingRule":  "Each unit teaches its own variations.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC028",
+                                              "section":  "KE",
+                                              "text":  "classical and contemporary variations"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC029",
+                                                "SITHCCC030"
+                                            ],
+                       "families":  [
+                                        "F22"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T28",
+                       "name":  "Preparation techniques for cuts and types of a commodity",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC035",
+                       "ownerCluster":  4,
+                       "rationale":  "Ballotine and suprême belong to poultry; filleting and pin-boning to seafood. The techniques are named in one phrase and share nothing else.",
+                       "teachingRule":  "Each unit teaches and assesses its own preparation techniques.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC035",
+                                              "section":  "KE",
+                                              "text":  "preparation techniques for different cuts and types of poultry specified in the performance evidence, including:ballotine"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC037"
+                                            ],
+                       "families":  [
+                                        "F37"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT30821-T29",
+                       "name":  "Cuts of a commodity and the styles of cooking they suit",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC035",
+                       "ownerCluster":  4,
+                       "rationale":  "Matching a cut to a method is the same reasoning applied to different anatomy. The reasoning is owned by SITHCCC027 as topic Effects of cookery methods; the cuts are per commodity.",
+                       "teachingRule":  "SITHCCC036 teaches the beef, lamb and pork cuts in full. SITHCCC035 teaches poultry. Neither re-derives why a tough cut needs moist heat.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITHCCC035",
+                                              "section":  "KE",
+                                              "text":  "different cuts of poultry and styles of cooking"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITHCCC036"
+                                            ],
+                       "families":  [
+                                        "F38"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "SITXWHS005":  {
+                                              "owns":  [
+                                                           "SIT30821-T07"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXWHS006":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T07"
+                                                                   ]
+                                          },
+                           "SITXHRM007":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITHKOP010":  {
+                                              "owns":  [
+                                                           "SIT30821-T10"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXINV007":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXFSA005":  {
+                                              "owns":  [
+                                                           "SIT30821-T05",
+                                                           "SIT30821-T06"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T07",
+                                                                       "SIT30821-T08"
+                                                                   ]
+                                          },
+                           "SITXFSA006":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T05",
+                                                                       "SIT30821-T06",
+                                                                       "SIT30821-T07"
+                                                                   ]
+                                          },
+                           "SITHKOP009":  {
+                                              "owns":  [
+                                                           "SIT30821-T08",
+                                                           "SIT30821-T09"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01"
+                                                                   ]
+                                          },
+                           "SITXINV006":  {
+                                              "owns":  [
+                                                           "SIT30821-T04"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T06",
+                                                                       "SIT30821-T09"
+                                                                   ]
+                                          },
+                           "SITHCCC023":  {
+                                              "owns":  [
+                                                           "SIT30821-T01",
+                                                           "SIT30821-T02"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T05"
+                                                                   ]
+                                          },
+                           "SITHCCC027":  {
+                                              "owns":  [
+                                                           "SIT30821-T03",
+                                                           "SIT30821-T11",
+                                                           "SIT30821-T12"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T02",
+                                                                       "SIT30821-T04"
+                                                                   ]
+                                          },
+                           "SITHPAT016":  {
+                                              "owns":  [
+                                                           "SIT30821-T21"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T17"
+                                                                   ]
+                                          },
+                           "SITHCCC042":  {
+                                              "owns":  [
+                                                           "SIT30821-T17"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T10"
+                                                                   ]
+                                          },
+                           "SITHCCC038":  {
+                                              "owns":  [
+                                                           "SIT30821-T20",
+                                                           "SIT30821-T22"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T04"
+                                                                   ]
+                                          },
+                           "SITHCCC031":  {
+                                              "owns":  [
+                                                           "SIT30821-T18",
+                                                           "SIT30821-T23"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T11",
+                                                                       "SIT30821-T12",
+                                                                       "SIT30821-T20",
+                                                                       "SIT30821-T22"
+                                                                   ]
+                                          },
+                           "SITHCCC028":  {
+                                              "owns":  [
+                                                           "SIT30821-T13",
+                                                           "SIT30821-T24",
+                                                           "SIT30821-T27"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T22"
+                                                                   ]
+                                          },
+                           "SITHCCC029":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T22",
+                                                                       "SIT30821-T27"
+                                                                   ]
+                                          },
+                           "SITHCCC030":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T13",
+                                                                       "SIT30821-T18",
+                                                                       "SIT30821-T22",
+                                                                       "SIT30821-T23",
+                                                                       "SIT30821-T27"
+                                                                   ]
+                                          },
+                           "SITHCCC032":  {
+                                              "owns":  [
+                                                           "SIT30821-T19"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T20"
+                                                                   ]
+                                          },
+                           "SITHCCC035":  {
+                                              "owns":  [
+                                                           "SIT30821-T14",
+                                                           "SIT30821-T15",
+                                                           "SIT30821-T16",
+                                                           "SIT30821-T25",
+                                                           "SIT30821-T26",
+                                                           "SIT30821-T28",
+                                                           "SIT30821-T29"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T12",
+                                                                       "SIT30821-T13",
+                                                                       "SIT30821-T20",
+                                                                       "SIT30821-T22",
+                                                                       "SIT30821-T23",
+                                                                       "SIT30821-T24"
+                                                                   ]
+                                          },
+                           "SITHCCC036":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T12",
+                                                                       "SIT30821-T14",
+                                                                       "SIT30821-T15",
+                                                                       "SIT30821-T16",
+                                                                       "SIT30821-T20",
+                                                                       "SIT30821-T22",
+                                                                       "SIT30821-T23",
+                                                                       "SIT30821-T24",
+                                                                       "SIT30821-T25",
+                                                                       "SIT30821-T26",
+                                                                       "SIT30821-T29"
+                                                                   ]
+                                          },
+                           "SITHCCC037":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T13",
+                                                                       "SIT30821-T14",
+                                                                       "SIT30821-T15",
+                                                                       "SIT30821-T16",
+                                                                       "SIT30821-T20",
+                                                                       "SIT30821-T22",
+                                                                       "SIT30821-T24",
+                                                                       "SIT30821-T25",
+                                                                       "SIT30821-T26",
+                                                                       "SIT30821-T28"
+                                                                   ]
+                                          },
+                           "SITHCCC041":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T13",
+                                                                       "SIT30821-T21",
+                                                                       "SIT30821-T22"
+                                                                   ]
+                                          },
+                           "SITHCCC044":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T03",
+                                                                       "SIT30821-T04",
+                                                                       "SIT30821-T19"
+                                                                   ]
+                                          },
+                           "SITHCCC043":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT30821-T01",
+                                                                       "SIT30821-T05",
+                                                                       "SIT30821-T17"
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

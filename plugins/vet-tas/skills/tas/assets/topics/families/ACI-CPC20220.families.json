@@ -1,0 +1,154 @@
+﻿{
+    "courseId":  "ACI-CPC20220",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:05Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "CPCCSP2002",
+                                       "CPCCVE1011",
+                                       "CPCCSP2003"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for using solid plastering tools and equipment, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            },
+                                            {
+                                                "Code":  "CPCCVE1011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for basic construction projects, including job safety analyses/safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state/territory equivalent, and personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for preparing surfaces for plastering, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2002",
+                                       "CPCCCM2012",
+                                       "CPCCSP2003"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDS)"
+                                            },
+                                            {
+                                                "Code":  "CPCCCM2012",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDSs)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDS)"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2002",
+                                       "CPCCCM2012",
+                                       "CPCCSP2003"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCCM2012",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "selection, fitting and use of personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCVE1011",
+                                       "CPCCCO2013"
+                                   ],
+                         "suggestedOwner":  "CPCCVE1011",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCVE1011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "compliance requirements of the National Construction Code and Australian Standards relevant to basic construction projects"
+                                            },
+                                            {
+                                                "Code":  "CPCCCO2013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "compliance requirements of the National Construction Code and Australian Standards relevant to concreting to simple forms"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2002",
+                                       "CPCCSP2003"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2002",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "workplace quality policies and standards for using solid plastering tools and equipment"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "workplace quality policies and standards for preparing surfaces for plastering"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCWHS2001",
+                                       "CPCWHS1001"
+                                   ],
+                         "suggestedOwner":  "CPCCWHS2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCWHS2001",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "procedures for reporting hazards, incidents and injuries"
+                                            },
+                                            {
+                                                "Code":  "CPCWHS1001",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "identifying and reporting hazards, incidents and injuries in the workplace"
+                                            }
+                                        ]
+                     }
+                 ]
+}

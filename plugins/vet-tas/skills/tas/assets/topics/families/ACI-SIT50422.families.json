@@ -1,0 +1,112 @@
+﻿{
+    "courseId":  "ACI-SIT50422",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:23Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "SITXCCS016",
+                                       "SITXCCS015"
+                                   ],
+                         "suggestedOwner":  "SITXCCS016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXCCS016",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "attitudes and attributes expected by the service industries to work with customers"
+                                            },
+                                            {
+                                                "Code":  "SITXCCS015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "attitudes and attributes expected by the service industries to work with customers"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXCCS016",
+                                       "SITXCCS015"
+                                   ],
+                         "suggestedOwner":  "SITXCCS016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXCCS016",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "professional service standards for service industry personnel"
+                                            },
+                                            {
+                                                "Code":  "SITXCCS015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "professional service standards and protocols for service industry personnel"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXCCS016",
+                                       "SITXCCS015"
+                                   ],
+                         "suggestedOwner":  "SITXCCS016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXCCS016",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "seeking staff suggestions for content of customer service policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXCCS015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "customer service policies and procedures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFIN010",
+                                       "SITXCCS016"
+                                   ],
+                         "suggestedOwner":  "SITXFIN010",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFIN010",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational and management restructures"
+                                            },
+                                            {
+                                                "Code":  "SITXCCS016",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "management changes and organisational restructures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXCCS016",
+                                       "SITXCCS015"
+                                   ],
+                         "suggestedOwner":  "SITXCCS016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXCCS016",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "complaint and dispute management"
+                                            },
+                                            {
+                                                "Code":  "SITXCCS015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "escalated complaints or disputes"
+                                            }
+                                        ]
+                     }
+                 ]
+}

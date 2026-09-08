@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFGN2001",
+    "title":  "Make measurements and calculations",
+    "type":  "unit",
+    "status":  "superseded",
+    "statusLabel":  "Superseded",
+    "releaseNumber":  "2",
+    "releaseDate":  "2020-05-07",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Generic",
+    "application":  "This unit of competency describes the skills and knowledge required to identify the measuring equipment required in work task, and make and record accurate measurements and calculations. It includes identifying and responding to routine and non-routine problems with the process.\nThe unit applies to any individual taking measurements and making calculations as part of their job role.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements\nElements describe the essential outcomes.\nPerformance Criteria\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Identify required measurements and equipment\n1.1\nSelect measuring equipment suited to the task\n1.2\nIdentify measuring units to be used, and the level of detail required, from work documents\n1.3\nCheck condition and calibration of measuring equipment and confirm it is fit for purpose\n2. Take measurements\n2.1\nMake justified estimate of range of results that may be obtained\n2.2\nIdentify and take account of external factors affecting measurement accuracy\n2.3\nTake measurements using mathematical techniques suited to task\n2.4\nCompare measurements against range of expected results\n2.5\nCheck accuracy and correctness of numerical information\n2.6\nRecord results to required level of detail\n3. Carry out calculations\n3.1\nIdentify measurement data to be used for calculations from work instructions\n3.2\nDetermine calculation methods and techniques suited to task\n3.3\nMake justified estimate of range of quantities that may be obtained\n3.4\nCarry out calculations and check accuracy of results\n3.5\nRecord results to required level of detail\n4. Address routine and non-routine problems\n4.1\nIdentify known faults that can occur during measurement activity\n4.2\nIdentify and take necessary action on causes of routine faults\n4.3\nLog problems according to workplace procedures\n4.4\nIdentify and report non-routine problems to designated personnel",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria of this unit of competency.\nOral communication skills to:\ncommunicate ideas and information, and report problems\nReading skills to:\ninterpret familiar workplace documentation, including:\nwork instructions: job sheets, cutting lists, plans, drawings and designs\nproject plans and briefs\nproduct and material specifications",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements, performance criteria, and foundation skills of this unit, which must include the ability to:\nwork from specific project plans or briefs to accurately determine and cost the quantities of materials or products for a minimum of three different projects.\nIn the course of determining and costing the above projects, the person must:\nrecord estimation of results that may be obtained\nuse measuring, calculating, and recording devices\ncheck and record results.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\npurpose for measuring and calculating in workplace context\nmathematical principles and problem-solving strategies to make basic measurements and calculations\nuses and limitations of the following measuring equipment:calculators\ncalipers\ncomputers\nlaser or equivalent technology\nrulers\nsquares\ntapes measures\nweighing scales\nworkplace procedures and protocols relating to:handling materials and products while undertaking measurement to minimise damage\nrecording and reporting outcomes of measurement and calculation\nreporting non-routine problems\nquality standards\nrequirements of working with others in a team",
+    "assessmentConditions":  "Assessment must occur in the workplace, or in a simulated environment that reflects workplace conditions and contingencies.\nAccess is required to:\nproject plans and briefs\nmeasuring and calculating equipment specified in the knowledge evidence\nrecording equipment required to demonstrate the performance evidence\nquality standards and enterprise procedures.\nAssessors of this unit must satisfy the assessor requirements in applicable vocational education and training legislation, frameworks and/or standards.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFGN2001/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:23Z"
+}

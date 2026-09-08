@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "CPCCOM1012",
+    "title":  "Work effectively and sustainably in the construction industry",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "3",
+    "releaseDate":  "2024-12-24",
+    "currency":  "current",
+    "trainingPackage":  "CPC",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Common",
+    "application":  "This unit of competency specifies the skills and knowledge required to work effectively and sustainably in the construction industry.\nThe unit is suitable for those with basic skills and knowledge undertaking routine work tasks under the direction of more experienced workers.\nCompletion of the general construction induction training program specified by the model Code of Practice for Construction Work is required for any person who is to carry out construction work. Achievement of unit CPCWHS1001 Prepare to work safely in the construction industry meets this requirement.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe what needs to be done to demonstrate achievement of the element.\n1\nWork effectively in a team.\n1.1\nParticipate in planning work tasks with team members.\n1.2\nWork with team members to review team purpose, roles, responsibilities, goals, plans and objectives.\n1.3\nWork with team members following guidelines, directions and instructions to complete work tasks.\n1.4\nWork with team members to resolve problems that impede the team’s performance.\n2\nInvestigate construction industry employment pathways.\n2.1\nDescribe the process for becoming a tradesperson or skilled operator in the construction industry.\n2.2\nIdentify own existing skills and the additional skills required for a tradesperson or skilled operator role in the construction industry.\n3\nIdentify and follow environmental and resource efficiency requirements.\n3.1\nIdentify environmental and resource efficiency requirements that apply to entry level roles in the construction industry.\n3.2\nFollow requirements to identify and report environmental hazards.\n3.3\nFollow requirements to identify and report resource efficiency issues.",
+    "foundationSkills":  "Foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "To demonstrate competency, a candidate must satisfy all the elements, performance criteria and foundation skills of this unit by:\nworking effectively as a member of a team to plan and perform a construction task\nworking with members of a team to review the team’s purpose, roles, responsibilities, goals, plans and objectives\nlisting own existing skills and the additional skills required for a selected tradesperson or skilled operator role in the construction industry\nidentifying environmental and resource efficiency requirements that apply to entry level roles in the construction industry\npreparing basic reports on each of an environmental hazard and a resource efficiency issue.\nAll work must be performed to the standard required in the workplace.",
+    "knowledgeEvidence":  "To be competent in this unit, a candidate must demonstrate knowledge of:\nskills and knowledge required to work effectively in the construction industry\nconstruction job roles and employment opportunities in the construction industry\ntechniques for working effectively in a construction team environment\ntechniques for determining own skills and skills required for career opportunities\nenvironment and resource efficiency requirements in the construction industry.",
+    "assessmentConditions":  "Assessors must meet the requirements for assessors contained in the Standards for Registered Training Organisations.\nThis unit must be assessed while undertaking workplace tasks in the workplace or a close simulation using realistic workplace conditions, materials, activities, responsibilities, procedures, safety requirements and environmental considerations.",
+    "sourceUrl":  "https://training.gov.au/training/details/CPCCOM1012/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:06Z"
+}

@@ -1,0 +1,62 @@
+﻿{
+    "courseId":  "MVC-BSB50420",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:38Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "BSBCMM511",
+                                       "BSBLDR523",
+                                       "BSBTEC404"
+                                   ],
+                         "suggestedOwner":  "BSBCMM511",
+                         "statements":  [
+                                            {
+                                                "Code":  "BSBCMM511",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "relevant organisational policies and procedures on confidentiality of information."
+                                            },
+                                            {
+                                                "Code":  "BSBCMM511",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policies and procedures relevant to:presenting and negotiating"
+                                            },
+                                            {
+                                                "Code":  "BSBLDR523",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational policies and procedures relevant to workplace relationships"
+                                            },
+                                            {
+                                                "Code":  "BSBTEC404",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "organisational requirements, policies and procedures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "BSBOPS502",
+                                       "BSBOPS501"
+                                   ],
+                         "suggestedOwner":  "BSBOPS502",
+                         "statements":  [
+                                            {
+                                                "Code":  "BSBOPS502",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "2. Manage resource acquisition"
+                                            },
+                                            {
+                                                "Code":  "BSBOPS501",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "resource acquisition processes"
+                                            }
+                                        ]
+                     }
+                 ]
+}

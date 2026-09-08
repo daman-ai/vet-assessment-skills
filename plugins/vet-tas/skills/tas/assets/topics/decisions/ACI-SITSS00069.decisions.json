@@ -1,0 +1,31 @@
+{
+  "_comment": "AUTHORED OWNERSHIP DECISIONS for the SITSS00069 Food Safety Supervision skill set. Every family in families/ACI-SITSS00069.families.json appears exactly once below.",
+  "courseId": "ACI-SITSS00069",
+  "_deliveredNote": "A SKILL SET, NOT A QUALIFICATION - two units over four weeks, delivered in the order SITXFSA005 then SITXFSA006, issuing a Statement of Attainment. Both units are delivered; there is no credit transfer. With only two units the whole question is simple: SITXFSA005 comes first, so it owns everything the two share.",
+  "topics": [
+    {
+      "families": ["F01"],
+      "name": "Food safety law, the Food Standards Code and the meaning of contamination",
+      "kind": "regulatory-recall",
+      "owner": "SITXFSA005",
+      "rationale": "Both units carry the same account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the role of the local regulator. In a two-unit skill set delivered over four weeks a learner would meet that account twice in a month.",
+      "teachingRule": "SITXFSA006 names the specific requirement governing the handling task in front of the learner - a temperature, a holding time, a record - and cites the Code clause rather than re-summarising the Code."
+    },
+    {
+      "families": ["F02"],
+      "name": "Consequences of failing to observe food safety law",
+      "kind": "regulatory-recall",
+      "owner": "SITXFSA005",
+      "rationale": "Prosecution, closure, licence conditions and the personal liability of a food safety supervisor are one account of consequence. It belongs with the law it follows from.",
+      "teachingRule": "SITXFSA006 states the consequence attaching to its own specific breach and cites this topic for the general structure."
+    },
+    {
+      "families": ["F03"],
+      "name": "Organisational hygiene and food safety procedures",
+      "kind": "shared-scaffold",
+      "owner": "SITXFSA005",
+      "rationale": "What the organisation's own hygiene and food safety procedures contain is the subject matter of SITXFSA005, and it is delivered first.",
+      "teachingRule": "SITXFSA006 follows the procedure and is assessed on following it, not on reciting what it contains."
+    }
+  ]
+}

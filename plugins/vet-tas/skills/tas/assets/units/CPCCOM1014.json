@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "CPCCOM1014",
+    "title":  "Conduct workplace communication",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "4",
+    "releaseDate":  "2024-12-24",
+    "currency":  "current",
+    "trainingPackage":  "CPC",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Common",
+    "application":  "This unit of competency specifies the skills and knowledge required to communicate effectively with other workers in a construction workplace environment.\nThe unit includes gathering, conveying and receiving information through verbal and written forms of communication.\nThe unit is suitable for those with basic skills and knowledge undertaking routine work tasks under the direction of more experienced workers.\nCompletion of the general construction induction training program specified by the model Code of Practice for Construction Work is required for any person who is to carry out construction work. Achievement of unit CPCWHS1001Prepare to work safely in the construction industry meets this requirement.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe what needs to be done to demonstrate achievement of the element.\n1\nConvey and receive information and instructions.\n1.1\nReceive information and instructions from others using effective listening, questioning and speaking skills to confirm understanding.\n1.2\nConvey information and instructions to others using effective listening, questioning and speaking skills to confirm understanding.\n2\nAccess, interpret and present information.\n2.1\nAccess and interpret basic information from a range of sources.\n2.2\nSelect and sequence information to prepare a basic written report.\n2.3\nSelect and sequence information to prepare and present a basic verbal report.\n2.4\nEnter information into basic workplace records and documents.\n3\nParticipate in simple meeting processes.\n3.1\nDescribe and follow simple processes and procedures for meetings.\n3.2\nProvide constructive contributions to meeting discussions.",
+    "foundationSkills":  "Foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "To demonstrate competency, a candidate must satisfy all the elements, performance criteria and foundation skills of this unit by:\nconveying and receiving information and instructions to and from others\naccessing, interpreting and sequencing information\npresenting information in verbal and written reports\nentering information into workplace records and documents\nparticipating in simple meeting processes.\nAll work must be performed to the standard required in the workplace.",
+    "knowledgeEvidence":  "To be competent in this unit, a candidate must demonstrate knowledge of techniques for:\nconveying and receiving information and instructions\neffective listening, questioning and speaking skills to confirm understanding\naccessing and interpreting basic information from a range of sources\nselecting and sequencing basic information\npreparing and presenting basic written reports\npreparing and presenting basic verbal reports\nparticipating effectively in simple meeting processes\nentering information into basic workplace records and documents.",
+    "assessmentConditions":  "Assessors must meet the requirements for assessors contained in the Standards for Registered Training Organisations.\nThis unit must be assessed while undertaking workplace tasks:\nin the workplace or a close simulation of the workplace environment, provided that simulated or project-based assessment techniques replicate construction workplace conditions, materials, activities, responsibilities and procedures\nusing realistic tasks or simulated tasks, relevant specifications and work instructions, standard work practices, safety requirements and environmental constraints.",
+    "sourceUrl":  "https://training.gov.au/training/details/CPCCOM1014/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:07Z"
+}

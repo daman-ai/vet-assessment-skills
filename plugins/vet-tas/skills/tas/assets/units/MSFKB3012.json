@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFKB3012",
+    "title":  "Plan kitchen and bathroom projects",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Kitchens and Bathrooms",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to plan kitchen and bathroom renovation and new-build projects, including sequencing of cabinetry installation and other work.\nWorkers with this competency include kitchen and bathroom designers, sales advisors and tradespeople involved in kitchen and bathroom construction at different stages of the process.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Determine project scope\n1.1 Seek information about the project through direct client communication or review of documentation\n1.2 Establish scope and complexity of project from information provided\n1.3 Establish key people and organisations to be involved in the project and their respective roles and responsibilities\n2. Assess individual work requirements\n2.1 Determine own work responsibilities from review of project information\n2.2 Agree communication lines and protocols with individuals whose role intersects with, and impacts on, own responsibilities\n2.3 Confirm and document detailed sequencing details with others involved in the project\n3. Plan work\n3.1 Develop and document a project schedule that reflects work requirements\n3.2 Address the contingencies involved in project sequencing in consultation with others\n3.3 Confirm and communicate work schedule to others involved in the project in a timely manner",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nReading skills to interpret work documentation\nWriting skills to communicate project sequence\nOral communication skills to liaise with others working on project\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and:\nplanned and documented the work process for 3 different projects, 1 of which must be a kitchen and 1 of which must be a bathroom.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nroles and responsibilities of those typically involved in kitchen and bathroom projects, and their involvement at different stages of the project, including at least 7 of the following:architects\ncolour consultants\ndesigners\nmaterial and component suppliers\nbuilders\ncabinetmakers\nelectricians\nflooring specialists\nglaziers\npainters\nplumbers / gas fitters\nstonemasons\ntilers\nwaterproofers\nkey stages and sequencing of kitchen and bathroom projects and what each stage involves:concept design\ndesign specification\nplanning approval\ntechnical site assessment/site measure\ndemolition\nconstruction:services\nwaterproofing\ninstallation\ndifferences between renovation and new build projects\nproject planning and implementation, including:sequence of operations\nbudget\ntimelines\nallocation and delivery of resources\ncontingencies\nfeatures of cabinets and components commonly used in kitchen and bathroom projects, including manufacturing methodologies\nsupply chains for kitchen and bathroom components and materials.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including: project documentation.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFKB3012/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:25Z"
+}

@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFKB2003",
+    "title":  "Prepare for cabinetry installation",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Kitchens and bathroom",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to prepare an installation site and confirm cabinetry and components are complete and ready for installation. It includes checking work documentation and confirming that quality requirements have been met. Workers with this competency follow established procedures, often as assistants under the guidance of a supervisor with trade qualifications.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.\nAccess to construction sites requires certification of general induction training specified by the National Code of Practice for Induction for Construction Work (ASCC 2007).",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Follow site procedures\n1.1 Identify roles of different people on site and site communication protocols\n1.2 Identify and follow site work health and safety requirements\n1.3 Identify and follow site procedures for access and deliveries\n2. Prepare for work\n2.1 Identify own work requirements from installation plans\n2.2 Locate required installation tools and equipment and confirm operational readiness\n2.3 Clear and prepare work area in accordance with installation and site safety requirements\n2.4 Determine, confirm and access safe power source for tools\n3. Confirm readiness of cabinetry for assembly and installation\n3.1 Check cabinetry components against delivery documentation and installation plan and confirm completeness\n3.2 Move cabinetry components to installation site while minimising risk of injury to self and others and risk of damage to cabinets\n3.3 Assess cabinetry and components against work documentation, including quality requirements, and report any defects in accordance with workplace procedures",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nReading skills to interpret installation documentation\nWriting skills to report basic information about cabinet condition\nOral communication skills to use questioning and active listening for communication on site\nNumeracy skills to interpret numerical data on installation and delivery documentation and complete numerical processes involving counting and comparison.\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\nprepare for 2 different cabinetry installation jobs on separate sites, including:identifying and following procedures for site safety and access\npreparing work area and equipment\nensuring cabinetry is ready for installation.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nwork health and safety requirements\nsafe manual handling procedures\ntypes of installation documentation, and their key features:drawings, including symbols and terminology used\nproduct specifications\ncomponent lists\ncabinetry layout and design information\ninstallation instructions\ntools and equipment, including personal protective equipment (PPE), commonly required for cabinetry installation\ncabinets components, including:cabinet sections\ndoor and drawer systems\ndrawer runners and slides\nhandles\nhinges, runners and latches\nlegs, plinths and kickboards\nlocks\nquality checking procedures\ncommon defects and how to resolve them:chips and markings\ncolour and texture variations\nincompleteness\nscratches\nprocedures for maintaining workplace records for cabinetry installation.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including:installation site\ninstallation tools and equipment, including PPE, required for performance evidence\ncabinetry and components to be installed\nsite and workplace procedures\ninstallation documentation.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFKB2003/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:25Z"
+}

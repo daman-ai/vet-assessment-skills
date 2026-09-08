@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSMENV272",
+    "title":  "Participate in environmentally sustainable work practices",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "2",
+    "releaseDate":  "2018-12-05",
+    "currency":  "current",
+    "trainingPackage":  "MSM",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "HSE",
+    "application":  "This unit describes the skills and knowledge required to comply with environmental regulations, identify environment issues and minimise the risks of negative impact on work and carry out improvements in own work area.\nThis unit applies to operators and team members who are required to follow procedures to work in an environmentally sustainable manner.\nThis unit applies to all sectors of the manufacturing industry and members of its value chain. It may also be applied to all sections of an organisation, including office and warehouse. This unit will need to be contextualised for the industry sector, organisation and section.\nThis unit applies to an individual working alone or as part of a team and working in liaison with other shift team members and the control room operator, as appropriate.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must also be applied.",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Identify current resource use and environmental issues\n1.1 Identify workplace environmental and resource efficiency issues\n1.2 Identify resources used in own work role\n1.3 Confirm current usage of resources\n2. Comply with environmental regulations\n2.1 Read and follow environmental policies and procedures to ensure compliance with federal, state/territory and local government laws, by-laws, regulations and mandated codes of practice, and codes and standards that the organisation applies voluntarily\n2.2 Ask questions and seek clarification relating to environmental work requirements\n2.3 Identify incidents, including breaches or potential breaches of environmental regulations and occurrences outside of standard procedures and report to appropriate personnel\n2.4 Report environmental incidents using workplace forms and procedures\n3. Seek opportunities to improve environmental practices and resource efficiency\n3.1 Follow workplace procedures to improve environmental practices and resource efficiency\n3.2 Make suggestions for improvements to environmental workplace practices and work plans",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance.\nFoundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and:\nfollowed environmental policies and identified potential breaches of environmental regulations and suggested improvements within the limit of own authority.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nenvironmental sustainability issues relevant to organisation\nresource use and impact of inefficiencies associated with own work role\nenvironmental and resource efficiency policies and procedures for own work role\nenvironmental regulations and guidelines and their impact on own work role\nthe environmental issues, hazards and risks associated with own work role",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including: environmental regulations, guidelines and procedures\nworkplace incident reporting procedures and forms.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSMENV272/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:26Z"
+}

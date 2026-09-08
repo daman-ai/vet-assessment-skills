@@ -1,0 +1,223 @@
+{
+  "_comment": "AUTHORED OWNERSHIP DECISIONS for CPC50220. Every family in families/ACI-CPC50220.families.json appears exactly once below.",
+  "courseId": "ACI-CPC50220",
+  "_deliveredNote": "27 units across 10 clusters over 104 weeks. Cluster 1 WHS and risk, 2 legal and contractual, 3 building codes, 4 estimating and procurement, 5 site operations, 6 structural and technical, 7 surveying, 8 environmental, 9 quality and stakeholders, 10 financial. Ownership follows cluster order. Eleven units are shared with CPC40120; the two courses keep separate registers because the neighbouring units differ and so does what each unit must carry.",
+  "topics": [
+    {
+      "families": ["F16"],
+      "name": "The risk management process",
+      "kind": "shared-scaffold",
+      "owner": "BSBWHS513",
+      "rationale": "Cluster 1 is delivered first and holds both risk units. Identify, analyse, evaluate, treat and monitor is one method whether the risk is a fall from height or an insolvent subcontractor. BSBWHS513 is listed first in the cluster.",
+      "teachingRule": "BSBOPS504 Manage business risk applies the same five steps to commercial risk and teaches what is different - risk appetite, insurance, and the financial consequence of a treatment - not the method."
+    },
+    {
+      "families": ["F01"],
+      "name": "Building and construction contracts and the obligations they create",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4009",
+      "rationale": "Nineteen of the twenty-seven units assume a contract sits behind the work. CPCCBC4009 Apply legal requirements sits in Cluster 2 and explains the contract as a source of obligation. CPCCBC4003 Select, prepare and administer a construction contract owns the mechanics of choosing and administering one; that content overlapped with nothing and is taught there in full.",
+      "teachingRule": "Estimating, site and technical units name the contract term bearing on their own output - a provisional sum, a variation clause, a practical completion date - and cite this topic rather than re-explaining contract law."
+    },
+    {
+      "families": ["F03"],
+      "name": "Work health and safety duties on building and construction projects",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4009",
+      "rationale": "Seven units carry WHS duties as a legal obligation of the builder. Cluster 1 owns the RISK METHOD; CPCCBC4009 in Cluster 2 owns the DUTY - who holds it, to whom, and what breaching it costs.",
+      "teachingRule": "Site and technical units name the duty their activity triggers and the control that discharges it. Neither the method nor the legislation is restated."
+    },
+    {
+      "families": ["F30"],
+      "name": "Builder registration and licensing",
+      "kind": "regulatory-recall",
+      "owner": "CPCCBC4009",
+      "rationale": "Who may lawfully contract to build, and in what class of work, is stated once in Cluster 2.",
+      "teachingRule": "CPCCBC5007 cites the licence class and teaches the obligations attaching to holding it."
+    },
+    {
+      "families": ["F05"],
+      "name": "Organisational policies and procedures governing project work",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4009",
+      "rationale": "Five units require work done in accordance with internal policy. Cluster 2 is the earliest cluster containing any of them.",
+      "teachingRule": "Later units name the policy governing their own output and do not re-teach what a policy is."
+    },
+    {
+      "families": ["F23"],
+      "name": "Australian Consumer Law as it applies to building work",
+      "kind": "regulatory-recall",
+      "owner": "CPCCBC5007",
+      "rationale": "Statutory warranties, misleading conduct and consumer guarantees are one body of law, owned in Cluster 2 where the contractor's legal obligations are the subject.",
+      "teachingRule": "CPCCBC5019 cites the ACL where it bears on deposits, progress claims and refunds."
+    },
+    {
+      "families": ["F25"],
+      "name": "Business licensing and the Australian Business Licence and Information Service",
+      "kind": "regulatory-recall",
+      "owner": "CPCCBC5007",
+      "rationale": "Finding which licences, permits and registrations a job requires is one research task, taught where the contractor's obligations are taught.",
+      "teachingRule": "CPCCBC5010 confirms approvals are in place before work starts and does not re-teach how to find them."
+    },
+    {
+      "families": ["F26"],
+      "name": "Return to work and rehabilitation obligations",
+      "kind": "regulatory-recall",
+      "owner": "CPCCBC5007",
+      "rationale": "Workers compensation, injury management and the return-to-work duty are a single statutory scheme, owned with the contractor's other legal obligations.",
+      "teachingRule": "CPCCBC5010 applies it to an injured worker on a live site and cites the scheme."
+    },
+    {
+      "families": ["F02"],
+      "name": "Construction drawings and specifications as the project record",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4003",
+      "rationale": "Ten units extract information from the same drawing set. CPCCBC4003 in Cluster 2 is the earliest of them, and a contract is administered against the drawings and specification it incorporates.",
+      "teachingRule": "Estimating, codes and technical units take what they need and state which document governs where two disagree. CPCCBC4012 owns the reading skill itself in Cluster 6."
+    },
+    {
+      "families": ["F11", "F17"],
+      "name": "The National Construction Code: structure, building classes and types of construction",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4001",
+      "rationale": "Cluster 3 is the codes cluster and is sequenced ahead of everything depending on it. Classification is the Code's first question, and CPCCBC4001 covers Class 1 and 10.",
+      "teachingRule": "CPCCBC4053 teaches the delta to Class 2 to 9 Type C and CPCCBC5001 the delta to Type B. Neither re-teaches the Code's structure. CPCSUS5001 and CPCCBC5010 cite the Code rather than describing it."
+    },
+    {
+      "families": ["F06", "F08"],
+      "name": "Building defects: causes, implications and remedial work",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4001",
+      "rationale": "Defects caused by failure to apply codes, and the remedial work they demand, are one subject and are the reason the codes cluster exists.",
+      "teachingRule": "CPCCBC4053, CPCCBC5001 and CPCCBC4010 cite defects specific to their own scope and do not restate the taxonomy."
+    },
+    {
+      "families": ["F09", "F18"],
+      "name": "Material properties, limitations and evidence of suitability",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4001",
+      "rationale": "What a material can do and the certification proving it may lawfully be used are one topic, needed the moment the Code is applied.",
+      "teachingRule": "CPCCBC5010 and CPCSUS5001 select materials against this knowledge and are assessed on the selection, not on the properties."
+    },
+    {
+      "families": ["F14"],
+      "name": "Performance Solutions and Assessment Methods under the NCC",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4001",
+      "rationale": "Deemed-to-Satisfy against Performance Solution is explained once, with the Code.",
+      "teachingRule": "CPCCBC4053 identifies where a Performance Solution is likely and cites the method."
+    },
+    {
+      "families": ["F12"],
+      "name": "Building design principles and structural behaviour under load",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4001",
+      "rationale": "Stress, strain, compression and bending appear in the codes units as the reasoning behind a provision, and Cluster 3 precedes Cluster 6.",
+      "teachingRule": "CPCCBC5018 extends this to multi-storey load paths and member sizing, which is genuinely new."
+    },
+    {
+      "families": ["F10"],
+      "name": "Quality systems and best-practice approaches",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4001",
+      "rationale": "Compliance and quality are checked the same way, so they are taught together in the codes cluster.",
+      "teachingRule": "BSBPMG532 in Cluster 9 builds the quality plan, which is new content, and cites this topic for the underlying idea."
+    },
+    {
+      "families": ["F07"],
+      "name": "Environmental requirements and sustainability principles",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4001",
+      "rationale": "The Code's environmental and energy provisions are introduced with the Code in Cluster 3.",
+      "teachingRule": "CPCSUS5001 in Cluster 8 writes the sustainability policy, which is its own work, and cites this topic for the regulatory frame."
+    },
+    {
+      "families": ["F32"],
+      "name": "Below-ground construction methods",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4053",
+      "rationale": "Footings, basements, retention and waterproofing below ground appear in CPCCBC4053 in Cluster 3, ahead of CPCCBC5018 in Cluster 6.",
+      "teachingRule": "CPCCBC5018 applies structural analysis to below-ground elements and cites the construction methods."
+    },
+    {
+      "families": ["F04"],
+      "name": "Workplace procedures, safety and environmental requirements on estimating and technical work",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4004",
+      "rationale": "Five units close with the same requirement that work follow workplace procedure and meet safety and environmental obligations. Cluster 4 is the earliest cluster holding any of them.",
+      "teachingRule": "Cluster 6 units state the requirement as a constraint on their own deliverable and do not restate it."
+    },
+    {
+      "families": ["F19"],
+      "name": "Environment Protection Authority regulation of building work",
+      "kind": "regulatory-recall",
+      "owner": "CPCCBC4004",
+      "rationale": "EPA licensing, noise, dust, run-off and waste tracking are one regulatory regime, met first in Cluster 4 where an estimate must price compliance.",
+      "teachingRule": "CPCCBC5013 reports against the regime and cites it."
+    },
+    {
+      "families": ["F15"],
+      "name": "Temporary site facilities, storage and boundary fencing",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4005",
+      "rationale": "Site establishment is priced in Cluster 4 before it is supervised in Cluster 5. CPCCBC4005 must schedule and cost it.",
+      "teachingRule": "CPCCBC5003 plans the site layout and sequencing of those facilities, which is new, and cites the schedule."
+    },
+    {
+      "families": ["F21"],
+      "name": "Temporary site services and permanent utilities",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC5002",
+      "rationale": "Power, water, sewer and telecommunications - temporary during construction and permanent on completion - are one topic, and CPCCBC5002 in Cluster 4 must cost both.",
+      "teachingRule": "CPCCBC5010 coordinates the changeover on site and cites the costing."
+    },
+    {
+      "families": ["F13", "F31"],
+      "name": "Digital documentation: computer-aided design and building information modelling",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4013",
+      "rationale": "CAD drawings and BIM models are two forms of the same digital documentation. CPCCBC4013 Prepare and evaluate tender documentation, in Cluster 4, is the earliest unit to depend on them.",
+      "teachingRule": "CPCCBC4012 reads them and CPCCBC4014 produces sketches from them. Neither re-teaches what a model is."
+    },
+    {
+      "families": ["F27", "F28", "F29"],
+      "name": "Site communication: written reports, email and face-to-face",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4008",
+      "rationale": "Three families - written reports and memoranda, face-to-face verbal communication, and email - are one topic: choosing the channel that suits the message and leaving a record. CPCCBC4008 Supervise site communication and administration is the unit whose subject it is, and it opens Cluster 5.",
+      "teachingRule": "CPCCBC5010 uses the channels to direct work and is assessed on the direction being clear and recorded, not on knowing what a memorandum is."
+    },
+    {
+      "families": ["F20"],
+      "name": "Human resource principles and practices on a construction project",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC5003",
+      "rationale": "CPCCBC5003 Supervise the planning of onsite work in Cluster 5 must resource the job with people before Cluster 6 reports on their performance.",
+      "teachingRule": "CPCCBC5013 reports on human resource matters and cites the principles."
+    },
+    {
+      "families": ["F24"],
+      "name": "The hierarchy of control applied on site",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC5010",
+      "rationale": "Elimination through to PPE is the control logic BSBWHS513 establishes in Cluster 1; the two units in this family apply it on a live site, and CPCCBC5010 in Cluster 5 is the earlier of them. Recorded as its own topic because the on-site application - who selects the control, who verifies it, what happens when a higher-order control is refused - is not what Cluster 1 teaches.",
+      "teachingRule": "CPCSUS5001 cites the hierarchy when writing sustainability controls and does not re-derive it."
+    },
+    {
+      "families": ["F22"],
+      "name": "Building and construction methods and terminology",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4012",
+      "rationale": "The vocabulary is needed first where drawings are read, in Cluster 6.",
+      "teachingRule": "CPCCBC4014 uses the terminology and is not assessed on defining it."
+    },
+    {
+      "families": ["F33"],
+      "name": "Contour site plans and reading site levels",
+      "kind": "shared-scaffold",
+      "owner": "CPCCBC4010",
+      "rationale": "CPCCBC4010 is listed first in Cluster 6 and needs the ground profile before it can reason about footings.",
+      "teachingRule": "CPCCBC4012 reads the contour plan as one drawing among the set. CPCCBC4018 in Cluster 7 generates levels, which is its own content."
+    }
+  ]
+}

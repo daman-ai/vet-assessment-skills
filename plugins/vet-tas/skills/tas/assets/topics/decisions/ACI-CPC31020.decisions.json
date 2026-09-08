@@ -1,0 +1,95 @@
+{
+  "_comment": "AUTHORED OWNERSHIP DECISIONS for CPC31020. Every family in families/ACI-CPC31020.families.json appears exactly once below.",
+  "courseId": "ACI-CPC31020",
+  "_deliveredNote": "20 units across 8 clusters. Cluster 1 induction and WHS, 2 planning and communication, 3 site setup and access, 4 materials and tools, 5 plastering applications, 6 restoration, 7 related trade skills, 8 small business. The TAS states WHS is deliberately reapplied in every cluster; that is reinforcement of an owned topic, recorded below as applied-not-taught, not as a second teaching.",
+  "topics": [
+    {
+      "families": ["F10"],
+      "name": "Reporting hazards, incidents and injuries",
+      "kind": "progressive-depth",
+      "owner": "CPCWHS1001",
+      "rationale": "Cluster 1 is delivered in Term 1 and opens with the White Card. The statutory induction covers identifying and reporting hazards before any other unit runs.",
+      "teachingRule": "CPCCWHS2001 teaches the delta - the organisation's procedure, the register, and the notifiable-incident duty. It does not restate what a hazard is."
+    },
+    {
+      "families": ["F02"],
+      "name": "Personal protective equipment: selection, fitting, use and care",
+      "kind": "shared-scaffold",
+      "owner": "CPCCCM2012",
+      "rationale": "Eight units name PPE. CPCCCM2012 Work safely at heights in Cluster 3 carries the fullest statement - selection, fitting and use - and fall-arrest gear is the case that makes fitting matter. Every plastering unit downstream then has a fitted-PPE standard to apply.",
+      "teachingRule": "Each plastering unit names the PPE its own task demands and the hazard it controls - silica dust on mixing, splashback on rendering, dermatitis on lime handling - in a line or two. Selection and fitting are not repeated."
+    },
+    {
+      "families": ["F01"],
+      "name": "Safety data sheets and hazardous material information",
+      "kind": "shared-scaffold",
+      "owner": "CPCCCM2008",
+      "rationale": "Eight units require an SDS to be read. CPCCCM2008 Erect and dismantle restricted height scaffolding is the earliest of them in the delivery order, sitting in Cluster 3 ahead of the whole plastering stream.",
+      "teachingRule": "Plastering units open the SDS for the actual product - cement, hydrated lime, additives - and read the exposure, PPE and first-aid sections. The document's structure is not re-taught."
+    },
+    {
+      "families": ["F03"],
+      "name": "Job safety analyses and safe work method statements for plastering work",
+      "kind": "shared-scaffold",
+      "owner": "CPCCSP2001",
+      "rationale": "Seven plastering units require a JSA or SWMS to the Safe Work Australia Code of Practice for Construction Work. CPCCSP2001 Handle solid plastering materials opens Cluster 4 and is the first of them.",
+      "teachingRule": "Each later unit writes a SWMS for its own task and is assessed on whether the controls fit that task. The risk-assessment reasoning behind it is owned by CPCCWHS2001 in Cluster 1 and is cited."
+    },
+    {
+      "families": ["F04", "F05"],
+      "name": "Plastering materials: compounds, finishing coats and additives",
+      "kind": "shared-scaffold",
+      "owner": "CPCCSP2001",
+      "rationale": "Two families - additives such as plasticisers, colouring and waterproofing agents, and plaster compounds and finishing coats - are one body of material science, and CPCCSP2001 Handle solid plastering materials is the unit whose entire subject it is. Five units restate parts of it.",
+      "teachingRule": "CPCCSP2003, CPCCSP3001, CPCCSP3002 and CPCCSP3004 select the mix appropriate to their own application and justify the choice. They do not re-teach what an additive does."
+    },
+    {
+      "families": ["F08"],
+      "name": "Backing materials: timber and expanded metal lathing",
+      "kind": "shared-scaffold",
+      "owner": "CPCCSP2001",
+      "rationale": "Lathing is a material, and materials are owned by the materials unit in Cluster 4, ahead of the application units that fix plaster to it.",
+      "teachingRule": "CPCCSP3001 and CPCCSP3002 teach fixing and keying to lath, not what lath is."
+    },
+    {
+      "families": ["F09"],
+      "name": "Components and accessories: corner beads, stop beads and trims",
+      "kind": "shared-scaffold",
+      "owner": "CPCCSP3001",
+      "rationale": "Beads and trims are set out as part of applying float and render, which is CPCCSP3001, the first unit of Cluster 5. CPCCSP3002 and CPCCSP3004 work to beads that are already in place.",
+      "teachingRule": "Later units check bead alignment as a set-out condition and do not re-teach the component range."
+    },
+    {
+      "families": ["F07"],
+      "name": "Traditional lime materials: sand, lime and lime putty",
+      "kind": "shared-scaffold",
+      "owner": "CPCCSP3001",
+      "rationale": "Lime is distinct from the cement-based compounds owned by CPCCSP2001 - it behaves differently, sets differently and is what heritage work uses. It is introduced where it is first applied, in CPCCSP3001, and is what makes CPCCSP3004 Restore and renovate solid plasterwork possible.",
+      "teachingRule": "CPCCSP3004 teaches matching an existing historic mix and is assessed on the match, not on what lime putty is."
+    },
+    {
+      "families": ["F06"],
+      "name": "Workplace quality policies and standards for plastering work",
+      "kind": "shared-scaffold",
+      "owner": "CPCCSP2001",
+      "rationale": "What finished to standard means - tolerance, flatness, plumb, rectification and sign-off - is one idea, owned at the start of the plastering stream.",
+      "teachingRule": "Each application unit states the tolerance that governs its own finish and moves on."
+    },
+    {
+      "families": ["F11"],
+      "name": "Solid plastering tools and equipment: identification, use, care and maintenance",
+      "kind": "shared-scaffold",
+      "owner": "CPCCSP2002",
+      "rationale": "CPCCSP2002 Use solid plastering tools and equipment is the unit whose entire subject is the tools, and it sits alongside CPCCSP2001 in Cluster 4. The detector suggested CPCCSP2001 because it is listed first, but a tool is taught in the tools unit; the materials unit only needs to name the barrows, buckets and mixers it handles materials with.",
+      "teachingRule": "CPCCSP2001 names the materials-handling equipment it uses and cites CPCCSP2002 for care, maintenance and safe use."
+    },
+    {
+      "families": ["F12"],
+      "name": "Proprietary texture coat finish products",
+      "kind": "shared-scaffold",
+      "owner": "CPCCSP3003",
+      "rationale": "CPCCSP3003 Apply trowelled texture coat finishes owns proprietary texture systems - the product range, the manufacturer specification and the application method it dictates.",
+      "teachingRule": "CPCCSP3004 matches an existing texture during restoration and cites CPCCSP3003 for the product knowledge."
+    }
+  ]
+}

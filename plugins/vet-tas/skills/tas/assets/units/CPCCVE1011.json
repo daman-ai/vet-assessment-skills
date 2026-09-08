@@ -1,0 +1,28 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "CPCCVE1011",
+    "title":  "Undertake a basic construction project",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "2",
+    "releaseDate":  "2024-12-24",
+    "currency":  "current",
+    "trainingPackage":  "CPC",
+    "prerequisites":  [
+                          {
+                              "code":  "CPCCWHS2001",
+                              "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                          }
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Construction",
+    "application":  "This unit of competency specifies the skills and knowledge required to undertake a basic construction project using basic tools, equipment and materials.\nThe unit is suitable for those with basic skills and knowledge undertaking routine work tasks under the direction of more experienced workers.\nCompletion of the general construction induction training program specified by the model Code of Practice for Construction Work is required for any person who is to carry out construction work. Achievement of unit CPCWHS1001 Prepare to work safely in the construction industry meets this requirement.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe what needs to be done to demonstrate achievement of the element.\n1\nReview and prepare to undertake basic construction project.\n1.1\nReview plans and specifications to undertake a basic construction project.\n1.2\nPrepare all work to comply with laws and regulations, national construction codes, Australian Standards, work health and safety (WHS) and environmental requirements, manufacturers’ specifications, workplace requirements, drawings and specifications.\n1.3\nSelect and use personal protective equipment (PPE) for each part of the task.\n1.4\nSelect tools and equipment, check for serviceability and report any faults.\n1.5\nDetermine project components from plans and specifications, prepare component list and calculate quantities of materials.\n2\nManufacture components for basic construction project.\n2.1\nSelect processes to manufacture components.\n2.2\nManufacture components and check for accuracy, quality and suitability.\n3\nAssemble project components.\n3.1\nSelect assembly process.\n3.2\nSet out, level and erect/install project in line, level and plumb.\n3.3\nAssemble components to specification and quality, and check for conformity to plans and specifications.\n4\nClean up.\n4.1\nClean up, meeting all legislative and workplace requirements for safety, waste disposal and materials handling.\n4.2\nCheck, maintain, store and secure tools and equipment and report any faults.",
+    "foundationSkills":  "Foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "To demonstrate competency, a candidate must satisfy all the elements, performance criteria and foundation skills of this unit by undertaking a basic construction project, following plans and specifications, for a simple structure such as a deck, pergola or shed.\nAll work must be performed to the standard required in the workplace and must comply with work health and safety (WHS) and environmental requirements, manufacturers’ specifications, workplace requirements, plans and specifications.",
+    "knowledgeEvidence":  "To be competent in this unit, a candidate must demonstrate knowledge of:\ncompliance requirements of the National Construction Code and Australian Standards relevant to basic construction projects\nworkplace quality policies and standards for basic construction projects\nsafety requirements for basic construction projects, including job safety analyses/safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state/territory equivalent, and personal protective equipment (PPE)\ntypes and uses of tools and equipment used for basic construction projects\nplans and specifications for basic construction projects\nprocesses for:preparing a component list for a basic construction project\ncalculating material requirements for basic construction projects\nmanufacturing components for basic construction projects\nassembling components for basic construction project\nplumb, line and level for basic construction projects.",
+    "assessmentConditions":  "Assessors must meet the requirements for assessors contained in the Standards for Registered Training Organisations.\nThis unit must be assessed while undertaking workplace tasks:\nin the workplace or a close simulation of the workplace environment, provided that simulated or project-based assessment techniques replicate construction workplace conditions, materials, activities, responsibilities and procedures\nusing realistic tasks or simulated tasks, relevant specifications and work instructions, standard work practices, safety requirements and environmental constraints.",
+    "sourceUrl":  "https://training.gov.au/training/details/CPCCVE1011/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:13Z"
+}

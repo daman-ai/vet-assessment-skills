@@ -1,0 +1,974 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "ACI-CPC50220",
+    "qualificationCode":  "CPC50220",
+    "qualificationTitle":  "Diploma of Building and Construction (Building)",
+    "provider":  "ACI",
+    "brandVariant":  "construction",
+    "priorCourse":  null,
+    "generatedUtc":  "2026-09-07T06:20:56Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/ACI-CPC50220.families.json",
+                   "decisions":  "assets/topics/decisions/ACI-CPC50220.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  27,
+    "topics":  [
+                   {
+                       "id":  "CPC50220-T01",
+                       "name":  "The risk management process",
+                       "kind":  "shared-scaffold",
+                       "owner":  "BSBWHS513",
+                       "ownerCluster":  1,
+                       "rationale":  "Cluster 1 is delivered first and holds both risk units. Identify, analyse, evaluate, treat and monitor is one method whether the risk is a fall from height or an insolvent subcontractor. BSBWHS513 is listed first in the cluster.",
+                       "teachingRule":  "BSBOPS504 Manage business risk applies the same five steps to commercial risk and teaches what is different - risk appetite, insurance, and the financial consequence of a treatment - not the method.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "BSBWHS513",
+                                              "section":  "EL",
+                                              "text":  "4. Evaluate effectiveness of WHS risk management process"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "BSBOPS504"
+                                            ],
+                       "families":  [
+                                        "F16"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T02",
+                       "name":  "Building and construction contracts and the obligations they create",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4009",
+                       "ownerCluster":  2,
+                       "rationale":  "Nineteen of the twenty-seven units assume a contract sits behind the work. CPCCBC4009 Apply legal requirements sits in Cluster 2 and explains the contract as a source of obligation. CPCCBC4003 Select, prepare and administer a construction contract owns the mechanics of choosing and administering one; that content overlapped with nothing and is taught there in full.",
+                       "teachingRule":  "Estimating, site and technical units name the contract term bearing on their own output - a provisional sum, a variation clause, a practical completion date - and cite this topic rather than re-explaining contract law.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4009",
+                                              "section":  "KE",
+                                              "text":  "building and construction industry contracts"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5007",
+                                                "CPCCBC4001",
+                                                "CPCCBC4053",
+                                                "CPCCBC5001",
+                                                "CPCCBC4004",
+                                                "CPCCBC4005",
+                                                "CPCCBC4013",
+                                                "CPCCBC5002",
+                                                "CPCCBC4008",
+                                                "CPCCBC5003",
+                                                "CPCCBC5010",
+                                                "CPCCBC4010",
+                                                "CPCCBC4012",
+                                                "CPCCBC4014",
+                                                "CPCCBC5013",
+                                                "CPCCBC5018",
+                                                "CPCCBC4018",
+                                                "CPCSUS5001"
+                                            ],
+                       "families":  [
+                                        "F01"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T03",
+                       "name":  "Work health and safety duties on building and construction projects",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4009",
+                       "ownerCluster":  2,
+                       "rationale":  "Seven units carry WHS duties as a legal obligation of the builder. Cluster 1 owns the RISK METHOD; CPCCBC4009 in Cluster 2 owns the DUTY - who holds it, to whom, and what breaching it costs.",
+                       "teachingRule":  "Site and technical units name the duty their activity triggers and the control that discharges it. Neither the method nor the legislation is restated.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4009",
+                                              "section":  "KE",
+                                              "text":  "work health and safety (WHS)"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5007",
+                                                "CPCCBC4053",
+                                                "CPCCBC4008",
+                                                "CPCCBC5010",
+                                                "CPCCBC5013",
+                                                "CPCCBC5018"
+                                            ],
+                       "families":  [
+                                        "F03"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T04",
+                       "name":  "Builder registration and licensing",
+                       "kind":  "regulatory-recall",
+                       "owner":  "CPCCBC4009",
+                       "ownerCluster":  2,
+                       "rationale":  "Who may lawfully contract to build, and in what class of work, is stated once in Cluster 2.",
+                       "teachingRule":  "CPCCBC5007 cites the licence class and teaches the obligations attaching to holding it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4009",
+                                              "section":  "KE",
+                                              "text":  "builder registration and licensing"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5007"
+                                            ],
+                       "families":  [
+                                        "F30"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T05",
+                       "name":  "Organisational policies and procedures governing project work",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4009",
+                       "ownerCluster":  2,
+                       "rationale":  "Five units require work done in accordance with internal policy. Cluster 2 is the earliest cluster containing any of them.",
+                       "teachingRule":  "Later units name the policy governing their own output and do not re-teach what a policy is.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4009",
+                                              "section":  "KE",
+                                              "text":  "organisational policies and procedures."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5001",
+                                                "CPCCBC4004",
+                                                "CPCCBC4005",
+                                                "CPCCBC4010"
+                                            ],
+                       "families":  [
+                                        "F05"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T06",
+                       "name":  "Australian Consumer Law as it applies to building work",
+                       "kind":  "regulatory-recall",
+                       "owner":  "CPCCBC5007",
+                       "ownerCluster":  2,
+                       "rationale":  "Statutory warranties, misleading conduct and consumer guarantees are one body of law, owned in Cluster 2 where the contractor\u0027s legal obligations are the subject.",
+                       "teachingRule":  "CPCCBC5019 cites the ACL where it bears on deposits, progress claims and refunds.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC5007",
+                                              "section":  "KE",
+                                              "text":  "Australian Consumer Law (ACL)"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5019"
+                                            ],
+                       "families":  [
+                                        "F23"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T07",
+                       "name":  "Business licensing and the Australian Business Licence and Information Service",
+                       "kind":  "regulatory-recall",
+                       "owner":  "CPCCBC5007",
+                       "ownerCluster":  2,
+                       "rationale":  "Finding which licences, permits and registrations a job requires is one research task, taught where the contractor\u0027s obligations are taught.",
+                       "teachingRule":  "CPCCBC5010 confirms approvals are in place before work starts and does not re-teach how to find them.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC5007",
+                                              "section":  "KE",
+                                              "text":  "Australian Business Licence and Information Service (ABLIS)"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5010"
+                                            ],
+                       "families":  [
+                                        "F25"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T08",
+                       "name":  "Return to work and rehabilitation obligations",
+                       "kind":  "regulatory-recall",
+                       "owner":  "CPCCBC5007",
+                       "ownerCluster":  2,
+                       "rationale":  "Workers compensation, injury management and the return-to-work duty are a single statutory scheme, owned with the contractor\u0027s other legal obligations.",
+                       "teachingRule":  "CPCCBC5010 applies it to an injured worker on a live site and cites the scheme.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC5007",
+                                              "section":  "KE",
+                                              "text":  "return to work and rehabilitation arrangements"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5010"
+                                            ],
+                       "families":  [
+                                        "F26"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T09",
+                       "name":  "Construction drawings and specifications as the project record",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4003",
+                       "ownerCluster":  2,
+                       "rationale":  "Ten units extract information from the same drawing set. CPCCBC4003 in Cluster 2 is the earliest of them, and a contract is administered against the drawings and specification it incorporates.",
+                       "teachingRule":  "Estimating, codes and technical units take what they need and state which document governs where two disagree. CPCCBC4012 owns the reading skill itself in Cluster 6.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4003",
+                                              "section":  "KE",
+                                              "text":  "construction drawings and specifications"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4001",
+                                                "CPCCBC4053",
+                                                "CPCCBC5001",
+                                                "CPCCBC4004",
+                                                "CPCCBC4005",
+                                                "CPCCBC4013",
+                                                "CPCCBC4014",
+                                                "CPCCBC5018",
+                                                "CPCCBC4018"
+                                            ],
+                       "families":  [
+                                        "F02"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T10",
+                       "name":  "The National Construction Code: structure, building classes and types of construction",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4001",
+                       "ownerCluster":  3,
+                       "rationale":  "Cluster 3 is the codes cluster and is sequenced ahead of everything depending on it. Classification is the Code\u0027s first question, and CPCCBC4001 covers Class 1 and 10.",
+                       "teachingRule":  "CPCCBC4053 teaches the delta to Class 2 to 9 Type C and CPCCBC5001 the delta to Type B. Neither re-teaches the Code\u0027s structure. CPCSUS5001 and CPCCBC5010 cite the Code rather than describing it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "classes of building and types of construction"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4004",
+                                                "CPCCBC5010",
+                                                "CPCSUS5001",
+                                                "CPCCBC4053"
+                                            ],
+                       "families":  [
+                                        "F11",
+                                        "F17"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T11",
+                       "name":  "Building defects: causes, implications and remedial work",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4001",
+                       "ownerCluster":  3,
+                       "rationale":  "Defects caused by failure to apply codes, and the remedial work they demand, are one subject and are the reason the codes cluster exists.",
+                       "teachingRule":  "CPCCBC4053, CPCCBC5001 and CPCCBC4010 cite defects specific to their own scope and do not restate the taxonomy.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "causes and implications of building defects related to failure of applying building codes and standards to residential and commercial buildings"
+                                          },
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "extent of remedial work required for various defects cause by inadequate design and application of building codes and practices"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4053",
+                                                "CPCCBC5001",
+                                                "CPCCBC4010"
+                                            ],
+                       "families":  [
+                                        "F06",
+                                        "F08"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T12",
+                       "name":  "Material properties, limitations and evidence of suitability",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4001",
+                       "ownerCluster":  3,
+                       "rationale":  "What a material can do and the certification proving it may lawfully be used are one topic, needed the moment the Code is applied.",
+                       "teachingRule":  "CPCCBC5010 and CPCSUS5001 select materials against this knowledge and are assessed on the selection, not on the properties.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "properties, characteristics and limitations of specified building materials and components"
+                                          },
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "evidence of suitability for building materials and products"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4053",
+                                                "CPCCBC5010",
+                                                "CPCSUS5001"
+                                            ],
+                       "families":  [
+                                        "F09",
+                                        "F18"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T13",
+                       "name":  "Performance Solutions and Assessment Methods under the NCC",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4001",
+                       "ownerCluster":  3,
+                       "rationale":  "Deemed-to-Satisfy against Performance Solution is explained once, with the Code.",
+                       "teachingRule":  "CPCCBC4053 identifies where a Performance Solution is likely and cites the method.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "Performance Solutions and Assessment Methods"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4053"
+                                            ],
+                       "families":  [
+                                        "F14"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T14",
+                       "name":  "Building design principles and structural behaviour under load",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4001",
+                       "ownerCluster":  3,
+                       "rationale":  "Stress, strain, compression and bending appear in the codes units as the reasoning behind a provision, and Cluster 3 precedes Cluster 6.",
+                       "teachingRule":  "CPCCBC5018 extends this to multi-storey load paths and member sizing, which is genuinely new.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "basic building design principles and the behaviour of structures under stress, strain, compression, bending or combined actions"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4053",
+                                                "CPCCBC5018"
+                                            ],
+                       "families":  [
+                                        "F12"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T15",
+                       "name":  "Quality systems and best-practice approaches",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4001",
+                       "ownerCluster":  3,
+                       "rationale":  "Compliance and quality are checked the same way, so they are taught together in the codes cluster.",
+                       "teachingRule":  "BSBPMG532 in Cluster 9 builds the quality plan, which is new content, and cites this topic for the underlying idea.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "organisational policies and procedures, quality systems and best practice approaches"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4053",
+                                                "CPCSUS5001"
+                                            ],
+                       "families":  [
+                                        "F10"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T16",
+                       "name":  "Environmental requirements and sustainability principles",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4001",
+                       "ownerCluster":  3,
+                       "rationale":  "The Code\u0027s environmental and energy provisions are introduced with the Code in Cluster 3.",
+                       "teachingRule":  "CPCSUS5001 in Cluster 8 writes the sustainability policy, which is its own work, and cites this topic for the regulatory frame.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4001",
+                                              "section":  "KE",
+                                              "text":  "environmental requirements and sustainability principles and concepts"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4053",
+                                                "CPCCBC5010",
+                                                "CPCSUS5001"
+                                            ],
+                       "families":  [
+                                        "F07"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T17",
+                       "name":  "Below-ground construction methods",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4053",
+                       "ownerCluster":  3,
+                       "rationale":  "Footings, basements, retention and waterproofing below ground appear in CPCCBC4053 in Cluster 3, ahead of CPCCBC5018 in Cluster 6.",
+                       "teachingRule":  "CPCCBC5018 applies structural analysis to below-ground elements and cites the construction methods.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4053",
+                                              "section":  "KE",
+                                              "text":  "below ground construction:methods"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5018"
+                                            ],
+                       "families":  [
+                                        "F32"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T18",
+                       "name":  "Workplace procedures, safety and environmental requirements on estimating and technical work",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4004",
+                       "ownerCluster":  4,
+                       "rationale":  "Five units close with the same requirement that work follow workplace procedure and meet safety and environmental obligations. Cluster 4 is the earliest cluster holding any of them.",
+                       "teachingRule":  "Cluster 6 units state the requirement as a constraint on their own deliverable and do not restate it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4004",
+                                              "section":  "KE",
+                                              "text":  "workplace procedures, workplace safety and environmental requirements."
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4005",
+                                                "CPCCBC4010",
+                                                "CPCCBC4012",
+                                                "CPCCBC4014"
+                                            ],
+                       "families":  [
+                                        "F04"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T19",
+                       "name":  "Environment Protection Authority regulation of building work",
+                       "kind":  "regulatory-recall",
+                       "owner":  "CPCCBC4004",
+                       "ownerCluster":  4,
+                       "rationale":  "EPA licensing, noise, dust, run-off and waste tracking are one regulatory regime, met first in Cluster 4 where an estimate must price compliance.",
+                       "teachingRule":  "CPCCBC5013 reports against the regime and cites it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4004",
+                                              "section":  "KE",
+                                              "text":  "Environmental Protection Authority (EPA) regulations"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5013"
+                                            ],
+                       "families":  [
+                                        "F19"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T20",
+                       "name":  "Temporary site facilities, storage and boundary fencing",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4005",
+                       "ownerCluster":  4,
+                       "rationale":  "Site establishment is priced in Cluster 4 before it is supervised in Cluster 5. CPCCBC4005 must schedule and cost it.",
+                       "teachingRule":  "CPCCBC5003 plans the site layout and sequencing of those facilities, which is new, and cites the schedule.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4005",
+                                              "section":  "KE",
+                                              "text":  "temporary site facilities, storage facilities and boundary fencing"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5003"
+                                            ],
+                       "families":  [
+                                        "F15"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T21",
+                       "name":  "Temporary site services and permanent utilities",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC5002",
+                       "ownerCluster":  4,
+                       "rationale":  "Power, water, sewer and telecommunications - temporary during construction and permanent on completion - are one topic, and CPCCBC5002 in Cluster 4 must cost both.",
+                       "teachingRule":  "CPCCBC5010 coordinates the changeover on site and cites the costing.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC5002",
+                                              "section":  "KE",
+                                              "text":  "temporary on-site services and permanent utilities"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5010"
+                                            ],
+                       "families":  [
+                                        "F21"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T22",
+                       "name":  "Digital documentation: computer-aided design and building information modelling",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4013",
+                       "ownerCluster":  4,
+                       "rationale":  "CAD drawings and BIM models are two forms of the same digital documentation. CPCCBC4013 Prepare and evaluate tender documentation, in Cluster 4, is the earliest unit to depend on them.",
+                       "teachingRule":  "CPCCBC4012 reads them and CPCCBC4014 produces sketches from them. Neither re-teaches what a model is.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4013",
+                                              "section":  "KE",
+                                              "text":  "building information modelling (BIM)"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4012",
+                                                "CPCCBC4014"
+                                            ],
+                       "families":  [
+                                        "F13",
+                                        "F31"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T23",
+                       "name":  "Site communication: written reports, email and face-to-face",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4008",
+                       "ownerCluster":  5,
+                       "rationale":  "Three families - written reports and memoranda, face-to-face verbal communication, and email - are one topic: choosing the channel that suits the message and leaving a record. CPCCBC4008 Supervise site communication and administration is the unit whose subject it is, and it opens Cluster 5.",
+                       "teachingRule":  "CPCCBC5010 uses the channels to direct work and is assessed on the direction being clear and recorded, not on knowing what a memorandum is.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4008",
+                                              "section":  "KE",
+                                              "text":  "written reports and memoranda"
+                                          },
+                                          {
+                                              "unit":  "CPCCBC4008",
+                                              "section":  "KE",
+                                              "text":  "face-to-face verbal communication"
+                                          },
+                                          {
+                                              "unit":  "CPCCBC4008",
+                                              "section":  "KE",
+                                              "text":  "onsite communication:emails"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5010"
+                                            ],
+                       "families":  [
+                                        "F27",
+                                        "F28",
+                                        "F29"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T24",
+                       "name":  "Human resource principles and practices on a construction project",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC5003",
+                       "ownerCluster":  5,
+                       "rationale":  "CPCCBC5003 Supervise the planning of onsite work in Cluster 5 must resource the job with people before Cluster 6 reports on their performance.",
+                       "teachingRule":  "CPCCBC5013 reports on human resource matters and cites the principles.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC5003",
+                                              "section":  "KE",
+                                              "text":  "human resource principles and practices"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC5013"
+                                            ],
+                       "families":  [
+                                        "F20"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T25",
+                       "name":  "The hierarchy of control applied on site",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC5010",
+                       "ownerCluster":  5,
+                       "rationale":  "Elimination through to PPE is the control logic BSBWHS513 establishes in Cluster 1; the two units in this family apply it on a live site, and CPCCBC5010 in Cluster 5 is the earlier of them. Recorded as its own topic because the on-site application - who selects the control, who verifies it, what happens when a higher-order control is refused - is not what Cluster 1 teaches.",
+                       "teachingRule":  "CPCSUS5001 cites the hierarchy when writing sustainability controls and does not re-derive it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC5010",
+                                              "section":  "KE",
+                                              "text":  "on-site safety:hierarchy of control"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCSUS5001"
+                                            ],
+                       "families":  [
+                                        "F24"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T26",
+                       "name":  "Building and construction methods and terminology",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4012",
+                       "ownerCluster":  6,
+                       "rationale":  "The vocabulary is needed first where drawings are read, in Cluster 6.",
+                       "teachingRule":  "CPCCBC4014 uses the terminology and is not assessed on defining it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4012",
+                                              "section":  "KE",
+                                              "text":  "building and construction methods and terminology"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4014"
+                                            ],
+                       "families":  [
+                                        "F22"
+                                    ]
+                   },
+                   {
+                       "id":  "CPC50220-T27",
+                       "name":  "Contour site plans and reading site levels",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCBC4010",
+                       "ownerCluster":  6,
+                       "rationale":  "CPCCBC4010 is listed first in Cluster 6 and needs the ground profile before it can reason about footings.",
+                       "teachingRule":  "CPCCBC4012 reads the contour plan as one drawing among the set. CPCCBC4018 in Cluster 7 generates levels, which is its own content.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "CPCCBC4010",
+                                              "section":  "KE",
+                                              "text":  "contour site plan"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "CPCCBC4012"
+                                            ],
+                       "families":  [
+                                        "F33"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "BSBOPS504":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+                                                                      "CPC50220-T01"
+                                                                  ]
+                                         },
+                           "BSBWHS513":  {
+                                             "owns":  [
+                                                          "CPC50220-T01"
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "CPCCBC4001":  {
+                                              "owns":  [
+                                                           "CPC50220-T10",
+                                                           "CPC50220-T11",
+                                                           "CPC50220-T12",
+                                                           "CPC50220-T13",
+                                                           "CPC50220-T14",
+                                                           "CPC50220-T15",
+                                                           "CPC50220-T16"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T09"
+                                                                   ]
+                                          },
+                           "CPCCBC4003":  {
+                                              "owns":  [
+                                                           "CPC50220-T09"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCCBC4004":  {
+                                              "owns":  [
+                                                           "CPC50220-T18",
+                                                           "CPC50220-T19"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T05",
+                                                                       "CPC50220-T09",
+                                                                       "CPC50220-T10"
+                                                                   ]
+                                          },
+                           "CPCCBC4005":  {
+                                              "owns":  [
+                                                           "CPC50220-T20"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T05",
+                                                                       "CPC50220-T09",
+                                                                       "CPC50220-T18"
+                                                                   ]
+                                          },
+                           "CPCCBC4008":  {
+                                              "owns":  [
+                                                           "CPC50220-T23"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T03"
+                                                                   ]
+                                          },
+                           "CPCCBC4009":  {
+                                              "owns":  [
+                                                           "CPC50220-T02",
+                                                           "CPC50220-T03",
+                                                           "CPC50220-T04",
+                                                           "CPC50220-T05"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCCBC4010":  {
+                                              "owns":  [
+                                                           "CPC50220-T27"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T05",
+                                                                       "CPC50220-T11",
+                                                                       "CPC50220-T18"
+                                                                   ]
+                                          },
+                           "CPCCBC4053":  {
+                                              "owns":  [
+                                                           "CPC50220-T17"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T03",
+                                                                       "CPC50220-T09",
+                                                                       "CPC50220-T10",
+                                                                       "CPC50220-T11",
+                                                                       "CPC50220-T12",
+                                                                       "CPC50220-T13",
+                                                                       "CPC50220-T14",
+                                                                       "CPC50220-T15",
+                                                                       "CPC50220-T16"
+                                                                   ]
+                                          },
+                           "CPCCBC4012":  {
+                                              "owns":  [
+                                                           "CPC50220-T26"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T18",
+                                                                       "CPC50220-T22",
+                                                                       "CPC50220-T27"
+                                                                   ]
+                                          },
+                           "CPCCBC4013":  {
+                                              "owns":  [
+                                                           "CPC50220-T22"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T09"
+                                                                   ]
+                                          },
+                           "CPCCBC4014":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T09",
+                                                                       "CPC50220-T18",
+                                                                       "CPC50220-T22",
+                                                                       "CPC50220-T26"
+                                                                   ]
+                                          },
+                           "CPCCBC4018":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T09"
+                                                                   ]
+                                          },
+                           "CPCCBC5001":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T05",
+                                                                       "CPC50220-T09",
+                                                                       "CPC50220-T11"
+                                                                   ]
+                                          },
+                           "CPCCBC5002":  {
+                                              "owns":  [
+                                                           "CPC50220-T21"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02"
+                                                                   ]
+                                          },
+                           "CPCCBC5003":  {
+                                              "owns":  [
+                                                           "CPC50220-T24"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T20"
+                                                                   ]
+                                          },
+                           "CPCCBC5005":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCCBC5007":  {
+                                              "owns":  [
+                                                           "CPC50220-T06",
+                                                           "CPC50220-T07",
+                                                           "CPC50220-T08"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T03",
+                                                                       "CPC50220-T04"
+                                                                   ]
+                                          },
+                           "CPCCBC5010":  {
+                                              "owns":  [
+                                                           "CPC50220-T25"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T03",
+                                                                       "CPC50220-T07",
+                                                                       "CPC50220-T08",
+                                                                       "CPC50220-T10",
+                                                                       "CPC50220-T12",
+                                                                       "CPC50220-T16",
+                                                                       "CPC50220-T21",
+                                                                       "CPC50220-T23"
+                                                                   ]
+                                          },
+                           "CPCCBC5011":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "CPCCBC5013":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T03",
+                                                                       "CPC50220-T19",
+                                                                       "CPC50220-T24"
+                                                                   ]
+                                          },
+                           "CPCCBC5018":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T03",
+                                                                       "CPC50220-T09",
+                                                                       "CPC50220-T14",
+                                                                       "CPC50220-T17"
+                                                                   ]
+                                          },
+                           "CPCCBC5019":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T06"
+                                                                   ]
+                                          },
+                           "BSBPMG532":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "BSBPMG538":  {
+                                             "owns":  [
+
+                                                      ],
+                                             "appliedNotTaught":  [
+
+                                                                  ]
+                                         },
+                           "CPCSUS5001":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "CPC50220-T02",
+                                                                       "CPC50220-T10",
+                                                                       "CPC50220-T12",
+                                                                       "CPC50220-T15",
+                                                                       "CPC50220-T16",
+                                                                       "CPC50220-T25"
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

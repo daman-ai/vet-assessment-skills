@@ -1,23 +1,28 @@
 {
-  "name": "vet-skills",
-  "owner": {
-    "name": "Meridian Vocational College / Adelaide Culinary Institute"
-  },
-  "plugins": [
-    {
-      "name": "vet-assessment",
-      "source": "./plugins/vet-assessment",
-      "description": "Build audit-compliant Australian VET assessment packs matched to the RTO's own approved templates, then the matching teaching resources: paired learner and assessor Word documents with model answers, benchmarks and generated recipe photography; a branded Learner Guide and Delivery PowerPoint built from the finished pack; and a compliance report. Includes the docx-images artwork sub-skill."
-    },
-    {
-      "name": "vet-marking",
-      "source": "./plugins/vet-marking",
-      "description": "Mark a batch of submitted student assessments for one unit and produce the records an RTO keeps - marked copies carrying a cover sheet, a feedback page and a coloured outcome in every response, standalone Student Feedback Sheets for anyone with nothing coming back, Student Assessment Records and the class Assessment Marking and Results Record - from the unit prerequisites on training.gov.au, the WiseNet enrolment matrix and the RTO's own templates. Consolidates several marking runs into one record per WiseNet course-offer group and lays the result out as a handover package, one folder per group and per student. Includes the rto-validation-docs skill for the controlled assessment-validation document set."
-    },
-    {
-      "name": "vet-compliance",
-      "source": "./plugins/vet-compliance",
-      "description": "The RTO's own quality system rather than its student-facing materials: assess policies, procedures and records against the 2025 Standards for RTOs and the ESOS framework, uplift what is wrong, and design the evidence architecture, compliance calendar, registers, risk register and 12-month roadmap that make the outcome happen - every requirement cited to a verified instrument and every deliverable rendered from one assurance ledger. Includes the pd skill for ready-to-run trainer and assessor professional development session packs."
-    }
-  ]
+    "name":  "vet-skills",
+    "owner":  {
+                  "name":  "Meridian Vocational College / Adelaide Culinary Institute"
+              },
+    "plugins":  [
+                    {
+                        "name":  "vet-assessment",
+                        "source":  "./plugins/vet-assessment",
+                        "description":  "Build audit-compliant Australian VET assessment packs matched to the RTO\u0027s own approved templates, then the matching teaching resources: paired learner and assessor Word documents with model answers, benchmarks and generated recipe photography; a branded Learner Guide and Delivery PowerPoint built from the finished pack; and a compliance report. Includes the docx-images artwork sub-skill."
+                    },
+                    {
+                        "name":  "vet-marking",
+                        "source":  "./plugins/vet-marking",
+                        "description":  "Mark a batch of submitted student assessments for one unit and produce the records an RTO keeps - marked copies carrying a cover sheet, a feedback page and a coloured outcome in every response, standalone Student Feedback Sheets for anyone with nothing coming back, Student Assessment Records and the class Assessment Marking and Results Record - from the unit prerequisites on training.gov.au, the WiseNet enrolment matrix and the RTO\u0027s own templates. Consolidates several marking runs into one record per WiseNet course-offer group and lays the result out as a handover package, one folder per group and per student. Includes the rto-validation-docs skill for the controlled assessment-validation document set."
+                    },
+                    {
+                        "name":  "vet-compliance",
+                        "source":  "./plugins/vet-compliance",
+                        "description":  "The RTO\u0027s own quality system rather than its student-facing materials: assess policies, procedures and records against the 2025 Standards for RTOs and the ESOS framework, uplift what is wrong, and design the evidence architecture, compliance calendar, registers, risk register and 12-month roadmap that make the outcome happen - every requirement cited to a verified instrument and every deliverable rendered from one assurance ledger. Includes the pd skill for ready-to-run trainer and assessor professional development session packs."
+                    },
+                    {
+                        "name":  "vet-tas",
+                        "source":  "./plugins/vet-tas",
+                        "description":  "The curriculum registry that sits above the other plugins: which institute delivers which qualification, which units each course carries, how they are sequenced, and which unit owns each shared topic so a concept is taught once rather than in every unit that mentions it. Reads the delivered unit list and delivery order from each course own Training and Assessment Strategy, sources every unit live from the training.gov.au REST API, detects where two units in one course cover the same ground, and records an authored ruling with a written reason on who owns it. Serves the assessment and learner-guide skills a per-unit brief saying what to teach in full, what to recall instead, and what should stop the build."
+                    }
+                ]
 }

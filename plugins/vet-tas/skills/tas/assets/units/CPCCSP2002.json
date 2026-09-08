@@ -1,0 +1,28 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "CPCCSP2002",
+    "title":  "Use solid plastering tools and equipment",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "2",
+    "releaseDate":  "2024-12-24",
+    "currency":  "current",
+    "trainingPackage":  "CPC",
+    "prerequisites":  [
+                          {
+                              "code":  "CPCCWHS2001",
+                              "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                          }
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Plastering",
+    "application":  "This unit specifies the skills and knowledge required to safely select, check, use and store tools and equipment for solid plastering.\nThe unit is suitable for people with basic skills and knowledge who undertake routine work tasks under the direction of more experienced workers.\nCompletion of the general construction induction training program specified by the model Code of Practice for Construction Work is required for any person who is to carry out construction work. Achievement of unit CPCWHS1001Prepare to work safely in the construction industry meets this requirement.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe what needs to be done to demonstrate achievement of the element.\n1\nPlan and prepare to use solid plastering tools and equipment.\n1.1\nRead and interpret work instructions and plan sequence of work.\n1.2\nPlan all work to comply with laws and regulations, Australian Standards, work health and safety (WHS) and environmental requirements, manufacturers’ specifications, workplace requirements, drawings and specifications.\n1.3\nSelect and use personal protective equipment (PPE) for each part of the task.\n1.4\nInspect work site, locate services, assess hazards and apply risk controls, including required signage and barricades.\n2\nSelect and check tools and equipment.\n2.1\nSelect tools and equipment for the task based on their functions and limitations, check for serviceability and report any faults.\n2.2\nCheck power tools and electrical leads are tested and tagged.\n2.3\nConduct pre-operational checks on tools and equipment to manufacturers’ specifications.\n2.4\nExamine power tools and equipment to ensure guards are fitted and working, blades and attachments are secured, and switches are operational.\n3\nUse tools and equipment.\n3.1\nFollow start-up and shut-down procedures.\n3.2\nUse tools and equipment, applying safe work practices to perform solid plastering task.\n4\nClean up.\n4.1\nClear work area, dispose of materials, and reuse or recycle in compliance with legislation, regulations and codes of practice.\n4.2\nClean, check, maintain and store tools and equipment in accordance with manufacturers’ specifications.",
+    "foundationSkills":  "Foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "To demonstrate competency, a candidate must satisfy all of the elements, performance criteria and foundation skills of this unit by using all of the following solid plastering tools and equipment on a minimum of three different solid plastering tasks:\na power grinder\na cement mixer\na power saw\nan air compressor\na level\na float\na sponge float\na screed\na shovel\na wheel barrow\nmud board and stand\ntin snips\nwater brush\na paint brush\na handboard/hawk\na screw gun\na hammer\na comb\na sprayline\na small tool\na tape measure.\nAll work must be performed to the standard required in the workplace and must comply with laws and regulations, Australian Standards, work health and safety (WHS) and environmental requirements, manufacturers’ specifications, workplace requirements, drawings and specifications.",
+    "knowledgeEvidence":  "To be competent in this unit, a candidate must demonstrate knowledge of:\ncompliance requirements of Australian Standards for using solid plastering tools and equipment\nmanufacturers’ specifications for solid plastering tools and equipment\nworkplace quality policies and standards for using solid plastering tools and equipment\nsafety requirements for using solid plastering tools and equipment, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent\nsafety data sheets (SDS)\npersonal protective equipment (PPE)\nenvironmental requirements for using solid plastering tools and equipment\nfunctional and operational features of tools and equipment, including: a power grinder\na cement mixer\na power saw\nan air compressor\na level\na float\na sponge float\na screed\na shovel\na wheel barrow\nmud board and stand\ntin snips\nwater brush\na paint brush\na handboard/hawk\na screw gun\na hammer\na comb\na sprayline\na small tool\na tape measure.",
+    "assessmentConditions":  "Assessors must meet the requirements for assessors contained in the Standards for Registered Training Organisations.\nThis unit must be assessed in the workplace or a close simulation using realistic workplace conditions, materials, activities, responsibilities, procedures, safety requirements and environmental considerations.",
+    "sourceUrl":  "https://training.gov.au/training/details/CPCCSP2002/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:10Z"
+}

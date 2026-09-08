@@ -1,0 +1,1490 @@
+﻿{
+    "courseId":  "MVC-SIT31021",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:32Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "SITHKOP009",
+                                       "SITHCCC023",
+                                       "SITHCCC027",
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015",
+                                       "SITHPAT017",
+                                       "SITHCCC034"
+                                   ],
+                         "suggestedOwner":  "SITHKOP009",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHKOP009",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to clean kitchen premises and equipment"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC023",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used in the performance evidence."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used in the above cookery methods."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce desserts."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce cakes and sponges."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce specialised cakes."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce pastries and pastry products."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce yeast-based bakery products."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to produce petits fours."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT017",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment used to model and mould marzipan shapes."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC034",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safe operational practices using essential functions and features of equipment in use."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA006",
+                                       "SITHCCC023",
+                                       "SITHCCC027",
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015",
+                                       "SITHPAT017"
+                                   ],
+                         "suggestedOwner":  "SITXFSA006",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  1,
+                                                "Source":  "EL",
+                                                "Text":  "3. Prepare food safely."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC023",
+                                                "Cluster":  2,
+                                                "Source":  "EL",
+                                                "Text":  "2. Use equipment to prepare food."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  3,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT017",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "2. Select, prepare and use equipment."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXINV006",
+                                       "SITHCCC027",
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015",
+                                       "SITHPAT017"
+                                   ],
+                         "suggestedOwner":  "SITXINV006",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXINV006",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT017",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "contents of date codes and rotation labels for stock"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC038",
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015",
+                                       "SITHPAT017"
+                                   ],
+                         "suggestedOwner":  "SITHCCC038",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC038",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT017",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "optimise shelf life"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC038",
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015",
+                                       "SITHPAT017"
+                                   ],
+                         "suggestedOwner":  "SITHCCC038",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC038",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing ingredients and buffet food items to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing desserts and re-usable by products of their preparation to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing cakes and sponges and re-usable by-products of their preparation to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing specialised cakes and re-usable by-products of their preparation to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing pastries and re-usable by-products of their preparation to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "environmental conditions for storing yeast-based bakery products and re-usable by products of their preparation to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing petits fours and re-usable by-products of their preparation to:ensure food safety"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT017",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate environmental conditions for storing marzipan shapes and icing to:ensure food safety"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC027",
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015",
+                                       "SITHPAT017"
+                                   ],
+                         "suggestedOwner":  "SITHCCC027",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  3,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "3. Portion and prepare ingredients."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT017",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "1. Select, portion and prepare ingredients."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015",
+                                       "SITHPAT017"
+                                   ],
+                         "suggestedOwner":  "SITHPAT016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "indicators of freshness and quality of stocked ingredients for desserts"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "indicators of freshness and quality of stocked ingredients for cakes and sponges"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "indicators of freshness and quality of stocked ingredients for specialised cakes"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "indicators of freshness and quality of stocked ingredients for pastries and pastry products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "indicators of freshness and quality of stocked ingredients for yeast-based bakery products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "indicators of freshness and quality of stocked ingredients for petits fours"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT017",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "indicators of freshness and quality of stocked ingredients for marzipan"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC038",
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHCCC038",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC038",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and trade names for:ingredients commonly used to produce buffet items"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and common trade names for:variety of desserts"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and common trade names for:ingredients used to produce cakes and sponges"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and common trade names for:ingredients used to produce specialised cakes"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and common trade names for:ingredients used to produce pastries and pastry products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and common trade names for:ingredients used to produce yeast-based bakery products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and common trade names for:ingredients used to produce petits fours"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "cookery methods and processes used when preparing desserts:adding fats and liquids to dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "cookery processes used when producing cakes, sponges and fillings:adding fats and liquids to dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "cookery processes used when producing specialised cakes:adding fats and liquids to dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "cookery processes used when producing pastries and pastry products:adding fats and liquids to dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "cookery processes used when producing yeast-based bakery products:adding fats and liquids to dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "preparation and cookery processes used when producing petit fours, fillings, coatings and decorations listed in the performance evidence:adding fats and liquids to dry ingredients"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "sifting dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "sifting dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "sifting dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "sifting dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "sifting dry ingredients"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "weighing or measuring and sifting dry ingredients"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "stirring and aerating to achieve required consistency and texture"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "stirring and aerating to achieve required consistency and texture"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "stirring and aerating to achieve required consistency and texture"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "stirring and aerating to achieve required consistency and texture"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "stirring and aerating to achieve required consistency and texture"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "stirring and aerating to achieve required consistency and texture"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "whisking, folding, piping and spreading"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "whisking, folding, piping and spreading"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "whisking, folding, piping and spreading"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "whisking, folding, piping and spreading"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "whisking, folding, piping and spreading"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "whisking, folding, piping and spreading"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015",
+                                       "SITHPAT017"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "expected product characteristics of cakes and sponges specified in the performance evidence:appearance"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "expected product characteristics of specialised cakes specified in the performance evidence:appearance"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "expected product characteristics of the pastries and pastry products specified in the performance evidence:appearance"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "expected product characteristics of the yeast-based bakery products specified in the performance evidence:appearance"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "expected product characteristics of the petits fours specified in the performance evidence:appearance"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT017",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "expected product characteristics of the marzipan shapes and icings specified in the performance evidence:appearance"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT016",
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT016",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "selecting and preparing appropriate dessert moulds"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "selecting and preparing appropriate cake tins and moulds"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "selecting and preparing appropriate cake tins and moulds"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "selecting and preparing appropriate moulds"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "selecting and preparing appropriate moulds"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "mise en place requirements for producing cakes, sponges and fillings"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "mise en place requirements for producing specialised cakes and fillings"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "mise en place requirements for producing pastries, pastry products and fillings"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "mise en place requirements for producing yeast-based bakery products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "mise en place requirements for producing petits fours and fillings"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "preparing and using pre-bake finishes and decorations"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "preparing and using pre-bake finishes and decorations"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "preparing and using pre-bake and post-bake finishes and decorations"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "pre-bake finishes and decorations"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "preparing and using pre-bake finishes and decorations"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "5. Decorate, present and store cakes."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "7. Present and store specialised cakes."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "5. Decorate, present and store pastry products."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "6. Decorate, present and store yeast-based products."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT013",
+                                       "SITHPAT014"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate baking temperatures and cooking times for cakes, sponges and fillings specified in the Performance Evidence"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate baking temperatures and cooking times for specialised cakes and fillings"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "appropriate baking temperatures and cooking times for pastries, pastry products and fillings"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "baking temperatures and cooking times for yeast-based bakery products specified in the performance evidence"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT013",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "historical and cultural origins of a variety of cakes and sponges"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "historical and cultural origins of a variety of pastries and pastry products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "historical and cultural origins of a variety of yeast-based bakery products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "historical and cultural origins of a variety of petits fours"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT012",
+                                       "SITHPAT014",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "using required amount of batter according to desired characteristics of finished products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "using required amount of batter according to desired characteristics of finished products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "using required amount of batter according to desired characteristics of finished products"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "using required amount of batter and paste according to desired characteristics of finished products"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS005",
+                                       "SITXFSA005",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITXWHS005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe WHS legislation and organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITXFSA006",
+                                       "SITXINV006"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "basic aspects of commonwealth, state or territory food safety laws, standards and codes as follows:meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                            },
+                                            {
+                                                "Code":  "SITXINV006",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA006",
+                                       "SITHCCC023"
+                                   ],
+                         "suggestedOwner":  "SITXFSA006",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "safe food handling practices for the following different food types:dairy"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "food safety monitoring techniques:bacterial swabs and counts"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC023",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "food safety practices for handling different food types"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS005",
+                                       "SITXFSA005"
+                                   ],
+                         "suggestedOwner":  "SITXWHS005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "employee responsibilities to participate in WHS practices"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "employee and employer responsibility to participate in hygienic practices"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS005",
+                                       "SITXWHS006"
+                                   ],
+                         "suggestedOwner":  "SITXWHS005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "workplace hazards and associated health, safety and security risks"
+                                            },
+                                            {
+                                                "Code":  "SITXWHS006",
+                                                "Cluster":  1,
+                                                "Source":  "EL",
+                                                "Text":  "2. Assess the safety risk associated with a hazard."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS005",
+                                       "SITXWHS006"
+                                   ],
+                         "suggestedOwner":  "SITXWHS005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "basic aspects of the relevant state or territory work health and safety (WHS) legislation:actions that must be adhered to by businesses"
+                                            },
+                                            {
+                                                "Code":  "SITXWHS006",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "basic aspects of the relevant state or territory work health and safety (WHS) legislation, specifically requirements for:when, where and how hazards must be identified"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITHKOP009"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "using cleaning products or chemicals"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP009",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "uses of different types of cleaning and sanitising products and chemicals for kitchens and equipment"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHKOP010",
+                                       "SITHCCC042"
+                                   ],
+                         "suggestedOwner":  "SITHKOP010",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHKOP010",
+                                                "Cluster":  2,
+                                                "Source":  "EL",
+                                                "Text":  "1. Identify customer preferences."
+                                            },
+                                            {
+                                                "Code":  "SITHCCC042",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "customer preferences or aversions"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA005",
+                                       "SITXFSA006"
+                                   ],
+                         "suggestedOwner":  "SITXFSA005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "contents of organisational hygiene and food safety procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA006",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "contents of organisational food safety program, including procedures, associated requirements, and monitoring documents"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS005",
+                                       "SITXFSA005"
+                                   ],
+                         "suggestedOwner":  "SITXWHS005",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "safe work practices for individual job roles"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA005",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "hygienic work practices for individual job roles and responsibilities"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT012"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "cakes and sponges specified in the performance evidence"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "specialised cakes specified above in the performance evidence"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC042",
+                                       "SITHCCC034"
+                                   ],
+                         "suggestedOwner":  "SITHCCC042",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC042",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "main types and characteristics of:food allergy"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC034",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "characteristics of different foods from all main food categories"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT011",
+                                       "SITHPAT012"
+                                   ],
+                         "suggestedOwner":  "SITHPAT011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT011",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "4. Cook cakes and sponges."
+                                            },
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "EL",
+                                                "Text":  "4. Cook specialised cakes."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT013",
+                                       "SITHPAT014"
+                                   ],
+                         "suggestedOwner":  "SITHPAT013",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "pastries and pastry products specified in the performance evidence"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "yeast-based bakery products specified above in the performance evidence"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT012",
+                                       "SITHPAT015"
+                                   ],
+                         "suggestedOwner":  "SITHPAT012",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "cigarette paste decoration techniques"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT015",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "decoration techniques for petits fours, including:cigarette paste decoration techniques"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC023",
+                                       "SITHCCC027"
+                                   ],
+                         "suggestedOwner":  "SITHCCC023",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC023",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "meaning and role of mise en place in the process of preparing, cooking and presenting food"
+                                            },
+                                            {
+                                                "Code":  "SITHCCC027",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "meaning and role of mise en place in the process of preparing, cooking and presenting food"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHKOP009",
+                                       "SITXINV006"
+                                   ],
+                         "suggestedOwner":  "SITHKOP009",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHKOP009",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "correct and environmentally sound disposal methods for kitchen waste:broken service-ware"
+                                            },
+                                            {
+                                                "Code":  "SITXINV006",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "correct and environmentally sound disposal methods for spoilt stock."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC042",
+                                       "SITHPAT016"
+                                   ],
+                         "suggestedOwner":  "SITHCCC042",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC042",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "culinary terms and trade names for:substitute ingredients used to produce dishes with special dietary recipes"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "substitute ingredients used to produce desserts for special dietary recipes"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHPAT013",
+                                       "SITHPAT014"
+                                   ],
+                         "suggestedOwner":  "SITHPAT013",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHPAT013",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "chilling ingredients and work surfaces"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT014",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "chilling ingredients and work surfaces"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHCCC042",
+                                       "SITHPAT016"
+                                   ],
+                         "suggestedOwner":  "SITHCCC042",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHCCC042",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "key health, legal and reputational consequences of failing to address special requirements, including:allergic reactions"
+                                            },
+                                            {
+                                                "Code":  "SITHPAT016",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "key health and legal consequences of failing to address special dietary requirements"
+                                            }
+                                        ]
+                     }
+                 ]
+}

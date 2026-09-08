@@ -1,0 +1,47 @@
+{
+  "_comment": "AUTHORED OWNERSHIP DECISIONS for SIT40521. Every family in families/ACI-SIT40521.families.json appears exactly once below.",
+  "courseId": "ACI-SIT40521",
+  "_deliveredNote": "Only 10 of the 33 packaged units are delivered, in this order: SITXHRM008, SITXHRM009, SITXCOM010, SITXWHS007, SITXFIN009, SITXMGT004, SITXFSA008, SITHKOP012, SITHKOP013, SITHKOP015. The other 23 arrive by credit transfer from SIT30821, so the whole cookery-method stream, food safety handling, stock control and basic recipe costing are ALREADY HELD and are not taught here. SITHKOP010 Plan and cost recipes in particular is credit-transferred, which is why the costing topic below is a deepening rather than an introduction.",
+  "topics": [
+    {
+      "families": ["F01", "F02", "F04", "F07"],
+      "name": "Recipe and menu costing arithmetic: yield tests, portion yields, GST and budgeted sales price",
+      "kind": "progressive-depth",
+      "owner": "SITHKOP012",
+      "rationale": "Four separate families - standard yield tests, budgeted sales price, portion yield and cost formulas, and GST arithmetic - are one body of arithmetic taught once. SITHKOP012 Develop recipes for special dietary requirements is delivered eighth and SITHKOP015 Design and cost menus tenth, so the arithmetic lands with the recipe unit and the menu unit spends its time on menu structure and profitability instead of recalculating a portion cost. The foundation was laid in SITHKOP010 Plan and cost recipes, which this cohort credit-transfers from the Certificate III.",
+      "teachingRule": "SITHKOP012 teaches the calculations in full at Certificate IV depth. SITHKOP015 states the formula once as a reminder and applies it to a whole menu, teaching contribution margin and menu engineering, which SITHKOP012 does not cover."
+    },
+    {
+      "families": ["F03"],
+      "name": "Customer preferences and aversions as a design input",
+      "kind": "shared-scaffold",
+      "owner": "SITHKOP012",
+      "rationale": "Both recipe units read the same evidence about what customers want and will not eat. SITHKOP012 is delivered first and needs it to justify a substitution; SITHKOP015 needs it to justify a menu item.",
+      "teachingRule": "SITHKOP015 does not repeat how preference data is gathered. It teaches how a preference profile shapes the balance of a menu."
+    },
+    {
+      "families": ["F05"],
+      "name": "Food production records",
+      "kind": "shared-scaffold",
+      "owner": "SITXFSA008",
+      "rationale": "SITXFSA008 Develop and implement a food safety program is delivered seventh and SITHKOP013 Plan cooking operations ninth. The record is the same document; in the food safety program it is evidence of control, and in cooking operations it is a planning input. It is designed once, where it is designed - in the food safety program.",
+      "teachingRule": "SITHKOP013 does not re-teach the record's format or its retention period. It teaches reading yesterday's record to plan today's production."
+    },
+    {
+      "families": ["F08"],
+      "name": "Hazard identification and control at critical control points",
+      "kind": "shared-scaffold",
+      "owner": "SITXFSA008",
+      "rationale": "HACCP is the subject matter of SITXFSA008 and nothing else in this course teaches it. SITHKOP013 schedules production around the control points that unit establishes.",
+      "teachingRule": "SITHKOP013 assumes the critical control points are known and teaches sequencing production so that cooling, holding and reheating windows are not breached."
+    },
+    {
+      "families": ["F06"],
+      "name": "Consequences of failing to observe WHS and food safety law",
+      "kind": "regulatory-recall",
+      "owner": "SITXWHS007",
+      "rationale": "SITXWHS007 Implement and monitor work health and safety practices is delivered fourth and carries the legislative frame - duty of care, penalties, prosecution, the regulator. SITXFSA008 restates the same consequence structure for food safety law three units later. One account of what happens when a duty holder fails, taught once, is also one account an auditor has to reconcile.",
+      "teachingRule": "SITXFSA008 names the Food Standards Code and the state food authority as the specific instrument and regulator, and cites SITXWHS007 for the general structure of duty, breach and penalty."
+    }
+  ]
+}

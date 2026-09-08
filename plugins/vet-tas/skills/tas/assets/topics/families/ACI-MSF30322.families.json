@@ -1,0 +1,287 @@
+﻿{
+    "courseId":  "ACI-MSF30322",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:14Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "MSFFM2013",
+                                       "MSFFM2017",
+                                       "MSFFM2018",
+                                       "MSFFM3029",
+                                       "MSFFF2012",
+                                       "MSFFM3042",
+                                       "MSFKB2003"
+                                   ],
+                         "suggestedOwner":  "MSFFM2013",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSFFM2013",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE) requirements for hand and power tools used in furniture production."
+                                            },
+                                            {
+                                                "Code":  "MSFFM2017",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE) required for hand construction of joints."
+                                            },
+                                            {
+                                                "Code":  "MSFFM2018",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE) required for operation of static machines"
+                                            },
+                                            {
+                                                "Code":  "MSFFM3029",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE) required."
+                                            },
+                                            {
+                                                "Code":  "MSFFF2012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE) required for surface preparation"
+                                            },
+                                            {
+                                                "Code":  "MSFFM3042",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE) required for cabinetry construction."
+                                            },
+                                            {
+                                                "Code":  "MSFKB2003",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "tools and equipment, including personal protective equipment (PPE), commonly required for cabinetry installation"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "MSFFM2013",
+                                       "MSFFM2016",
+                                       "MSFFM2017",
+                                       "MSFFF2012",
+                                       "MSFFM3041",
+                                       "MSFKB2003"
+                                   ],
+                         "suggestedOwner":  "MSFFM2013",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSFFM2013",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "workplace health and safety procedures"
+                                            },
+                                            {
+                                                "Code":  "MSFFM2016",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "workplace procedures for:work health and safety"
+                                            },
+                                            {
+                                                "Code":  "MSFFM2017",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "workplace procedures for:work health and safety"
+                                            },
+                                            {
+                                                "Code":  "MSFFF2012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "work health and safety requirements, including personal protective equipment."
+                                            },
+                                            {
+                                                "Code":  "MSFFM3041",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "workplace and site procedures for:work health and safety"
+                                            },
+                                            {
+                                                "Code":  "MSFKB2003",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "work health and safety requirements"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "MSFFM2016",
+                                       "MSFFM2018",
+                                       "MSFFM3042"
+                                   ],
+                         "suggestedOwner":  "MSFFM2016",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSFFM2016",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "reporting of machinery faults and material defects"
+                                            },
+                                            {
+                                                "Code":  "MSFFM2018",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "reporting of machinery faults and material defects."
+                                            },
+                                            {
+                                                "Code":  "MSFFM3042",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "reporting machinery faults and material defects"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "MSMSUP106",
+                                       "MSFFF2012"
+                                   ],
+                         "suggestedOwner":  "MSMSUP106",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSMSUP106",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "organisation procedures, including:record keeping requirements"
+                                            },
+                                            {
+                                                "Code":  "MSFFF2012",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "workplace procedures for reporting and record keeping"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCWHS2001",
+                                       "CPCWHS1001"
+                                   ],
+                         "suggestedOwner":  "CPCCWHS2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCWHS2001",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "procedures for reporting hazards, incidents and injuries"
+                                            },
+                                            {
+                                                "Code":  "CPCWHS1001",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "identifying and reporting hazards, incidents and injuries in the workplace"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "MSMSUP106",
+                                       "MSFFDM4002"
+                                   ],
+                         "suggestedOwner":  "MSMSUP106",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSMSUP106",
+                                                "Cluster":  1,
+                                                "Source":  "EL",
+                                                "Text":  "1. Identify work activities"
+                                            },
+                                            {
+                                                "Code":  "MSFFDM4002",
+                                                "Cluster":  2,
+                                                "Source":  "KE",
+                                                "Text":  "legislative requirements of the work activities"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "MSFFM3041",
+                                       "MSFFM3043"
+                                   ],
+                         "suggestedOwner":  "MSFFM3041",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSFFM3041",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "angles of floor to walls"
+                                            },
+                                            {
+                                                "Code":  "MSFFM3043",
+                                                "Cluster":  7,
+                                                "Source":  "KE",
+                                                "Text":  "wall and floor construction"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "MSFKB2003",
+                                       "MSFFM3043"
+                                   ],
+                         "suggestedOwner":  "MSFKB2003",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSFKB2003",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "door and drawer systems"
+                                            },
+                                            {
+                                                "Code":  "MSFFM3043",
+                                                "Cluster":  7,
+                                                "Source":  "KE",
+                                                "Text":  "alignment of doors and/or drawers"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "MSFFM3041",
+                                       "MSFFM3042"
+                                   ],
+                         "suggestedOwner":  "MSFFM3041",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSFFM3041",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "characteristics and features of cabinetry products and components"
+                                            },
+                                            {
+                                                "Code":  "MSFFM3042",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "types and features of cabinetry product components:end panels"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "MSFFM3041",
+                                       "MSFFM3043"
+                                   ],
+                         "suggestedOwner":  "MSFFM3041",
+                         "statements":  [
+                                            {
+                                                "Code":  "MSFFM3041",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "statutory local and state or territory planning regulations affecting cabinetry installations"
+                                            },
+                                            {
+                                                "Code":  "MSFFM3043",
+                                                "Cluster":  7,
+                                                "Source":  "KE",
+                                                "Text":  "statutory local and state or territory planning regulations"
+                                            }
+                                        ]
+                     }
+                 ]
+}

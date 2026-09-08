@@ -1,0 +1,315 @@
+﻿{
+    "_comment":  "AUTHORED OWNERSHIP DECISIONS for the Adelaide Culinary Institute delivery of SIT30821. THESE ARE THE SAME RULINGS AS MVC-SIT30821, AND THAT IS A FINDING RATHER THAN A SHORTCUT: the two strategies were compared unit by unit and position by position, and ACI and Meridian select the identical 25 units and deliver them in the identical order. Same units in the same order produce the same overlaps - the 46 detected families match in membership one for one - so the same ownership follows. Where a rationale names a block of the sequence, Meridian labels those blocks as four themes and ACI presents the same ordering as a flat numbered list.",
+    "courseId":  "ACI-SIT30821",
+    "_deliveredNote":  "25 units over 52 weeks: 48 weeks face to face, 4 weeks term break, 48 service periods of work placement. The strategy numbers the units and that numbering is the delivery order. IF EITHER INSTITUTE CHANGES ITS ELECTIVES OR ITS ORDER, THIS FILE STOPS BEING A COPY AND MUST BE RE-RULED ON ITS OWN.",
+    "_commodityNote":  "THE COMMODITY-PARALLEL TOPICS BELOW ARE NOT DUPLICATION AND MUST NOT BE COLLAPSED. Nine cookery units share a common shape - select the commodity, prepare it, cook it, present it - applied to poultry, meat, seafood, vegetables and so on. Only the SHAPE is owned once. Each unit teaches its own commodity in full, because that commodity knowledge is what the qualification is for.",
+    "topics":  [
+                   {
+                       "families":  [
+                                        "F01",
+                                        "F02",
+                                        "F17"
+                                    ],
+                       "name":  "Selecting, assembling and safely operating commercial kitchen equipment",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC023",
+                       "rationale":  "Fifteen of the twenty-five units carry a knowledge-evidence point reading safe operational practices using essential functions and features of equipment, changing only the dish it names, and fourteen carry the element Select, prepare and use equipment. SITHCCC023 Use food preparation equipment, in the second block, is the unit whose entire subject this is. Teaching it fifteen times teaches nothing new fourteen of those times and inflates every downstream assessment tool with a question already answered. The detector suggested SITHKOP009 because it appears first in the unit table, but SITHKOP009 Clean kitchen premises and equipment owns CLEANING equipment, which is a different topic.",
+                       "teachingRule":  "Every later cookery unit names the equipment its own dishes need and any setting peculiar to them - a blast chiller programme, a combi oven mode, a pastry sheeter gauge - in a few lines. It does not re-teach assembly, safe operation or the manufacturer instruction, and its assessment tool does not re-ask them."
+                   },
+                   {
+                       "families":  [
+                                        "F25"
+                                    ],
+                       "name":  "Mise en place: what it means and why it governs the kitchen",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC023",
+                       "rationale":  "The meaning and role of mise en place is stated as knowledge evidence in SITHCCC023 and again in SITHCCC027. It is a single idea and belongs where a learner first organises a workstation.",
+                       "teachingRule":  "SITHCCC027 and every later unit plan their own mise en place and are assessed on the plan working, not on defining the term."
+                   },
+                   {
+                       "families":  [
+                                        "F04"
+                                    ],
+                       "name":  "Portioning and preparing ingredients to a standard recipe",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC027",
+                       "rationale":  "Twelve units carry the element Portion and prepare ingredients. SITHCCC027 Prepare dishes using basic methods of cookery opens the third block and is the first cookery unit, so weighing, measuring, trimming and portioning are taught there.",
+                       "teachingRule":  "Later units portion their own commodity to their own recipe. The technique is applied, not retaught."
+                   },
+                   {
+                       "families":  [
+                                        "F03",
+                                        "F05",
+                                        "F06",
+                                        "F07"
+                                    ],
+                       "name":  "Keeping food safe and saleable in storage: date codes, rotation, freshness, storage conditions and shelf life",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXINV006",
+                       "rationale":  "Four families - date codes and rotation labels in thirteen units, environmental storage conditions in eleven, optimising shelf life in ten, and freshness and quality indicators in ten - are one topic, and it is the subject of SITXINV006 Receive, store and maintain stock in the second block. This is the single largest source of repetition in the qualification: forty-four restatements of how to store food, spread across twelve cookery units that each say it about their own ingredient.",
+                       "teachingRule":  "A cookery unit states only what is SPECIFIC to its commodity - that fish is stored on ice and used within a day, that a cooked custard is a potentially hazardous food, that yeast dough is retarded not frozen. The storage principles, the rotation system and the labelling are cited to SITXINV006 and are not re-assessed."
+                   },
+                   {
+                       "families":  [
+                                        "F12"
+                                    ],
+                       "name":  "Organisational hygiene and food safety procedures",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA005",
+                       "rationale":  "SITXFSA005 Use hygienic practices for food safety is a prerequisite to most cookery units and is delivered early in the second block for that reason. The contents of the organisation\u0027s hygiene procedures are its own subject matter.",
+                       "teachingRule":  "SITXFSA006, SITHCCC023 and SITHCCC043 follow the procedure and are assessed on following it, not on reciting what it contains."
+                   },
+                   {
+                       "families":  [
+                                        "F15"
+                                    ],
+                       "name":  "Food safety law, the Food Standards Code and the meaning of contamination",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXFSA005",
+                       "rationale":  "One account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the regulator\u0027s role. Three units carry it; an auditor reading three summaries of one Code finds three chances to be wrong.",
+                       "teachingRule":  "SITXFSA006 and SITXINV006 name the specific requirement governing their activity - a temperature, a record, a disposal rule - and cite the Code clause rather than re-summarising the Code."
+                   },
+                   {
+                       "families":  [
+                                        "F23",
+                                        "F26",
+                                        "F27",
+                                        "F28",
+                                        "F30"
+                                    ],
+                       "name":  "Work health and safety: legislation, duties, hazards and the consequences of failure",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXWHS005",
+                       "rationale":  "Five families - ramifications of failing to observe legislation, safe work practices for a job role, employee responsibilities, workplace hazards and risks, and the basic aspects of the state WHS Act - are one body of law and duty. SITXWHS005 Participate in safe work practices opens the first block in week 1 and is the earliest owner.",
+                       "teachingRule":  "SITXWHS006 Identify hazards, assess and control safety risks teaches the DELTA - conducting a risk assessment, applying the hierarchy of control, monitoring a control - which is genuinely new work. It does not restate the Act. The food safety units cite SITXWHS005 for the structure of duty, breach and penalty and name the Food Act as their own instrument."
+                   },
+                   {
+                       "families":  [
+                                        "F29"
+                                    ],
+                       "name":  "Cleaning products, chemicals and their safe use",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP009",
+                       "rationale":  "SITHKOP009 Clean kitchen premises and equipment owns the chemicals - dilution, contact time, safety data sheets, storage and the PPE they demand. SITXFSA005 needs them only as a means of achieving a hygienic surface.",
+                       "teachingRule":  "SITXFSA005 states why a surface must be sanitised and cites SITHKOP009 for how."
+                   },
+                   {
+                       "families":  [
+                                        "F24"
+                                    ],
+                       "name":  "Environmentally sound disposal of kitchen waste",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP009",
+                       "rationale":  "Separation, recycling, oil disposal and broken service-ware are the cleaning unit\u0027s own ground, and it sits in the second block alongside SITXINV006.",
+                       "teachingRule":  "SITXINV006 disposes of out-of-date stock to that procedure and cites it."
+                   },
+                   {
+                       "families":  [
+                                        "F31"
+                                    ],
+                       "name":  "Identifying customer preferences as a recipe input",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHKOP010",
+                       "rationale":  "SITHKOP010 Plan and cost recipes opens the second block and carries the element Identify customer preferences. SITHCCC042 needs the same evidence to justify a dietary substitution.",
+                       "teachingRule":  "SITHCCC042 reads a preference or restriction and acts on it. How preference data is gathered is not repeated."
+                   },
+                   {
+                       "families":  [
+                                        "F32"
+                                    ],
+                       "name":  "Effects of cookery methods on the major food types",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC027",
+                       "rationale":  "What heat does to protein, starch, fat and cell structure is the theory that makes every cookery method make sense, and SITHCCC027 is the unit that teaches the methods.",
+                       "teachingRule":  "SITHCCC031 applies it to plant proteins and meat substitutes, which behave differently, and teaches only that difference."
+                   },
+                   {
+                       "families":  [
+                                        "F13"
+                                    ],
+                       "name":  "Presenting and storing finished dishes",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC027",
+                       "rationale":  "The element Present and store dishes appears in four units. SITHCCC027 opens the third block and owns the sequence of finishing, garnishing, holding at temperature and storing leftovers.",
+                       "teachingRule":  "Later units present their own dish to its own standard and store its own by-products."
+                   },
+                   {
+                       "families":  [
+                                        "F09"
+                                    ],
+                       "name":  "Plating for practicality of service and customer consumption",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC028",
+                       "rationale":  "Five units carry plating methods as knowledge evidence. SITHCCC028 Prepare appetisers and salads is the earliest of them and the unit where presentation is most of the product.",
+                       "teachingRule":  "Later units plate their own dish and are judged on the result. Balance, colour, height, sauce placement and service practicality are taught once."
+                   },
+                   {
+                       "families":  [
+                                        "F19"
+                                    ],
+                       "name":  "Using by-products and off-cuts to reduce waste and maximise profitability",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC035",
+                       "rationale":  "Carcass, bone, trim and shell all become stock, and the commercial argument for using them is one argument. SITHCCC035 Prepare poultry dishes is the first of the three protein units in the final block.",
+                       "teachingRule":  "SITHCCC036 and SITHCCC037 name the by-products of their own commodity and what each becomes. The yield and profitability reasoning is cited."
+                   },
+                   {
+                       "families":  [
+                                        "F20"
+                                    ],
+                       "name":  "Knife selection, care and maintenance",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC035",
+                       "rationale":  "Knife care appears as knowledge evidence in the three protein units, which is where butchery makes it matter. SITHCCC023 owns equipment generally; knives are called out separately because the three units naming them do so in the same words and none of them is SITHCCC023.",
+                       "teachingRule":  "SITHCCC036 and SITHCCC037 name the knives their own commodity needs - boning, filleting, scimitar - and are assessed on using them safely, not on sharpening theory."
+                   },
+                   {
+                       "families":  [
+                                        "F21"
+                                    ],
+                       "name":  "Judging product quality: appearance, balance, colour, consistency and texture",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC035",
+                       "rationale":  "The vocabulary a cook uses to judge a finished product is one vocabulary, and it appears identically in the three protein units.",
+                       "teachingRule":  "SITHCCC036 and SITHCCC037 state the characteristics expected of their own dishes against that vocabulary."
+                   },
+                   {
+                       "families":  [
+                                        "F35",
+                                        "F41",
+                                        "F42"
+                                    ],
+                       "name":  "Special dietary requirements: allergies, intolerances, consequences and substitute ingredients",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC042",
+                       "rationale":  "Three families - the types and characteristics of food allergy, the health and legal consequences of failing to address a dietary requirement, and substitute ingredients - are one topic, and SITHCCC042 Prepare food to meet special dietary requirements is the unit whose subject it is.",
+                       "teachingRule":  "SITHPAT016 teaches the substitutions specific to desserts - gluten-free flours, egg replacers, non-dairy setting agents - and cites SITHCCC042 for the allergy knowledge and the legal consequence. SITHCCC043 applies it during service."
+                   },
+                   {
+                       "families":  [
+                                        "F36"
+                                    ],
+                       "name":  "Food safety risks of raw and alternative egg products",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC031",
+                       "rationale":  "Raw egg is a named high-risk ingredient and the two units carrying it word it identically. SITHCCC031 Prepare vegetarian and vegan dishes is the earlier and has the strongest reason - egg substitution is its business.",
+                       "teachingRule":  "SITHCCC030 applies the rule to its own egg dishes and cites it."
+                   },
+                   {
+                       "families":  [
+                                        "F39"
+                                    ],
+                       "name":  "Cooking and portioning bulk food items",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC032",
+                       "rationale":  "Bulk production is a different discipline from a la carte, and SITHCCC032 Produce cook-chill and cook-freeze foods opens the final block ahead of SITHCCC044.",
+                       "teachingRule":  "SITHCCC044 portions its own specialised items and cites the bulk-production method."
+                   },
+                   {
+                       "families":  [
+                                        "F10",
+                                        "F34"
+                                    ],
+                       "name":  "Planning mise en place for a production run",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC038",
+                       "rationale":  "Planning a whole service or buffet - what is prepped when, what holds, what is finished to order - is different from the concept of mise en place owned by SITHCCC023. SITHCCC038 Produce and serve food for buffets is the earliest unit to require it at scale.",
+                       "teachingRule":  "SITHCCC032 plans a bulk run and the protein units plan their own section. None re-teaches the planning method."
+                   },
+                   {
+                       "families":  [
+                                        "F40",
+                                        "F43",
+                                        "F44",
+                                        "F45",
+                                        "F46"
+                                    ],
+                       "name":  "Fundamental patisserie techniques: sifting, stirring, aerating, whisking, folding, piping and mould preparation",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHPAT016",
+                       "rationale":  "Five families covering the same hand skills appear in SITHPAT016 and SITHCCC041 in identical words. SITHPAT016 Produce desserts is delivered in the third block and SITHCCC041 Produce cakes, pastries and breads in the final block, so the techniques are taught first where desserts need them.",
+                       "teachingRule":  "SITHCCC041 applies the same hands to bread, pastry and cake and teaches what is new there - gluten development, lamination, proving and baking to a crumb structure."
+                   },
+                   {
+                       "families":  [
+                                        "F08",
+                                        "F33"
+                                    ],
+                       "name":  "Culinary terms and trade names for ingredients",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC038",
+                       "rationale":  "Nine units require the culinary terms and trade names for THEIR OWN ingredients. The terms for poultry are not the terms for pastry, so this is not one body of vocabulary taught nine times - it is nine vocabularies. What IS taught once is the idea that a trade name, a convenience product and a classical term all name the same thing, and SITHCCC038 is the earliest unit in the delivery order to require it.",
+                       "teachingRule":  "Every unit teaches the terms for its own commodity in full and is assessed on them. No unit re-explains what a trade name is or why convenience products carry different names."
+                   },
+                   {
+                       "families":  [
+                                        "F11"
+                                    ],
+                       "name":  "Historical and cultural origins of dishes",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC031",
+                       "rationale":  "Four units require the origins of their own dishes. The origins of a dal are not the origins of a confit, so each unit teaches its own. Only the expectation - that a cook can place a dish in its tradition and cook it respectfully - is set once.",
+                       "teachingRule":  "Each unit covers the origins of the dishes in its own performance evidence. None repeats another\u0027s."
+                   },
+                   {
+                       "families":  [
+                                        "F14"
+                                    ],
+                       "name":  "Cookery methods applied to a commodity",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC028",
+                       "rationale":  "Four units name the cookery methods for their own commodity. Poaching a fish is not braising a shoulder. The GENERIC method theory is owned by SITHCCC027 as topic Effects of cookery methods; what remains here is per-commodity and is taught per unit.",
+                       "teachingRule":  "Each unit teaches the methods its own performance evidence lists, and cites SITHCCC027 for why the method behaves as it does."
+                   },
+                   {
+                       "families":  [
+                                        "F16"
+                                    ],
+                       "name":  "Cooking dishes of a commodity",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC035",
+                       "rationale":  "The element Cook poultry dishes, Cook meat dishes and Cook seafood dishes is the same element wearing three commodity names. The element is the qualification\u0027s core work and each unit carries it in full.",
+                       "teachingRule":  "No consolidation. Each protein unit cooks and is assessed on its own commodity."
+                   },
+                   {
+                       "families":  [
+                                        "F18"
+                                    ],
+                       "name":  "Classical and contemporary dishes of a commodity",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC035",
+                       "rationale":  "Each protein unit requires a repertoire of classical and contemporary dishes in its own commodity. The repertoires do not overlap.",
+                       "teachingRule":  "Each unit teaches its own repertoire in full."
+                   },
+                   {
+                       "families":  [
+                                        "F22"
+                                    ],
+                       "name":  "Classical and contemporary variations of a preparation",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC028",
+                       "rationale":  "Variations on a salad, a sauce and a farinaceous dish are three different bodies of knowledge sharing one phrase.",
+                       "teachingRule":  "Each unit teaches its own variations."
+                   },
+                   {
+                       "families":  [
+                                        "F37"
+                                    ],
+                       "name":  "Preparation techniques for cuts and types of a commodity",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC035",
+                       "rationale":  "Ballotine and suprême belong to poultry; filleting and pin-boning to seafood. The techniques are named in one phrase and share nothing else.",
+                       "teachingRule":  "Each unit teaches and assesses its own preparation techniques."
+                   },
+                   {
+                       "families":  [
+                                        "F38"
+                                    ],
+                       "name":  "Cuts of a commodity and the styles of cooking they suit",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC035",
+                       "rationale":  "Matching a cut to a method is the same reasoning applied to different anatomy. The reasoning is owned by SITHCCC027 as topic Effects of cookery methods; the cuts are per commodity.",
+                       "teachingRule":  "SITHCCC036 teaches the beef, lamb and pork cuts in full. SITHCCC035 teaches poultry. Neither re-derives why a tough cut needs moist heat."
+                   }
+               ]
+}

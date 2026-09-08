@@ -1,0 +1,161 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "MVC-SIT50422",
+    "qualificationCode":  "SIT50422",
+    "qualificationTitle":  "Diploma of Hospitality Management",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "priorCourse":  "ACI-SIT40521",
+    "generatedUtc":  "2026-09-07T06:12:10Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/MVC-SIT50422.families.json",
+                   "decisions":  "assets/topics/decisions/MVC-SIT50422.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  4,
+    "topics":  [
+                   {
+                       "id":  "SIT50422-T01",
+                       "name":  "Professional service standards and the attributes expected of service personnel",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXCCS016",
+                       "ownerCluster":  null,
+                       "rationale":  "SITXCCS016 Develop and manage quality customer service practices is the unit that WRITES the standard, and it is delivered second. SITXCCS015 Enhance customer service experiences, delivered fifth, works to that standard. The two detected families - professional service standards, and the attitudes and attributes expected by the industry - are one topic: what good service looks like and who is expected to deliver it.",
+                       "teachingRule":  "SITXCCS015 opens by naming the standard set in SITXCCS016 and moves immediately to its own ground: reading an individual customer, anticipating a need, and recovering a service failure in the moment.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXCCS016",
+                                              "section":  "KE",
+                                              "text":  "professional service standards for service industry personnel"
+                                          },
+                                          {
+                                              "unit":  "SITXCCS016",
+                                              "section":  "KE",
+                                              "text":  "attitudes and attributes expected by the service industries to work with customers"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXCCS015"
+                                            ],
+                       "families":  [
+                                        "F01",
+                                        "F03"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT50422-T02",
+                       "name":  "Organisational and management restructures as a planning input",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFIN010",
+                       "ownerCluster":  null,
+                       "rationale":  "Delivered first, SITXFIN010 Prepare and monitor budgets must treat a restructure as a factor that moves a budget. SITXCCS016 later treats the same restructure as a factor that dates a customer service policy. The event is one thing and is explained once.",
+                       "teachingRule":  "SITXCCS016 refers back in a line and teaches only the consequence peculiar to it - that a restructure invalidates the service standards written for the old structure.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFIN010",
+                                              "section":  "KE",
+                                              "text":  "organisational and management restructures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXCCS016"
+                                            ],
+                       "families":  [
+                                        "F02"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT50422-T03",
+                       "name":  "Complaint and dispute management",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXCCS016",
+                       "ownerCluster":  null,
+                       "rationale":  "The complaint system - how complaints are captured, escalated, resolved and fed back into policy - is designed in SITXCCS016. SITXCCS015 handles the complaint in front of the learner.",
+                       "teachingRule":  "SITXCCS015 teaches the interaction, not the system: acknowledging, taking ownership, offering a remedy inside delegation. It cites the SITXCCS016 escalation path rather than restating it.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXCCS016",
+                                              "section":  "KE",
+                                              "text":  "complaint and dispute management"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXCCS015"
+                                            ],
+                       "families":  [
+                                        "F04"
+                                    ]
+                   },
+                   {
+                       "id":  "SIT50422-T04",
+                       "name":  "Consulting staff when developing customer service policy",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXCCS016",
+                       "ownerCluster":  null,
+                       "rationale":  "Consultation is part of writing the policy, which is SITXCCS016\u0027s own work. SITXCCS015 contributes suggestions rather than running the consultation.",
+                       "teachingRule":  "In SITXCCS015 this is a single line about where a frontline observation goes. The consultation method itself is not repeated.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXCCS016",
+                                              "section":  "KE",
+                                              "text":  "seeking staff suggestions for content of customer service policies and procedures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXCCS015"
+                                            ],
+                       "families":  [
+                                        "F05"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "SITXFIN010":  {
+                                              "owns":  [
+                                                           "SIT50422-T02"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXCCS016":  {
+                                              "owns":  [
+                                                           "SIT50422-T01",
+                                                           "SIT50422-T03",
+                                                           "SIT50422-T04"
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT50422-T02"
+                                                                   ]
+                                          },
+                           "SITXGLC002":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXMGT005":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXCCS015":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SIT50422-T01",
+                                                                       "SIT50422-T03",
+                                                                       "SIT50422-T04"
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}

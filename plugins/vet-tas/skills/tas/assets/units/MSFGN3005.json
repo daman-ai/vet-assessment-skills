@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFGN3005",
+    "title":  "Read and interpret work documents",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Generic",
+    "application":  "This unit of competency is applied in industries where workers interpret and apply information from documents such as standards, codes, specifications, instructions, and work plans and procedures.\nWorkers with this competency identify types of work document, understand their purpose, interpret them, and plan work based on the information they contain.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Identify type and purpose of work document\n1.1 Identify type of work document and its function and basic characteristics\n1.2 Identify sections of document relevant to task being undertaken\n1.3 Identify supplementary and explanatory information to support document use\n2. Interpret document\n2.1 Interpret key information in documentation relevant to task being undertaken\n2.2 Seek clarification of information where necessary\n3. Plan own work sequence\n3.1 Identify required material, tools and equipment from documentation\n3.2 Plan task sequence and identify procedures for checking compliance with work document requirements at each stage\n4. Maintain documentation\n4.1 Use and maintain work documents according to workplace procedures\n4.2 Maintain supplementary, explanatory and modification information according to workplace procedures\n4.3 File and store all documentation for efficient retrieval according to workplace procedures",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nTechnology skills to access, file and store electronic or hard-copy workplace documentation\nCommunication skills to read and interpret documentation and seek clarification.\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\nlocate, read, and interpret at least 10 different work documents, including each of the following: Australian Standards relevant to sector\ninstructions and specifications from tool or material manufacturer\nbuilding codes required for a project\njob procedures\nsafe work instructions or equivalent\nsafety data sheets (SDS)\nphotographs or other visual material\nwork plans",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nthe basic format and function of:Australian Standards\nbuilding codes\njob procedures\nmanufacturer technical instructions and specifications\nSDS\nwork plans\nconventions and symbols of plans, drawings, and specifications\nworkplace procedures for filing and storing documentation.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including:documentation listed in the performance evidence.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFGN3005/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:24Z"
+}

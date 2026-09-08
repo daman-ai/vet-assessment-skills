@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFFM3031",
+    "title":  "Prepare cutting lists from design and production documentation",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Cabinetry and furniture",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to interpret various types of design and production documentation to prepare cutting lists and other information for subsequent processing operations in industries such as cabinet and furniture making and wood machining. Workers with this competency follow established procedures using discretion, judgement and problem solving.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1 Interpret design and production documentation\n1.1 Identify documentation required for preparation of cutting list\n1.2 Identify components to be produced and their processing requirements from documentation\n1.3 Establish quantity, size and shape of components from documentation\n2 Prepare cutting lists\n2.1 Format cutting list and processing information in accordance with workplace procedures\n2.2 Clearly identify and describe all required components using established workplace terminology\n2.3 Accurately document component sizes and tolerances in accordance with workplace procedures\n2.4 Take account of required quality standards and waste minimisation in preparation of cutting list\n2.5 Document subsequent processing requirements and their dimensional allowances",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nReading skills to interpret familiar workplace procedures and diverse types of design and production documentation\nWriting skills to communicate information in familiar workplace documents\nNumeracy skills to interpret numerical information in design and production documentation, to calculate area and to estimate material usage.\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\ninterpret design and production documentation to prepare cutting lists for at least 4 different production tasks, collectively using 3 different types of material, with each task to involve at least 10 different components.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nworkplace procedures for the presentation of cutting list information\npurpose and characteristics of different types of design and production documentation and how to interpret the information they contain\ncharacteristics of production equipment, materials and tooling commonly used and their impact on development of cutting lists\npattern techniques for optimising use of materials.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including:design and production documentation\nworkplace procedures.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFFM3031/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:21Z"
+}

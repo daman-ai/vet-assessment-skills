@@ -1,0 +1,49 @@
+﻿{
+    "courseId":  "MVC-SIT60322",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:36Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "SITXFIN011",
+                                       "SITXWHS008"
+                                   ],
+                         "suggestedOwner":  "SITXFIN011",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFIN011",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "customer and staff feedback"
+                                            },
+                                            {
+                                                "Code":  "SITXWHS008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "evacuation of staff and customers"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXHRM012",
+                                       "SITXWHS008"
+                                   ],
+                         "suggestedOwner":  "SITXHRM012",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXHRM012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "reorganising work practices"
+                                            },
+                                            {
+                                                "Code":  "SITXWHS008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "safe work practices"
+                                            }
+                                        ]
+                     }
+                 ]
+}

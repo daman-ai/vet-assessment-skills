@@ -1,0 +1,461 @@
+﻿{
+    "courseId":  "ACI-CPC31020",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:07Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "CPCCCM2008",
+                                       "CPCCCM2012",
+                                       "CPCCSP2002",
+                                       "CPCCSP2003",
+                                       "CPCCSP3001",
+                                       "CPCCSP3002",
+                                       "CPCCSP3003",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCCM2008",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCCM2008",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "safety date sheets (SDSs)"
+                                            },
+                                            {
+                                                "Code":  "CPCCCM2012",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDSs)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDS)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDS)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3001",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDS)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3002",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDS)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDS)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "safety data sheets (SDS)"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCCM2012",
+                                       "CPCCSP2001",
+                                       "CPCCSP2002",
+                                       "CPCCSP2003",
+                                       "CPCCSP3001",
+                                       "CPCCSP3002",
+                                       "CPCCSP3003",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCCM2012",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCCM2012",
+                                                "Cluster":  3,
+                                                "Source":  "KE",
+                                                "Text":  "selection, fitting and use of personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2001",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3001",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3002",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "personal protective equipment (PPE)"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2001",
+                                       "CPCCSP2002",
+                                       "CPCCSP2003",
+                                       "CPCCSP3001",
+                                       "CPCCSP3002",
+                                       "CPCCSP3003",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2001",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for handling solid plastering materials, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for using solid plastering tools and equipment, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for preparing surfaces for plastering, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3001",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for applying float and render to straight and curved surfaces, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3002",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for applying set coats, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for applying trowelled texture finishes, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "safety requirements for restoring and renovating solid plasterwork, including:job safety analyses and/or safe work method statements in accordance with Safe Work Australia Code of Practice for Construction Work or state and/or territory equivalent"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2001",
+                                       "CPCCSP2003",
+                                       "CPCCSP3001",
+                                       "CPCCSP3002",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2001",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "plaster compounds and finishing coats"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "plaster compounds and finishing coats"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3001",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "plaster compounds and finishing coats"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3002",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "plaster compounds and finishing coats"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "plaster compounds and finishing coats"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2001",
+                                       "CPCCSP2003",
+                                       "CPCCSP3001",
+                                       "CPCCSP3002",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2001",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "additives, such as plasticisers, colour and waterproofing agents"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "additives, such as plasticisers, colour and waterproofing agents"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3001",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "additives, such as plasticisers, colour and waterproofing agents"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3002",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "additives, such as plasticisers, colour and waterproofing agents"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "additives, including plasticisers, colour and waterproofing agents"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2001",
+                                       "CPCCSP2002",
+                                       "CPCCSP2003",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2001",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "workplace quality policies and standards for handling solid plastering materials"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "workplace quality policies and standards for using solid plastering tools and equipment"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "workplace quality policies and standards for preparing surfaces for plastering"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "workplace quality policies and standards for restoring and renovating solid plasterwork"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP3001",
+                                       "CPCCSP3002",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCSP3001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP3001",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "sand, lime and lime putty"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3002",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "sand, lime and lime putty"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "sand, lime and lime putty"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2001",
+                                       "CPCCSP3001",
+                                       "CPCCSP3002"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2001",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "timber or expanded metal lathing (EML)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3001",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "timber or expanded metal lathing (EML)"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3002",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "timber or expanded metal lathing (ELP)"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP3001",
+                                       "CPCCSP3002",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCSP3001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP3001",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "uses of materials and components for solid plastering, including:corner beads"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3002",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "uses of approved materials and components for solid plastering:corner beads"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "uses of materials and components for restoring and renovating solid plasterwork, including:corner beads"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCWHS2001",
+                                       "CPCWHS1001"
+                                   ],
+                         "suggestedOwner":  "CPCCWHS2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCWHS2001",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "procedures for reporting hazards, incidents and injuries"
+                                            },
+                                            {
+                                                "Code":  "CPCWHS1001",
+                                                "Cluster":  1,
+                                                "Source":  "KE",
+                                                "Text":  "identifying and reporting hazards, incidents and injuries in the workplace"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP2001",
+                                       "CPCCSP2002"
+                                   ],
+                         "suggestedOwner":  "CPCCSP2001",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP2001",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "types and uses of tools and equipment for handling solid plastering materials"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "environmental requirements for using solid plastering tools and equipment"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP2002",
+                                                "Cluster":  4,
+                                                "Source":  "KE",
+                                                "Text":  "manufacturers’ specifications for solid plastering tools and equipment"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "CPCCSP3003",
+                                       "CPCCSP3004"
+                                   ],
+                         "suggestedOwner":  "CPCCSP3003",
+                         "statements":  [
+                                            {
+                                                "Code":  "CPCCSP3003",
+                                                "Cluster":  5,
+                                                "Source":  "KE",
+                                                "Text":  "proprietary texture coat finishes products"
+                                            },
+                                            {
+                                                "Code":  "CPCCSP3004",
+                                                "Cluster":  6,
+                                                "Source":  "KE",
+                                                "Text":  "texture/proprietary finishes"
+                                            }
+                                        ]
+                     }
+                 ]
+}

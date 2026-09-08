@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFFM3029",
+    "title":  "Select timbers for furniture production",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Cabinetry and furniture",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to determine timber requirements and evaluate the suitability of different timbers against those requirements.\nWorkers with this competency select timbers to meet specified client or production requirements. They use discretion, judgement and specialised knowledge of timbers.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1 Determine timber requirements\n1.1 Identify aesthetic and practical requirements for timbers from workplace information\n1.2 Develop selection criteria to guide timber evaluation based on task requirements\n2 Evaluate timbers against requirements\n2.1 Select potential timbers for consideration based on task requirements and production limitations\n2.2 Assess the properties of selected timbers against selection criteria\n2.3 Identify and consider the need for compatibility with other materials\n2.4 Consider moisture content of timber being used to ensure compliance with production requirements\n2.5 Develop and document recommendations for timber to be used based on evaluation and in accordance with workplace procedures",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nReading skills to interpret unfamiliar technical information about timbers\nWriting skills to communicate reasons for timber recommendations.\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\nevaluate and select timbers to meet 3 different design or production briefs.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nnative and non-native hardwoods and softwoods commonly used for furnishing production, including their:density and hardness\nelasticity\nstrength\nbrittleness\nmain uses and production limitations\ntimber characteristics, including:cupping, bowing, springing and twisting\nbasic chemical composition\ncompatibility with other materials\nimpact on timber of climate and workshop conditions\nhow to maintain performance and visual quality\nwood pests and protection\nhow to identify natural and seasoning faults\nseasoning methods\nhow timber is graded\nmeasuring moisture content in timber\nsawn timber and types of defects\nsolid timber conversion techniques\nemerging wood technologies, including heat treatments and wood preservatives\npersonal protective equipment (PPE) required.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including:design or production briefs\nspecialised information about different types of timbers\nworkplace procedures.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFFM3029/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:20Z"
+}

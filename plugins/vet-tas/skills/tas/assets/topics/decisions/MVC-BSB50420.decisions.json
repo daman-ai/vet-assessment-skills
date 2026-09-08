@@ -1,0 +1,23 @@
+{
+  "_comment": "AUTHORED OWNERSHIP DECISIONS for BSB50420. Every family in families/MVC-BSB50420.families.json appears exactly once below.",
+  "courseId": "MVC-BSB50420",
+  "_deliveredNote": "Twelve units over 52 weeks, all delivered, no credit-transfer pathway, in the order BSBCMM511, BSBCRT511, BSBLDR523, BSBOPS502, BSBPEF502, BSBTWK502, BSBSUS511, BSBSTR502, BSBWHS521, BSBTEC404, BSBOPS501, BSBFIN501. Only two overlaps were detected across the whole qualification - management units drawn from different competency fields share far less scaffolding than a trade qualification does.",
+  "topics": [
+    {
+      "families": ["F01"],
+      "name": "Confidentiality of information and the policies that govern it",
+      "kind": "shared-scaffold",
+      "owner": "BSBCMM511",
+      "rationale": "Three units require the learner to handle information in accordance with organisational confidentiality policy - communicating with influence, managing workplace relationships, and collaborating through digital tools. BSBCMM511 Communicate with influence opens the course and is where a learner first has to judge what may be said and to whom.",
+      "teachingRule": "BSBLDR523 applies it to a relationship or a grievance and BSBTEC404 to what may be posted in a shared digital workspace. Neither re-teaches what the policy is or why it binds."
+    },
+    {
+      "families": ["F02"],
+      "name": "Managing resource acquisition",
+      "kind": "shared-scaffold",
+      "owner": "BSBOPS502",
+      "rationale": "BSBOPS502 Manage business operational plans is delivered fourth and acquires resources as part of executing a plan. BSBOPS501 Manage business resources, delivered eleventh, carries the same element. The acquisition process - specify, source, approve, receive - is one process taught where it is first needed.",
+      "teachingRule": "BSBOPS501 teaches what is new to it: the resource lifecycle beyond acquisition - allocation, monitoring of use, maintenance and disposal - and cites BSBOPS502 for the acquisition step."
+    }
+  ]
+}

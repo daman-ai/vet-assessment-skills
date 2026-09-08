@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "CPCCOM1015",
+    "title":  "Carry out measurements and calculations",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "3",
+    "releaseDate":  "2024-12-24",
+    "currency":  "current",
+    "trainingPackage":  "CPC",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Common",
+    "application":  "This unit of competency specifies the skills and knowledge required to undertake basic measurements and calculations to determine task and material requirements in a construction work environment.\nA person working at this level would be expected to complete tasks assigned to them, under supervision.\nCompletion of the general construction induction training program specified by the model Code of Practice for Construction Work is required for any person who is to carry out construction work. Achievement of CPCWHS1001 Prepare to work safely in the construction industry meets this requirement.\nNo licensing, legislative or certification requirements apply to this unit at the time of publication.",
+    "elements":  "Elements describe the essential outcomes.\nPerformance criteria describe what needs to be done to demonstrate achievement of the element.\n1\nObtain measurements.\n1.1\nSelect most appropriate equipment and method for obtaining the measurement.\n1.2\nUse a ruler or tape to obtain linear measurements accurate to 1 mm.\n2\nPerform basic calculations.\n2.1\nTake basic measurements and calculate quantities of materials in a construction environment, using basic formulae for each of: weight, area, volume, perimeter, circumference, ratio and percentage.\n2.2\nConvert measurements in metres to millimetres and measurements in millimetres to metres.\n2.3\nCheck calculations for accuracy and record calculation workings and results.",
+    "foundationSkills":  "Foundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "To demonstrate competency, a candidate must satisfy all the elements, performance criteria and foundation skills of this unit by:\ntaking basic measurements and performing basic calculations to determine quantities of materials for construction work using each of the following:weight\narea\nvolume\nperimeter\ncircumference\nratio\npercentage\ndemonstrating converting measurements in metres to millimetres and measurements in millimetres to metres.\nAll work must be performed to the standard required in the workplace.",
+    "knowledgeEvidence":  "To be competent in this unit, a candidate must demonstrate knowledge of:\ntypes of equipment required for planning and performing basic measurements and calculations and their characteristics, uses and limitations, including:rulers\ntape measures\ndigital measuring and calculating devices\nmethods of calculating the area and volume of the following in a construction environment:rectangles\nsquares\ncircles\ntriangles\ntrapeziums\ncubes\ncylinders.",
+    "assessmentConditions":  "Assessors must meet the requirements for assessors contained in the Standards for Registered Training Organisations.\nThis unit must be assessed in the workplace or a close simulation using realistic workplace conditions, materials, activities, responsibilities, procedures, safety requirements and environmental considerations.",
+    "sourceUrl":  "https://training.gov.au/training/details/CPCCOM1015/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:08Z"
+}

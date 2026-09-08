@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFFM2017",
+    "title":  "Hand make timber joints",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Cabinetry and furniture",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to make timber joints using hand and portable power tools. Workers with this competency complete routine tasks in industries such as furniture and cabinet making.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Prepare for task\n1.1 Identify task requirements, including joint type, and purpose and style of finished product from work instructions\n1.2 Identify and follow work health and safety requirements\n1.3 Select tools and equipment to meet task requirements and check they are safe and functional\n1.4 Select materials, adhesives and fasteners to meet task quality requirements\n2. Make joint\n2.1 Mark out cutting and joining lines to suit joint type\n2.2 Check measurements are within tolerances to ensure quality outcomes\n2.3 Join timber in accordance with workplace requirements\n2.4 Use fasteners and adhesives to make joints firm based on task requirements\n2.5 Confirm finished joint meets task quality requirements and rectify any deficiencies\n3. Finalise task\n3.1 Clean work area, safely dispose of rubbish and identify items for recycling in accordance with workplace procedures and environmental standards\n3.2 Clean tools and complete routine maintenance in accordance with workplace procedures\n3.3 Identify, tag and report faulty tools and equipment in accordance with workplace procedures\n3.4 Complete task documentation in accordance with workplace procedures",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nReading skills to interpret familiar workplace procedures\nWriting skills to communicate simple information in familiar workplace documents and make clear and legible markings on timbers\nNumeracy skills to measure lengths and angles and make basic calculations.\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\nchoose and make appropriate joints, including 4 different joint types and 2 types of adhesive, using only handheld tools while undertaking: box construction\ncarcass construction\ndrawer construction\nframe construction.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nworkplace procedures for:work health and safety\nquality assurance:visual appearance – alignment, neatness\ntolerance\ngaps or play in joints and strength\nreporting of faults\nworkflow for furniture production\njoint types and their suitability for different purposes, including at least four of the following:dowel\nmortice and tenon\ndovetail\nlap joint\nbiscuit joint\nfinger joint\nhousing joint\nmitre joint\nbridle joint\ncharacteristics of different timber types commonly used in joint construction\ncharacteristics of different adhesive types commonly used in joint construction\nfunction of tools commonly used for hand construction of joints, including at least 5 of the following:chisel\nmallet\nmortise gauges\nvernier calipers\nvice\ndovetail saw\ntenon saw\ncoping saw\nplane\nfile\nhand drill\npower drill\ndowel jig\npower router\nportable biscuit machines\npower planers\npower saw\npersonal protective equipment (PPE) required for hand construction of joints.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including:joining tools and equipment required for performance evidence\nPPE\ntimber materials to be joined\nadhesives\nworkplace procedures.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFFM2017/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:19Z"
+}

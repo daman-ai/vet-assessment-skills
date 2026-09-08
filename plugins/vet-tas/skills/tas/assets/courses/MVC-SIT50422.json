@@ -1,0 +1,488 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "MVC-SIT50422",
+    "qualificationCode":  "SIT50422",
+    "qualificationTitle":  "Diploma of Hospitality Management",
+    "productType":  "qualification",
+    "aqfLevel":  "Diploma",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "institute":  "Meridian Vocational College",
+    "siblingCourse":  "ACI-SIT50422",
+    "durationWeeks":  30,
+    "packagingRule":  {
+                          "rule":  "28 units - 11 core plus 17 electives.",
+                          "core":  11,
+                          "totalUnits":  28,
+                          "statedInTas":  true,
+                          "elective":  17
+                      },
+    "unitCount":  28,
+    "deliveredCount":  5,
+    "priorCourse":  "MVC-SIT40521",
+    "sequencing":  {
+                       "model":  "sequence",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT50422 Diploma of Hospitality Management.docx",
+                       "clusters":  [
+
+                                    ],
+                       "order":  [
+
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "SITXFIN010",
+                      "title":  "Prepare and monitor budgets",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXCCS016",
+                      "title":  "Develop and manage quality customer service practices",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXGLC002",
+                      "title":  "Identify and manage legal risks and comply with law",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXMGT005",
+                      "title":  "Establish and conduct business relationships",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXCCS015",
+                      "title":  "Enhance customer service experiences",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXCOM010",
+                      "title":  "Manage conflict",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFIN009",
+                      "title":  "Manage finances within a budget",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXHRM008",
+                      "title":  "Roster staff",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXHRM009",
+                      "title":  "Lead and manage people",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXMGT004",
+                      "title":  "Monitor work operations",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXWHS007",
+                      "title":  "Implement and monitor work health and safety practices",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHKOP013",
+                      "title":  "Plan cooking operations",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBTWK501",
+                      "title":  "Lead diversity and inclusion",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFSA005",
+                      "title":  "Use hygienic practices for food safety",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFSA006",
+                      "title":  "Participate in safe food handling practices",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXINV006",
+                      "title":  "Receive, store and maintain stock",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT016",
+                      "title":  "Produce desserts",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC023",
+                      "title":  "Use food preparation equipment",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC027",
+                      "title":  "Prepare dishes using basic methods of cookery",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC028",
+                      "title":  "Prepare appetisers and salads",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC029",
+                      "title":  "Prepare stocks, sauces and soups",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC030",
+                      "title":  "Prepare vegetable, fruit, eggs and farinaceous dishes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITHCCC027",
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC035",
+                      "title":  "Prepare poultry dishes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITHCCC027",
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC036",
+                      "title":  "Prepare meat dishes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITHCCC027",
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC037",
+                      "title":  "Prepare seafood dishes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITHCCC027",
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC041",
+                      "title":  "Produce cakes, pastries and breads",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC042",
+                      "title":  "Prepare food to meet special dietary requirements",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITHCCC027",
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC043",
+                      "title":  "Work effectively as a cook",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            "SITHCCC027",
+                                            "SITXFSA005"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+                             {
+                                 "code":  "SITXFIN010",
+                                 "what":  "unit code",
+                                 "tas":  "SITXFIN0010",
+                                 "register":  "SITXFIN010"
+                             }
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT50422 Diploma of Hospitality Management.docx",
+                   "tasSha256":  "DCDF6017DAB219DEDA92339944806140FD644B38C13F3BAF5BB1C3AAC574AD0E",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:44Z"
+               },
+    "notes":  [
+                  "FIVE OF THE TWENTY-EIGHT UNITS ARE DELIVERED. The strategy is written for learners on the pathway Certificate III Commercial Cookery to Certificate IV Kitchen Management to this Diploma; the other 23 arrive by credit transfer.",
+                  "ACI delivers the same five units in a different order, and its 28-unit set differs: ACI carries SITHCCC025, SITHCCC031, SITHCCC032, SITHCCC038 and SITHCCC044 where Meridian carries BSBTWK501, SITHKOP013, SITHPAT016, SITXFSA006 and SITXINV006."
+              ],
+    "openItems":  [
+                      "The TAS unit table types SITXFIN010 as SITXFIN0010. Corrected against training.gov.au and recorded in titleCorrections."
+                  ]
+}

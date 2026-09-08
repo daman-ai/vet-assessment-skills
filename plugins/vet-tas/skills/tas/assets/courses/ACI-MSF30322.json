@@ -1,0 +1,528 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "ACI-MSF30322",
+    "qualificationCode":  "MSF30322",
+    "qualificationTitle":  "Certificate III in Cabinet Making and Timber Technology",
+    "productType":  "qualification",
+    "aqfLevel":  "Certificate III",
+    "provider":  "ACI",
+    "brandVariant":  "construction",
+    "institute":  "Adelaide Construction Institute",
+    "siblingCourse":  null,
+    "durationWeeks":  92,
+    "packagingRule":  {
+                          "rule":  "25 units listed - 8 core plus 17 electives.",
+                          "core":  8,
+                          "totalUnits":  25,
+                          "statedInTas":  false,
+                          "elective":  17
+                      },
+    "unitCount":  25,
+    "deliveredCount":  25,
+    "priorCourse":  null,
+    "sequencing":  {
+                       "model":  "cluster",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\1.13 TAS MSF30322 Certificate III in Cabinet Making and timber technology.pdf",
+                       "clusters":  [
+                                        {
+                                            "number":  1,
+                                            "name":  "WHS \u0026 Workplace Fundamentals",
+                                            "focus":  "Induction and core workplace skills",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCWHS1001",
+                                                          "CPCCWHS2001",
+                                                          "MSMENV272",
+                                                          "MSMSUP102",
+                                                          "MSMSUP106"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Measurement, Calculation and Documentation",
+                                            "focus":  "Technical numeracy and job interpretation",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "MSFGN2001",
+                                                          "MSFGN3005",
+                                                          "MSFFM3031",
+                                                          "MSFFDM4002",
+                                                          "MSFGN3006"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Tools, Machines \u0026 Joints",
+                                            "focus":  "Basic and advanced tool usage",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "MSFFM2013",
+                                                          "MSFFM2016",
+                                                          "MSFFM2017",
+                                                          "MSFFM2018"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  4,
+                                            "name":  "Timber \u0026 Materials Selection",
+                                            "focus":  "Material knowledge",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "MSFFM3029",
+                                                          "MSFFF2012"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  5,
+                                            "name":  "Drawing and CAD Skills",
+                                            "focus":  "Design and visual communication",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "MSFFM3030",
+                                                          "MSFFDM4012"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  6,
+                                            "name":  "Cabinetry Fabrication",
+                                            "focus":  "Construction of furniture and cabinetry",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "MSFFM3042",
+                                                          "MSFKB2003",
+                                                          "MSFFM3041"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  7,
+                                            "name":  "Installation and On-Site Work",
+                                            "focus":  "Installation and site organisation",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "MSFFM3043",
+                                                          "MSFKB3012",
+                                                          "MSMOPS363"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  8,
+                                            "name":  "Customer Service and Delivery",
+                                            "focus":  "Client engagement and job handover",
+                                            "weeks":  null,
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBOPS304"
+                                                      ]
+                                        }
+                                    ],
+                       "order":  [
+
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "MSFFM2013",
+                      "title":  "Use furniture making hand and power tools",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM3030",
+                      "title":  "Produce manual and computer-aided production drawings",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  5,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM3031",
+                      "title":  "Prepare cutting lists from design and production documentation",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFGN2001",
+                      "title":  "Make measurements and calculations",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "superseded",
+                      "statusLabel":  "Superseded",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFGN3005",
+                      "title":  "Read and interpret work documents",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSMENV272",
+                      "title":  "Participate in environmentally sustainable work practices",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  6,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSMSUP102",
+                      "title":  "Communicate in the workplace",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  7,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSMSUP106",
+                      "title":  "Work in a team",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  8,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM2016",
+                      "title":  "Join solid timber",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  9,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM2017",
+                      "title":  "Hand make timber joints",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  10,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM2018",
+                      "title":  "Operate basic static machines safely",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  11,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM3029",
+                      "title":  "Select timbers for furniture production",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  12,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM3041",
+                      "title":  "Determine and document requirements for cabinetry installation",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  6,
+                      "sequence":  13,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM3042",
+                      "title":  "Fabricate cabinetry",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  6,
+                      "sequence":  14,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFM3043",
+                      "title":  "Install cabinetry",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  7,
+                      "sequence":  15,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFKB2003",
+                      "title":  "Prepare for cabinetry installation",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  6,
+                      "sequence":  16,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFKB3012",
+                      "title":  "Plan kitchen and bathroom projects",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  7,
+                      "sequence":  17,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFDM4002",
+                      "title":  "Collect and interpret information to support production processes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  18,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFDM4012",
+                      "title":  "Produce computer-aided line and component production drawings",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  5,
+                      "sequence":  19,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBOPS304",
+                      "title":  "Deliver and monitor a service to customers",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  8,
+                      "sequence":  20,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFFF2012",
+                      "title":  "Prepare surfaces for finishing",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  21,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSFGN3006",
+                      "title":  "Estimate and cost job",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  22,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "MSMOPS363",
+                      "title":  "Organise on-site work",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  7,
+                      "sequence":  23,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCWHS2001",
+                      "title":  "Apply WHS requirements, policies and procedures in the construction industry",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  24,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCWHS1001",
+                      "title":  "Prepare to work safely in the construction industry",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  25,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+                            "MSFGN2001"
+                        ],
+    "titleCorrections":  [
+
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\1.13 TAS MSF30322 Certificate III in Cabinet Making and timber technology.pdf",
+                   "tasSha256":  "3CDE0863363111B6DFDD7A08586523A1D470131326B8DCA5F5DC7D1BF1DF6A54",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:43Z"
+               },
+    "notes":  [
+                  "An Adelaide Construction Institute course whose units carry MSF, MSM, CPC and BSB prefixes. NO UPDATED STRATEGY WAS SUPPLIED in the September 2026 batch, so this record still reads the 2025 PDF."
+              ],
+    "openItems":  [
+                      "BLOCKING FOR ANY BUILD - MSFGN2001 Make measurements and calculations is SUPERSEDED on training.gov.au. It sits in Cluster 2 as a core unit. Transition to the superseding unit before building or delivering against it.",
+                      "The assessment skill Resolve-BrandVariant maps CPC to the construction variant and throws on an unmapped package. MSF and MSM are unmapped, so an MSF unit cannot resolve a trading name. assets/providers.json records MSF and MSM as construction; the assessment skill needs the same mapping."
+                  ]
+}

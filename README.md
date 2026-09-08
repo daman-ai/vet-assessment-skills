@@ -34,6 +34,7 @@ In Claude Code:
 /plugin install vet-assessment@vet-skills
 /plugin install vet-marking@vet-skills
 /plugin install vet-compliance@vet-skills
+/plugin install vet-tas@vet-skills
 ```
 
 **Zero-command for a whole team:** commit this to a shared project's `.claude/settings.json` and everyone who opens that project gets the plugin automatically:
@@ -43,7 +44,7 @@ In Claude Code:
   "extraKnownMarketplaces": {
     "vet-skills": { "source": { "source": "github", "repo": "daman-ai/vet-assessment-skills" } }
   },
-  "enabledPlugins": { "vet-assessment@vet-skills": true, "vet-marking@vet-skills": true, "vet-compliance@vet-skills": true }
+  "enabledPlugins": { "vet-assessment@vet-skills": true, "vet-marking@vet-skills": true, "vet-compliance@vet-skills": true, "vet-tas@vet-skills": true }
 }
 ```
 
@@ -122,6 +123,16 @@ plugins/vet-marking/
                         Validation Plan, the Continuous Improvement Register and panel rosters,
                         against the Standards for RTOs 2025 (versioned here; installed per-project)
 
+plugins/vet-tas/
+  skills/tas/           the curriculum registry that sits above the rest: one record per institute
+                        per qualification, built from that institute's own Training and Assessment
+                        Strategy, with every unit sourced live from the training.gov.au REST API.
+                        Detects mechanically where two units in one course cover the same ground,
+                        then carries an AUTHORED ruling - with a written reason - on which unit
+                        owns each shared topic, so a concept is taught once and recalled after.
+                        Distinguishes real duplication from commodity-parallel content that must
+                        not be collapsed. Serves assessment and learner-guide a per-unit brief:
+                        what to teach in full, what to recall, and what should stop the build
 plugins/vet-compliance/
   skills/auditor/       the compliance architect: registers the RTO's documents, builds one gap
                         analysis row per requirement of the 2025 Standards and the ESOS framework,

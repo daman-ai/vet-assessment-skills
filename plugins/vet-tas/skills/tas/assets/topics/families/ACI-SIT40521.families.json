@@ -1,0 +1,175 @@
+﻿{
+    "courseId":  "ACI-SIT40521",
+    "threshold":  0.45,
+    "generatedUtc":  "2026-09-08T00:33:22Z",
+    "families":  [
+                     {
+                         "units":  [
+                                       "SITHKOP012",
+                                       "SITHKOP015"
+                                   ],
+                         "suggestedOwner":  "SITHKOP012",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHKOP012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "standard yield tests"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "standard yield tests"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHKOP012",
+                                       "SITHKOP015"
+                                   ],
+                         "suggestedOwner":  "SITHKOP012",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHKOP012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "budgeted sales price"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "budgeted sales price"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHKOP012",
+                                       "SITHKOP015"
+                                   ],
+                         "suggestedOwner":  "SITHKOP012",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHKOP012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "customer preferences and aversions"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "customer profiles and preferences"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHKOP012",
+                                       "SITHKOP015"
+                                   ],
+                         "suggestedOwner":  "SITHKOP012",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHKOP012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "methods and formulas for calculating portion yields and costs from ingredients:standard measures"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "methods and formulas for calculating portion yields and costs from raw ingredients:food cost percentage"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA008",
+                                       "SITHKOP013"
+                                   ],
+                         "suggestedOwner":  "SITXFSA008",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "food production records"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP013",
+                                                "Cluster":  null,
+                                                "Source":  "EL",
+                                                "Text":  "1. Plan food production requirements."
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXWHS007",
+                                       "SITXFSA008"
+                                   ],
+                         "suggestedOwner":  "SITXWHS007",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXWHS007",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe WHS legislation and organisational policies and procedures"
+                                            },
+                                            {
+                                                "Code":  "SITXFSA008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITHKOP012",
+                                       "SITHKOP015"
+                                   ],
+                         "suggestedOwner":  "SITHKOP012",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITHKOP012",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "GST addition or subtraction"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP015",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "GST addition and subtraction"
+                                            }
+                                        ]
+                     },
+                     {
+                         "units":  [
+                                       "SITXFSA008",
+                                       "SITHKOP013"
+                                   ],
+                         "suggestedOwner":  "SITXFSA008",
+                         "statements":  [
+                                            {
+                                                "Code":  "SITXFSA008",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "hazards:control methods for each critical point"
+                                            },
+                                            {
+                                                "Code":  "SITHKOP013",
+                                                "Cluster":  null,
+                                                "Source":  "KE",
+                                                "Text":  "critical control points in food production where food hazards must be controlled"
+                                            }
+                                        ]
+                     }
+                 ]
+}

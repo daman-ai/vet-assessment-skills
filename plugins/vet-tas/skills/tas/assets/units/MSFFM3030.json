@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSFFM3030",
+    "title":  "Produce manual and computer-aided production drawings",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "1",
+    "releaseDate":  "2022-12-08",
+    "currency":  "current",
+    "trainingPackage":  "MSF",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "Cabinetry and furniture",
+    "unitSector":  "",
+    "application":  "This unit describes the skills and knowledge required to make manual and computer-aided drawings to support manufacture and assembly in cabinet and furniture making, wood machining and other industries. Workers with this competency use discretion, judgement and problem solving to apply their knowledge of manufacture and assembly to the drawing process.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must be applied.",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Identify drawing task requirements\n1.1 Identify function and characteristics of object to be drawn\n1.2 Identify purpose of drawings in production process\n2. Establish drawing criteria and limitations\n2.1 Establish dimensions, tolerance, angles, shapes, finished sizes and other specifications to be recorded in drawings\n2.2 Identify appropriate drawing types, views and scales to meet task requirements\n2.3 Select appropriate drawing conventions and symbols to meet task requirements\n2.4 Select appropriate medium for drawings\n3. Draft initial drawing\n3.1 Include spatial information in drawings, including angles, shapes and dimensions\n3.2 Include non-spatial information in drawings, including production notes and list of materials required for production\n3.3 Note drawing conventions and specifications on documentation\n4. Complete drawing\n4.1 Check angles, shapes and dimensions and other spatial and non-spatial information against specifications and sample, and correct errors\n4.2 Check drawing for compliance with workplace documentation requirements",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance but not explicit in the performance criteria.\nReading skills to interpret production documentation\nWriting skills to add production notes and other information to drawings\nNumeracy skills to calculate lengths, areas, volumes and angles, to make calculations related to scale, and to work with geometric concepts.\nOther foundation skills essential to performance are explicit in the performance criteria of this unit.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and demonstrated the ability to:\nprepare production drawings of 3 furniture or furnishings products or components, collectively including: both manual and computer-aided methods\northographic projection\nsection view.",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\northographic views\nsection views\nisometric projection\n2-D and 3-D shapes\ndrawing conventions according to Australian Standard AS1100centre lines\nvisible lines\nhidden lines\ndimension lines\nhatching\nbreaks\nend sections\nsymbols for indicating construction materials\ntitle block\nappropriate drawing scales for different purposes\nthe use of drawings in cutting lists\nhow CAD is used by industry, including the links between CAD and CNC production machinery\nCAD software and file types commonly used in furniture and furnishings industry\nCAD drawing and editing commands\ncreating and using layers in CAD\nCAD file management.",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including:production documentation on which to base drawings\ncomputer and CAD software\nhand drawing tools and materials required for performance evidence.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSFFM3030/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:20Z"
+}

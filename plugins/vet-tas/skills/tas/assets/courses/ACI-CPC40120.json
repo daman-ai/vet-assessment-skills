@@ -1,0 +1,427 @@
+﻿{
+    "schemaVersion":  "2.0",
+    "courseId":  "ACI-CPC40120",
+    "qualificationCode":  "CPC40120",
+    "qualificationTitle":  "Certificate IV in Building and Construction",
+    "productType":  "qualification",
+    "aqfLevel":  "Certificate IV",
+    "provider":  "ACI",
+    "brandVariant":  "construction",
+    "institute":  "Adelaide Construction Institute",
+    "siblingCourse":  null,
+    "durationWeeks":  52,
+    "packagingRule":  {
+                          "rule":  "TAS states 19 units of competency.",
+                          "totalUnits":  19,
+                          "statedInTas":  true
+                      },
+    "unitCount":  19,
+    "deliveredCount":  19,
+    "priorCourse":  null,
+    "sequencing":  {
+                       "model":  "timetable",
+                       "source":  "C:\\Users\\ACI-Admin\\Downloads\\1.8 Draft Timetable - CPC40120 Certificate IV in Building and Construction - Building.pdf",
+                       "clusters":  [
+
+                                    ],
+                       "order":  [
+                                     {
+                                         "code":  "CPCCBC4002",
+                                         "weeks":  "1-2"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4001",
+                                         "weeks":  "3-4"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4053",
+                                         "weeks":  "5-6"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4009",
+                                         "weeks":  "7-8"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4007",
+                                         "weeks":  "9-10"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4012",
+                                         "weeks":  "15-16"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4014",
+                                         "weeks":  "17-18"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4004",
+                                         "weeks":  "19-21"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4005",
+                                         "weeks":  "22-23"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4006",
+                                         "weeks":  "24-25"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4003",
+                                         "weeks":  "26-27"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4024",
+                                         "weeks":  "30-32"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4008",
+                                         "weeks":  "33-34"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4021",
+                                         "weeks":  "35-36"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4010",
+                                         "weeks":  "37-40"
+                                     },
+                                     {
+                                         "code":  "CPCCBC4018",
+                                         "weeks":  "41-42"
+                                     },
+                                     {
+                                         "code":  "CPCSUS4002",
+                                         "weeks":  "43-45"
+                                     },
+                                     {
+                                         "code":  "BSBESB401",
+                                         "weeks":  "48-50"
+                                     },
+                                     {
+                                         "code":  "BSBPMG422",
+                                         "weeks":  "51-52"
+                                     }
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "CPCCBC4002",
+                      "title":  "Manage work health and safety in the building and construction workplace",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  1,
+                      "weeks":  "1-2",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4007",
+                      "title":  "Plan building and construction work",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  5,
+                      "weeks":  "9-10",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4001",
+                      "title":  "Apply building codes and standards to the construction process for Class 1 and 10 buildings",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  2,
+                      "weeks":  "3-4",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4003",
+                      "title":  "Select, prepare and administer a construction contract",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  11,
+                      "weeks":  "26-27",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4004",
+                      "title":  "Identify and produce estimated costs for building and construction projects",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  8,
+                      "weeks":  "19-21",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4005",
+                      "title":  "Produce labour and material schedules for ordering",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  9,
+                      "weeks":  "22-23",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4008",
+                      "title":  "Supervise site communication and administration processes for building and construction projects ",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  13,
+                      "weeks":  "33-34",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4009",
+                      "title":  "Apply legal requirements to building and construction projects",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  4,
+                      "weeks":  "7-8",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4010",
+                      "title":  "Apply structural principles to residential and commercial constructions",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  15,
+                      "weeks":  "37-40",
+                      "prerequisites":  [
+                                            "CPCCBC4001",
+                                            "CPCCBC4053"
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4053",
+                      "title":  "Apply building codes and standards to the construction process for Class 2 to 9 Type C buildings",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  3,
+                      "weeks":  "5-6",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4012",
+                      "title":  "Read and interpret plans and specifications",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  6,
+                      "weeks":  "15-16",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4021",
+                      "title":  "Minimise waste on the building and construction site",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  14,
+                      "weeks":  "35-36",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4014",
+                      "title":  "Prepare simple building sketches and drawings",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  7,
+                      "weeks":  "17-18",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4018",
+                      "title":  "Apply site surveys and set-out procedures to building and construction projects",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  16,
+                      "weeks":  "41-42",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBPMG422",
+                      "title":  "Apply project quality management techniques",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  19,
+                      "weeks":  "51-52",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4006",
+                      "title":  "Select, procure and store construction materials for building and construction projects",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  10,
+                      "weeks":  "24-25",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCSUS4002",
+                      "title":  "Use building science principles to construct energy efficient buildings",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  17,
+                      "weeks":  "43-45",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "CPCCBC4024",
+                      "title":  "Resolve business disputes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  12,
+                      "weeks":  "30-32",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBESB401",
+                      "title":  "Research and develop business plans",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  null,
+                      "sequence":  18,
+                      "weeks":  "48-50",
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+                             {
+                                 "code":  "CPCCBC4008",
+                                 "what":  "unit title",
+                                 "tas":  "Supervise site communication and administration processes for building and construction projects",
+                                 "register":  "Supervise site communication and administration processes for building and construction projects "
+                             },
+                             {
+                                 "code":  "CPCCBC4053",
+                                 "what":  "unit title",
+                                 "tas":  "Read and interpret plans and specifications",
+                                 "register":  "Apply building codes and standards to the construction process for Class 2 to 9 Type C buildings"
+                             }
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC40120 Certificate IV in Building and Construction (Building) (1).docx",
+                   "tasSha256":  "A6F779D622DD8CF30593F33FA0C9C4C9745E9D28ADA7BA29B9D6D22B3CEA6D30",
+                   "unitSource":  "training.gov.au REST API, harvested to assets/units/",
+                   "generatedUtc":  "2026-09-08T00:41:43Z"
+               },
+    "notes":  [
+                  "THE DELIVERY SEQUENCE COMES FROM THE DRAFT TIMETABLE, NOT THE TAS. The TAS clustering section is unusable - see openItems - but the draft timetable submitted alongside it in the same scope-application pack carries a correct week-by-week schedule of exactly these 19 units. That is the sequence recorded here, and it is what topic ownership is ordered by."
+              ],
+    "openItems":  [
+                      "THE TAS CARRIES THE WRONG DELIVERY PLAN, AND THE SEPTEMBER 2026 DOCX STILL DOES. Its Course Clustering Overview and Delivery Sequence sections were copied from the CPC20220 Certificate II strategy: they cluster and timetable CPCWHS1001, CPCCOM1012, CPCCOM1013, CPCCOM1015, CPCCCM2012, CPCCSP2002, CPCCSP2003, CPCCCO2013 and CPCCVE1011 - NINE units this qualification does not contain - plus one Diploma unit, CPCCBC5010. The registry sequences the course from the draft timetable instead, so builds are unblocked, but AN AUDITOR READING THE TAS FINDS A DELIVERY PLAN FOR A DIFFERENT QUALIFICATION. Rewrite that section.",
+                      "BSBESB401 Research and Develop Business Plans is listed in the unit table with no Core/Elective designation. Recorded as elective on the arithmetic - 14 core are designated and the TAS states 19 units - but confirm."
+                  ]
+}

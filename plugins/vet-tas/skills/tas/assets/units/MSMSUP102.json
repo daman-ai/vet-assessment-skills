@@ -1,0 +1,25 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "code":  "MSMSUP102",
+    "title":  "Communicate in the workplace",
+    "type":  "unit",
+    "status":  "current",
+    "statusLabel":  "Current",
+    "releaseNumber":  "2",
+    "releaseDate":  "2018-12-05",
+    "currency":  "current",
+    "trainingPackage":  "MSM",
+    "prerequisites":  [
+
+                      ],
+    "competencyField":  "",
+    "unitSector":  "Support",
+    "application":  "This unit describes the skills and knowledge required to receive, relay and record written and oral messages and to provide relevant information in response to requests within timelines.\nThis unit applies to personnel who are required to communicate clearly and accurately to record messages, seek clarification, access needed information, relay information to other people and complete workplace documentation.\nThis unit applies to all work environments.\nNo licensing or certification requirements exist at the time of publication. Relevant legislation, industry standards and codes of practice within Australia must also be applied.",
+    "elements":  "Elements\nPerformance criteria\nElements describe the essential outcomes.\nPerformance criteria describe the performance needed to demonstrate achievement of the element.\n1. Receive and relay messages\n1.1 Receive message and confirm understanding\n1.2 Accurately record the message\n1.3 Relay message accurately to appropriate person or section within designated timelines\n2. Interpret messages\n2.1 Clarify message if necessary\n2.2 Take appropriate action\n2.3 Respond to communication problems\n3. Respond to request for information\n3.1 Acknowledge the request for information and clarify understanding\n3.2 Access information from appropriate sources\n3.3 Relay information to appropriate person or section in a manner appropriate for the receiver\n4. Complete workplace forms\n4.1 Select appropriate form\n4.2 Assemble information required for form\n4.3 Complete workplace form\n4.4 Submit workplace form",
+    "foundationSkills":  "This section describes those language, literacy, numeracy and employment skills that are essential to performance.\nFoundation skills essential to performance are explicit in the performance criteria of this unit of competency.",
+    "performanceEvidence":  "There must be evidence the candidate has completed the tasks outlined in the elements and performance criteria of this unit, and:\nreceived, recorded and relayed messages, including:listening attentively and asking questions to confirm understanding\nresponded to at least one request for information in accordance with procedures, including:using clear and concise language in both verbal and written communication\ncompleted workplace forms legibly and accurately",
+    "knowledgeEvidence":  "There must be evidence the candidate has knowledge of:\nsources of information\ncommunication equipment\norganisation procedures, including:telephone and communications protocols and/or procedures\ndocumentation and record keeping\ntypes and meaning of workplace codes, numbers, symbols, signs and colours typically used in the work environment\ntypes, purpose and importance of workplace documentation\nworkplace expectations for acceptable language and tone, including swearing, level of formality, courteousness and respect for diversity\nchallenges in communicating with people from culturally and linguistically diverse (CALD) backgrounds in the workplace and possible strategies\ncommunication problems and corrective actions relevant to own role",
+    "assessmentConditions":  "Skills must have been demonstrated in the workplace or in a simulated environment that reflects workplace conditions and contingencies. The following conditions must be met for this unit:\nuse of suitable facilities, equipment and resources, including: workplace documentation and/or information\nworkplace forms.\nAssessors must satisfy the NVR/AQTF mandatory competency requirements for assessors.",
+    "sourceUrl":  "https://training.gov.au/training/details/MSMSUP102/unitdetails",
+    "fetchedUtc":  "2026-09-07T05:54:27Z"
+}

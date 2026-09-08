@@ -1,0 +1,109 @@
+﻿{
+    "schemaVersion":  "1.0",
+    "courseId":  "ACI-SITSS00069",
+    "qualificationCode":  "SITSS00069",
+    "qualificationTitle":  "Food Safety Supervision Skill Set",
+    "provider":  "ACI",
+    "brandVariant":  "culinary",
+    "priorCourse":  null,
+    "generatedUtc":  "2026-09-08T00:35:18Z",
+    "method":  {
+                   "unitSource":  "training.gov.au REST API",
+                   "overlapDetection":  "assets/topics/families/ACI-SITSS00069.families.json",
+                   "decisions":  "assets/topics/decisions/ACI-SITSS00069.decisions.json",
+                   "threshold":  0.45,
+                   "note":  "Families are detected mechanically; ownership is authored. Every family is claimed exactly once and the build fails otherwise."
+               },
+    "topicCount":  3,
+    "topics":  [
+                   {
+                       "id":  "SITSS00069-T01",
+                       "name":  "Food safety law, the Food Standards Code and the meaning of contamination",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXFSA005",
+                       "ownerCluster":  null,
+                       "rationale":  "Both units carry the same account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the role of the local regulator. In a two-unit skill set delivered over four weeks a learner would meet that account twice in a month.",
+                       "teachingRule":  "SITXFSA006 names the specific requirement governing the handling task in front of the learner - a temperature, a holding time, a record - and cites the Code clause rather than re-summarising the Code.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA005",
+                                              "section":  "KE",
+                                              "text":  "basic aspects of commonwealth, state or territory food safety laws, standards and codes as follows:meaning of contaminant, contamination and potentially hazardous foods as defined by the Australia New Zealand Food Standards Code"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA006"
+                                            ],
+                       "families":  [
+                                        "F01"
+                                    ]
+                   },
+                   {
+                       "id":  "SITSS00069-T02",
+                       "name":  "Consequences of failing to observe food safety law",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXFSA005",
+                       "ownerCluster":  null,
+                       "rationale":  "Prosecution, closure, licence conditions and the personal liability of a food safety supervisor are one account of consequence. It belongs with the law it follows from.",
+                       "teachingRule":  "SITXFSA006 states the consequence attaching to its own specific breach and cites this topic for the general structure.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA005",
+                                              "section":  "KE",
+                                              "text":  "ramifications of failure to observe food safety law and organisational policies and procedures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA006"
+                                            ],
+                       "families":  [
+                                        "F02"
+                                    ]
+                   },
+                   {
+                       "id":  "SITSS00069-T03",
+                       "name":  "Organisational hygiene and food safety procedures",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA005",
+                       "ownerCluster":  null,
+                       "rationale":  "What the organisation\u0027s own hygiene and food safety procedures contain is the subject matter of SITXFSA005, and it is delivered first.",
+                       "teachingRule":  "SITXFSA006 follows the procedure and is assessed on following it, not on reciting what it contains.",
+                       "tgaAnchors":  [
+                                          {
+                                              "unit":  "SITXFSA005",
+                                              "section":  "KE",
+                                              "text":  "contents of organisational hygiene and food safety procedures"
+                                          }
+                                      ],
+                       "appliedNotTaught":  [
+                                                "SITXFSA006"
+                                            ],
+                       "families":  [
+                                        "F03"
+                                    ]
+                   }
+               ],
+    "unitTopicIndex":  {
+                           "SITXFSA005":  {
+                                              "owns":  [
+                                                           "SITSS00069-T01",
+                                                           "SITSS00069-T02",
+                                                           "SITSS00069-T03"
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
+                                          },
+                           "SITXFSA006":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+                                                                       "SITSS00069-T01",
+                                                                       "SITSS00069-T02",
+                                                                       "SITSS00069-T03"
+                                                                   ]
+                                          }
+                       },
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+}
