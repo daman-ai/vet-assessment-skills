@@ -69,11 +69,16 @@ param(
     [Parameter(Mandatory)][string] $OutPath
 )
 $ErrorActionPreference = 'Stop'
+#  The counts in the stamp come from the predicates Lib-GateCommon declares
+#  once (Get-GateDrawingCounts, Get-GatePromptMarkerRegex), so the stamp a
+#  reviewer reads and the number Check-Figures fails on are one number.
+. (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $full = (Resolve-Path -LiteralPath $Path).Path
 $tmp = Join-Path $env:TEMP ("dt_" + [Guid]::NewGuid().ToString('N').Substring(0,8))
 [System.IO.Compression.ZipFile]::ExtractToDirectory($full, $tmp)
+$script:PromptOpenerRx = Get-GatePromptMarkerRegex -Part opener
 
 function Strip ([string] $xml, [string] $tag) {
     # Paragraph breaks first, then drop every tag - without the newline step
@@ -84,27 +89,24 @@ function Strip ([string] $xml, [string] $tag) {
 }
 
 function Measure-PromptBlocks ([string] $paragraphText) {
-    # One paragraph per line, exactly as Strip lays them out.
+    # One paragraph per line, exactly as Strip lays them out. The opener test
+    # is the shared vocabulary (every kind the builder emits, case-sensitive),
+    # not the two kinds this file used to know about - an [ILLUSTRATION: block
+    # was stamped as zero unresolved prompts, and the banner never printed.
     $n = 0
     foreach ($ln in ($paragraphText -split "`n")) {
-        if ($ln.TrimStart() -match '^\[(IMAGE|DIAGRAM):') { $n++ }
+        if ($ln -cmatch $script:PromptOpenerRx) { $n++ }
     }
     return $n
 }
 
-function Measure-Drawings ([string[]] $parts, [string] $prTag, [bool] $pictureClassOnly) {
-    # Returns drawings and non-empty alt texts, by the Check-Figures test.
-    $drawn = 0
-    $alt = 0
-    foreach ($xml in $parts) {
-        foreach ($m in [regex]::Matches($xml, $prTag)) {
-            if ($pictureClassOnly -and $m.Value -notmatch '(?i)name="(picture|image|graphic|chart|diagram)') { continue }
-            $drawn++
-            $descr = [regex]::Match($m.Value, 'descr="([^"]*)"').Groups[1].Value
-            if ([System.Net.WebUtility]::HtmlDecode($descr).Trim()) { $alt++ }
-        }
-    }
-    return @($drawn, $alt)
+function Measure-Drawings ([string] $packageDir, [string] $kind) {
+    # Returns placed figures and non-empty alt texts by the ONE rule
+    # Check-Figures uses (Get-GateDrawingCounts.bodyDrawings): on a guide every
+    # body w:drawing whatever its name; on a deck the pictures this skill
+    # placed, named with the shape prefix, with the template's media left out.
+    $dc = Get-GateDrawingCounts -PackageDir $packageDir -Kind $kind
+    return @([int]$dc.bodyDrawings, [int]$dc.bodyWithAlt)
 }
 
 function Measure-Captions ([string] $xml) {
@@ -160,7 +162,7 @@ if ($Path -match '\.pptx$') {
         }
         [void]$sb.AppendLine()
     }
-    $counts = Measure-Drawings -parts $drawingParts.ToArray() -prTag '<p:cNvPr\b[^>]*>' -pictureClassOnly $true
+    $counts = Measure-Drawings -packageDir $tmp -kind 'deck'
     $placed = [int]$counts[0]
     $channels.Add(("{0} tables" -f $tables))
     $channels.Add(("{0} slides" -f @($slides).Count))
@@ -175,14 +177,10 @@ if ($Path -match '\.pptx$') {
         [void]$sb.AppendLine("`n=== FIGURE ALT TEXT ===")
         foreach ($a in $alts) { [void]$sb.AppendLine('* ' + [System.Net.WebUtility]::HtmlDecode($a.Groups[1].Value)) }
     }
-    # Drawings live in the body AND in the running head and foot (the mark
-    # is a picture), so every header and footer part is counted with it.
-    $drawingParts = New-Object System.Collections.Generic.List[string]
-    $drawingParts.Add($xml)
-    foreach ($hf in (Get-ChildItem (Join-Path $tmp 'word') -File | Where-Object { $_.Name -match '^(header|footer)\d*\.xml$' } | Sort-Object Name)) {
-        $drawingParts.Add((Get-Content $hf.FullName -Raw -Encoding UTF8))
-    }
-    $counts = Measure-Drawings -parts $drawingParts.ToArray() -prTag '<wp:docPr\b[^>]*>' -pictureClassOnly $false
+    # Placed figures are the BODY's drawings; the running head's brand mark is
+    # a picture too and used to be counted as a placed figure. Same rule as
+    # Check-Figures, from the same function.
+    $counts = Measure-Drawings -packageDir $tmp -kind 'guide'
     $placed  = [int]$counts[0]
     $prompts = Measure-PromptBlocks $bodyText
     $channels.Add(("{0} tables" -f ([regex]::Matches($xml, '<w:tbl>')).Count))

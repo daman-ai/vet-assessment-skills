@@ -79,10 +79,25 @@
     PS 5.1. ASCII only in this file. Nothing here names a unit, a brand, an
     RTO or a build path.
 
+    THE HASH IS COMPARED, NOT MERELY RECORDED. The corpus manifest Stage 1
+    writes (corpus\manifest.json) records the sha256 of the SOURCE rendition
+    each extract was cut from. This gate recomputes the sha256 of that pack
+    file and FAILS naming both values when they differ: an extract cut from a
+    file the pack no longer holds is an extract of a different document,
+    however faithful it looks against the pack that was there at the time. The
+    sha256 of every extract is recorded into corpus-complete.json so a later
+    stage can prove the corpus it read is the corpus this gate passed; where
+    the manifest also records an extract hash (extractSha256) it is compared
+    the same way. A manifest that records no source hash at all is a refusal
+    naming it - the comparison cannot run, and a comparison that cannot run is
+    not a pass.
+
     Exit 0 complete and faithful, 1 a reconciliation or fidelity failure,
     2 a usage error, 4 the self-test failed, 5 complete but at least one
     extraction's fidelity could not be proved at all.
 #>
+
+# GATE: stages=1; requires=BuildDir,PackDir
 
 [CmdletBinding()]
 param(
@@ -390,19 +405,36 @@ if ($SelfTest) {
         param([hashtable] $Params)
         $r = Join-Path $tmp ('result_' + [Guid]::NewGuid().ToString('N').Substring(0, 8) + '.json')
         $global:LASTEXITCODE = 0
-        & $script:Self @Params -ResultPath $r -Quiet | Out-Null
+        #  *>&1: a refusal (exit 2) writes no result file and speaks through
+        #  Write-Host, so the console is the only place its name can be read.
+        $text = & $script:Self @Params -ResultPath $r -Quiet *>&1 | Out-String -Width 8192
         $code = $LASTEXITCODE
         $body = $null
         if (Test-Path -LiteralPath $r) { $body = Get-GateJson -Path $r }
-        return [pscustomobject]@{ Code = $code; Result = $body }
+        return [pscustomobject]@{ Code = $code; Result = $body; Text = $text }
     }
     function Reset-Fixture {
+        #  The corpus, plus the manifest Stage 1's extractor writes beside it:
+        #  file, source, audience, the sha256 of the source rendition and of
+        #  the extract. -NoHash writes the manifest without either hash, for
+        #  the refusal plant.
+        param([switch] $NoHash)
         if (Test-Path -LiteralPath $fxCorpus) { Remove-Item -LiteralPath $fxCorpus -Recurse -Force }
         New-Item -ItemType Directory -Force -Path $fxCorpus | Out-Null
+        $docs = New-Object System.Collections.Generic.List[object]
         foreach ($k in @('Alpha_Tool', 'Beta_Tool', 'Assessor_Guide_Alpha_Tool')) {
             $paras = New-FixtureParagraphs -Tag $k
-            [System.IO.File]::WriteAllText((Join-Path $fxCorpus ($k + '.txt')), (($paras -join "`r`n") + "`r`n"), (New-Object System.Text.UTF8Encoding($true)))
+            $txt = Join-Path $fxCorpus ($k + '.txt')
+            [System.IO.File]::WriteAllText($txt, (($paras -join "`r`n") + "`r`n"), (New-Object System.Text.UTF8Encoding($true)))
+            $d = [ordered]@{ file = ($k + '.txt'); source = ($k + '.docx'); audience = $(if ($k -like 'Assessor_*') { 'assessor' } else { 'learner' }) }
+            if (-not $NoHash) {
+                $d['sha256'] = (Get-FileSha256 -Path (Join-Path $fxPack ($k + '.docx'))).ToUpperInvariant()
+                $d['extractSha256'] = (Get-FileSha256 -Path $txt)
+            }
+            $docs.Add([pscustomobject]$d)
         }
+        $man = [ordered]@{ generatedBy = 'self-test fixture'; documents = $docs.ToArray() }
+        [System.IO.File]::WriteAllText((Join-Path $fxCorpus 'manifest.json'), ($man | ConvertTo-Json -Depth 5), (New-Object System.Text.UTF8Encoding($true)))
     }
     function Get-Failures {
         param($Res)
@@ -489,7 +521,62 @@ if ($SelfTest) {
             Record 'unknown provenance' (($c.Code -eq 1) -and ($named.Count -ge 1)) ('Gamma_Handout.txt has no pack ancestor; exit {0}; {1}' -f $c.Code, $(if ($named.Count) { $named[0] } else { 'the stranger was NOT named' }))
         }
 
-        # (f) the control again, after every plant, so a fixture left dirty by
+        # (g) one altered byte in a SOURCE rendition: the pack file no longer
+        #     hashes to what the manifest recorded when the extract was cut.
+        #     The fidelity arms cannot see it (61 of 62 paragraphs still match);
+        #     only the hash comparison can, and it must name both values.
+        Reset-Fixture
+        $betaDocx = Join-Path $fxPack 'Beta_Tool.docx'
+        $recordedBeta = (Get-FileSha256 -Path $betaDocx)
+        $altered = New-FixtureParagraphs -Tag 'Beta_Tool'
+        $altered[5] = $altered[5] + '.'
+        New-FixtureDocx -Path $betaDocx -Paragraph $altered
+        $nowBeta = (Get-FileSha256 -Path $betaDocx)
+        if ($nowBeta -eq $recordedBeta) { Record 'source hash mismatch' $false 'the plant did not land: the rebuilt source hashes the same' }
+        else {
+            $c = Invoke-Child $base
+            $named = @(Get-Failures $c.Result | Where-Object { $_ -match 'Beta_Tool' -and $_ -match 'SOURCE HASH MISMATCH' -and $_ -match $nowBeta -and $_ -match $recordedBeta })
+            Record 'source hash mismatch' (($c.Code -eq 1) -and ($named.Count -ge 1)) ('Beta_Tool.docx rebuilt with one extra byte, sha256 {0} against recorded {1}; exit {2}; {3}' -f $nowBeta.Substring(0, 8), $recordedBeta.Substring(0, 8), $c.Code, $(if ($named.Count) { 'named with both values' } else { 'the mismatch was NOT named with both values' }))
+        }
+        New-FixtureDocx -Path $betaDocx -Paragraph (New-FixtureParagraphs -Tag 'Beta_Tool')
+
+        # (h) one altered byte in an EXTRACT, with the manifest recording the
+        #     extract hash: below every fidelity threshold, caught by the hash.
+        Reset-Fixture
+        $betaTxt = Join-Path $fxCorpus 'Beta_Tool.txt'
+        $recordedTxt = (Get-FileSha256 -Path $betaTxt)
+        $t = Get-GateFileText -Path $betaTxt
+        $t = $t.Replace('paragraph 3:', 'paragraph 3;')
+        [System.IO.File]::WriteAllText($betaTxt, $t, (New-Object System.Text.UTF8Encoding($true)))
+        $nowTxt = (Get-FileSha256 -Path $betaTxt)
+        if ($nowTxt -eq $recordedTxt) { Record 'extract hash mismatch' $false 'the plant did not land: the extract hashes the same' }
+        else {
+            $c = Invoke-Child $base
+            $named = @(Get-Failures $c.Result | Where-Object { $_ -match 'Beta_Tool' -and $_ -match 'EXTRACT HASH MISMATCH' -and $_ -match $nowTxt -and $_ -match $recordedTxt })
+            $fid = @(Get-Failures $c.Result | Where-Object { $_ -match 'Beta_Tool' -and $_ -match '(?i)coverage|truncat' })
+            Record 'extract hash mismatch' (($c.Code -eq 1) -and ($named.Count -ge 1) -and ($fid.Count -eq 0)) ('one byte of Beta_Tool.txt changed; exit {0}; {1}; fidelity arms {2}' -f $c.Code, $(if ($named.Count) { 'named with both values' } else { 'the mismatch was NOT named with both values' }), $(if ($fid.Count) { 'ALSO fired, so the hash arm proved nothing on its own' } else { 'silent, so the hash arm is what caught it' }))
+        }
+
+        # (i) a manifest that records no source hash at all is a refusal
+        #     naming it - the comparison cannot run, and that is not a pass.
+        Reset-Fixture -NoHash
+        $mj = Get-GateJson -Path (Join-Path $fxCorpus 'manifest.json')
+        $anyHash = @(@($mj.documents) | Where-Object { $_.PSObject.Properties.Name -contains 'sha256' }).Count
+        if ($anyHash -gt 0) { Record 'no recorded hash refuses' $false 'the plant did not land: the manifest still records a hash' }
+        else {
+            $c = Invoke-Child $base
+            Record 'no recorded hash refuses' (($c.Code -eq 2) -and ($c.Text -match 'CHECK-SET EMPTY') -and ($c.Text -match 'manifest\.json')) ('manifest with no sha256; exit {0}; {1}' -f $c.Code, $(if ($c.Text -match 'manifest\.json') { 'the refusal names manifest.json' } else { 'the refusal did NOT name the manifest' }))
+        }
+
+        # (j) the roster: every arm complete on the clean fixture, and the
+        #     extract hashes recorded in the result for every document.
+        Reset-Fixture
+        $c = Invoke-Child $base
+        $armsOk = ($c.Text -match 'ARMS: ' -and $c.Text -match 'source-hash\|true\|ran\|3\|0' -and $c.Text -match 'fidelity\|true\|ran\|3\|0')
+        $recorded = @(@($c.Result.documents) | Where-Object { $_.extractSha256 -match '^[0-9a-f]{64}$' }).Count
+        Record 'roster and recorded hashes' (($c.Code -eq 0) -and $armsOk -and ($recorded -eq 3)) ('exit {0}; roster line {1}; {2} of 3 rows carry a 64-hex extractSha256' -f $c.Code, $(if ($armsOk) { 'shows source-hash and fidelity ran over 3' } else { 'MISSING or wrong' }), $recorded)
+
+        # (k) the control again, after every plant, so a fixture left dirty by
         #     an earlier case cannot make a later green mean nothing.
         Reset-Fixture
         $c = Invoke-Child $base
@@ -586,6 +673,22 @@ $dupCov   = $rDup.Value
 
 if (-not $ResultPath -and $BuildDir) { $ResultPath = Join-Path $BuildDir 'corpus-complete.json' }
 
+#  The arm roster (Lib-GateCommon). Every arm ends ran / empty / declared-n-a;
+#  a blocking arm with an empty check-set is a refusal, exit 2, never a pass.
+Reset-GateArmRoster
+Register-GateArm -Name 'pack-documents' -Blocking
+Register-GateArm -Name 'corpus-extracts' -Blocking
+Register-GateArm -Name 'fidelity' -Blocking
+Register-GateArm -Name 'source-hash' -Blocking
+Register-GateArm -Name 'extract-hash'
+function Stop-OnRefusal {
+    <# The library's typed refusals reach exit 2 through here. #>
+    param($Err)
+    $m = $Err.Exception.Message
+    if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE):') { Fail-Usage $m }
+    Fail-Usage ("the gate could not run - {0}" -f $m)
+}
+
 # ---------------------------------------------------------------------------
 # 2. The pack: files enumerated, grouped into logical documents
 # ---------------------------------------------------------------------------
@@ -631,16 +734,50 @@ foreach ($f in ($packFiles | Sort-Object FullName)) {
 #  gate says so, because a reader must know which claim was checked.
 $manifestFrom = 'no manifest - the enumeration of the pack directory is the document list'
 $manifestNames = $null
-if (-not $ManifestPath) {
+#  Candidates, in order: a manifest in the pack directory, then the CORPUS
+#  manifest Stage 1's extractor writes beside the extracts (corpus\manifest.json
+#  - file, source, audience, sha256 of the source rendition, chars), then the
+#  contract's corpus block. The corpus manifest is the one that records
+#  hashes; on the reference build it is the only one that exists.
+$manifestCandidates = New-Object System.Collections.Generic.List[string]
+if ($ManifestPath) { $manifestCandidates.Add($ManifestPath) }
+else {
     foreach ($cand in @('pack-manifest.json', 'manifest.json')) {
         $p = Join-Path $packPath $cand
-        if (Test-Path -LiteralPath $p) { $ManifestPath = $p; break }
+        if (Test-Path -LiteralPath $p) { $manifestCandidates.Add($p) }
     }
+    $cm = Join-Path $corpusPath 'manifest.json'
+    if (Test-Path -LiteralPath $cm) { $manifestCandidates.Add($cm) }
 }
 $manifest = $null
-if ($ManifestPath -and (Test-Path -LiteralPath $ManifestPath)) {
-    $manifest = Get-GateJson -Path $ManifestPath
-    if ($null -ne $manifest) { $manifestFrom = ('pack manifest {0}' -f (Split-Path $ManifestPath -Leaf)) }
+#  Hash records are gathered from EVERY manifest found, keyed by document stem,
+#  whichever one supplies the document list.
+$hashRecords = @{}
+$hashFrom = New-Object System.Collections.Generic.List[string]
+foreach ($mp in $manifestCandidates) {
+    if (-not (Test-Path -LiteralPath $mp)) { continue }
+    $mj = Get-GateJson -Path $mp
+    if ($null -eq $mj) { continue }
+    if ($null -eq $manifest) {
+        $manifest = $mj
+        $ManifestPath = $mp
+        $manifestFrom = ('{0} manifest {1}' -f $(if ($mp.StartsWith($corpusPath, [System.StringComparison]::OrdinalIgnoreCase)) { 'corpus' } else { 'pack' }), (Split-Path $mp -Leaf))
+    }
+    $label = ('{0}\{1}' -f (Split-Path (Split-Path $mp -Parent) -Leaf), (Split-Path $mp -Leaf))
+    foreach ($d in @(Get-GateProp -Object $mj -Names @('documents', 'files') -Default @())) {
+        if ($null -eq $d -or $d -is [string]) { continue }
+        $nm = [string](Get-GateProp -Object $d -Names @('file', 'name', 'document') -Default '')
+        if (-not $nm) { continue }
+        $k = Get-StemKey -Name $nm
+        if ($hashRecords.ContainsKey($k)) { continue }
+        $hashRecords[$k] = [pscustomobject]@{
+            SourceName    = [string](Get-GateProp -Object $d -Names @('source', 'sourceFile', 'from') -Default '')
+            Sha256        = ([string](Get-GateProp -Object $d -Names @('sha256', 'sourceSha256', 'hash') -Default '')).Trim().ToLowerInvariant()
+            ExtractSha256 = ([string](Get-GateProp -Object $d -Names @('extractSha256', 'textSha256', 'corpusSha256') -Default '')).Trim().ToLowerInvariant()
+            From          = $label
+        }
+        if (-not $hashFrom.Contains($label)) { $hashFrom.Add($label) }
+    }
 }
 if ($null -eq $manifest -and $null -ne $contract) {
     $cnode = Get-GateProp -Object $contract -Names @('corpus')
@@ -698,6 +835,27 @@ foreach ($d in $packDocs) {
     $d | Add-Member -NotePropertyName Head        -NotePropertyValue @($norm | Select-Object -First $edgeWin) -Force
     $d | Add-Member -NotePropertyName Tail        -NotePropertyValue @($norm | Select-Object -Last $edgeWin) -Force
     $d | Add-Member -NotePropertyName Corpus      -NotePropertyValue (New-Object System.Collections.Generic.List[object]) -Force
+
+    #  THE SOURCE HASH. The rendition the manifest names as the source (or the
+    #  primary rendition when it names none) is hashed NOW and compared to the
+    #  hash the manifest recorded when the extract was cut.
+    $hashRec = $null
+    if ($hashRecords.ContainsKey($d.Key)) { $hashRec = $hashRecords[$d.Key] }
+    $hashRend = $prim
+    if ($null -ne $hashRec -and $hashRec.SourceName) {
+        foreach ($r in $d.Renditions) { if ($r.Name -ieq $hashRec.SourceName) { $hashRend = $r; break } }
+    }
+    $measured = Get-FileSha256 -Path $hashRend.FullName
+    $recorded = ''
+    $recordedExtract = ''
+    $recFrom = ''
+    if ($null -ne $hashRec) { $recorded = $hashRec.Sha256; $recordedExtract = $hashRec.ExtractSha256; $recFrom = $hashRec.From }
+    $d | Add-Member -NotePropertyName HashRendition   -NotePropertyValue $hashRend.Name -Force
+    $d | Add-Member -NotePropertyName PackSha256      -NotePropertyValue $measured -Force
+    $d | Add-Member -NotePropertyName ManifestSha256  -NotePropertyValue $recorded -Force
+    $d | Add-Member -NotePropertyName ManifestExtract -NotePropertyValue $recordedExtract -Force
+    $d | Add-Member -NotePropertyName HashFrom        -NotePropertyValue $recFrom -Force
+    $d | Add-Member -NotePropertyName HashVerdict     -NotePropertyValue $(if ($recorded) { $(if ($recorded -eq $measured) { 'MATCH' } else { 'MISMATCH' }) } else { 'NOT RECORDED' }) -Force
 }
 
 # ---------------------------------------------------------------------------
@@ -733,6 +891,22 @@ if ($corpusDocs.Count -eq 0) { Fail-Usage ('the corpus at {0} holds no text file
 $failures = New-Object System.Collections.Generic.List[string]
 $warnings = New-Object System.Collections.Generic.List[string]
 $rows = New-Object System.Collections.Generic.List[object]
+
+# --- the source hash, compared. A manifest that recorded NO hash for any pack
+#     document is a refusal naming the manifest: the comparison cannot run.
+$hashChecked = @($packDocs.ToArray() | Where-Object { $_.ManifestSha256 })
+$hashMismatch = New-Object System.Collections.Generic.List[object]
+try {
+    Write-GateCheckSet -What 'pack document(s) with a recorded source sha256' -Count $hashChecked.Count -DerivedFrom $(if ($hashFrom.Count) { ($hashFrom -join ' + ') + ' documents[].sha256' } else { 'no manifest recorded a hash' }) -Blocking -Input ((Join-Path (Split-Path $corpusPath -Leaf) 'manifest.json') + ' documents[].sha256 (the hash of the source rendition each extract was cut from)')
+}
+catch { Stop-OnRefusal $_ }
+foreach ($p in $hashChecked) {
+    if ($p.HashVerdict -eq 'MISMATCH') {
+        $hashMismatch.Add($p)
+        $failures.Add(('{0}: SOURCE HASH MISMATCH. The pack file {1} hashes to {2} now, and {3} recorded {4} when the corpus was cut. The extract was cut from a different file than the pack holds; re-extract, or restore the file the manifest describes.' -f $p.Name, $p.HashRendition, $p.PackSha256, $p.HashFrom, $p.ManifestSha256))
+    }
+}
+Complete-GateArm -Name 'source-hash' -State $(if ($hashChecked.Count -gt 0) { 'ran' } else { 'empty' }) -Size $hashChecked.Count -Findings $hashMismatch.Count
 
 foreach ($c in $corpusDocs) {
     $k = Get-StemKey -Name $c.Name
@@ -794,13 +968,37 @@ for ($i = 0; $i -lt $arr.Count; $i++) {
 
 # --- per pack document
 $unproven = 0
+$fidelityPairs = 0
+$extractHashChecked = 0
+$extractHashMismatch = 0
+function New-HashFields {
+    <# The hash columns every row carries, so corpus-complete.json records what was compared. #>
+    param($P, $C)
+    $o = [ordered]@{ packFile = ''; packSha256 = ''; manifestSha256 = ''; hashVerdict = 'NOT RECORDED'; extractSha256 = ''; manifestExtractSha256 = ''; extractHashVerdict = 'NOT RECORDED' }
+    if ($null -ne $P) {
+        $o['packFile'] = [string]$P.HashRendition; $o['packSha256'] = [string]$P.PackSha256
+        $o['manifestSha256'] = [string]$P.ManifestSha256; $o['hashVerdict'] = [string]$P.HashVerdict
+        $o['manifestExtractSha256'] = [string]$P.ManifestExtract
+    }
+    if ($null -ne $C) {
+        $o['extractSha256'] = [string]$C.Sha256
+        if ($null -ne $P -and $P.ManifestExtract) { $o['extractHashVerdict'] = $(if ($P.ManifestExtract -eq $C.Sha256) { 'MATCH' } else { 'MISMATCH' }) }
+    }
+    return $o
+}
+function New-Row {
+    param([hashtable] $Base, $P, $C)
+    $h = New-HashFields -P $P -C $C
+    foreach ($k in $h.Keys) { $Base[$k] = $h[$k] }
+    return [pscustomobject]$Base
+}
 foreach ($p in ($packDocs.ToArray() | Sort-Object Name)) {
     $n = $p.Corpus.Count
     $rend = ((@($p.Renditions.ToArray() | ForEach-Object { $_.Extension })) -join '+')
 
     if ($n -eq 0) {
         $failures.Add(('{0} is in the pack ({1}) and was NOT extracted into the corpus. No gate downstream of Stage 1 can see one word of it.' -f $p.Name, $rend))
-        $rows.Add([pscustomobject]@{ pack = $p.Name; renditions = $rend; corpus = ''; packParagraphs = $p.Paragraphs; packChars = $p.Chars; corpusLines = 0; corpusChars = 0; coverage = 0.0; head = 0.0; tail = 0.0; charRatio = 0.0; firstLineExact = $false; lastLineExact = $false; verdict = 'NOT EXTRACTED' })
+        $rows.Add((New-Row -P $p -C $null -Base @{ pack = $p.Name; renditions = $rend; corpus = ''; packParagraphs = $p.Paragraphs; packChars = $p.Chars; corpusLines = 0; corpusChars = 0; coverage = 0.0; head = 0.0; tail = 0.0; charRatio = 0.0; firstLineExact = $false; lastLineExact = $false; verdict = 'NOT EXTRACTED' }))
         continue
     }
     if ($n -gt 1) {
@@ -808,10 +1006,21 @@ foreach ($p in ($packDocs.ToArray() | Sort-Object Name)) {
     }
 
     foreach ($c in $p.Corpus.ToArray()) {
+        $fidelityPairs++
+        #  THE EXTRACT HASH, where the manifest recorded one. One altered byte
+        #  in an extract is below every fidelity threshold and above none of
+        #  the gates that read it; only the hash sees it.
+        if ($p.ManifestExtract) {
+            $extractHashChecked++
+            if ($p.ManifestExtract -ne $c.Sha256) {
+                $extractHashMismatch++
+                $failures.Add(('{0} -> {1}: EXTRACT HASH MISMATCH. The extract hashes to {2} now, and {3} recorded {4} when it was cut. The corpus has been edited since Stage 1 extracted it; re-extract, or account for the edit.' -f $p.Name, $c.Name, $c.Sha256, $p.HashFrom, $p.ManifestExtract))
+            }
+        }
         if (-not $p.Extractable) {
             $unproven++
             $warnings.Add(('{0}: fidelity UNPROVEN. The pack ships it as {1}, which this gate cannot read for text, and no manifest records its signature. Presence was checked; truncation was not, and cannot be.' -f $p.Name, $rend))
-            $rows.Add([pscustomobject]@{ pack = $p.Name; renditions = $rend; corpus = $c.Name; packParagraphs = 0; packChars = 0; corpusLines = $c.Lines; corpusChars = $c.Chars; coverage = -1.0; head = -1.0; tail = -1.0; charRatio = -1.0; firstLineExact = $false; lastLineExact = $false; verdict = 'UNPROVEN' })
+            $rows.Add((New-Row -P $p -C $c -Base @{ pack = $p.Name; renditions = $rend; corpus = $c.Name; packParagraphs = 0; packChars = 0; corpusLines = $c.Lines; corpusChars = $c.Chars; coverage = -1.0; head = -1.0; tail = -1.0; charRatio = -1.0; firstLineExact = $false; lastLineExact = $false; verdict = 'UNPROVEN' }))
             continue
         }
 
@@ -836,8 +1045,9 @@ foreach ($p in ($packDocs.ToArray() | Sort-Object Name)) {
             foreach ($b in $bad.ToArray()) { $failures.Add(('{0} -> {1}: {2}' -f $p.Name, $c.Name, $b)) }
         }
         if ($n -gt 1) { $verdict = 'DOUBLED' }
+        if ($p.HashVerdict -eq 'MISMATCH' -or ($p.ManifestExtract -and $p.ManifestExtract -ne $c.Sha256)) { $verdict = 'HASH MISMATCH' }
 
-        $rows.Add([pscustomobject]@{
+        $rows.Add((New-Row -P $p -C $c -Base @{
             pack = $p.Name; renditions = $rend; corpus = $c.Name
             packParagraphs = $p.Paragraphs; packChars = $p.Chars
             corpusLines = $c.Lines; corpusChars = $c.Chars
@@ -845,15 +1055,17 @@ foreach ($p in ($packDocs.ToArray() | Sort-Object Name)) {
             charRatio = [Math]::Round($ratio, 4)
             firstLineExact = $firstExact; lastLineExact = $lastExact
             verdict = $verdict
-        })
+        }))
     }
 }
+Complete-GateArm -Name 'fidelity' -State $(if ($fidelityPairs -gt 0) { 'ran' } else { 'empty' }) -Size $fidelityPairs -Findings @($rows | Where-Object { $_.verdict -eq 'FIDELITY' }).Count
+Complete-GateArm -Name 'extract-hash' -State $(if ($extractHashChecked -gt 0) { 'ran' } else { 'empty' }) -Size $extractHashChecked -Findings $extractHashMismatch
 
 # --- corpus files with no pack ancestor
 foreach ($c in $corpusDocs) {
     if ($null -ne $c.Pack) { continue }
     $failures.Add(('{0} is in the corpus and has no pack ancestor - UNKNOWN PROVENANCE ({1}). Everything downstream treats the corpus as the pack; a file that is not from the pack would be adjudicated as if the pack had said it.' -f $c.Name, $c.MatchedBy))
-    $rows.Add([pscustomobject]@{ pack = ''; renditions = ''; corpus = $c.Name; packParagraphs = 0; packChars = 0; corpusLines = $c.Lines; corpusChars = $c.Chars; coverage = 0.0; head = 0.0; tail = 0.0; charRatio = 0.0; firstLineExact = $false; lastLineExact = $false; verdict = 'UNKNOWN PROVENANCE' })
+    $rows.Add((New-Row -P $null -C $c -Base @{ pack = ''; renditions = ''; corpus = $c.Name; packParagraphs = 0; packChars = 0; corpusLines = $c.Lines; corpusChars = $c.Chars; coverage = 0.0; head = 0.0; tail = 0.0; charRatio = 0.0; firstLineExact = $false; lastLineExact = $false; verdict = 'UNKNOWN PROVENANCE' }))
 }
 
 # --- a manifest disagreeing with the directory
@@ -905,6 +1117,15 @@ if ($BuildDir) {
 # 5. Report
 # ---------------------------------------------------------------------------
 
+Complete-GateArm -Name 'pack-documents' -State $(if ($packDocs.Count -gt 0) { 'ran' } else { 'empty' }) -Size $packDocs.Count -Findings @($rows | Where-Object { $_.verdict -eq 'NOT EXTRACTED' -or $_.verdict -eq 'DOUBLED' }).Count
+Complete-GateArm -Name 'corpus-extracts' -State $(if ($corpusDocs.Count -gt 0) { 'ran' } else { 'empty' }) -Size $corpusDocs.Count -Findings @($rows | Where-Object { $_.verdict -eq 'UNKNOWN PROVENANCE' }).Count
+$roster = @()
+try {
+    Assert-GateArmsComplete
+    $roster = @(Write-GateArmRoster)
+}
+catch { Stop-OnRefusal $_ }
+
 $exitCode = 0
 if ($failures.Count -gt 0) { $exitCode = 1 }
 elseif ($unproven -gt 0)   { $exitCode = 5 }
@@ -921,6 +1142,7 @@ if (-not $Quiet) {
     Write-GateCheckSet -What 'corpus extracts' -Count $corpusDocs.Count -DerivedFrom 'Lib-GateCommon Get-GateCorpusDocs'
     Write-Host ("  thresholds: coverage {0:P0} ({1}); characters {2:P0}-{3:P0} ({4}); edge window {5} at {6:P0} ({7}); duplicate {8:P0}" -f $covFloor, $rCov.From, $charLow, $charHigh, $rLow.From, $edgeWin, $edgeMin, $rEdge.From, $dupCov) -ForegroundColor DarkGray
     Write-Host ''
+    Write-Host ("  source hash: {0} of {1} pack document(s) carry a recorded sha256 ({2}); {3} mismatch. extract hash: {4} recorded, {5} mismatch." -f $hashChecked.Count, $packDocs.Count, $(if ($hashFrom.Count) { $hashFrom -join ' + ' } else { 'none' }), $hashMismatch.Count, $extractHashChecked, $extractHashMismatch) -ForegroundColor $(if ($hashMismatch.Count -or $extractHashMismatch) { 'Red' } else { 'DarkGray' })
     Write-Host ("  {0,-42} {1,-42} {2,6} {3,6} {4,6} {5,6} {6,6}  verdict" -f 'pack document', 'corpus extract', 'paras', 'lines', 'cov', 'tail', 'chars') -ForegroundColor DarkGray
     foreach ($r in $rows.ToArray()) {
         $col = 'Green'
@@ -981,6 +1203,9 @@ $body['packDocuments']   = $packDocs.Count
 $body['corpusExtracts']  = $corpusDocs.Count
 $body['thresholds']      = [ordered]@{ coverageFloor = $covFloor; coverageFrom = $rCov.From; charRatioLow = $charLow; charRatioHigh = $charHigh; edgeWindow = $edgeWin; edgeFloor = $edgeMin; duplicateCoverage = $dupCov }
 $body['documents']       = $rows.ToArray()
+$body['sourceHash']      = [ordered]@{ recordedFrom = @($hashFrom); checked = $hashChecked.Count; mismatches = @($hashMismatch | ForEach-Object { [ordered]@{ pack = $_.Name; file = $_.HashRendition; measured = $_.PackSha256; recorded = $_.ManifestSha256; recordedIn = $_.HashFrom } }) }
+$body['extractHash']     = [ordered]@{ checked = $extractHashChecked; mismatches = $extractHashMismatch; note = 'every extract sha256 is in documents[].extractSha256; a manifest extractSha256 is compared where recorded' }
+$body['arms']            = @($roster)
 $body['manifestMissing'] = $manifestMissing.ToArray()
 $body['rivalExtractions']= $rivals.ToArray()
 $body['failures']        = $failures.ToArray()

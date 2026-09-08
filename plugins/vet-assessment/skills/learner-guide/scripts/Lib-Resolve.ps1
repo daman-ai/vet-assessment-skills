@@ -89,32 +89,71 @@ Fix one of these:
 
 $script:GuideSharedLib = Get-SharedLibraryPath -Path $SharedPath -Here $PSScriptRoot
 
-foreach ($f in @(
-    'Build-FromTemplate.ps1',   # Get-Branding, Expand/Compress-Docx, Get/Set-DocxPart, Test-DocxPackage
-    'Docx-Blocks-House.ps1',    # the H* block builders
-    'Test-HouseRules.ps1',      # Get-HouseProfile, Test-HouseRules
-    'Test-Readability.ps1',     # Test-Readability
-    'Verify-Document.ps1'       # Invoke-DocumentVerification, Test-PageFlow, Get-PageText
-)) {
-    $p = Join-Path $script:GuideSharedLib $f
-    if (-not (Test-Path -LiteralPath $p)) { throw "Shared library is incomplete - missing $f in $script:GuideSharedLib" }
-    . $p
-}
+# ---------------------------------------------------------------------------
+# EVERY LIBRARY LOADS THROUGH ONE NAMED, THROWING LOOP.
+#
+# The version this replaces loaded the shared library through a throwing loop
+# and this skill's OWN files through `if (Test-Path) { . $p }`. A file that had
+# been renamed, or was never installed, therefore loaded NOTHING and said
+# NOTHING, and the caller met the miss as a CommandNotFound throw at the first
+# call site - which at Stage 0 was the palette check, recorded as a note beside
+# a pass. A library that is not there is a broken installation, not an optional
+# extra, so each entry below names itself when it is missing.
+#
+# Set-ResourceBrand.ps1 is in the set because Stage 0's palette check IS
+# Get-BrandPalettePairs; Lib-RtoProfile.ps1 is in it because Stage 0's profile
+# gate is Get-RtoProfile, and loading the library rather than the CLI wrapper is
+# what stops that wrapper's param block from clobbering a caller's $Rto.
+#
+# Order is load-bearing: later files call functions defined in earlier ones.
+# ---------------------------------------------------------------------------
 
-# Xml-Scan is shared by both builders and always loads - the Word gate needs
-# balanced-element scanning as much as the deck builder does.
-. (Join-Path $PSScriptRoot 'Xml-Scan.ps1')
+function Import-GuideLibraryFile {
+    <#  Dot-source ONE library file at the CALLER's scope, or throw naming it.
 
-foreach ($f in @('Test-GuideRules.ps1', 'Build-Guide.ps1')) {
-    $p = Join-Path $PSScriptRoot $f
-    if (Test-Path -LiteralPath $p) { . $p }
-}
-
-if (-not $NoDeck) {
-    foreach ($f in @('Pptx-Blocks.ps1', 'Test-DeckRules.ps1')) {
-        $p = Join-Path $PSScriptRoot $f
-        if (Test-Path -LiteralPath $p) { . $p }
+        It takes the caller's scope from the dot operator at the call site -
+        `. Import-GuideLibraryFile` is not possible, so this function returns
+        the resolved path and the caller dot-sources it. Resolution and the
+        refusal live here; the dot stays at script scope, where the definitions
+        have to land.  #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string] $Directory,
+        [Parameter(Mandatory)][string] $File,
+        [Parameter(Mandatory)][string] $Provides
+    )
+    $p = Join-Path $Directory $File
+    if (-not (Test-Path -LiteralPath $p)) {
+        throw ("Library file missing: {0}`n  looked in : {1}`n  it provides: {2}`n`nThis is not an optional extra. A missing library used to load silently and surface as a CommandNotFound throw at the first call site, which at Stage 0 was recorded beside a pass. Reinstall the skill, or restore the file." -f $File, $Directory, $Provides)
     }
+    return (Resolve-Path -LiteralPath $p).Path
+}
+
+#  The shared library, from the assessment skill (or the merged scripts dir).
+foreach ($f in @(
+    @{ File = 'Build-FromTemplate.ps1'; Provides = 'Get-Branding, Expand/Compress-Docx, Get/Set-DocxPart, Set-BrandLogo, Set-BrandPalette, Set-BrandIdentity, Set-HousePalette, Test-DocxPackage' },
+    @{ File = 'Docx-Blocks-House.ps1';  Provides = 'the H* block builders every renderer calls' },
+    @{ File = 'Test-HouseRules.ps1';    Provides = 'Get-HouseProfile, Test-HouseRules' },
+    @{ File = 'Test-Readability.ps1';   Provides = 'Test-Readability' },
+    @{ File = 'Verify-Document.ps1';    Provides = 'Invoke-DocumentVerification, Test-PageFlow, Get-PageText' }
+)) {
+    . (Import-GuideLibraryFile -Directory $script:GuideSharedLib -File $f.File -Provides $f.Provides)
+}
+
+#  This skill's own libraries. Named, not globbed, and every one of them
+#  throws by name when it is absent.
+$script:GuideOwnLibraries = @(
+    @{ File = 'Xml-Scan.ps1';          Provides = 'balanced-element scanning - the Word gate needs it as much as the deck builder does'; Deck = $false },
+    @{ File = 'Lib-RtoProfile.ps1';    Provides = 'Get-RtoProfile, Assert-RtoProfile, Write-RtoProfileReport - the Stage 0 profile gate'; Deck = $false },
+    @{ File = 'Set-ResourceBrand.ps1'; Provides = 'Get-BrandPalettePairs (the Stage 0 palette check), Set-GuideBrand, Assert-GuideBrand, Set-DeckBrand'; Deck = $false },
+    @{ File = 'Test-GuideRules.ps1';   Provides = 'the rendered-guide rule set'; Deck = $false },
+    @{ File = 'Build-Guide.ps1';       Provides = 'the guide renderer'; Deck = $false },
+    @{ File = 'Pptx-Blocks.ps1';       Provides = 'the deck block builders'; Deck = $true },
+    @{ File = 'Test-DeckRules.ps1';    Provides = 'the rendered-deck rule set'; Deck = $true }
+)
+foreach ($f in $script:GuideOwnLibraries) {
+    if ($f.Deck -and $NoDeck) { continue }
+    . (Import-GuideLibraryFile -Directory $PSScriptRoot -File $f.File -Provides $f.Provides)
 }
 
 Write-Verbose "shared library: $script:GuideSharedLib"

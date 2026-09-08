@@ -93,9 +93,23 @@
       -SelfTest -BuildDir <build> [-File <ref>] [-PlantFile <planted copy>]
     Exit 0 pass, 1 fail, 2 usage error, 4 self-test failed.
 
+    THE WRAPPER'S EXIT CODE IS ONLY AS GOOD AS ITS OWN EVIDENCE (P0-05). In
+    -All mode the per-file gate.json files this run wrote are READ BACK before
+    the exit code is computed: one that was never written, does not parse,
+    carries no verdict, or says something other than the verdict this run
+    recorded in memory FAILS the wrapper by name. A wrapper that exits 0 while
+    a gate.json it wrote says fail contradicts its own evidence, and the file
+    wins.
+
+    A SELF-TEST CASE THAT DID NOT RUN IS SKIPPED, NOT PASSED (P0-17). The
+    real-planted-file case has nothing to plant without -PlantFile and used to
+    record a pass. Skipped cases are printed, named, and counted OUTSIDE the
+    pass tally: "N of M cases passed, K skipped (names)".
+
     Nothing about a unit, a brand or a build path is typed in here. PS 5.1.
     ASCII only in this file.
 #>
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
@@ -837,6 +851,15 @@ function Invoke-SubSectionTest {
                 else { $ma['SpineDir'] = $tmpSpine; $scoped = '-SpineDir (temp dir holding only this file)' }
                 if ($mp -contains 'CorpusDir' -and $Ctx['CorpusDir']) { $ma['CorpusDir'] = $Ctx['CorpusDir'] }
                 if ($mp -contains 'RulesPath' -and (Test-Path -LiteralPath $Ctx['RulesPath'])) { $ma['RulesPath'] = $Ctx['RulesPath'] }
+                #  P0-05. A PER-FILE report path, inside this run's temp
+                #  directory, so a mode-'file' report can never land on the
+                #  band's whole-spine path: Test-GridDisposition reads
+                #  <build>\figure-mirror-report.json, and a one-file report
+                #  written there would dispose every grid in the build against
+                #  a sweep of one sub-section. The gate also refuses to write a
+                #  -SpineFile report without an explicit path; this holds even
+                #  for a copy that only takes -SpineDir.
+                if ($mp -contains 'ReportPath') { $ma['ReportPath'] = (Join-Path $tmpRoot 'mirror-file-report.json') }
                 $limitApplied = $false
                 if ($mp -contains 'MaxWorkedPerGrid') { $ma['MaxWorkedPerGrid'] = 0; $limitApplied = $true }
                 $g = Invoke-Gate -Path $Ctx['MirrorScript'] -Arguments $ma
@@ -965,6 +988,9 @@ function Invoke-SubSectionTest {
                 if ($lp -contains 'ExcludeText') { $la['ExcludeText'] = @($Ctx['UnitExtract']) } else { $la['UnitExtract'] = $Ctx['UnitExtract'] }
                 if ($lp -contains 'CorpusDir' -and $Ctx['CorpusDir']) { $la['CorpusDir'] = $Ctx['CorpusDir'] }
                 if ($lp -contains 'RulesPath' -and (Test-Path -LiteralPath $Ctx['RulesPath'])) { $la['RulesPath'] = $Ctx['RulesPath'] }
+                #  P0-05, as above: a per-file leakage report goes to this run's
+                #  temp directory, never to the band's path.
+                if ($lp -contains 'ReportPath') { $la['ReportPath'] = (Join-Path $tmpRoot 'leakage-file-report.txt') }
                 $g = Invoke-Gate -Path $Ctx['LeakageScript'] -Arguments $la
                 $gateOut['leakage'] = $g.Lines
                 $pl = ConvertFrom-LeakageOutput -Lines $g.Lines
@@ -1056,6 +1082,49 @@ function Invoke-SubSectionTest {
     return $result
 }
 
+function Test-PerFileEvidence {
+    <#  P0-05. Read back the per-file gate.json files an -All run wrote and
+        return one problem sentence per contradiction, each naming the file:
+
+          absent      the wrapper says it tested the file and wrote nothing
+          unreadable  the sidecar does not parse
+          no verdict  the sidecar carries no verdict field
+          disagrees   the sidecar's verdict is not the verdict this run held
+          fail        the sidecar says fail (whatever the exit code says)
+
+        The wrapper's caller reads its EXIT CODE, and an exit 0 over a
+        gate.json saying fail is a false green that survived every other check
+        on the reference build. So the files win, and the exit code is
+        computed after this. -Rows is the in-memory row set (file, verdict);
+        MISSING rows have no sidecar by definition and are already counted.  #>
+    param([string] $ResultDir, $Rows)
+    $problems = @()
+    if (-not $ResultDir) { return $problems }
+    foreach ($row in (AsArr $Rows)) {
+        $fname = [string]$row.file
+        if (-not $fname) { continue }
+        if ([string]$row.verdict -eq 'MISSING') { continue }
+        $side = Join-Path $ResultDir ($fname + '.gate.json')
+        if (-not (Test-Path -LiteralPath $side)) {
+            $problems += ("{0}: this run recorded verdict '{1}' and wrote no gate.json to {2} - a wrapper that reports a file it left no evidence for checked nothing this runner can show" -f $fname, $row.verdict, $ResultDir)
+            continue
+        }
+        $j = $null
+        try { $j = Get-GateJson -Path $side } catch { $j = $null }
+        if ($null -eq $j) { $problems += ("{0}: its gate.json does not parse ({1})" -f $fname, $side); continue }
+        if (-not (Has-Prop $j 'verdict')) { $problems += ("{0}: its gate.json carries no verdict field ({1})" -f $fname, $side); continue }
+        $onDisk = [string]$j.verdict
+        if ($onDisk -ne [string]$row.verdict) {
+            $problems += ("{0}: its gate.json says verdict '{1}' while this run recorded '{2}' ({3})" -f $fname, $onDisk, $row.verdict, $side)
+            continue
+        }
+        if ($onDisk -ne 'pass') {
+            $problems += ("{0}: its gate.json says verdict '{1}' - the wrapper cannot exit 0 over it" -f $fname, $onDisk)
+        }
+    }
+    return $problems
+}
+
 function Write-RunReport {
     param($R)
     if ($Quiet) { return }
@@ -1111,17 +1180,37 @@ function Write-RunReport {
 # Self-test: planted defects, each verified to have landed before the run
 # ---------------------------------------------------------------------------
 
+function Get-CaseTally {
+    <#  P0-17. Passed / Failed / Skipped / Run over a case list, so 'run' and
+        'passed' are two different numbers and a case that did nothing cannot
+        be one of the passes. A case with no state is treated as run.  #>
+    param($Cases)
+    $all = @(AsArr $Cases | Where-Object { $null -ne $_ })
+    $skipped = @($all | Where-Object { [string]$_.state -eq 'skipped' })
+    $run = @($all | Where-Object { [string]$_.state -ne 'skipped' })
+    $failed = @($run | Where-Object { -not $_.ok })
+    return [pscustomobject]@{ Total = $all.Count; Run = $run.Count; Passed = ($run.Count - $failed.Count); Failed = $failed.Count; Skipped = $skipped.Count; SkippedNames = @($skipped | ForEach-Object { [string]$_.name }); FailedNames = @($failed | ForEach-Object { [string]$_.name }) }
+}
+
 function Invoke-SelfTest {
     param($Ctx, [string] $RefFile)
 
     $cases = New-Object System.Collections.Generic.List[object]
     function Record {
         param([string] $Name, [bool] $Ok, [string] $Detail)
-        $cases.Add([pscustomobject]@{ name = $Name; ok = $Ok; detail = $Detail })
+        $cases.Add([pscustomobject]@{ name = $Name; ok = $Ok; state = $(if ($Ok) { 'pass' } else { 'fail' }); detail = $Detail })
         if (-not $Quiet) {
             if ($Ok) { Write-Host ('  PASS  {0}: {1}' -f $Name, $Detail) -ForegroundColor Green }
             else     { Write-Host ('  FAIL  {0}: {1}' -f $Name, $Detail) -ForegroundColor Red }
         }
+    }
+    function Skip {
+        #  P0-17. A case that did not run is SKIPPED and sits outside the pass
+        #  tally. Recording it as a pass is how a self-test that planted
+        #  nothing came to print "N of N cases passed. This gate can fail."
+        param([string] $Name, [string] $Detail)
+        $cases.Add([pscustomobject]@{ name = $Name; ok = $true; state = 'skipped'; detail = $Detail })
+        if (-not $Quiet) { Write-Host ('  SKIP  {0}: {1} (not run - outside the pass tally)' -f $Name, $Detail) -ForegroundColor Yellow }
     }
     function Blocks-On { param($R, [string] $Arm) return @($R.Blocks | Where-Object { $_.arm -eq $Arm }) }
 
@@ -1246,7 +1335,7 @@ function Invoke-SelfTest {
                 }
             }
         }
-        else { Record 'mirror plant (real file)' $true 'no -PlantFile supplied - the synthetic plant above stands in' }
+        else { Skip 'mirror plant (real file)' 'no -PlantFile supplied, so no real planted file was read' }
 
         # 5. relocation plant: ONE assessed row filled under the task's own headings
         $pick = @($grids | Where-Object { $_.Kind -ne 'numbered' -and $_.Items.Count -ge 1 -and $_.HeadersN.Count -ge 2 } | Sort-Object { $_.Allowance }, { -($_.Items.Count) })
@@ -1305,18 +1394,42 @@ function Invoke-SelfTest {
         $r = Invoke-SubSectionTest -FilePath $cleanPath -Ctx $ctx2 -OutPath (Join-Path $tmp 'unavailable.gate.json') -Silent
         $ua = @(Blocks-On $r 'mirror-own' | Where-Object { $_.match -eq 'gate unavailable' })
         Record 'gate unavailable blocks' (($r.Verdict -eq 'fail') -and ($ua.Count -ge 1)) ('mirror gate pointed at a missing path; verdict {0}; {1}' -f $r.Verdict, $(if ($ua.Count) { $ua[0].text } else { 'no "gate unavailable" block' }))
+
+        # 8. P0-05: the per-file evidence read-back, with a PLANTED
+        #    contradiction - a gate.json saying fail while the run held pass.
+        $evDir = Join-Path $tmp 'evidence'
+        New-Item -ItemType Directory -Force -Path $evDir | Out-Null
+        $evRows = @([pscustomobject]@{ file = 't9_9.1.json'; verdict = 'pass' }, [pscustomobject]@{ file = 't9_9.2.json'; verdict = 'pass' })
+        $bomEnc = New-Object System.Text.UTF8Encoding($true)
+        [System.IO.File]::WriteAllText((Join-Path $evDir 't9_9.1.json.gate.json'), '{"verdict":"pass","blocks":[]}', $bomEnc)
+        [System.IO.File]::WriteAllText((Join-Path $evDir 't9_9.2.json.gate.json'), '{"verdict":"pass","blocks":[]}', $bomEnc)
+        $clean = @(Test-PerFileEvidence -ResultDir $evDir -Rows $evRows)
+        [System.IO.File]::WriteAllText((Join-Path $evDir 't9_9.2.json.gate.json'), '{"verdict":"fail","blocks":[{"arm":"mirror-own","text":"PLANTED"}]}', $bomEnc)
+        $planted = ((Get-Content -LiteralPath (Join-Path $evDir 't9_9.2.json.gate.json') -Raw) -match '"fail"')
+        $dirty = @(Test-PerFileEvidence -ResultDir $evDir -Rows $evRows)
+        Remove-Item -LiteralPath (Join-Path $evDir 't9_9.1.json.gate.json') -Force
+        $absent = @(Test-PerFileEvidence -ResultDir $evDir -Rows @($evRows[0]))
+        Record 'per-file gate.json beats the wrapper''s own tally' ($planted -and $clean.Count -eq 0 -and $dirty.Count -eq 1 -and ($dirty -join ' ') -match 't9_9\.2\.json' -and $absent.Count -eq 1 -and ($absent -join ' ') -match 't9_9\.1\.json') ('plant landed: {0}; clean {1} problem(s); a gate.json saying fail over an in-memory pass: {2}; a gate.json never written: {3}' -f $planted, $clean.Count, ($dirty -join ' | '), ($absent -join ' | '))
+
+        # 9. P0-17: a skipped case is outside the pass tally, by construction.
+        $tally = Get-CaseTally -Cases @(
+            [pscustomobject]@{ name = 'a'; ok = $true;  state = 'pass' },
+            [pscustomobject]@{ name = 'b'; ok = $true;  state = 'skipped' },
+            [pscustomobject]@{ name = 'c'; ok = $false; state = 'fail' })
+        Record 'a skipped case is counted outside the pass tally' ($tally.Passed -eq 1 -and $tally.Failed -eq 1 -and $tally.Skipped -eq 1 -and $tally.Run -eq 2) ('3 cases -> {0} passed, {1} failed, {2} skipped, {3} run (a skipped case must never be one of the passes)' -f $tally.Passed, $tally.Failed, $tally.Skipped, $tally.Run)
     }
     finally {
         if ($tmp -and (Test-Path -LiteralPath $tmp) -and $tmp.Length -gt 12) { Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue }
     }
 
-    $bad = @($cases.ToArray() | Where-Object { -not $_.ok })
+    $tally = Get-CaseTally -Cases $cases.ToArray()
     if (-not $Quiet) {
         Write-Host ''
-        if ($bad.Count -eq 0) { Write-Host ('  self-test: {0} of {0} cases passed. This gate can fail.' -f $cases.Count) -ForegroundColor Green }
-        else { Write-Host ('  X self-test: {0} of {1} cases FAILED. Do not trust a green from this gate until they pass.' -f $bad.Count, $cases.Count) -ForegroundColor Red }
+        $skipNote = if ($tally.Skipped -gt 0) { (', {0} SKIPPED and not counted: {1}' -f $tally.Skipped, (@($tally.SkippedNames) -join ', ')) } else { '' }
+        if ($tally.Failed -eq 0) { Write-Host ('  self-test: {0} of {1} cases RUN passed{2}. This gate can fail.' -f $tally.Passed, $tally.Run, $skipNote) -ForegroundColor $(if ($tally.Skipped) { 'Yellow' } else { 'Green' }) }
+        else { Write-Host ('  X self-test: {0} of {1} cases RUN FAILED ({2}){3}. Do not trust a green from this gate until they pass.' -f $tally.Failed, $tally.Run, (@($tally.FailedNames) -join ', '), $skipNote) -ForegroundColor Red }
     }
-    return [pscustomobject]@{ Cases = $cases.ToArray(); Failed = $bad.Count }
+    return [pscustomobject]@{ Cases = $cases.ToArray(); Failed = $tally.Failed; Passed = $tally.Passed; Skipped = $tally.Skipped; Run = $tally.Run }
 }
 
 # ---------------------------------------------------------------------------
@@ -1336,7 +1449,7 @@ try {
     if ($SelfTest) {
         $st = Invoke-SelfTest -Ctx $ctx -RefFile $File
         if ($ResultPath) {
-            Write-JsonFile -Path $ResultPath -Body ([pscustomobject]([ordered]@{ mode = 'selftest'; gateVersion = ('{0} {1}' -f $GATE, $GATE_VERSION); ranAt = (Get-Date).ToString('o'); verdict = $(if ($st.Failed -eq 0) { 'pass' } else { 'fail' }); cases = $st.Cases }))
+            Write-JsonFile -Path $ResultPath -Body ([pscustomobject]([ordered]@{ mode = 'selftest'; gateVersion = ('{0} {1}' -f $GATE, $GATE_VERSION); ranAt = (Get-Date).ToString('o'); verdict = $(if ($st.Failed -eq 0) { 'pass' } else { 'fail' }); passed = $st.Passed; failed = $st.Failed; skipped = $st.Skipped; run = $st.Run; cases = $st.Cases }))
         }
         $exitCode = if ($st.Failed -eq 0) { 0 } else { 4 }
     }
@@ -1371,13 +1484,21 @@ try {
                 }
             }
         }
+        #  P0-05: the wrapper's own evidence, read back off disk before the
+        #  exit code exists. A gate.json this run wrote that says fail (or is
+        #  absent, or disagrees with what this run held in memory) beats the
+        #  in-memory tally, by name.
+        $evidence = @(Test-PerFileEvidence -ResultDir $ResultDir -Rows $rows.ToArray())
         if (-not $Quiet) {
             Write-Host ''
-            if ($failed -eq 0) { Write-Host ('  {0} file(s), every one exit 0' -f $rows.Count) -ForegroundColor Green }
-            else { Write-Host ('  {0} of {1} file(s) FAIL' -f $failed, $rows.Count) -ForegroundColor Red }
+            if (-not $ResultDir) { Write-Host '  REPORT: no -ResultDir, so no per-file gate.json was written and this run left no evidence to read back. Run-SpineGates always passes one.' -ForegroundColor Yellow }
+            foreach ($p in $evidence) { Write-Host ('  X per-file evidence: {0}' -f $p) -ForegroundColor Red }
+            if ($failed -eq 0 -and $evidence.Count -eq 0) { Write-Host ('  {0} file(s), every one exit 0{1}' -f $rows.Count, $(if ($ResultDir) { (', and every gate.json in ' + $ResultDir + ' agrees') } else { '' })) -ForegroundColor Green }
+            elseif ($failed -eq 0) { Write-Host ('  {0} file(s) passed in memory, but {1} per-file gate.json contradiction(s) - FAIL' -f $rows.Count, $evidence.Count) -ForegroundColor Red }
+            else { Write-Host ('  {0} of {1} file(s) FAIL{2}' -f $failed, $rows.Count, $(if ($evidence.Count) { ('; ' + $evidence.Count + ' per-file evidence problem(s)') } else { '' })) -ForegroundColor Red }
         }
-        if ($ResultPath) { Write-JsonFile -Path $ResultPath -Body ([pscustomobject]([ordered]@{ mode = 'all'; gateVersion = ('{0} {1}' -f $GATE, $GATE_VERSION); ranAt = (Get-Date).ToString('o'); buildDir = $ctx['BuildDir']; verdict = $(if ($failed -eq 0) { 'pass' } else { 'fail' }); files = $rows.ToArray() })) }
-        $exitCode = if ($failed -eq 0) { 0 } else { 1 }
+        if ($ResultPath) { Write-JsonFile -Path $ResultPath -Body ([pscustomobject]([ordered]@{ mode = 'all'; gateVersion = ('{0} {1}' -f $GATE, $GATE_VERSION); ranAt = (Get-Date).ToString('o'); buildDir = $ctx['BuildDir']; resultDir = $ResultDir; verdict = $(if ($failed -eq 0 -and $evidence.Count -eq 0) { 'pass' } else { 'fail' }); files = $rows.ToArray(); evidenceProblems = @($evidence) })) }
+        $exitCode = if ($failed -eq 0 -and $evidence.Count -eq 0) { 0 } else { 1 }
     }
     else {
         $r = Invoke-SubSectionTest -FilePath $File -Ctx $ctx -OutPath $ResultPath

@@ -455,9 +455,14 @@ function Get-GuideImagePrompt {
     $out    = New-Object System.Collections.Generic.List[object]
     $paras  = @(Get-GuideBodyBlock -DocumentXml $doc | Where-Object { $_.Kind -eq 'para' })
     $i      = 0
+    #  The marker vocabulary is DECLARED ONCE in Lib-GateCommon and read here,
+    #  so the builder, the extract stamp and every prompt sweep agree on what a
+    #  prompt block is. Four hand-typed copies in three spellings preceded it.
+    if (-not (Get-Command Get-GatePromptMarkerRegex -ErrorAction SilentlyContinue)) { . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1') }
+    $openerRx = Get-GatePromptMarkerRegex -Part opener
     while ($i -lt $paras.Count) {
         $t = $paras[$i].Text.Trim()
-        $m = [regex]::Match($t, '^\[\s*(IMAGE|DIAGRAM|ILLUSTRATION|PHOTO|FIGURE|PICTURE)\s*[:\-]')
+        $m = [regex]::Match($t, $openerRx)
         if (-not $m.Success) { $i++; continue }
 
         $kind  = $m.Groups[1].Value.ToUpper()

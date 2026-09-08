@@ -72,11 +72,31 @@
     PS 5.1. ASCII only in this file.
     Exit 0 clean, 1 a blocking finding, 2 a usage error or an empty check-set,
     4 the self-test failed.
+
+    ARMS. Every rule this gate enforces is a registered arm (Lib-GateCommon).
+    The blocking arms are the spine cells it reads, the locked terminology it
+    checks against and the registry authority classes it generates rules from;
+    each ends ran (size > 0), empty (a refusal, exit 2) or declared-n-a with a
+    written reason from contract.json gateArms. A DECLARED terminology block
+    that yields zero locked terms is a CHECK-SET EMPTY refusal naming the
+    block: the gate does not quietly pass over a lock list it could not read.
+
+    -SelfTest SYNTHESISES its own build (a locked term with its 'never' proviso,
+    an acronym adoption pair, and a class L figure in the registry) rather than
+    copying the build under test, so it runs anywhere and so a plant cannot go
+    missing because the real build happened not to contain the shape. Every
+    BLOCK arm named in the plant roster MUST be planted and MUST fire; a plant
+    path that lands nothing exits 4 naming the arm.
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][string] $BuildDir,
+    #  Refused by name when absent (below) rather than declared Mandatory: a
+    #  mandatory parameter makes -SelfTest unrunnable without a build, and the
+    #  self-test is the only evidence this gate discriminates.
+    [string] $BuildDir,
     [string] $SpineDir,
     #  The figure registry. Authority classes and every allow-list live here.
     [string] $RulesPath,
@@ -673,7 +693,12 @@ function Invoke-TrmScan {
 
     $locked = Get-TrmLockedTerms -Contract $Contract -RtoProfile $RtoProfile
     $acros = Get-TrmAcronyms -Contract $Contract -RtoProfile $RtoProfile -Cells $cells
-    $authRules = Get-TrmAuthorityRules -Registry $Registry -VenueName $venue
+    #  @() IS LOAD-BEARING. Get-TrmAuthorityRules returns a List; PowerShell
+    #  unrolls a one-element list to the element itself, and a [pscustomobject]
+    #  has no .Count, so a registry with EXACTLY ONE classed figure was read as
+    #  zero authority rules - the arm printed a count of 0 over a rule set that
+    #  did exist, and once that count became blocking it refused a good registry.
+    $authRules = @(Get-TrmAuthorityRules -Registry $Registry -VenueName $venue)
 
     #  Glossary canon: the spine's own key terms plus every locked canonical
     #  form. The variants are GENERATED mechanically from the canonical form -
@@ -768,20 +793,54 @@ function Invoke-TrmScan {
         if ($declared) { $chipCap = [int]$declared; $chipCapFrom = 'the RTO profile chip cap' }
     }
 
+    # -- the arm roster -----------------------------------------------------
+    #  Registered BEFORE anything is measured, so an arm that never completes
+    #  is visible as not-run rather than absent. Declared not-applicable is
+    #  read from contract.json gateArms, never decided here.
+    Reset-GateArmRoster
+    Register-GateArm -Name 'spine-cells' -Blocking
+    Register-GateArm -Name 'locked-terms' -Blocking
+    Register-GateArm -Name 'authority-classes' -Blocking
+    Register-GateArm -Name 'acronyms'
+    Register-GateArm -Name 'glossary-variants'
+    Register-GateArm -Name 'ambiguity'
+
+    $naLocked = Get-GateDeclaredNa -BuildDir $Build -Gate 'Assert-Terminology' -Arm 'locked-terms' -Contract $Contract
+    $naAuthority = Get-GateDeclaredNa -BuildDir $Build -Gate 'Assert-Terminology' -Arm 'authority-classes' -Contract $Contract
+
+    #  A terminology block that IS declared and yields nothing is the case this
+    #  refusal exists for: the gate then checks every page against an empty
+    #  lock list and prints success. Naming the block makes the refusal a work
+    #  order. (Reading a collection-shaped block is P1-06's rewrite; refusing
+    #  is this change's job - a gate does not guess at a source it cannot read.)
+    $lockedDeclaredIn = New-Object System.Collections.Generic.List[string]
+    if ($null -ne $Contract -and $null -ne (Get-GateProp -Object $Contract -Names @('terminology'))) { $lockedDeclaredIn.Add('contract.json terminology') }
+    if ($null -ne $RtoProfile -and $null -ne (Get-GateProp -Object $RtoProfile -Names @('lockedTerminology'))) { $lockedDeclaredIn.Add('the RTO profile lockedTerminology block') }
+    $lockedInput = if ($lockedDeclaredIn.Count -gt 0) { ($lockedDeclaredIn.ToArray() -join ' + ') } else { 'contract.json terminology / rto-profile lockedTerminology (neither is declared)' }
+    $lockedFrom = if (@($locked.Sources).Count -gt 0) { (@($locked.Sources) -join ' + ') } else { 'no locked-terminology source was readable' }
+
     if ($Announce -and -not $Quiet) {
         Write-Host ''
         Write-Host 'TERMINOLOGY - one word per concept, in reading order, with the registry''s authority' -ForegroundColor Cyan
         Write-Host ("  spine: {0} file(s), {1} authored string(s), read in the contract's own topic and PC order" -f @($ord.Files).Count, $cells.Count) -ForegroundColor DarkGray
         Write-Host ("  surfaces: guide {0} string(s), deck {1} string(s) - two reading orders, checked separately" -f @($cells | Where-Object { $_.Surface -eq 'guide' }).Count, @($cells | Where-Object { $_.Surface -eq 'deck' }).Count) -ForegroundColor DarkGray
         Write-Host ("  fields passed over as structural or build metadata: {0}" -f (($ord.Skipped.Keys | Sort-Object) -join ', ')) -ForegroundColor DarkGray
-        Write-GateCheckSet -What 'locked canonical terms' -Count $locked.Canonical.Count -DerivedFrom (($locked.Sources -join ' + '))
-        Write-GateCheckSet -What 'forbidden near-synonyms' -Count $locked.Forbidden.Count -DerivedFrom 'the same locked-terminology sources, parsed for what they say must never stand in'
-        Write-GateCheckSet -What 'acronym / expansion pairs' -Count $acros.Count -DerivedFrom 'contract terminology, the spine key terms and the profile paired forms'
-        Write-GateCheckSet -What 'glossary canonical forms' -Count $glossary.Count -DerivedFrom 'the spine key terms plus the locked terminology'
-        Write-GateCheckSet -What 'generated off-canon variants' -Count $variantMap.Count -DerivedFrom 'each canonical form, hyphen to space and hyphen removed'
-        Write-GateCheckSet -What 'authority-class rules' -Count $authRules.Count -DerivedFrom 'the figure registry, one rule generated per figure from its own class'
-        Write-GateCheckSet -What 'ambiguity-list terms' -Count $ambig.Count -DerivedFrom 'the contract reference convention'
-        Write-GateCheckSet -What 'obligation words shared by every rule' -Count $script:OBLIGATION.Count -DerivedFrom 'the one shared list at the top of this script'
+    }
+
+    #  OUTSIDE the -Quiet guard on purpose. A blocking check-set that is only
+    #  computed when the gate is talkative is a blocking check-set that never
+    #  fires in the band, which runs every member quiet.
+    Write-GateCheckSet -What 'spine cells (authored strings read in contract order)' -Count $cells.Count -DerivedFrom 'Get-TrmOrderedCells over the spine the contract orders' -Blocking -Input ('{0}\spine' -f $Build)
+    Write-GateCheckSet -What 'locked canonical terms' -Count $locked.Canonical.Count -DerivedFrom $lockedFrom -Blocking:(-not $naLocked) -Input $lockedInput
+    Write-GateCheckSet -What 'authority-class rules' -Count $authRules.Count -DerivedFrom 'the figure registry, one rule generated per figure from its own class' -Blocking:(-not $naAuthority) -Input 'figures.json figures[].authority with a require[] value'
+    Write-GateCheckSet -What 'forbidden near-synonyms' -Count $locked.Forbidden.Count -DerivedFrom 'the same locked-terminology sources, parsed for what they say must never stand in'
+    Write-GateCheckSet -What 'acronym / expansion pairs' -Count $acros.Count -DerivedFrom 'contract terminology, the spine key terms and the profile paired forms'
+    Write-GateCheckSet -What 'glossary canonical forms' -Count $glossary.Count -DerivedFrom 'the spine key terms plus the locked terminology'
+    Write-GateCheckSet -What 'generated off-canon variants' -Count $variantMap.Count -DerivedFrom 'each canonical form, hyphen to space and hyphen removed'
+    Write-GateCheckSet -What 'ambiguity-list terms' -Count $ambig.Count -DerivedFrom 'the contract reference convention'
+    Write-GateCheckSet -What 'obligation words shared by every rule' -Count $script:OBLIGATION.Count -DerivedFrom 'the one shared list at the top of this script'
+
+    if ($Announce -and -not $Quiet) {
         Write-Host ("  chip cap: {0} reference(s), from {1}" -f $chipCap, $chipCapFrom) -ForegroundColor DarkGray
         if ($authRules.Count -gt 0) {
             $byLetter = @{}
@@ -1145,12 +1204,34 @@ function Invoke-TrmScan {
         Add-TrmFinding -Rule 'opener-diversity' -Level 'REPORT' -Cell $grp[0] -Detail ("{0} authored strings open with '{1}'" -f $grp.Count, $k)
     }
 
+    # -- close every arm ----------------------------------------------------
+    #  Findings are counted from the rule names each arm owns, so an arm that
+    #  reports 0 findings over a non-empty set is distinguishable from an arm
+    #  that never looked.
+    $all = $script:Findings.ToArray()
+    function Get-TrmArmFindings { param([string[]] $Rules) return @($all | Where-Object { $r = [string]$_.Rule; @($Rules | Where-Object { $r -eq $_ -or $r -like ($_ + '/*') }).Count -gt 0 }).Count }
+
+    Complete-GateArm -Name 'spine-cells' -State 'ran' -Size $cells.Count -Findings $all.Count
+    if ($naLocked) { Complete-GateArm -Name 'locked-terms' -State 'declared-n-a' -Reason $naLocked }
+    elseif ($locked.Canonical.Count -gt 0) { Complete-GateArm -Name 'locked-terms' -State 'ran' -Size $locked.Canonical.Count -Findings (Get-TrmArmFindings @('locked-synonym', 'glossary-variant')) }
+    else { Complete-GateArm -Name 'locked-terms' -State 'empty' }
+    if ($naAuthority) { Complete-GateArm -Name 'authority-classes' -State 'declared-n-a' -Reason $naAuthority }
+    elseif ($authRules.Count -gt 0) { Complete-GateArm -Name 'authority-classes' -State 'ran' -Size $authRules.Count -Findings (Get-TrmArmFindings @('authority')) }
+    else { Complete-GateArm -Name 'authority-classes' -State 'empty' }
+    if ($acros.Count -gt 0) { Complete-GateArm -Name 'acronyms' -State 'ran' -Size $acros.Count -Findings (Get-TrmArmFindings @('acronym-order', 'acronym-order-topic')) }
+    else { Complete-GateArm -Name 'acronyms' -State 'empty' }
+    if ($variantMap.Count -gt 0) { Complete-GateArm -Name 'glossary-variants' -State 'ran' -Size $variantMap.Count -Findings (Get-TrmArmFindings @('glossary-variant')) }
+    else { Complete-GateArm -Name 'glossary-variants' -State 'empty' }
+    if ($ambig.Count -gt 0) { Complete-GateArm -Name 'ambiguity' -State 'ran' -Size $ambig.Count -Findings (Get-TrmArmFindings @('ambiguity')) }
+    else { Complete-GateArm -Name 'ambiguity' -State 'empty' }
+
     return [pscustomobject]@{
-        Findings   = $script:Findings.ToArray()
+        Findings   = $all
         Rules      = $script:RuleBook.ToArray()
         Suppressed = $script:Suppressed
         SuppressWhy = $script:SuppressWhy
         Cells      = $cells
+        Arms       = (Get-GateArmRoster)
         CheckSets  = [pscustomobject]@{
             lockedCanonical = $locked.Canonical.Count
             forbiddenSynonyms = $locked.Forbidden.Count
@@ -1167,9 +1248,191 @@ function Invoke-TrmScan {
 }
 
 # ---------------------------------------------------------------------------
+# SELF-TEST - synthesised fixtures, every plant verified to land, and a plant
+# roster that cannot be quietly skipped
+#
+# The old self-test copied the build under test. Every plant was conditional on
+# that build happening to carry the shape it needed ("if ($synonym) { ... }"),
+# so on a build without one the plant was skipped, nothing failed, and the gate
+# printed SELF-TEST passed having proved nothing. Here the fixture is written
+# from scratch to contain exactly the three shapes the BLOCK arms need, and the
+# roster below is the contract: a plant that lands nothing is exit 4 naming its
+# arm, whatever else passed.
+# ---------------------------------------------------------------------------
+
+if ($SelfTest) {
+    $stFail = 0
+    $enc = New-Object System.Text.UTF8Encoding($true)
+    $stRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('trm-selftest-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+
+    function Write-TrmStOk  { param([string] $m) Write-Host ("    ok   {0}" -f $m) -ForegroundColor Green }
+    function Write-TrmStBad { param([string] $m) Write-Host ("    X    {0}" -f $m) -ForegroundColor Red; $script:stFail++ }
+    $script:stFail = 0
+
+    function New-TrmFixture {
+        <#  A whole synthetic build: contract, registry and one sub-section.
+            -Plant names which defects to write into the sub-section, so the
+            clean control and each planted case come off the same writer.  #>
+        param([string] $Dir, [string[]] $Plant = @(), [switch] $NoTerminology, [switch] $EmptyTerminology)
+
+        New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'spine') | Out-Null
+
+        #  THE PROVISO: a locked term stated with what must never stand in for
+        #  it. The gate parses the head as canonical and everything after
+        #  'never' as forbidden - so the fixture states it exactly as a
+        #  contract does, and the parser under test is the one that reads it.
+        $terminology = [ordered]@{
+            _comment    = 'fixture locked terminology'
+            stockOnHand = "stock on hand (the goods the business already holds); never 'inventory on hand' or 'stock in hand' as a synonym"
+            #  THE ADOPTION PAIR: an expansion with its short form in brackets,
+            #  which is the one shape all three acronym sources are written in.
+            endProduct  = 'end product requirement (EPR) is what the finished dish must be'
+        }
+        $contract = [ordered]@{
+            build = [ordered]@{ brand = 'fixture'; tradingName = 'Fixture Venue'; rto = 'fixture' }
+            unit  = [ordered]@{ code = 'FIXTURE001' }
+            topics = @([ordered]@{ id = 1; title = 'Fixture topic'; pcs = @('1.1') })
+            referenceConvention = [ordered]@{ questionPattern = 'Task {n}'; _comment = 'fixture' }
+            questionMap = [ordered]@{ '1.1' = @('Task 1') }
+        }
+        if (-not $NoTerminology) { $contract['terminology'] = $(if ($EmptyTerminology) { [ordered]@{ _comment = 'declared and empty' } } else { $terminology }) }
+        [System.IO.File]::WriteAllText((Join-Path $Dir 'contract.json'), ($contract | ConvertTo-Json -Depth 40), $enc)
+
+        #  THE CLASS L FIGURE: named legislation with a required value, which
+        #  is what generates the authority/L/venue-ownership rule.
+        $registry = [ordered]@{
+            _comment = 'fixture registry. class legend: L legislation, V venue procedure, P pack, U unit'
+            figures = @(
+                [ordered]@{ name = 'Fixture cold-chain limit'; authority = 'L'; require = @('5 degrees Celsius') }
+            )
+        }
+        [System.IO.File]::WriteAllText((Join-Path $Dir 'figures.json'), ($registry | ConvertTo-Json -Depth 40), $enc)
+
+        $uk = New-Object System.Collections.Generic.List[string]
+        $uk.Add('This sub-section explains how a kitchen counts what it already holds before it orders anything more.')
+        $uk.Add('The Food Standards Code sets 5 degrees Celsius, and this kitchen works to it.')
+        if ($Plant -contains 'locked-synonym') { $uk.Add('A planted sentence that counts inventory on hand where the locked term belongs.') }
+        if ($Plant -contains 'authority') { $uk.Add('Our house standard requires 5 degrees Celsius on this run.') }
+
+        $sub = [ordered]@{
+            ref = 'PC 1.1'; pc = '1.1'; topic = 1; title = 'Fixture sub-section'
+            underpinningKnowledge = $uk.ToArray()
+            keyTerms = @([ordered]@{ term = 'stock on hand'; meaning = 'the goods the business already holds' })
+            slides = @([ordered]@{ layout = 'single'; kind = 'teaching'; headline = 'Counting stock on hand'; bullets = @('Count stock on hand before ordering.'); notes = 'The trainer walks the group through counting stock on hand before any order is raised, and names the code limit.' })
+        }
+        [System.IO.File]::WriteAllText((Join-Path $Dir 'spine\t1_1.1.json'), ($sub | ConvertTo-Json -Depth 40), $enc)
+
+        $front = [ordered]@{ title = 'Fixture front matter'; introduction = @('A plain opening paragraph about counting what the kitchen holds.') }
+        if ($Plant -contains 'acronym-order') {
+            $front.introduction = @('The planted opening paragraph uses EPR long before anything expands it.') + @($front.introduction)
+        }
+        [System.IO.File]::WriteAllText((Join-Path $Dir 'spine\front.json'), ($front | ConvertTo-Json -Depth 40), $enc)
+        return $Dir
+    }
+
+    #  THE PLANT ROSTER. One row per BLOCK arm this self-test claims to prove.
+    #  Needle is read back out of the file before the gate runs; Rule is the
+    #  rule that must fire AS BLOCKING on that exact string. A row whose plant
+    #  cannot be found in the fixture is exit 4 - never a silent skip.
+    $trmPlantRoster = @(
+        [pscustomobject]@{ Arm = 'locked-terms';      Plant = 'locked-synonym'; Rule = 'locked-synonym';               File = 'spine\t1_1.1.json'; Needle = 'inventory on hand'; What = "a forbidden near-synonym of the locked term (the contract's 'never' proviso)" }
+        [pscustomobject]@{ Arm = 'acronyms';          Plant = 'acronym-order';  Rule = 'acronym-order';                File = 'spine\front.json';  Needle = 'uses EPR long before'; What = 'an adoption pair used short-form-first in reading order' }
+        [pscustomobject]@{ Arm = 'authority-classes'; Plant = 'authority';      Rule = 'authority/L/venue-ownership';   File = 'spine\t1_1.1.json'; Needle = 'Our house standard requires 5 degrees Celsius'; What = "a class L figure written as the venue's own standard" }
+    )
+
+    Write-Host ''
+    Write-Host ("  {0} SELF-TEST - a clean result is not believed until the gate has failed on a planted defect" -f $GATE) -ForegroundColor Cyan
+    try {
+        New-Item -ItemType Directory -Force -Path $stRoot | Out-Null
+
+        # -- 0. the clean control ------------------------------------------
+        $cleanDir = New-TrmFixture -Dir (Join-Path $stRoot 'clean')
+        $cleanContract = Get-GateJson -Path (Join-Path $cleanDir 'contract.json')
+        $cleanRegistry = Get-GateJson -Path (Join-Path $cleanDir 'figures.json')
+        $clean = Invoke-TrmScan -Build $cleanDir -Spine (Join-Path $cleanDir 'spine') -Contract $cleanContract -Registry $cleanRegistry -RtoProfile $null
+        $cleanBlock = @($clean.Findings | Where-Object { $_.Level -eq 'BLOCK' })
+        if ($cleanBlock.Count -eq 0) { Write-TrmStOk 'clean control: no blocking finding (the CORRECT statement of the same class L figure does not fire)' }
+        else { Write-TrmStBad ("clean control fired {0} blocking finding(s): {1}" -f $cleanBlock.Count, (($cleanBlock | ForEach-Object { "$($_.Rule): $($_.Detail)" }) -join ' | ')) }
+        foreach ($a in @($clean.Arms)) {
+            if ($a.Blocking -and $a.State -ne 'ran') { Write-TrmStBad ("clean control: blocking arm '{0}' ended '{1}', not 'ran' - it examined nothing" -f $a.Name, $a.State) }
+        }
+        $ranArms = @($clean.Arms | Where-Object { $_.Blocking -and $_.State -eq 'ran' })
+        if ($ranArms.Count -ge 3) { Write-TrmStOk ("clean control: every blocking arm ran ({0})" -f (($ranArms | ForEach-Object { "$($_.Name)=$($_.Size)" }) -join ', ')) }
+
+        # -- 1. one plant per BLOCK arm, each verified to land --------------
+        foreach ($row in $trmPlantRoster) {
+            $dir = New-TrmFixture -Dir (Join-Path $stRoot $row.Plant) -Plant @($row.Plant)
+            $back = Get-GateFileText -Path (Join-Path $dir $row.File)
+            if ($back.IndexOf($row.Needle, [System.StringComparison]::Ordinal) -lt 0) {
+                #  RULE 7's whole point. A plant that did not land proves
+                #  nothing, so it is a self-test FAILURE naming its arm, not a
+                #  case quietly dropped from the tally.
+                Write-TrmStBad ("no plant for arm {0}: the fixture writer produced no '{1}' in {2} - this case proves nothing" -f $row.Arm, $row.Needle, $row.File)
+                continue
+            }
+            Write-Host ("    plant landed: {0}" -f $row.What) -ForegroundColor DarkGray
+            $c = Get-GateJson -Path (Join-Path $dir 'contract.json')
+            $g = Get-GateJson -Path (Join-Path $dir 'figures.json')
+            $probe = Invoke-TrmScan -Build $dir -Spine (Join-Path $dir 'spine') -Contract $c -Registry $g -RtoProfile $null
+            $hit = @($probe.Findings | Where-Object {
+                $_.Level -eq 'BLOCK' -and [string]$_.Rule -eq $row.Rule -and
+                ((([string]$_.Text).IndexOf($row.Needle, [System.StringComparison]::Ordinal) -ge 0) -or
+                 (([string]$_.Extra).IndexOf($row.Needle, [System.StringComparison]::Ordinal) -ge 0))
+            })
+            if ($hit.Count -gt 0) { Write-TrmStOk ("arm {0}: {1} -> {2} fired as BLOCKING on the planted string ({3} finding(s))" -f $row.Arm, $row.What, $row.Rule, $hit.Count) }
+            else { Write-TrmStBad ("no plant for arm {0}: '{1}' was planted and {2} did NOT fire as blocking on it" -f $row.Arm, $row.What, $row.Rule) }
+        }
+
+        # -- 2. a DECLARED terminology block yielding nothing is a refusal ---
+        $emptyDir = New-TrmFixture -Dir (Join-Path $stRoot 'emptyterm') -EmptyTerminology
+        $ec = Get-GateJson -Path (Join-Path $emptyDir 'contract.json')
+        $eg = Get-GateJson -Path (Join-Path $emptyDir 'figures.json')
+        $refused = ''
+        try { [void](Invoke-TrmScan -Build $emptyDir -Spine (Join-Path $emptyDir 'spine') -Contract $ec -Registry $eg -RtoProfile $null) }
+        catch { $refused = $_.Exception.Message }
+        if ($refused -match '^CHECK-SET EMPTY' -and $refused -match 'contract\.json terminology') {
+            Write-TrmStOk 'a declared terminology block that yields zero locked terms is a CHECK-SET EMPTY refusal naming contract.json terminology'
+        }
+        else { Write-TrmStBad ("a declared-but-unreadable terminology block did not refuse by name; got: {0}" -f $(if ($refused) { $refused } else { '(no refusal at all)' })) }
+
+        # -- 3. and the same refusal reaches the shell as exit 2 -------------
+        $global:LASTEXITCODE = 0
+        $childText = & $PSCommandPath -BuildDir $emptyDir -ReportPath (Join-Path $stRoot 'ignore.json') *>&1 | Out-String -Width 4096
+        $childRc = $LASTEXITCODE
+        if ($childRc -eq 2 -and $childText -match 'CHECK-SET EMPTY') { Write-TrmStOk 'and the shipping gate maps that refusal to exit 2' }
+        else { Write-TrmStBad ("the shipping gate exited {0} on the declared-but-empty terminology block (wanted 2): {1}" -f $childRc, $childText) }
+
+        # -- 4. the clean fixture end to end exits 0 ------------------------
+        $global:LASTEXITCODE = 0
+        $okText = & $PSCommandPath -BuildDir $cleanDir -ReportPath (Join-Path $stRoot 'clean-report.json') -Quiet *>&1 | Out-String -Width 4096
+        $okRc = $LASTEXITCODE
+        if ($okRc -eq 0 -and $okText -match 'ARMS: ') { Write-TrmStOk 'clean fixture end to end: exit 0 with an ARMS roster line' }
+        else { Write-TrmStBad ("clean fixture end to end exited {0} (wanted 0 with a roster): {1}" -f $okRc, $okText) }
+    }
+    catch {
+        Write-TrmStBad ("the self-test itself threw: {0}" -f $_.Exception.Message)
+    }
+    finally {
+        if ($stRoot -and (Test-Path -LiteralPath $stRoot)) { Remove-Item -LiteralPath $stRoot -Recurse -Force -ErrorAction SilentlyContinue }
+    }
+
+    Write-Host ''
+    if ($script:stFail -eq 0) {
+        Write-Host ("  SELF-TEST PASS - every BLOCK arm on the plant roster was planted, the plant was read back, and the gate failed on it" -f $GATE) -ForegroundColor Green
+        exit 0
+    }
+    Write-Host ("  SELF-TEST FAIL - {0} check(s). No result from this gate may be believed until it discriminates." -f $script:stFail) -ForegroundColor Red
+    exit 4
+}
+
+# ---------------------------------------------------------------------------
 # Inputs
 # ---------------------------------------------------------------------------
 
+if (-not $BuildDir) {
+    Write-Host ("  X {0}: -BuildDir is required (or run with -SelfTest, which synthesises its own build). A terminology gate with no build has nothing to read." -f $GATE) -ForegroundColor Red
+    exit 2
+}
 if (-not (Test-Path -LiteralPath $BuildDir)) { throw "$GATE`: no build directory at $BuildDir" }
 $buildResolved = (Resolve-Path -LiteralPath $BuildDir).Path
 $spineResolved = $SpineDir
@@ -1198,168 +1461,6 @@ if ($null -eq $contractJson -and $null -eq $profileJson) {
     exit 2
 }
 
-# ---------------------------------------------------------------------------
-# Self-test - plant, VERIFY THE PLANT LANDED, then run the shipping gate
-# ---------------------------------------------------------------------------
-
-$selfTestFailed = 0
-
-if ($SelfTest) {
-    Write-Host ''
-    Write-Host ("  {0} SELF-TEST - a clean result is not believed until the gate has failed on a planted defect" -f $GATE) -ForegroundColor Cyan
-
-    $tmpRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("trm-selftest-" + [guid]::NewGuid().ToString('N').Substring(0, 8))
-    New-Item -ItemType Directory -Force -Path $tmpRoot | Out-Null
-    try {
-        Copy-Item -LiteralPath (Join-Path $buildResolved 'contract.json') -Destination $tmpRoot -ErrorAction SilentlyContinue
-        Copy-Item -LiteralPath (Join-Path $buildResolved 'figures.json') -Destination $tmpRoot -ErrorAction SilentlyContinue
-        $tmpSpine = Join-Path $tmpRoot 'spine'
-        New-Item -ItemType Directory -Force -Path $tmpSpine | Out-Null
-        #  -LiteralPath does NOT expand a wildcard, so a copy written that way
-        #  moves nothing, the fixture spine is empty and the plant lands
-        #  nowhere. Enumerate and copy each file.
-        foreach ($sf in (Get-ChildItem -LiteralPath $spineResolved -Filter '*.json' -File)) {
-            Copy-Item -LiteralPath $sf.FullName -Destination (Join-Path $tmpSpine $sf.Name) -Force
-        }
-
-        function Test-TrmPlant {
-            <# Read the file BACK and confirm the defect is present in the exact
-               channel the gate scans. A plant that silently failed to apply
-               once made a gate on this project look proven when it was not. #>
-            param([string] $File, [string] $Needle, [string] $What)
-            $txt = Get-GateFileText -Path $File
-            if ($txt.IndexOf($Needle, [System.StringComparison]::Ordinal) -ge 0) {
-                Write-Host ("    plant landed: {0}" -f $What) -ForegroundColor DarkGray
-                return $true
-            }
-            Write-Host ("    X plant did NOT land: {0} - this proves nothing" -f $What) -ForegroundColor Red
-            return $false
-        }
-
-        function Set-TrmPlant {
-            <# Insert a string into an authored array field of a spine file, by
-               rewriting the JSON, so the plant is in a channel the walker
-               reads rather than beside it. #>
-            param([string] $File, [string] $Field, [string] $Value)
-            $j = Get-GateJson -Path $File
-            $cur = @(Get-GateProp -Object $j -Names @($Field) -Default @())
-            $new = New-Object System.Collections.Generic.List[object]
-            foreach ($x in $cur) { $new.Add($x) }
-            $new.Add($Value)
-            if (@($j.PSObject.Properties.Name) -contains $Field) { $j.$Field = $new.ToArray() }
-            else { $j | Add-Member -NotePropertyName $Field -NotePropertyValue $new.ToArray() }
-            $out = $j | ConvertTo-Json -Depth 40
-            [System.IO.File]::WriteAllText($File, $out, (New-Object System.Text.UTF8Encoding($true)))
-        }
-
-        $subFiles = @(Get-ChildItem -LiteralPath $tmpSpine -Filter '*.json' -File |
-                      Where-Object { $_.Name -ne 'front.json' -and $_.Name -ne 'cover.json' -and $_.Name -ne 'deckframe.json' } |
-                      Sort-Object Name)
-        $victim = $subFiles[0].FullName
-        $plants = New-Object System.Collections.Generic.List[object]
-
-        #  1. a forbidden near-synonym, taken from the contract's own locked list
-        $lockedForPlant = Get-TrmLockedTerms -Contract $contractJson -RtoProfile $profileJson
-        $synonym = ''
-        foreach ($k in ($lockedForPlant.Forbidden.Keys | Sort-Object)) { if ("$k".Length -ge 4) { $synonym = "$k"; break } }
-        if ($synonym) {
-            $sent = "A planted sentence that uses " + $synonym + " where the locked term belongs."
-            Set-TrmPlant -File $victim -Field 'underpinningKnowledge' -Value $sent
-            $plants.Add([pscustomobject]@{ Rule = 'locked-synonym'; Needle = $sent; What = ("forbidden near-synonym '" + $synonym + "'"); Ok = (Test-TrmPlant -File $victim -Needle $sent -What ("forbidden near-synonym '" + $synonym + "'")) })
-        }
-
-        #  2. an acronym used before its expansion in reading order
-        $acroForPlant = Get-TrmAcronyms -Contract $contractJson -RtoProfile $profileJson -Cells @()
-        $short = ''
-        foreach ($k in ($acroForPlant.Keys | Sort-Object)) { $short = "$k"; break }
-        if ($short) {
-            $frontPath = Join-Path $tmpSpine 'front.json'
-            if (Test-Path -LiteralPath $frontPath) {
-                $fj = Get-GateJson -Path $frontPath
-                $planted = "The planted opening paragraph uses " + $short + " long before anything expands it."
-                if (@($fj.PSObject.Properties.Name) -contains 'introduction') {
-                    $cur = @($fj.introduction)
-                    $lst = New-Object System.Collections.Generic.List[object]
-                    $lst.Add($planted)
-                    foreach ($x in $cur) { $lst.Add($x) }
-                    $fj.introduction = $lst.ToArray()
-                }
-                else { $fj | Add-Member -NotePropertyName 'introduction' -NotePropertyValue @($planted) }
-                [System.IO.File]::WriteAllText($frontPath, ($fj | ConvertTo-Json -Depth 40), (New-Object System.Text.UTF8Encoding($true)))
-                $plants.Add([pscustomobject]@{ Rule = 'acronym-order'; Needle = $planted; What = ("acronym '" + $short + "' used before its expansion"); Ok = (Test-TrmPlant -File $frontPath -Needle $planted -What ("acronym '" + $short + "' used at the front of the reading order")) })
-            }
-        }
-
-        #  3. a class L figure written in venue-ownership language
-        $venuePlant = ''
-        if ($null -ne $contractJson) { $venuePlant = [string](Get-GateProp -Object $contractJson.build -Names @('tradingName', 'brand') -Default '') }
-        $lFigureValue = ''
-        foreach ($f in @(Get-GateProp -Object $registryJson -Names @('figures') -Default @())) {
-            if ($null -eq $f) { continue }
-            $cls = [string](Get-GateProp -Object $f -Names @('authority', 'class') -Default '')
-            $letters = @([regex]::Matches($cls, '(?<![A-Za-z])[PULV](?![A-Za-z])') | ForEach-Object { $_.Value } | Sort-Object -Unique)
-            if ($letters.Count -ne 1 -or $letters[0] -ne 'L') { continue }
-            foreach ($rq in @(Get-GateProp -Object $f -Names @('require') -Default @())) {
-                if ("$rq".Trim()) { $lFigureValue = "$rq".Trim(); break }
-            }
-            if ($lFigureValue) { break }
-        }
-        if ($lFigureValue) {
-            $own = 'Our house standard requires ' + $lFigureValue + ' on this run.'
-            Set-TrmPlant -File $victim -Field 'underpinningKnowledge' -Value $own
-            $plants.Add([pscustomobject]@{ Rule = 'authority/L/venue-ownership'; Needle = $own; What = ("a class L figure (" + $lFigureValue + ") in venue-ownership language"); Ok = (Test-TrmPlant -File $victim -Needle $own -What ("class L figure '" + $lFigureValue + "' written as the venue's own standard")) })
-        }
-
-        #  4. THE CORRECT CASE, which must NOT fire. A gate that fires on
-        #     correct content is a gate that gets switched off.
-        $cleanSentence = ''
-        if ($lFigureValue) {
-            $cleanSentence = 'The Food Standards Code sets ' + $lFigureValue + ', and this kitchen works to it.'
-            Set-TrmPlant -File $victim -Field 'underpinningKnowledge' -Value $cleanSentence
-            [void](Test-TrmPlant -File $victim -Needle $cleanSentence -What 'the CORRECT statement of the same class L figure, which must not fire')
-        }
-
-        $bad = @($plants | Where-Object { -not $_.Ok })
-        if ($bad.Count -gt 0) {
-            Write-Host ("    X {0} plant(s) did not land. The self-test is void." -f $bad.Count) -ForegroundColor Red
-            $selfTestFailed++
-        }
-        else {
-            $probe = Invoke-TrmScan -Build $tmpRoot -Spine $tmpSpine -Contract $contractJson -Registry $registryJson -RtoProfile $profileJson
-            foreach ($p in $plants) {
-                #  The finding must be ON THE PLANTED STRING and it must BLOCK.
-                #  A rule that already fires elsewhere in the build would
-                #  otherwise satisfy this assertion without ever having seen
-                #  the plant, which is a self-test that proves nothing.
-                $hit = @($probe.Findings | Where-Object {
-                    $_.Rule -eq $p.Rule -and $_.Level -eq 'BLOCK' -and
-                    (([string]$_.Text).IndexOf($p.Needle, [System.StringComparison]::Ordinal) -ge 0 -or
-                     ([string]$_.Extra).IndexOf($p.Needle, [System.StringComparison]::Ordinal) -ge 0)
-                })
-                if ($hit.Count -gt 0) {
-                    Write-Host ("    self-test: {0} -> {1} fired as BLOCKING on the planted string ({2} finding(s)). This arm can fail." -f $p.What, $p.Rule, $hit.Count) -ForegroundColor Green
-                }
-                else {
-                    Write-Host ("    X self-test: {0} planted and {1} did NOT fire as blocking on the planted string." -f $p.What, $p.Rule) -ForegroundColor Red
-                    $selfTestFailed++
-                }
-            }
-            if ($cleanSentence) {
-                $falsePos = @($probe.Findings | Where-Object { $_.Level -eq 'BLOCK' -and [string]$_.Extra -match [regex]::Escape($cleanSentence) })
-                if ($falsePos.Count -eq 0) {
-                    Write-Host '    self-test: the correct statement of the same figure did NOT fire. The gate distinguishes them.' -ForegroundColor Green
-                }
-                else {
-                    Write-Host '    X self-test: the CORRECT statement fired as a blocking defect. A gate that fires on correct content gets switched off.' -ForegroundColor Red
-                    $selfTestFailed++
-                }
-            }
-        }
-    }
-    finally {
-        if ($tmpRoot -and (Test-Path -LiteralPath $tmpRoot)) { Remove-Item -LiteralPath $tmpRoot -Recurse -Force -ErrorAction SilentlyContinue }
-    }
-}
 
 # ---------------------------------------------------------------------------
 # The real run
@@ -1370,22 +1471,36 @@ if (-not $Quiet) {
     Write-Host ("  locked terminology sources: {0}" -f $profileFrom) -ForegroundColor $(if ($profileJson) { 'DarkGray' } else { 'Yellow' })
 }
 
-$result = Invoke-TrmScan -Build $buildResolved -Spine $spineResolved -Contract $contractJson -Registry $registryJson -RtoProfile $profileJson -Announce
+#  THE TOP-LEVEL CATCH. Write-GateCheckSet -Blocking and Assert-GateArmsComplete
+#  raise typed refusals; a refusal is exit 2 with the roster printed, so the
+#  runner can see WHICH arm was starved. Anything else is a gate defect and
+#  exits 1 by name - never 0.
+$result = $null
+$armRoster = @()
+try {
+    $result = Invoke-TrmScan -Build $buildResolved -Spine $spineResolved -Contract $contractJson -Registry $registryJson -RtoProfile $profileJson -Announce
+    Assert-GateArmsComplete
+    $armRoster = Write-GateArmRoster
+}
+catch {
+    $msg = $_.Exception.Message
+    if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0} REFUSED - {1}" -f $GATE, $msg) -ForegroundColor Red
+        [void](Write-GateArmRoster)
+        exit 2
+    }
+    Write-Host ("  X {0}: {1}" -f $GATE, $msg) -ForegroundColor Red
+    exit 1
+}
 
 $blocking = @($result.Findings | Where-Object { $_.Level -eq 'BLOCK' })
 $reported = @($result.Findings | Where-Object { $_.Level -ne 'BLOCK' })
-
-if ($result.CheckSets.lockedCanonical -eq 0 -and $result.CheckSets.authorityRules -eq 0 -and $result.CheckSets.acronyms -eq 0) {
-    Write-Host ("  X {0}: every derived check-set is empty. This gate would pass by having nothing to check." -f $GATE) -ForegroundColor Red
-    exit 2
-}
 
 $reportOut = $ReportPath
 if (-not $reportOut) { $reportOut = Join-Path $buildResolved 'terminology-report.json' }
 
 $exitCode = 0
-if ($selfTestFailed -gt 0) { $exitCode = 4 }
-elseif ($blocking.Count -gt 0) { $exitCode = 1 }
+if ($blocking.Count -gt 0) { $exitCode = 1 }
 
 $suppressRows = New-Object System.Collections.Generic.List[object]
 foreach ($k in ($result.Suppressed.Keys | Sort-Object)) {
@@ -1402,6 +1517,7 @@ $payload = [pscustomobject]@{
     checkSets     = $result.CheckSets
     rules         = $result.Rules
     suppressions  = $suppressRows.ToArray()
+    arms          = $armRoster
     blockingCount = $blocking.Count
     reportCount   = $reported.Count
     blocking      = $blocking
@@ -1439,11 +1555,6 @@ if ($reported.Count -gt 0) {
 
 Write-Host ''
 Write-Host ("  complete finding list written to {0}" -f $reportOut) -ForegroundColor DarkGray
-
-if ($selfTestFailed -gt 0) {
-    Write-Host ("  X {0}: the self-test failed, so no result from this run may be believed." -f $GATE) -ForegroundColor Red
-    exit 4
-}
 
 if ($blocking.Count -eq 0) {
     Write-Host ("  every locked term, acronym, structural label and registered figure is stated consistently ({0} report-level finding(s) recorded)" -f $reported.Count) -ForegroundColor Green

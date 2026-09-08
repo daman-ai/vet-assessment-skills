@@ -77,8 +77,24 @@
     plant is verified to have landed before the run it is meant to fail.
     Never touches the reference build.
 
+    FRONT MATTER (P0-11). The whole-spine walk gains a front-matter arm set:
+    front.json, cover.json and deckframe.json are enumerated with
+    Get-GateSpineFiles -IncludeFrontMatter and swept for parse and charset like
+    every other file, and each is checked against THE FIELDS THE RENDERERS READ
+    FROM IT - derived at run time from the AST of Invoke-Render.ps1,
+    Build-Guide.ps1 and Pptx-Blocks.ps1, following the variable each file is
+    loaded into, never from a list typed in this gate. 56,737 bytes of front
+    matter had been parse- and charset-checked by nobody, and deckframe.json's
+    frame slides had never been text-gated at all.
+
+    ARMS (Lib-GateCommon roster, whole-spine mode): spine-files,
+    front-matter-files and front-matter-fields are BLOCKING, and an empty one
+    is a typed refusal that this gate reports as REFUSED and exits 2 on.
+
     PS 5.1. ASCII only in this file.
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
@@ -110,6 +126,13 @@ $ErrorActionPreference = 'Stop'
 
 $GATE = 'Test-Spine'
 $script:Self = $PSCommandPath
+#  The skill root, for the renderer AST scan. $PSScriptRoot is populated here
+#  (it is EMPTY inside a parameter default when the script is run as
+#  `powershell -File`), with a guarded fallback for the scriptblock case.
+$script:SkillDirForRenderers = ''
+$__tsHere = $PSScriptRoot
+if (-not $__tsHere -and $MyInvocation.MyCommand.Path) { $__tsHere = Split-Path -Parent $MyInvocation.MyCommand.Path }
+if ($__tsHere) { $script:SkillDirForRenderers = Split-Path -Parent $__tsHere }
 
 # ---------------------------------------------------------------------------
 # The skill's documented defaults. Each is named with the reference that sets
@@ -498,6 +521,75 @@ function Test-TopicFields {
     }
 }
 
+function Get-SpineFrontMatterReadField {
+    <#  THE FIELDS THE RENDERERS READ FROM THE FRONT MATTER, DERIVED AT RUN
+        TIME FROM THEIR OWN AST.
+
+        Invoke-Render.ps1, Build-Guide.ps1 and Pptx-Blocks.ps1 are parsed and
+        every member access whose base expression ends in `front`, `cover` or
+        `deckframe` contributes its member name to that file's set. The AST is
+        used rather than a text search for the reason Test-SpineRead states:
+        comments do not exist in an AST, and a field named only in a comment is
+        exactly how a lost field hides. Nothing here is typed - a list of field
+        names written into this gate would be a second source of truth free to
+        drift from the renderer it claims to describe.
+
+        Returns Fields (file name -> string[]) and Sources (the scripts read).  #>
+    param([string] $SkillDir)
+
+    $map = @{ 'front' = 'front.json'; 'cover' = 'cover.json'; 'deckframe' = 'deckframe.json' }
+    $fields = @{}
+    foreach ($f in $map.Values) { $fields[$f] = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal) }
+    $sources = New-Object System.Collections.Generic.List[string]
+
+    $scripts = @('Invoke-Render.ps1', 'Build-Guide.ps1', 'Pptx-Blocks.ps1')
+    foreach ($name in $scripts) {
+        $p = Join-Path (Join-Path $SkillDir 'scripts') $name
+        if (-not (Test-Path -LiteralPath $p)) { continue }
+        $errs = $null; $toks = $null
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path -LiteralPath $p).Path, [ref]$toks, [ref]$errs)
+        if ($errs -and $errs.Count -gt 0) {
+            throw ('{0}: {1} does not parse ({2}). A renderer that does not parse cannot be asked what it reads from the front matter.' -f $GATE, $name, $errs[0].Message)
+        }
+        $sources.Add($name)
+
+        #  A renderer rarely reads '$deckframe.x'. It loads the file into a
+        #  variable of its own choosing - $frame = Read-JsonFile ... deckframe.json
+        #  - and reads THAT. So the aliases are derived first, from any
+        #  assignment whose right-hand side names the file, and the member scan
+        #  then follows them. Without this the deckframe arm had no field set
+        #  at all while Invoke-Render was reading its keys.
+        $alias = @{}
+        foreach ($a in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.AssignmentStatementAst] }, $true)) {
+            if (-not ($a.Left -is [System.Management.Automation.Language.VariableExpressionAst])) { continue }
+            $rhs = "$($a.Right.Extent.Text)"
+            foreach ($k in @($map.Keys)) {
+                if ($rhs -match ("(?i)['`"]" + $k + "\.json['`"]")) { $alias[$a.Left.VariablePath.UserPath] = $map[$k] }
+            }
+        }
+
+        foreach ($m in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.MemberExpressionAst] }, $true)) {
+            if (-not ($m.Member -is [System.Management.Automation.Language.StringConstantExpressionAst])) { continue }
+            #  '$front', '$fm.cover', '$spine.deckframe' all end in the node
+            #  name; a variable called $frontMatter does not, which is why the
+            #  match is anchored on the whole final segment.
+            $baseText = "$($m.Expression.Extent.Text)"
+            $file = ''
+            $mm = [regex]::Match($baseText, '(?i)(?:^\$|\.)(front|cover|deckframe)$')
+            if ($mm.Success) { $file = $map[$mm.Groups[1].Value.ToLowerInvariant()] }
+            else {
+                $am = [regex]::Match($baseText, '^\$([A-Za-z_][A-Za-z0-9_]*)$')
+                if ($am.Success -and $alias.ContainsKey($am.Groups[1].Value)) { $file = $alias[$am.Groups[1].Value] }
+            }
+            if (-not $file) { continue }
+            [void]$fields[$file].Add($m.Member.Value)
+        }
+    }
+    $out = @{}
+    foreach ($k in $fields.Keys) { $out[$k] = @($fields[$k] | Sort-Object) }
+    return [pscustomobject]@{ Fields = $out; Sources = $sources.ToArray() }
+}
+
 function Test-OneFile {
     <#  Every per-file arm, in order, for one parsed spine file. Returns what
         the whole-spine arms need from it. Parse and charset run on any file;
@@ -691,6 +783,25 @@ try {
         $cleanPath = Join-Path $tmpSpine $cleanName
         Copy-Item -LiteralPath $refPath -Destination $cleanPath
 
+        #  THE FRONT MATTER TRAVELS WITH THE FIXTURE. The whole-spine run has a
+        #  BLOCKING front-matter arm, so a fixture spine with no front.json,
+        #  cover.json or deckframe.json would be refused before any case below
+        #  is reached - and a self-test that cannot run proves nothing. Copied
+        #  from the source spine where it exists; written as a minimal shape
+        #  carrying fields the RENDERERS name where it does not, so the fixture
+        #  is never a shape this gate invented for itself.
+        $srcSpine = Split-Path $refPath -Parent
+        $fmForFixture = Get-SpineFrontMatterReadField -SkillDir $script:SkillDirForRenderers
+        foreach ($fmName in @('front.json', 'cover.json', 'deckframe.json')) {
+            $srcFm = Join-Path $srcSpine $fmName
+            $dstFm = Join-Path $tmpSpine $fmName
+            if (Test-Path -LiteralPath $srcFm) { Copy-Item -LiteralPath $srcFm -Destination $dstFm -Force; continue }
+            $obj = [ordered]@{}
+            foreach ($k in @(@($fmForFixture.Fields[$fmName]) | Select-Object -First 3)) { $obj[$k] = 'fixture' }
+            if ($obj.Count -eq 0) { $obj['title'] = 'fixture' }
+            [System.IO.File]::WriteAllText($dstFm, ($obj | ConvertTo-Json -Depth 6), (New-Object System.Text.UTF8Encoding($true)))
+        }
+
         $cases = New-Object System.Collections.Generic.List[object]
         function Invoke-Child {
             #  Hashtable splat, never an array: array elements bind by position,
@@ -790,6 +901,41 @@ try {
                 $seen = @(AsArr $c2.Result.failures | Where-Object { $_ -like ('{0} is not valid JSON*' -f $sibName) })
                 $ok2 = ($c2.Code -eq 1 -and $seen.Count -eq 1)
                 Record 'whole-spine sees sibling' $ok2 ('exit {0}; {1}' -f $c2.Code, $(if ($seen.Count) { $seen[0] } else { 'the invalid sibling was NOT reported' }))
+                Remove-Item -LiteralPath $sibPath -Force -ErrorAction SilentlyContinue
+            }
+
+            # (f) FRONT MATTER (P0-11). deckframe.json had never been text-gated
+            #     by anything. A non-ASCII byte planted in it must fail the
+            #     whole-spine run and NAME THE FILE - a curly quote is invisible
+            #     on the page and breaks the ASCII-only build path.
+            $dfPath = Join-Path $tmpSpine 'deckframe.json'
+            if (-not (Test-Path -LiteralPath $dfPath)) { Record 'deckframe charset plant' $false 'the fixture has no deckframe.json, so this case proves nothing' }
+            else {
+                $dfRaw = Get-GateFileText -Path $dfPath
+                #  Planted INSIDE a JSON string value, so the file still parses
+                #  and the charset sweep is the only thing that can catch it.
+                #  ONE occurrence: the 4-argument [regex]::Replace STATIC takes
+                #  RegexOptions, not a count, so passing 1 there means
+                #  IgnoreCase and replaces every match (98 quotes, not one).
+                #  The instance method is the one that counts.
+                $dfRx = New-Object System.Text.RegularExpressions.Regex '"([A-Za-z][A-Za-z ]{3,})"'
+                $dfBad = $dfRx.Replace($dfRaw, ('"$1' + [char]0x2019 + '"'), 1)
+                [System.IO.File]::WriteAllText($dfPath, $dfBad, (New-Object System.Text.UTF8Encoding $false))
+                $dfBack = Get-GateFileText -Path $dfPath
+                $dfHit = [regex]::Match($dfBack, '[^\x09\x0A\x0D\x20-\x7E]')
+                $dfParses = $true
+                try { $null = $dfBack | ConvertFrom-Json } catch { $dfParses = $false }
+                if (-not $dfHit.Success) { Record 'deckframe charset plant' $false 'the plant did not land: deckframe.json carries no non-ASCII character' }
+                elseif (-not $dfParses) { Record 'deckframe charset plant' $false 'the plant broke the JSON, so a parse failure would mask the charset arm' }
+                else {
+                    $c3 = Invoke-Child @{ BuildDir = $tmpBuild }
+                    $named = @(AsArr $c3.Result.failures | Where-Object { $_ -like 'deckframe.json*' -and $_ -match 'non-ASCII' })
+                    $ok3 = ($c3.Code -eq 1 -and $named.Count -ge 1)
+                    Record 'deckframe charset plant' $ok3 ('U+2019 planted in deckframe.json at offset {0}; exit {1}; {2}' -f $dfHit.Index, $c3.Code, $(if ($named.Count) { $named[0] } else { 'deckframe.json was NOT named' }))
+                }
+                #  Put it back, so the front-matter arm of any later case reads
+                #  a clean file.
+                [System.IO.File]::WriteAllText($dfPath, $dfRaw, (New-Object System.Text.UTF8Encoding $true))
             }
         }
         finally {
@@ -968,6 +1114,63 @@ try {
         }
         Add-Info ('slides authored on the spine: {0} (framing slides are additional)' -f $slideTotal)
 
+        # ===================================================================
+        # FRONT MATTER (P0-11)
+        #
+        # 56,737 bytes of front.json, cover.json and deckframe.json were never
+        # parse- or charset-checked by anything, and deckframe.json's nine
+        # frame slides had never been text-gated at all. The FILE SET comes
+        # from Get-GateSpineFiles -IncludeFrontMatter; the FIELDS come from the
+        # renderers themselves, AST-scanned at run time for front. / cover. /
+        # deckframe. member accesses - never from a list typed here, which
+        # would be a second source of truth free to drift from the renderer it
+        # is meant to describe.
+        # ===================================================================
+        Add-Ran 'front-matter'
+        #  The Lib-GateCommon roster, for the three arms this gate can size
+        #  honestly. Test-Spine's own ranArms/skippedArms record stays: it is
+        #  finer-grained and it is what the wrapper reads.
+        Reset-GateArmRoster
+        Register-GateArm -Name 'spine-files' -Blocking
+        Register-GateArm -Name 'front-matter-files' -Blocking
+        Register-GateArm -Name 'front-matter-fields' -Blocking
+        Write-GateCheckSet -What 'contract-named spine file(s) read' -Count $fileHashes.Count -DerivedFrom 'the contract topics and their performance criteria' -Blocking -Input ($SpineDir + ' - the contract names topics and not one of their files could be read')
+        Complete-GateArm -Name 'spine-files' -State 'ran' -Size $fileHashes.Count
+
+        $fmBuild = if ($BuildDir) { $BuildDir } else { Split-Path -Parent $SpineDir }
+        $fmAll = @(Get-GateSpineFiles -BuildDir $fmBuild -SpineDir $SpineDir -IncludeFrontMatter -Exclude @())
+        #  Front matter is what the contract does NOT name: a file whose name
+        #  carries no topic or PC identity.
+        $fmFiles = @($fmAll | Where-Object { $null -eq (Get-SpineFileIdentity -Name $_.Name) })
+        $fmRead = Get-SpineFrontMatterReadField -SkillDir $script:SkillDirForRenderers
+        $fmFieldTotal = 0
+        foreach ($k in @($fmRead.Fields.Keys)) { $fmFieldTotal += @($fmRead.Fields[$k]).Count }
+
+        Write-GateCheckSet -What 'front-matter file(s) swept (parse, charset, and the fields the renderers read)' -Count $fmFiles.Count -DerivedFrom 'Get-GateSpineFiles -IncludeFrontMatter, less every file the contract names' -Blocking -Input ($SpineDir + " - not one front-matter file (front.json, cover.json, deckframe.json) is on the spine, so the guide's first page and the deck's frame slides are gated by nobody")
+        Write-GateCheckSet -What 'front-matter field name(s) the renderers read' -Count $fmFieldTotal -DerivedFrom ('the AST of ' + ((@($fmRead.Sources)) -join ', ') + ', scanned for front. / cover. / deckframe. member accesses') -Blocking -Input ('the renderer scripts (' + ((@($fmRead.Sources)) -join ', ') + ") - not one front-matter field access could be read out of them, so the field arm would compare every file against nothing")
+        Complete-GateArm -Name 'front-matter-files' -State 'ran' -Size $fmFiles.Count
+        Complete-GateArm -Name 'front-matter-fields' -State 'ran' -Size $fmFieldTotal
+
+        foreach ($fm in $fmFiles) {
+            $sfm = Read-SpineFile -Path $fm.FullName
+            $fileHashes.Add([pscustomobject]@{ file = $sfm.Name; sha256 = $sfm.Sha256 })
+            #  Parse and charset, the same two sweeps every sub-section gets.
+            Test-Charset -Sf $sfm
+            if ($sfm.ParseError) { Add-Fail ('{0} is not valid JSON: {1}' -f $sfm.Name, $sfm.ParseError); continue }
+            $want = @($fmRead.Fields[$sfm.Name])
+            if ($want.Count -eq 0) { Add-Warn ('{0}: no renderer names a field on it, so nothing here can say what it must carry' -f $sfm.Name); continue }
+            $have = @($sfm.Json.PSObject.Properties.Name)
+            $present = @($want | Where-Object { $have -contains $_ })
+            $absent = @($want | Where-Object { $have -notcontains $_ })
+            if ($present.Count -eq 0) {
+                Add-Fail ('{0} carries none of the {1} field(s) the renderers read from it ({2}); it is on the spine and nothing on the page can come from it' -f $sfm.Name, $want.Count, (($want | Select-Object -First 8) -join ', '))
+            }
+            else {
+                Add-Info ('{0}: {1} of {2} renderer-read field(s) present' -f $sfm.Name, $present.Count, $want.Count)
+                if ($absent.Count -gt 0) { Add-Warn ('{0}: {1} field(s) a renderer reads are absent ({2})' -f $sfm.Name, $absent.Count, (($absent | Select-Object -First 8) -join ', ')) }
+            }
+        }
+
         # --- one hash over everything that was read, name order, so a wrapper
         #     can tell whether the spine it acts on is the spine that passed
         $sha = [System.Security.Cryptography.SHA256]::Create()
@@ -978,10 +1181,20 @@ try {
         finally { $sha.Dispose() }
     }
 
+    if (-not $File) {
+        Assert-GateArmsComplete
+        $script:armRoster = Write-GateArmRoster
+    }
+
     if ($script:fail.Count -gt 0) { $verdict = 'FAIL'; $exitCode = 1 }
 }
 catch {
-    Add-Fail ('validator error: {0}' -f $_.Exception.Message)
+    #  The library's two typed refusals - an empty blocking check-set, and a
+    #  blocking arm never completed - are named as refusals, not as generic
+    #  validator errors, so a reader can tell an absent input from a broken one.
+    $msg = $_.Exception.Message
+    if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') { Add-Fail ('REFUSED - {0}' -f $msg) }
+    else { Add-Fail ('validator error: {0}' -f $msg) }
     $verdict = 'ERROR'
     $exitCode = 2
 }
@@ -1001,6 +1214,7 @@ $body['skippedArms']     = $script:skip.ToArray()
 $body['ranArms']         = @($script:ran)
 $body['infos']           = @($script:info)
 $body['files']           = $fileHashes.ToArray()
+$body['arms']            = @($script:armRoster)
 $body['contract']        = [string]$contractUsed
 $body['questionPattern'] = [string]$script:QuestionPattern
 $body['floors']          = $floorsUsed

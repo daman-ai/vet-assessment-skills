@@ -46,17 +46,37 @@
     a field the build loses by accident look identical to a walker.
 
     PS 5.1. ASCII only in this file.
-    Exit 11 unread fields, 12 empty-rendering nodes, 13 both, 2 a usage error.
+    Exit 11 unread fields, 12 empty-rendering nodes, 13 both, 14 the renderer
+    set looks incomplete, 2 a usage error or an empty check-set, 4 the
+    self-test failed.
+
+    ARMS (Lib-GateCommon roster). renderer-read-set, spine-files and
+    content-fields are BLOCKING: each ends ran (size > 0), empty (a refusal,
+    exit 2, naming the input) or declared-n-a with a written reason from
+    contract.json gateArms. A spine walk that examined no content field at all
+    used to print two green lines over nothing; it is now a refusal naming the
+    spine.
+
+    -SelfTest synthesises a build and proves the gate on planted defects: a
+    field name no renderer reads (exit 11 naming it), a clean control (exit 0
+    with a full roster), and a spine whose files carry no content field at all
+    (exit 2 naming the spine).
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][string] $BuildDir,
+    #  Refused by name below rather than declared Mandatory, so -SelfTest can
+    #  synthesise its own build: a mandatory parameter makes the only evidence
+    #  this gate discriminates unrunnable.
+    [string] $BuildDir,
     [string] $SpineDir,
     [string] $SkillDir,
     #  Every script that turns spine JSON into a page. Globbed, not named.
     [string[]] $RendererPath,
     [string[]] $DeckProfile,
+    [switch] $SelfTest,
     [switch] $Quiet
 )
 
@@ -76,6 +96,104 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
 
 $GATE = 'Test-SpineRead'
+$script:SrdSelf = $PSCommandPath
+
+# ---------------------------------------------------------------------------
+# SELF-TEST - a synthesised build, a plant read back, then THIS script run as a
+# child so what is asserted is the exit code a runner reads.
+# ---------------------------------------------------------------------------
+
+function New-SrdFixture {
+    <#  A synthetic build whose spine carries only fields the real renderers
+        read. -UnreadField adds one field name no renderer references;
+        -NoContent writes files with no content-bearing field at all.  #>
+    param([Parameter(Mandatory)][string] $Dir, [switch] $UnreadField, [switch] $NoContent)
+    $e = New-Object System.Text.UTF8Encoding($true)
+    New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'spine') | Out-Null
+    $contract = [ordered]@{
+        build = [ordered]@{ brand = 'fixture' }
+        unit = [ordered]@{ code = 'FIXTURE001' }
+        topics = @([ordered]@{ id = 1; title = 'Fixture topic'; pcs = @('1.1') })
+    }
+    [System.IO.File]::WriteAllText((Join-Path $Dir 'contract.json'), ($contract | ConvertTo-Json -Depth 40), $e)
+    foreach ($pc in @('1.1', '1.2')) {
+        if ($NoContent) {
+            #  Structural keys only: nothing a walker would call content.
+            $sub = [ordered]@{ ref = ('PC ' + $pc); pc = $pc; topic = 1 }
+        }
+        else {
+            $sub = [ordered]@{
+                ref = ('PC ' + $pc); pc = $pc; topic = 1; title = ('Fixture sub-section ' + $pc)
+                whatThisMeans = 'A plain paragraph the guide renderer reads and puts on the page.'
+                underpinningKnowledge = @('A second paragraph the guide renderer reads and puts on the page.')
+            }
+            if ($UnreadField) { $sub['zzOrphanFieldNoRendererReads'] = 'Authored content written against a field name no renderer looks at.' }
+        }
+        [System.IO.File]::WriteAllText((Join-Path $Dir ('spine\t1_' + $pc + '.json')), ($sub | ConvertTo-Json -Depth 40), $e)
+    }
+    return $Dir
+}
+
+if ($SelfTest) {
+    $stFail = 0
+    $stRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('srd-selftest-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    Write-Host ''
+    Write-Host ("  {0} SELF-TEST - a clean result is not believed until the gate has failed on a planted defect" -f $GATE) -ForegroundColor Cyan
+
+    function Invoke-SrdChild {
+        param([string] $Build, [int] $Expect, [string[]] $Names, [string] $What)
+        $out = ''
+        try { $out = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script:SrdSelf -BuildDir $Build -SkillDir $SkillDir 2>&1 | Out-String -Width 4096) }
+        catch { $out = "$($_.Exception.Message)" }
+        $code = $LASTEXITCODE
+        $missing = @($Names | Where-Object { $out.IndexOf($_, [System.StringComparison]::OrdinalIgnoreCase) -lt 0 })
+        if ($code -eq $Expect -and $missing.Count -eq 0) {
+            Write-Host ("    ok   {0} -> exit {1}, naming {2}" -f $What, $code, (($Names | ForEach-Object { "'" + $_ + "'" }) -join ' and ')) -ForegroundColor Green
+        }
+        else {
+            Write-Host ("    X    {0} -> exit {1} (wanted {2}); not named: {3}" -f $What, $code, $Expect, $(if ($missing.Count) { ($missing -join ' | ') } else { 'nothing' })) -ForegroundColor Red
+            foreach ($ln in @(($out -split "`r?`n") | Where-Object { $_.Trim() } | Select-Object -Last 6)) { Write-Host ("      | {0}" -f $ln) -ForegroundColor DarkGray }
+            $script:stFail++
+        }
+    }
+    $script:stFail = 0
+
+    try {
+        New-Item -ItemType Directory -Force -Path $stRoot | Out-Null
+
+        #  0. the clean control
+        $c0 = New-SrdFixture -Dir (Join-Path $stRoot 'clean')
+        Invoke-SrdChild -Build $c0 -Expect 0 -Names @('ARMS: ', 'renderer-read-set|true|ran', 'content-fields|true|ran') -What 'a spine written to field names the renderers read'
+
+        #  1. a field name no renderer reads, verified to have landed first
+        $c1 = New-SrdFixture -Dir (Join-Path $stRoot 'unread') -UnreadField
+        $back = Get-GateFileText -Path (Join-Path $c1 'spine\t1_1.1.json')
+        if ($back.IndexOf('zzOrphanFieldNoRendererReads', [System.StringComparison]::Ordinal) -lt 0) {
+            Write-Host '    X    plant did NOT land: the orphan field is not in the fixture spine - this proves nothing' -ForegroundColor Red
+            $script:stFail++
+        }
+        else {
+            Write-Host '    plant landed: an authored field written against a name no renderer reads' -ForegroundColor DarkGray
+            Invoke-SrdChild -Build $c1 -Expect 11 -Names @('UNREAD', 'zzOrphanFieldNoRendererReads') -What 'a field carrying content no renderer reads'
+        }
+
+        #  2. a spine that carries no content field at all - the starved arm
+        $c2 = New-SrdFixture -Dir (Join-Path $stRoot 'nocontent') -NoContent
+        Invoke-SrdChild -Build $c2 -Expect 2 -Names @('CHECK-SET EMPTY', 'content-bearing field') -What 'a spine with no content-bearing field starves the walk'
+    }
+    catch { Write-Host ("    X    the self-test itself threw: {0}" -f $_.Exception.Message) -ForegroundColor Red; $script:stFail++ }
+    finally { if ($stRoot -and (Test-Path -LiteralPath $stRoot)) { Remove-Item -LiteralPath $stRoot -Recurse -Force -ErrorAction SilentlyContinue } }
+
+    Write-Host ''
+    if ($script:stFail -eq 0) { Write-Host '  SELF-TEST PASS - the walk fails on a verified plant, refuses a starved spine by name, and passes a clean control' -ForegroundColor Green; exit 0 }
+    Write-Host ("  SELF-TEST FAIL - {0} check(s)" -f $script:stFail) -ForegroundColor Red
+    exit 4
+}
+
+if (-not $BuildDir) {
+    Write-Host ("  X {0}: -BuildDir is required (or run with -SelfTest, which synthesises its own build)." -f $GATE) -ForegroundColor Red
+    exit 2
+}
 
 # ---------------------------------------------------------------------------
 # 1. The renderers, and every field name they actually read
@@ -175,11 +293,51 @@ function Test-FieldRead {
     return ($strong.Contains($Name) -or $weak.Contains($Name))
 }
 
+# ---------------------------------------------------------------------------
+# The arm roster. Registered before the walk, so an arm that never completes is
+# visible as not-run. The check-set lines print quiet or not: the band runs
+# every member quiet, and a blocking check-set computed only when the gate is
+# talkative is one that never fires where it matters.
+# ---------------------------------------------------------------------------
+
+$srdNa = @{}
+try {
+    foreach ($arm in @('renderer-read-set', 'content-fields')) {
+        $r = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm $arm
+        if ($r) { $srdNa[$arm] = $r }
+    }
+}
+catch { Write-Host ("  X {0}: {1}" -f $GATE, $_.Exception.Message) -ForegroundColor Red; exit 2 }
+
+Reset-GateArmRoster
+Register-GateArm -Name 'renderer-read-set' -Blocking:(-not $srdNa.ContainsKey('renderer-read-set'))
+Register-GateArm -Name 'spine-files' -Blocking
+Register-GateArm -Name 'content-fields' -Blocking:(-not $srdNa.ContainsKey('content-fields'))
+
+function Stop-SrdRefused {
+    param([string] $Message)
+    if ($Message -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0} REFUSED - {1}" -f $GATE, $Message) -ForegroundColor Red
+        [void](Write-GateArmRoster)
+        exit 2
+    }
+    Write-Host ("  X {0}: {1}" -f $GATE, $Message) -ForegroundColor Red
+    exit 1
+}
+
+try {
+    if ($srdNa.ContainsKey('renderer-read-set')) { Complete-GateArm -Name 'renderer-read-set' -State 'declared-n-a' -Reason $srdNa['renderer-read-set'] }
+    else {
+        Write-GateCheckSet -What 'field names read by a renderer' -Count ($strong.Count + $weak.Count) -DerivedFrom 'parsed property and index accesses plus string literals in the renderer AST (comments excluded by construction)' -Blocking -Input ('the ' + $renderers.Count + ' renderer script(s) parsed: not one field name could be read out of them, so every authored field would report UNREAD')
+        Complete-GateArm -Name 'renderer-read-set' -State 'ran' -Size ($strong.Count + $weak.Count)
+    }
+}
+catch { Stop-SrdRefused $_.Exception.Message }
+
 if (-not $Quiet) {
     Write-Host ''
     Write-Host 'SPINE READABILITY - is every authored field actually rendered?' -ForegroundColor Cyan
     Write-Host ("  renderers parsed: {0} - {1}" -f $renderers.Count, (($renderers | ForEach-Object { Split-Path $_ -Leaf }) -join ', ')) -ForegroundColor DarkGray
-    Write-GateCheckSet -What 'field names read by a renderer' -Count ($strong.Count + $weak.Count) -DerivedFrom 'parsed property and index accesses plus string literals in the renderer AST (comments excluded by construction)'
     if ($profiles.Count) {
         Write-Host ("  layout profiles: {0} - {1} dynamic slot name(s) count as read" -f (($profiles) -join ', '), @($deckSlots | Sort-Object -Unique).Count) -ForegroundColor DarkGray
     }
@@ -303,6 +461,22 @@ foreach ($f in $spineFileList) {
     if ($null -eq $j) { continue }
     Walk-Spine -Node $j -Path '' -File $f.Name
 }
+
+#  The two remaining blocking arms, closed on what the walk actually examined.
+#  A walk over zero content fields printed 'every authored field is read' and
+#  'every container puts something on the page' - two green lines over nothing.
+try {
+    Write-GateCheckSet -What 'spine file(s) walked' -Count $spineFileList.Count -DerivedFrom 'Get-GateSpineFiles over the build spine' -Blocking -Input ('the spine under {0}' -f $BuildDir)
+    Complete-GateArm -Name 'spine-files' -State 'ran' -Size $spineFileList.Count
+    if ($srdNa.ContainsKey('content-fields')) { Complete-GateArm -Name 'content-fields' -State 'declared-n-a' -Reason $srdNa['content-fields'] }
+    else {
+        Write-GateCheckSet -What 'content-bearing field(s) examined by the walk' -Count $script:contentFieldsSeen -DerivedFrom ("the walk over {0} spine file(s), no depth cap" -f $spineFileList.Count) -Blocking -Input ('the spine under ' + $BuildDir + ': the walk found no content-bearing field in any file, so both verdicts below would be green over an examined set of zero')
+        Complete-GateArm -Name 'content-fields' -State 'ran' -Size $script:contentFieldsSeen -Findings (@($unread).Count + @($missing).Count)
+    }
+    Assert-GateArmsComplete
+    [void](Write-GateArmRoster)
+}
+catch { Stop-SrdRefused $_.Exception.Message }
 
 # ---------------------------------------------------------------------------
 # 3. Report

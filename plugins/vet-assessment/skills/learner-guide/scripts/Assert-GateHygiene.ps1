@@ -60,12 +60,34 @@
     `# gate-exempt: <written reason>` region in the inspected file, and EVERY
     exemption used is printed as evidence with its reason.
 
+    THE THIRD STATUS: REPORT. An independent audit re-read every CONFIRMED row
+    this gate produced and refuted most of GH01, GH03, GH06 and GH07 - the
+    detector was wrong, not the gate under it. Two responses were available.
+    Narrowing the blocking set to the rules that were right would have switched
+    off live checks, which rule 4 forbids and which is how a gate gets quietly
+    weakened. So instead every rule stays blocking and the REFUTED ROWS ARE
+    NAMED, one per file and line, with a written reason, in
+
+        assets\gate-hygiene.reclassified.json
+
+    A row that matches an entry there prints as REPORT with its reason and does
+    not block. A row that matches nothing still blocks. The list is meant to be
+    SHORT-LIVED: it is the record of a detector defect, and P1-18 fixes the
+    detectors, after which each entry stops matching and is printed as STALE.
+
+    A STALE ENTRY DOES NOT BLOCK, and that is deliberate. An entry that matches
+    nothing silences nothing, so it cannot weaken a check; making the gate fail
+    because a row it named was FIXED would be a rule that defends its own
+    obsolete input. Stale entries are printed by name, counted in the report,
+    and Stage 0 records them.
+
     PS 5.1. ASCII only in this file.
 
     Exit 0 no CONFIRMED finding, 1 CONFIRMED findings present, 2 usage or
     refusal, 3 PARTIAL RUN (-Only; cannot stand for the whole set), 4 the
     self-test failed.
 #>
+# GATE: stages=0; requires=SkillDir
 
 [CmdletBinding()]
 param(
@@ -84,7 +106,14 @@ param(
     [string] $ResultDir,
 
     #  Run only these rule ids. A PARTIAL RUN: banner, exit 3, never 0.
+    #  A rule id this gate does not have is a REFUSAL (exit 2), not a run of
+    #  nothing: a typo used to filter every rule out and report a clean sweep.
     [string[]] $Only,
+
+    #  The refuted-row list. Defaults to assets\gate-hygiene.reclassified.json
+    #  beside -SkillDir. It is DATA, versioned with the skill, never a
+    #  parameter default - which is the shape GH04 exists to catch.
+    [string] $Reclassified,
 
     [switch] $SelfTest,
     [switch] $Quiet
@@ -216,6 +245,9 @@ function Get-HygieneRuleTable {
 }
 
 $script:RuleTable = Get-HygieneRuleTable
+#  The refuted-row list, empty until the main body loads it. Declared here so a
+#  finding recorded before the load simply matches nothing.
+$script:Reclass = @()
 
 # ---------------------------------------------------------------------------
 # Findings
@@ -243,6 +275,65 @@ function Get-DowngradedSeverity {
     }
 }
 
+function Get-HygieneReclassified {
+    <#  The refuted-row list: {rule, file, line, reason} entries, each naming
+        ONE finding this detector gets wrong.
+
+        Matching is on rule + file + (line OR snippet). Line numbers drift as
+        the tree is edited, so an entry may also carry the exact snippet the
+        finding prints; either identifies the row, and neither widens it to a
+        second row. An entry with no reason, or a reason too short to audit, is
+        rejected on the spot - an exemption with no written reason is a rule
+        switched off where no audit would see it.  #>
+    [CmdletBinding()]
+    param([string] $Path, [string] $SkillDir)
+    $out = [pscustomobject]@{ Path = ''; Entries = @(); Problems = @() }
+    $pth = $Path
+    if (-not $pth -and $SkillDir) { $pth = Join-Path $SkillDir 'assets\gate-hygiene.reclassified.json' }
+    if (-not $pth -or -not (Test-Path -LiteralPath $pth)) { return $out }
+    $out.Path = (Resolve-Path -LiteralPath $pth).Path
+    $probs = New-Object System.Collections.Generic.List[string]
+    $raw = $null
+    try { $raw = (Read-HygieneText -File $out.Path) | ConvertFrom-Json }
+    catch { $probs.Add(("the reclassification list at {0} is not valid JSON: {1}" -f $out.Path, $_.Exception.Message)); $out.Problems = @($probs); return $out }
+    $list = New-Object System.Collections.Generic.List[object]
+    $i = 0
+    foreach ($e in @($raw.entries)) {
+        $i++
+        $rule = "$($e.rule)".Trim().ToUpper()
+        $file = "$($e.file)".Trim()
+        $why  = "$($e.reason)".Trim()
+        if (-not $rule)  { $probs.Add("reclassification entry $i names no rule"); continue }
+        if (-not $file)  { $probs.Add("reclassification entry $i ($rule) names no file"); continue }
+        if ($why.Length -lt 30) { $probs.Add("reclassification entry $i ($rule $file) has no written reason a reader can audit: '$why'"); continue }
+        $list.Add([pscustomobject]@{
+            Rule    = $rule
+            Gate    = [System.IO.Path]::GetFileNameWithoutExtension($file)
+            Line    = [int]$(if ($null -ne $e.line) { $e.line } else { 0 })
+            Snippet = "$($e.snippet)".Trim()
+            Reason  = $why
+            Used    = 0
+        })
+    }
+    $out.Entries = $list.ToArray()
+    $out.Problems = @($probs)
+    return $out
+}
+
+function Find-HygieneReclassification {
+    <# The ONE entry that names this finding, or $null. #>
+    [CmdletBinding()]
+    param($Entries, [string] $Rule, [string] $Gate, [int] $Line, [string] $Snippet)
+    foreach ($e in @($Entries)) {
+        if ($e.Rule -ne $Rule) { continue }
+        if ($e.Gate -ine $Gate) { continue }
+        $byLine = ($e.Line -gt 0 -and $e.Line -eq $Line)
+        $bySnip = ($e.Snippet -and $Snippet -and $e.Snippet -eq $Snippet)
+        if ($byLine -or $bySnip) { return $e }
+    }
+    return $null
+}
+
 function Add-HygieneFinding {
     param(
         [Parameter(Mandatory)][string] $Rule,
@@ -258,17 +349,36 @@ function Add-HygieneFinding {
     $nm = $Rule
     if ($null -ne $meta) { $sev = $meta.Severity; $nm = $meta.Name }
     if ($Status -eq 'SUSPECTED') { $sev = Get-DowngradedSeverity -Severity $sev }
+    $gate = [System.IO.Path]::GetFileNameWithoutExtension($File)
+    $short = (Get-ShortText -Value $Snippet)
+    $why = ''
+    #  REPORT is written into a LOCAL, never back into the $Status parameter:
+    #  the ValidateSet on that parameter is what stops a CALLER from recording
+    #  a row as already-reclassified, and only this function may set REPORT.
+    $st = $Status
+    #  ONLY a CONFIRMED row can be reclassified. A SUSPECTED row already needs
+    #  a reader and blocks nothing, so there is nothing to reclassify.
+    if ($Status -eq 'CONFIRMED') {
+        $hit = Find-HygieneReclassification -Entries $script:Reclass -Rule $Rule -Gate $gate -Line ([int]$Line) -Snippet $short
+        if ($null -ne $hit) {
+            $hit.Used = [int]$hit.Used + 1
+            $st = 'REPORT'
+            $sev = 'LOW'
+            $why = $hit.Reason
+        }
+    }
     $script:Findings.Add([pscustomobject]@{
-        Rule     = $Rule
-        RuleName = $nm
-        Gate     = [System.IO.Path]::GetFileNameWithoutExtension($File)
-        File     = $File
-        Line     = [int]$Line
-        Status   = $Status
-        Severity = $sev
-        Rank     = (Get-SeverityRank -Severity $sev)
-        Snippet  = (Get-ShortText -Value $Snippet)
-        Detail   = $Detail
+        Rule       = $Rule
+        RuleName   = $nm
+        Gate       = $gate
+        File       = $File
+        Line       = [int]$Line
+        Status     = $st
+        Severity   = $sev
+        Rank       = (Get-SeverityRank -Severity $sev)
+        Snippet    = $short
+        Detail     = $Detail
+        Reclassified = $why
     })
 }
 
@@ -1192,13 +1302,19 @@ function Invoke-HygieneOnFile {
         return
     }
 
+    #  UNREADABLE LEAVES THE DENOMINATOR. The version this replaces returned
+    #  quietly on an empty read, and the caller then counted the file among the
+    #  "scanned N scripts" the pass line claims. Read-HygieneText returns ''
+    #  for a file it cannot open, so a locked, deleted or zero-byte gate was
+    #  reported as inspected and clean. It now returns a status the caller
+    #  keeps out of the count, and every such file is named.
     $src = ''
     try { $src = Read-HygieneText -File $File }
     catch {
-        Add-HygieneFinding -Rule 'GH00' -File $File -Line 0 -Snippet (Get-ShortText -Value $_.Exception.Message) -Status 'SUSPECTED' -Detail 'unreadable'
-        return
+        Add-HygieneFinding -Rule 'GH00' -File $File -Line 0 -Snippet (Get-ShortText -Value $_.Exception.Message) -Status 'CONFIRMED' -Detail 'this file could not be read, so nothing in it was inspected.'
+        return 'unreadable'
     }
-    if (-not $src.Trim()) { return }
+    if (-not $src.Trim()) { return 'empty' }
 
     $lines = $src -split "`r?`n"
     $tokens = $null
@@ -1207,14 +1323,14 @@ function Invoke-HygieneOnFile {
     try { $ast = [System.Management.Automation.Language.Parser]::ParseFile($File, [ref]$tokens, [ref]$errors) }
     catch {
         Add-HygieneFinding -Rule 'GH00' -File $File -Line 0 -Snippet (Get-ShortText -Value $_.Exception.Message) -Status 'CONFIRMED' -Detail 'the parser threw on this file'
-        return
+        return 'unparseable'
     }
     if ($null -ne $errors -and $errors.Count -gt 0) {
         foreach ($e in $errors) {
             Add-HygieneFinding -Rule 'GH00' -File $File -Line $e.Extent.StartLineNumber -Snippet (Get-ShortText -Value $e.Message) -Status 'CONFIRMED' `
                 -Detail 'this script does not parse, so it cannot fail on anything.'
         }
-        return
+        return 'unparseable'
     }
 
     $exempt = Get-ExemptRegion -File $File -Lines $lines
@@ -1243,10 +1359,17 @@ function Invoke-HygieneOnFile {
         }
         try { & ("Invoke-Rule" + $id) -Ctx $ctx }
         catch {
-            Add-HygieneFinding -Rule $id -File $File -Line 0 -Snippet (Get-ShortText -Value $_.Exception.Message) -Status 'SUSPECTED' `
-                -Detail 'the rule threw on this file; it did NOT clear it.'
+            #  CONFIRMED, not SUSPECTED. A rule that threw did not inspect this
+            #  file, so the file is UNINSPECTED for that rule - and the gate
+            #  reported it clean. That is the silent success this whole file
+            #  exists to hunt, arriving through the gate's own error path.
+            #  There is nothing here for a reader to adjudicate: a rule that
+            #  cannot run is a defect in the rule, whatever the file contains.
+            Add-HygieneFinding -Rule $id -File $File -Line 0 -Snippet (Get-ShortText -Value $_.Exception.Message) -Status 'CONFIRMED' `
+                -Detail ("rule {0} THREW on this file, so this file was never inspected by it. A rule that cannot run does not clear anything." -f $id)
         }
     }
+    return 'scanned'
 }
 
 # ---------------------------------------------------------------------------
@@ -1450,7 +1573,10 @@ exit 0
             if ($null -eq $r -or -not $r.Landed) { continue }
             $script:Findings = New-Object System.Collections.Generic.List[object]
             $script:ExemptionsUsed = New-Object System.Collections.Generic.List[object]
-            Invoke-HygieneOnFile -File $r.File -Truth $truth -Identity $identity -RuleFilter @()
+            #  The state string this returns is suppressed: it is for the main
+            #  sweep's denominator, and letting it into this function's pipeline
+            #  made its return value an ARRAY, which then read as false.
+            $null = Invoke-HygieneOnFile -File $r.File -Truth $truth -Identity $identity -RuleFilter @()
             if ($fx.Rule -eq 'BASELINE') {
                 if ($script:Findings.Count -eq 0) { TOk 'the baseline fixture fires no rule' }
                 else {
@@ -1471,6 +1597,93 @@ exit 0
         $set = Get-HygieneTargetSet -Skill $tmp -Build ''
         if ($set.Count -ge 9) { TOk ("discovery enumerates {0} fixture gates from the filesystem, with no list typed anywhere" -f $set.Count) }
         else { TBad ("discovery found only {0} fixture gates" -f $set.Count) }
+
+        # -------------------------------------------------------------------
+        # A RULE THAT THROWS FAILS THE GATE. The version this replaces
+        # recorded a throwing rule as SUSPECTED, so a rule that could not run
+        # on a file left that file uninspected AND cleared. Planted by giving
+        # a rule a context it cannot walk.
+        # -------------------------------------------------------------------
+        $victim = @(Get-ChildItem -LiteralPath $fixDir -Filter 'Fixture-Clean*.ps1' -File)
+        if ($victim.Count -eq 0) { $victim = @(Get-ChildItem -LiteralPath $fixDir -Filter 'Fixture-*.ps1' -File) }
+        $victimFile = $victim[0].FullName
+        #  A rule that throws, registered in the rule table the sweep derives
+        #  its rule set from - so this runs through the REAL catch path in
+        #  Invoke-HygieneOnFile, not a re-implementation of it.
+        $savedTable = $script:RuleTable
+        $script:RuleTable = @(@($savedTable) + @([pscustomobject]@{ Id = 'GHZZ'; Name = 'self-test: a rule that cannot run'; Severity = 'BLOCK'; Incident = 'planted by the self-test' }))
+        function global:Invoke-RuleGHZZ { param($Ctx) throw 'planted: this rule cannot run on any file' }
+        $landed = $false
+        try { & 'Invoke-RuleGHZZ' -Ctx $null } catch { $landed = $true }
+        if ($landed) { TOk 'plant landed: a rule registered in the derived rule table that throws on every file' } else { TBad 'the throwing-rule plant did not land' }
+        $script:Findings = New-Object System.Collections.Generic.List[object]
+        $script:ExemptionsUsed = New-Object System.Collections.Generic.List[object]
+        $null = Invoke-HygieneOnFile -File $victimFile -Truth $truth -Identity $identity -RuleFilter @('GHZZ')
+        $thrown = @($script:Findings | Where-Object { $_.Rule -eq 'GHZZ' -and $_.Status -eq 'CONFIRMED' -and $_.Detail -match 'THREW' })
+        if ($thrown.Count -eq 1) { TOk 'a rule that THREW on a file is CONFIRMED, so it fails the gate rather than leaving the file cleared' }
+        else { TBad ("a throwing rule recorded {0} CONFIRMED finding(s) naming THREW" -f $thrown.Count) }
+        #  the clean control: the same file, the same sweep, a rule that runs
+        $script:Findings = New-Object System.Collections.Generic.List[object]
+        $null = Invoke-HygieneOnFile -File $victimFile -Truth $truth -Identity $identity -RuleFilter @('GH01')
+        if (@($script:Findings | Where-Object { $_.Detail -match 'THREW' }).Count -eq 0) { TOk 'and the clean control: a rule that runs records no THREW finding on the same file' }
+        else { TBad 'the clean control recorded a THREW finding' }
+        Remove-Item -LiteralPath 'function:global:Invoke-RuleGHZZ' -Force -ErrorAction SilentlyContinue
+        $script:RuleTable = $savedTable
+
+        # -------------------------------------------------------------------
+        # AN UNREADABLE OR EMPTY FILE LEAVES THE DENOMINATOR
+        # -------------------------------------------------------------------
+        $empty = Join-Path $fixDir 'Fixture-Empty.ps1'
+        [System.IO.File]::WriteAllText($empty, '   ')
+        $script:Findings = New-Object System.Collections.Generic.List[object]
+        $stateEmpty = @(Invoke-HygieneOnFile -File $empty -Truth $truth -Identity $identity -RuleFilter @() | Where-Object { $_ -is [string] })
+        if ($stateEmpty.Count -gt 0 -and $stateEmpty[-1] -eq 'empty') { TOk 'a file with nothing in it returns "empty" and is kept OUT of the scanned count, never counted as clean' }
+        else { TBad ("empty file returned '{0}'" -f (@($stateEmpty) -join ',')) }
+        $good = @(Get-ChildItem -LiteralPath $fixDir -Filter 'Fixture-*.ps1' -File | Where-Object { $_.Name -ne 'Fixture-Empty.ps1' })[0].FullName
+        $script:Findings = New-Object System.Collections.Generic.List[object]
+        $stateGood = @(Invoke-HygieneOnFile -File $good -Truth $truth -Identity $identity -RuleFilter @() | Where-Object { $_ -is [string] })
+        if ($stateGood.Count -gt 0 -and $stateGood[-1] -eq 'scanned') { TOk 'and the clean control: a real gate script returns "scanned" and IS counted' }
+        else { TBad ("a real script returned '{0}'" -f (@($stateGood) -join ',')) }
+        Remove-Item -LiteralPath $empty -Force -ErrorAction SilentlyContinue
+
+        # -------------------------------------------------------------------
+        # THE RECLASSIFICATION LIST: a listed row is REPORT, an unlisted row
+        # with the SAME rule in the SAME file still blocks.
+        # -------------------------------------------------------------------
+        $rcFile = Join-Path $tmp 'reclass.json'
+        $rcBody = '{ "entries": [ { "rule": "GH01", "file": "scripts\\Fixture-Recl.ps1", "line": 11, "reason": "a written reason long enough for a reader to audit it, planted by the self-test" } ] }'
+        Write-HygieneText -File $rcFile -Body $rcBody
+        $rc = Get-HygieneReclassified -Path $rcFile -SkillDir ''
+        if (@($rc.Entries).Count -eq 1 -and @($rc.Problems).Count -eq 0) { TOk 'the reclassification list loads one entry with its written reason' }
+        else { TBad ("reclass load: {0} entr(y/ies), {1} problem(s)" -f @($rc.Entries).Count, @($rc.Problems).Count) }
+        $savedReclass = $script:Reclass
+        $script:Reclass = $rc.Entries
+        $script:Findings = New-Object System.Collections.Generic.List[object]
+        Add-HygieneFinding -Rule 'GH01' -File (Join-Path $fixDir 'Fixture-Recl.ps1') -Line 11 -Snippet '@($DocText)' -Status 'CONFIRMED' -Detail 'planted'
+        Add-HygieneFinding -Rule 'GH01' -File (Join-Path $fixDir 'Fixture-Recl.ps1') -Line 42 -Snippet '@($Plan)'    -Status 'CONFIRMED' -Detail 'planted, and NOT on the list'
+        $rep = @($script:Findings | Where-Object { $_.Status -eq 'REPORT' })
+        $con = @($script:Findings | Where-Object { $_.Status -eq 'CONFIRMED' })
+        if ($rep.Count -eq 1 -and $rep[0].Line -eq 11 -and $rep[0].Reclassified -match 'audit it') { TOk 'a row the list names prints as REPORT and carries its written reason' }
+        else { TBad ("REPORT rows: {0}" -f ($rep | Out-String)) }
+        if ($con.Count -eq 1 -and $con[0].Line -eq 42) { TOk 'and an UNLISTED row of the SAME rule in the SAME file is still CONFIRMED, so it still blocks' }
+        else { TBad ("CONFIRMED rows: {0}" -f ($con | Out-String)) }
+        $stale = @($script:Reclass | Where-Object { [int]$_.Used -eq 0 })
+        if ($stale.Count -eq 0) { TOk 'and the entry that matched is not reported stale' } else { TBad 'a used entry was reported stale' }
+        #  an entry with no auditable reason is REFUSED, not silently accepted
+        Write-HygieneText -File $rcFile -Body '{ "entries": [ { "rule": "GH01", "file": "scripts\\X.ps1", "line": 1, "reason": "because" } ] }'
+        $rc2 = Get-HygieneReclassified -Path $rcFile -SkillDir ''
+        if (@($rc2.Entries).Count -eq 0 -and (@($rc2.Problems) -join ' ') -match 'written reason') { TOk 'an entry whose reason is too short to audit is refused by name, never quietly honoured' }
+        else { TBad 'a reasonless reclassification entry was accepted' }
+        $script:Reclass = $savedReclass
+
+        # -------------------------------------------------------------------
+        # THE SHIPPED LIST IS DATA THIS GATE CAN READ
+        # -------------------------------------------------------------------
+        if ($Skill) {
+            $shipped = Get-HygieneReclassified -Path '' -SkillDir $Skill
+            if (@($shipped.Problems).Count -eq 0) { TOk ("the shipped reclassification list loads clean: {0} entr(y/ies)" -f @($shipped.Entries).Count) }
+            else { TBad ("the shipped list has problems: " + (@($shipped.Problems) -join '; ')) }
+        }
     }
     finally {
         $script:Findings = New-Object System.Collections.Generic.List[object]
@@ -1494,7 +1707,21 @@ exit 0
 # ---------------------------------------------------------------------------
 
 if ($SelfTest) {
-    $rc = Invoke-HygieneSelfTest -Skill $SkillDir
+    #  LAST value, coerced: a function that emits anything besides its return
+    #  value hands the caller an array, and [bool] of a one-element array holding
+    #  0 is $false - so $rc -eq 0 -and ... silently skipped the checks below.
+    $rc = [int](@(Invoke-HygieneSelfTest -Skill $SkillDir) | Select-Object -Last 1)
+    #  The -Only refusal, proved from outside: a rule id this gate does not
+    #  have used to filter every rule out and report a partial run with no
+    #  findings, which reads exactly like a clean one.
+    if ($rc -eq 0 -and $SkillDir) {
+        $null = & $PSCommandPath -SkillDir $SkillDir -Only 'GH-NOSUCH' -Quiet 6>&1 2>&1
+        if ($LASTEXITCODE -eq 2) { Write-Host '  PASS  -Only naming a rule this gate does not have REFUSES with exit 2' -ForegroundColor Green }
+        else { Write-Host ("  FAIL  unknown -Only exited {0}, expected 2" -f $LASTEXITCODE) -ForegroundColor Red; $rc = 4 }
+        $null = & $PSCommandPath -SkillDir $SkillDir -Only 'GH04' -Path @($PSCommandPath) -Quiet 6>&1 2>&1
+        if ($LASTEXITCODE -ne 2) { Write-Host '  PASS  and a rule id it does have is accepted (the clean control)' -ForegroundColor Green }
+        else { Write-Host '  FAIL  a known rule id was refused' -ForegroundColor Red; $rc = 4 }
+    }
     exit $rc
 }
 
@@ -1505,6 +1732,44 @@ if (-not $SkillDir -or -not (Test-Path -LiteralPath $SkillDir)) {
 
 $Only = Expand-CommaList -Value $Only
 $Path = Expand-CommaList -Value $Path
+
+#  AN UNKNOWN RULE ID IS A REFUSAL, NOT A RUN OF NOTHING. The version this
+#  replaces filtered the rule set by name and simply ran no rule when the name
+#  matched none - so `-Only GH1` (or GH10, or a rule renamed since the command
+#  line was written) inspected every script with zero rules and printed a
+#  partial run with no findings. The valid set is DERIVED from the rule table,
+#  never typed here, so a rule added there is spellable the moment it exists.
+$knownRules = @($script:RuleTable | ForEach-Object { $_.Id })
+if ($null -ne $Only -and $Only.Count -gt 0) {
+    $unknown = @($Only | Where-Object { $rid = "$_"; -not (@($knownRules | Where-Object { $_ -ieq $rid }).Count) })
+    if ($unknown.Count -gt 0) {
+        Write-Host ''
+        Write-Host ("{0}: -Only names {1} rule id(s) this gate does not have: {2}" -f $GATE, $unknown.Count, ($unknown -join ', ')) -ForegroundColor Red
+        Write-Host ("  the rules it does have, derived from the rule table: {0}" -f ($knownRules -join ', ')) -ForegroundColor DarkGray
+        Write-Host '  A name that matches no rule used to filter every rule out and report a partial run with no findings, which reads exactly like a clean one. It refuses instead.' -ForegroundColor DarkGray
+        exit 2
+    }
+}
+
+#  The refuted-row list. Data beside the skill, versioned with it.
+#  TAKE THE LOADER'S RESULT OBJECT, not whatever else reached the pipeline.
+#  A function that emits anything besides its return value hands the caller an
+#  ARRAY, and $reclass.Path then member-enumerates to a list of nulls - which
+#  is how the report came to name no reclassification file at all while the
+#  reclassification itself was working.
+$reclassLoad = @(Get-HygieneReclassified -Path $Reclassified -SkillDir $SkillDir |
+                 Where-Object { $_ -and (@($_.PSObject.Properties.Name) -contains 'Entries') })
+$reclass = $(if ($reclassLoad.Count -gt 0) { $reclassLoad[-1] } else { [pscustomobject]@{ Path = ''; Entries = @(); Problems = @('the reclassification loader returned no result object') } })
+$reclassPath = [string]$reclass.Path
+if ($reclass.Problems.Count -gt 0) {
+    Write-Host ''
+    Write-Host ("{0}: the reclassification list is not usable:" -f $GATE) -ForegroundColor Red
+    foreach ($x in $reclass.Problems) { Write-Host ("  X {0}" -f $x) -ForegroundColor Red }
+    Write-Host '  Every entry reclassifies one CONFIRMED row to REPORT, so every entry needs a written reason a reader can audit. Fix the list or remove it.' -ForegroundColor DarkGray
+    exit 2
+}
+$script:Reclass = $reclass.Entries
+
 $targets = @()
 if ($null -ne $Path -and $Path.Count -gt 0) {
     $lst = New-Object System.Collections.Generic.List[object]
@@ -1557,14 +1822,26 @@ if (-not $identityActive) {
 
 $startedAt = Get-Date
 $scanned = New-Object System.Collections.Generic.List[object]
+$notScanned = New-Object System.Collections.Generic.List[object]
 foreach ($t in $targets) {
     try {
-        Invoke-HygieneOnFile -File $t.File -Truth $truth -Identity $identity -RuleFilter $Only
-        $scanned.Add($t)
+        $state = @(Invoke-HygieneOnFile -File $t.File -Truth $truth -Identity $identity -RuleFilter $Only | Where-Object { $_ -is [string] })
+        $st = $(if ($state.Count -gt 0) { $state[-1] } else { 'scanned' })
+        if ($st -eq 'scanned') { $scanned.Add($t) }
+        else { $notScanned.Add([pscustomobject]@{ Name = $t.Name; File = $t.File; Why = $st }) }
     }
     catch {
-        Add-HygieneFinding -Rule 'GH00' -File $t.File -Line 0 -Snippet (Get-ShortText -Value $_.Exception.Message) -Status 'SUSPECTED' -Detail 'the sweep threw on this file; it was NOT cleared.'
+        Add-HygieneFinding -Rule 'GH00' -File $t.File -Line 0 -Snippet (Get-ShortText -Value $_.Exception.Message) -Status 'CONFIRMED' -Detail 'the sweep THREW on this file, so nothing in it was inspected; it was NOT cleared.'
+        $notScanned.Add([pscustomobject]@{ Name = $t.Name; File = $t.File; Why = 'threw' })
     }
+}
+if ($notScanned.Count -gt 0) {
+    #  Out of the denominator, and named. "scanned 53 scripts" has to mean 53
+    #  scripts were read, or the number is worse than no number at all.
+    Write-Host ''
+    Write-Host ('  NOT INSPECTED - out of the {0} target(s) these {1} were not read, and are NOT counted as clean:' -f $targets.Count, $notScanned.Count) -ForegroundColor Yellow
+    foreach ($u in $notScanned) { Write-Host ("    {0}  ({1})" -f $u.Name, $u.Why) -ForegroundColor Yellow }
+    $partial = $true
 }
 
 #  Another build may be writing this directory while this runs. Say what moved
@@ -1591,6 +1868,8 @@ if ($null -eq $Path -or $Path.Count -eq 0) {
 $sorted = @($script:Findings | Sort-Object Rank, Rule, Gate, Line)
 $confirmed = @($sorted | Where-Object { $_.Status -eq 'CONFIRMED' })
 $suspected = @($sorted | Where-Object { $_.Status -eq 'SUSPECTED' })
+$reported  = @($sorted | Where-Object { $_.Status -eq 'REPORT' })
+$staleReclass = @($script:Reclass | Where-Object { [int]$_.Used -eq 0 })
 
 if (-not $Quiet) {
     Write-Host ''
@@ -1622,6 +1901,21 @@ if (-not $Quiet) {
         Write-Host ("        {0} - {1}" -f $f.Status, (Get-ShortText -Value $f.Detail -Max 260)) -ForegroundColor DarkGray
     }
 
+    if ($reported.Count -gt 0) {
+        Write-Host ''
+        Write-Host ('  RECLASSIFIED TO REPORT - {0} row(s) an audit re-read and refuted. The RULE still runs and still blocks; these named rows do not.' -f $reported.Count) -ForegroundColor Cyan
+        Write-Host ("  from {0}" -f $(if ($reclassPath) { $reclassPath } else { 'no reclassification list on disk' })) -ForegroundColor DarkGray
+        foreach ($f in $reported) {
+            Write-Host ("    REPORT  {0} {1}:{2}  {3}" -f $f.Rule, $f.Gate, $f.Line, $f.Snippet) -ForegroundColor Cyan
+            Write-Host ("            {0}" -f (Get-ShortText -Value $f.Reclassified -Max 260)) -ForegroundColor DarkGray
+        }
+    }
+    if ($staleReclass.Count -gt 0) {
+        Write-Host ''
+        Write-Host ('  STALE RECLASSIFICATION ENTRIES - {0} entr(y/ies) match no finding. They silence nothing, so they do not block; delete them.' -f $staleReclass.Count) -ForegroundColor Yellow
+        foreach ($e in $staleReclass) { Write-Host ("    {0} {1}:{2}  {3}" -f $e.Rule, $e.Gate, $e.Line, (Get-ShortText -Value $e.Reason -Max 120)) -ForegroundColor Yellow }
+    }
+
     if ($moved.Count -gt 0) {
         Write-Host ''
         Write-Host '  MOVED DURING THE RUN - these are not covered by this report:' -ForegroundColor Yellow
@@ -1646,7 +1940,12 @@ if ($ResultDir) {
         rules       = @($script:RuleTable)
         confirmed   = $confirmed.Count
         suspected   = $suspected.Count
+        reported    = $reported.Count
         findings    = @($sorted)
+        reclassifiedFile   = $reclassPath
+        reclassifiedUsed   = @($script:Reclass | Where-Object { [int]$_.Used -gt 0 } | ForEach-Object { [pscustomobject]@{ rule = $_.Rule; file = $_.Gate; line = $_.Line; used = $_.Used; reason = $_.Reason } })
+        reclassifiedStale  = @($staleReclass | ForEach-Object { [pscustomobject]@{ rule = $_.Rule; file = $_.Gate; line = $_.Line; reason = $_.Reason } })
+        notInspected = @($notScanned | ForEach-Object { [pscustomobject]@{ name = $_.Name; why = $_.Why } })
         exemptions  = $script:ExemptionsUsed.ToArray()
         movedDuringRun = $moved.ToArray()
     }
@@ -1657,13 +1956,14 @@ Write-Host ''
 if ($partial) {
     $why = 'rules ' + ($Only -join ',') + ' only'
     if (-not $identityActive) { $why = 'the derived-identity arm could not run' }
-    Write-Host ("PARTIAL RUN - {0} CONFIRMED, {1} SUSPECTED over {2} scripts; {3}. A partial run cannot stand for the hygiene gate." -f $confirmed.Count, $suspected.Count, $scanned.Count, $why) -ForegroundColor Yellow
+    if ($notScanned.Count -gt 0) { $why = ('{0} target(s) were not inspected' -f $notScanned.Count) }
+    Write-Host ("PARTIAL RUN - {0} CONFIRMED, {1} SUSPECTED, {2} REPORT over {3} of {4} scripts; {5}. A partial run cannot stand for the hygiene gate." -f $confirmed.Count, $suspected.Count, $reported.Count, $scanned.Count, $targets.Count, $why) -ForegroundColor Yellow
     if ($confirmed.Count -gt 0) { exit 1 }
     exit 3
 }
 if ($confirmed.Count -gt 0) {
-    Write-Host ("HYGIENE FAIL - {0} CONFIRMED and {1} SUSPECTED findings over {2} gate scripts. Each is a work order against a named file and line; do not silence a finding by rewriting the gate." -f $confirmed.Count, $suspected.Count, $scanned.Count) -ForegroundColor Red
+    Write-Host ("HYGIENE FAIL - {0} CONFIRMED, {1} SUSPECTED and {2} REPORT findings over {3} gate scripts. Each CONFIRMED row is a work order against a named file and line; do not silence a finding by rewriting the gate." -f $confirmed.Count, $suspected.Count, $reported.Count, $scanned.Count) -ForegroundColor Red
     exit 1
 }
-Write-Host ("HYGIENE PASS - no CONFIRMED finding over {0} gate scripts ({1} SUSPECTED for a reader)." -f $scanned.Count, $suspected.Count) -ForegroundColor Green
+Write-Host ("HYGIENE PASS - no CONFIRMED finding over {0} gate scripts ({1} SUSPECTED for a reader, {2} REPORT reclassified with a written reason, {3} stale list entr(y/ies))." -f $scanned.Count, $suspected.Count, $reported.Count, $staleReclass.Count) -ForegroundColor Green
 exit 0

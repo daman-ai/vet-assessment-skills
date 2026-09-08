@@ -75,11 +75,45 @@
     comes from -BuildDir, the identity from the profiles, the gate set from the
     filesystem.
 
+    TWO MODES, AND THEY SIT ON DIFFERENT PATHS OF THE PIPELINE.
+
+      -StaticOnly  no process is spawned. The gate set is derived, every
+                   script is parsed, every '# GATE:' header is reconciled
+                   against the stage table, every recipe is reconciled against
+                   the disk, and a BLOCKING gate with neither a -SelfTest nor a
+                   recipe here is a FAIL (the allow-list for libraries and
+                   renderers sits beside that rule, with reasons). Seconds, so
+                   it runs as a band member. Writes gate-fixtures.static.json.
+      full         the plant channel, cut from a lean copy of -BuildDir. A
+                   background job, never on the critical path. Writes
+                   gate-fixtures.<hash>.json where <hash> is the sha256 of
+                   scripts\*.ps1 plus the recipe set, stamped inside the file
+                   so a reader can tell which scripts a verdict is about.
+
+    WHAT DISCRIMINATION MEANS HERE, STATED ONCE. FailsOnPlant is true only when
+    the planted run did not time out, exited non-zero, NAMED the plant, and
+    the clean arm RAN and exited differently. The first version accepted "the
+    plant run failed and named it" as discrimination, which is a tautology: a
+    gate that dies in its parameter block exits 1 on clean and on planted, and
+    its error text names the file it was handed. A needle is at least three
+    characters and must be absent from the clean output; a removal plant has
+    no needle to name, so its recipe declares an ExpectRx the failing output
+    must match.
+
     PS 5.1. ASCII only in this file.
 
-    Exit 0 every blocking gate proven, 1 one or more UNPROVEN, 2 usage or
-    refusal, 3 PARTIAL RUN, 4 the self-test failed.
+    Exit 0 every BLOCKING gate PROVEN (strict: plant landed, clean passed,
+    plant failed and was named), 1 a blocking gate UNPROVEN or a FAIL row
+    (orphan recipe, unparseable gate, no self-test and no recipe, no refusal
+    on empty input), 2 usage or refusal, 3 PARTIAL RUN, 4 the self-test
+    failed. Non-blocking and judgement-only rows are reported, never exit.
 #>
+#  This gate is a member of every band, as its STATIC arms only: the plant
+#  channel is a separate, hash-keyed run and never sits on a band's critical
+#  path. The three names a runner must thread are its skill directory, the
+#  -StaticOnly switch that keeps it inside the band's budget, and the
+#  directory its result file is written to.
+# GATE: stages=0,1,2,3c,4,7c; requires=SkillDir,StaticOnly,ResultDir
 
 [CmdletBinding()]
 param(
@@ -94,7 +128,8 @@ param(
     #  references\gates.md, if it is not where it usually is.
     [string] $GatesDoc,
 
-    #  Where gate-fixtures.json is written.
+    #  Where the result file is written. Defaults to -BuildDir when one is
+    #  given, so the full channel's evidence lands beside the build it judged.
     [string] $ResultDir,
 
     #  Prove only these gates. A PARTIAL RUN: banner, exit 3, never 0.
@@ -107,6 +142,11 @@ param(
     #  Enumerate the gate set and each gate's fixture cover, run nothing.
     [switch] $ListOnly,
 
+    #  The static arms only: derivation, header reconciliation, recipe-vs-disk,
+    #  parse check, self-test-or-recipe cover. No process is spawned. This is
+    #  the band member; the plant channel is the background job.
+    [switch] $StaticOnly,
+
     [switch] $SelfTest,
     [switch] $Quiet
 )
@@ -118,10 +158,10 @@ $GATE = 'Assert-GateFixtures'
 #  itself a gate in the skill, so a full run inside a full run enumerates the
 #  set again and starts another one - once per level, forever. Measured: the
 #  first real pass had spawned twenty-odd live processes before anyone looked.
-#  A nested -SelfTest or -ListOnly is harmless and still allowed; a nested full
-#  run REFUSES and says why, rather than being silently skipped.
+#  A nested -SelfTest, -ListOnly or -StaticOnly is harmless and still allowed;
+#  a nested full run REFUSES and says why, rather than being silently skipped.
 $script:NestKey = 'LG_ASSERT_GATEFIXTURES_ACTIVE'
-if (-not $SelfTest -and -not $ListOnly) {
+if (-not $SelfTest -and -not $ListOnly -and -not $StaticOnly) {
     $already = [System.Environment]::GetEnvironmentVariable($script:NestKey)
     if ($already) {
         Write-Host ("{0}: refusing a nested full run. A fixtures pass is already running in a parent process, and this harness proves every gate in the skill including itself, so a nested pass recurses without end. Run it once, at the top." -f $GATE) -ForegroundColor Yellow
@@ -669,44 +709,159 @@ function Get-SelfTestPlantVerification {
     return $out
 }
 
+#  REQUEST: Lib-GateCommon Get-GateHeader
+#  Run-SpineGates.ps1 carries its own Get-GateHeader over the same line, and
+#  two parsers of one line is the duplication this skill keeps paying for. The
+#  parse below is deliberately Run-SpineGates', line for line, so that until a
+#  shared helper lands the two cannot disagree about where a header may sit or
+#  what a clause means.
+function Get-GateHeaderLine {
+    <#  The '# GATE:' header a gate carries near its top, parsed.
+
+        Format, fixed by P0-15 and read here without extension:
+            # GATE: stages=1,3c; requires=BuildDir; 7c: DocText
+        Clauses are ';'-separated. 'stages=' lists the stages the gate runs
+        at; 'requires=' lists the parameter names it cannot run without; a
+        clause of the form '<stage>: <names>' is a stage-qualified requires.
+
+        THE SCAN IS RUN-SPINEGATES', LINE FOR LINE: from the top, skipping
+        block comments, stopping at the first CmdletBinding attribute or
+        param block. An earlier version read only the first 60 lines - and
+        the opening and closing markers of a block comment cannot be written
+        inside one, which is its own small lesson. This very script's
+        own header sits at line 117 under a long block comment - so the
+        harness reported ITSELF as carrying no header while the runner that
+        actually derives membership from it read it perfectly. Two readers of
+        one line must not disagree about where the line may be.
+
+        Returns $null when there is none.  #>
+    param([AllowEmptyString()][string] $Source)
+
+    if (-not $Source) { return $null }
+    $lines = @($Source -split "`r?`n")
+    $inBlock = $false
+    for ($i = 0; $i -lt $lines.Count; $i++) {
+        $ln = $lines[$i]
+        if ($inBlock) { if ($ln -match '#>') { $inBlock = $false }; continue }
+        if ($ln -match '^\s*<#') { if ($ln -notmatch '#>') { $inBlock = $true }; continue }
+        if ($ln -match '^\s*(\[CmdletBinding|param\s*\()') { break }
+        $m = [regex]::Match($ln, '^\s*#\s*GATE:\s*(.+?)\s*$')
+        if (-not $m.Success) { continue }
+        $raw = $m.Groups[1].Value
+        $stages = New-Object System.Collections.Generic.List[string]
+        $requires = New-Object System.Collections.Generic.List[string]
+        $clauses = [ordered]@{}
+        $problems = New-Object System.Collections.Generic.List[string]
+        foreach ($piece in ($raw -split ';')) {
+            $c = $piece.Trim()
+            if (-not $c) { continue }
+            $kv = [regex]::Match($c, '^(stages|requires)\s*=\s*(.*)$')
+            if ($kv.Success) {
+                $vals = @($kv.Groups[2].Value -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+                if ($kv.Groups[1].Value -eq 'stages') { foreach ($v in $vals) { if (-not $stages.Contains($v)) { $stages.Add($v) } } }
+                else { foreach ($v in $vals) { if (-not $requires.Contains($v)) { $requires.Add($v) } } }
+                continue
+            }
+            $sc = [regex]::Match($c, '^([0-9][0-9a-z-]*)\s*:\s*(.*)$')
+            if ($sc.Success) {
+                $clauses[$sc.Groups[1].Value] = @($sc.Groups[2].Value -split ',' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+                continue
+            }
+            $problems.Add(("clause '{0}' is neither stages=, requires= nor <stage>: <names>" -f $c))
+        }
+        return [pscustomobject]@{
+            Line     = $i + 1
+            Raw      = $raw
+            Stages   = $stages.ToArray()
+            Requires = $requires.ToArray()
+            Clauses  = $clauses
+            Problems = $problems.ToArray()
+        }
+    }
+    return $null
+}
+
 function Get-ScriptFacts {
     <#  What a gate declares about itself: its parameters, whether it has a
         -SelfTest, whether that self-test verifies its own plant, what exit
-        codes it can return, and the claim in its header.  #>
-    param([Parameter(Mandatory)][string] $File)
+        codes it can return, the claim in its header, its '# GATE:' line and
+        whether it supports ShouldProcess.
+
+        -Deep runs the plant-verification analysis over the syntax tree,
+        which costs seconds per large script. The static arms do not need it
+        (they ask whether a self-test EXISTS, not whether it reads its plant
+        back), so they leave it off and stay inside a band's budget.  #>
+    param([Parameter(Mandatory)][string] $File, [switch] $Deep)
 
     $facts = [pscustomobject]@{
         Name          = [System.IO.Path]::GetFileNameWithoutExtension($File)
         File          = $File
         Parses        = $false
+        ParseError    = ''
         ParamNames    = @()
         Mandatory     = @()
         HasSelfTest   = $false
+        SelfTestSwitch = ''
         SelfTestVerifiesPlant = $false
         ExitCodes     = @()
         CanFail       = $false
         Claim         = ''
         Length        = 0
         Mtime         = [datetime]::MinValue
+        SupportsShouldProcess = $false
+        GateHeader    = $null
+        PlantVerifyState = 'N/A'
+        PlantVerifyEvidence = ''
+        PlantVerifyLookedFor = ''
     }
-    if (-not (Test-Path -LiteralPath $File)) { return $facts }
+    if (-not (Test-Path -LiteralPath $File)) { $facts.ParseError = 'the file is not on disk'; return $facts }
     $fi = Get-Item -LiteralPath $File
     $facts.Length = $fi.Length
     $facts.Mtime = $fi.LastWriteTimeUtc
 
+    $src = Read-FixtureText -File $File
+    $facts.GateHeader = Get-GateHeaderLine -Source $src
+    #  The claim: the first prose of the header block comment. Read before
+    #  the parse so an unparseable gate still reports what it claimed.
+    $m = [regex]::Match($src, '(?s)^\s*<#(.*?)#>')
+    if ($m.Success) {
+        $head = $m.Groups[1].Value
+        $head = [regex]::Replace($head, '\s+', ' ').Trim()
+        $facts.Claim = Get-ShortLine -Value $head -Max 220
+    }
+
     $tokens = $null; $errors = $null; $ast = $null
     try { $ast = [System.Management.Automation.Language.Parser]::ParseFile($File, [ref]$tokens, [ref]$errors) }
-    catch { return $facts }
-    if ($null -ne $errors -and $errors.Count -gt 0) { return $facts }
+    catch { $facts.ParseError = ('the parser threw: ' + (Get-ShortLine -Value $_.Exception.Message -Max 160)); return $facts }
+    if ($null -ne $errors -and $errors.Count -gt 0) {
+        $e0 = $errors[0]
+        $facts.ParseError = ("line {0}: {1}" -f $e0.Extent.StartLineNumber, (Get-ShortLine -Value $e0.Message -Max 160))
+        return $facts
+    }
     $facts.Parses = $true
 
     $pnames = New-Object System.Collections.Generic.List[string]
     $mand = New-Object System.Collections.Generic.List[string]
     if ($null -ne $ast.ParamBlock) {
+        foreach ($attr in $ast.ParamBlock.Attributes) {
+            if ("$($attr.TypeName)" -inotmatch 'CmdletBinding') { continue }
+            foreach ($na in $attr.NamedArguments) {
+                if ("$($na.ArgumentName)" -ieq 'SupportsShouldProcess') {
+                    if ($na.ExpressionOmitted -or [regex]::IsMatch($na.Argument.Extent.Text, '(?i)\$true')) { $facts.SupportsShouldProcess = $true }
+                }
+            }
+        }
         foreach ($p in $ast.ParamBlock.Parameters) {
             $pn = "$($p.Name.VariablePath.UserPath)"
             $pnames.Add($pn)
-            if ($pn -ieq 'SelfTest') { $facts.HasSelfTest = $true }
+            #  A switch whose name ENDS in SelfTest is a self-test switch:
+            #  Lib-GateCommon's is -GateCommonSelfTest, because a plain
+            #  -SelfTest on a dot-sourced library would bind to the caller's.
+            $isSwitch = $false
+            foreach ($a in $p.Attributes) {
+                if ($a -is [System.Management.Automation.Language.TypeConstraintAst] -and "$($a.TypeName)" -imatch '^switch$') { $isSwitch = $true }
+            }
+            if ($isSwitch -and $pn -imatch 'SelfTest$' -and -not $facts.HasSelfTest) { $facts.HasSelfTest = $true; $facts.SelfTestSwitch = $pn }
             foreach ($a in $p.Attributes) {
                 if ($a -isnot [System.Management.Automation.Language.AttributeAst]) { continue }
                 foreach ($na in $a.NamedArguments) {
@@ -715,6 +870,33 @@ function Get-ScriptFacts {
                     }
                 }
             }
+        }
+    }
+    #  A SCRIPT'S PARAMETERS ARE NOT ALWAYS ITS FILE-SCOPE param() BLOCK.
+    #  Test-GuideRules.ps1 has none: it declares a FUNCTION of the same name,
+    #  and the runner dot-sources the file and calls that. Reading only the
+    #  file scope reported its own header's requires=Path and
+    #  requires=QuestionsInPack as naming no parameter of the script - two
+    #  confident false findings against a header that was right. So the
+    #  function that carries the script's name contributes its parameters too,
+    #  and its CmdletBinding is read for SupportsShouldProcess on the same
+    #  footing.
+    foreach ($fn in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $true)) {
+        if ("$($fn.Name)" -ine $facts.Name) { continue }
+        $pb = $null
+        if ($null -ne $fn.Body) { $pb = $fn.Body.ParamBlock }
+        if ($null -eq $pb) { continue }
+        foreach ($attr in $pb.Attributes) {
+            if ("$($attr.TypeName)" -inotmatch 'CmdletBinding') { continue }
+            foreach ($na in $attr.NamedArguments) {
+                if ("$($na.ArgumentName)" -ieq 'SupportsShouldProcess') {
+                    if ($na.ExpressionOmitted -or [regex]::IsMatch($na.Argument.Extent.Text, '(?i)\$true')) { $facts.SupportsShouldProcess = $true }
+                }
+            }
+        }
+        foreach ($p in $pb.Parameters) {
+            $pn = "$($p.Name.VariablePath.UserPath)"
+            if (-not $pnames.Contains($pn)) { $pnames.Add($pn) }
         }
     }
     $facts.ParamNames = $pnames.ToArray()
@@ -734,22 +916,20 @@ function Get-ScriptFacts {
     foreach ($e in $ecodes) { if ($e -ne 0) { $facts.CanFail = $true } }
     #  A gate can also fail by throwing out of a script with a non-zero
     #  terminating error, which 5.1 surfaces as exit 1.
-    $src = Read-FixtureText -File $File
     if (-not $facts.CanFail -and [regex]::IsMatch($src, '(?m)^\s*throw\b')) { $facts.CanFail = $true }
 
-    #  Does the self-test READ ITS PLANT BACK? Structure, from the syntax tree.
-    $pv = Get-SelfTestPlantVerification -Ast $ast -HasSelfTest ([bool]$facts.HasSelfTest)
-    $facts.SelfTestVerifiesPlant = ($pv.State -eq 'VERIFIED')
-    Add-Member -InputObject $facts -NotePropertyName 'PlantVerifyState' -NotePropertyValue $pv.State -Force
-    Add-Member -InputObject $facts -NotePropertyName 'PlantVerifyEvidence' -NotePropertyValue $pv.Evidence -Force
-    Add-Member -InputObject $facts -NotePropertyName 'PlantVerifyLookedFor' -NotePropertyValue $pv.LookedFor -Force
-
-    #  The claim: the first prose of the header block comment.
-    $m = [regex]::Match($src, '(?s)^\s*<#(.*?)#>')
-    if ($m.Success) {
-        $head = $m.Groups[1].Value
-        $head = [regex]::Replace($head, '\s+', ' ').Trim()
-        $facts.Claim = Get-ShortLine -Value $head -Max 220
+    #  Does the self-test READ ITS PLANT BACK? Structure, from the syntax
+    #  tree. Deep only: it is the expensive half of discovery.
+    if ($Deep) {
+        $pv = Get-SelfTestPlantVerification -Ast $ast -HasSelfTest ([bool]$facts.HasSelfTest)
+        $facts.SelfTestVerifiesPlant = ($pv.State -eq 'VERIFIED')
+        $facts.PlantVerifyState = $pv.State
+        $facts.PlantVerifyEvidence = $pv.Evidence
+        $facts.PlantVerifyLookedFor = $pv.LookedFor
+    }
+    else {
+        $facts.PlantVerifyState = 'NOT-ANALYSED'
+        $facts.PlantVerifyEvidence = 'the plant-verification analysis runs in the full channel only'
     }
     return $facts
 }
@@ -760,8 +940,14 @@ function Get-FilesystemGateSet {
         Enumerated from disk. Anything that can exit non-zero, or is named the
         way this skill names its gates, is in the set - so a gate a sibling
         build adds while this runs is still covered by the next run rather than
-        being invisible forever.  #>
-    param([Parameter(Mandatory)][string] $Skill)
+        being invisible forever.
+
+        A SCRIPT THAT DOES NOT PARSE STAYS IN THE SET. The first version
+        dropped it (an unparseable script has no exit statements, so it "cannot
+        fail" and fell through the filter) - which is exactly backwards: a gate
+        with a syntax error is a gate that runs nothing, and the harness made
+        it vanish from the report instead of naming it.  #>
+    param([Parameter(Mandatory)][string] $Skill, [switch] $Deep)
 
     $out = New-Object System.Collections.Generic.List[object]
     $dir = Join-Path $Skill 'scripts'
@@ -770,13 +956,26 @@ function Get-FilesystemGateSet {
     try { $files = @(Get-ChildItem -LiteralPath $dir -Filter '*.ps1' -File -ErrorAction Stop | Sort-Object Name) }
     catch { $files = @() }
     foreach ($f in $files) {
-        $facts = Get-ScriptFacts -File $f.FullName
+        $facts = Get-ScriptFacts -File $f.FullName -Deep:$Deep
         $named = [regex]::IsMatch($f.BaseName, '^(Assert|Check|Test)-')
-        if (-not $facts.CanFail -and -not $named) { continue }
+        if ($facts.Parses -and -not $facts.CanFail -and -not $named) { continue }
         Add-Member -InputObject $facts -NotePropertyName 'Origin' -NotePropertyValue 'filesystem' -Force
         $out.Add($facts)
     }
     return $out.ToArray()
+}
+
+function Get-ScriptStamp {
+    <#  Length and last-write of every script, for the moved-during-run check.
+        No parse: a stamp is what tells whether a re-parse would differ.  #>
+    param([Parameter(Mandatory)][string] $Skill)
+    $map = @{}
+    $dir = Join-Path $Skill 'scripts'
+    if (-not (Test-Path -LiteralPath $dir)) { return $map }
+    foreach ($f in @(Get-ChildItem -LiteralPath $dir -Filter '*.ps1' -File -ErrorAction SilentlyContinue)) {
+        $map[$f.FullName] = [pscustomobject]@{ Name = $f.BaseName; Length = $f.Length; Mtime = $f.LastWriteTimeUtc }
+    }
+    return $map
 }
 
 function Get-SkillScriptIndex {
@@ -856,12 +1055,22 @@ function Get-GatesDocClaim {
         if ($stage -match '^-+$' -or $stage -ieq 'Stage') { continue }
         $gateName = $cells[1].Trim()
         $scriptCell = $cells[2].Trim()
-        $blocks = $cells[3].Trim()
+        #  '**no**' is the table's own emphasis on the one non-blocking row.
+        $blocks = ($cells[3].Trim() -replace '\*', '').Trim().ToLowerInvariant()
         $section = $cells[4].Trim()
+        #  The stage cell as keys the ledger would know: 'S0-RTO' is stage 0,
+        #  '3b exit' is 3b, '5 / 6' is two stages.
+        $stageKeys = @([regex]::Matches($stage, '(?i)(?<![0-9a-z])(?:S)?([0-9][0-9a-z-]*?)(?=\s|$|/|\b(?!-))') | ForEach-Object { $_.Groups[1].Value.TrimEnd('-') } | Where-Object { $_ } | Select-Object -Unique)
+        if ($stage -imatch '^S0') { $stageKeys = @('0') }
 
         $marker = 'implemented'
         if ([regex]::IsMatch($scriptCell, '(?i)NOT\s+YET\s+IMPLEMENTED')) { $marker = 'not-yet-implemented' }
         elseif ([regex]::IsMatch($scriptCell, '(?i)BEING\s+IMPLEMENTED')) { $marker = 'being-implemented' }
+        #  A JUDGEMENT ROW names no script: "reader, not a script", "judgement,
+        #  with a verdict". It is part of the answer - a stage the pipeline
+        #  claims and no script performs - and is kept as a JUDGEMENT-ONLY row
+        #  rather than dropped from the set.
+        $isJudgement = [regex]::IsMatch($scriptCell, '(?i)^(judgement|reader)\b')
 
         #  Every backticked token in the cell that looks like a script or a
         #  gate function name.
@@ -901,7 +1110,16 @@ function Get-GatesDocClaim {
             if ($null -ne $hit -and $null -eq $resolved) { $resolved = $hit; $resolvedName = $nm; continue }
             $aliases.Add($nm)
         }
-        if ($ordered.Count -eq 0) { continue }
+        if ($ordered.Count -eq 0) {
+            if ($isJudgement) {
+                $rows.Add([pscustomobject]@{
+                    Stage = $stage; StageKeys = @($stageKeys); Gate = $gateName; Name = ''; Marker = 'judgement'
+                    Blocks = $blocks; BlocksYes = ($blocks -eq 'yes'); Section = $section; File = ''
+                    OnDisk = $false; AsFunction = ''; Aliases = @(); Judgement = $true; ScriptCell = $scriptCell
+                })
+            }
+            continue
+        }
         if ($null -eq $resolved) {
             $resolvedName = $ordered[0]
             $aliases.Clear()
@@ -909,19 +1127,608 @@ function Get-GatesDocClaim {
         }
         $rows.Add([pscustomobject]@{
             Stage      = $stage
+            StageKeys  = @($stageKeys)
             Gate       = $gateName
             Name       = $resolvedName
             Marker     = $marker
             Blocks     = $blocks
+            BlocksYes  = ($blocks -eq 'yes')
             Section    = $section
             File       = $(if ($null -ne $resolved) { $resolved.File } else { '' })
             OnDisk     = ($null -ne $resolved -and $resolved.Kind -eq 'script')
             AsFunction = $(if ($null -ne $resolved -and $resolved.Kind -eq 'function') { $resolved.File } else { '' })
             Aliases    = $aliases.ToArray()
+            Judgement  = $false
+            ScriptCell = $scriptCell
         })
     }
     return $rows.ToArray()
 }
+
+# ---------------------------------------------------------------------------
+# The ledger's stage table, read BY SYNTAX TREE and by nothing else
+# ---------------------------------------------------------------------------
+
+function Get-LedgerStageView {
+    <#  The one ordered stage table the ledger owns, read as data.
+
+        READ BY SYNTAX TREE, NEVER BY DOT-SOURCING. An earlier version of this
+        reader dot-sourced Stage-Ledger.ps1 in a child scope and read the
+        variables back. Three things are wrong with that and each of them has
+        already cost a build:
+
+          - a dot-sourced file with a param() block CLOBBERS the caller's
+            variables of the same name, so a harness that reads the ledger this
+            way can silently rewrite its own $BuildDir;
+          - the file is being rewritten by another author while this runs, and
+            a half-landed file either throws or - worse - parses and yields a
+            SHORT table, which would be read here as a shrunken stage set and
+            reported as agreement;
+          - executing a file to find out what it declares runs whatever else it
+            declares.
+
+        So: parse, find the ONE literal assignment to $script:LedgerStages,
+        walk the HashtableAst nodes underneath it, and read Key, Required,
+        Blocking, Conditional, Terminal and Script off each row as constants.
+        Nothing is executed.
+
+        WHEN THE TABLE IS NOT THERE, SAY SO AND CARRY IT AS A PARTIAL. The
+        table lands with P0-02, separately from this. Until it does, this
+        returns Source 'none' with the reason 'stage table not found', every
+        caller records a NAMED PARTIAL, and no arm that depends on the table
+        may report a pass. It is never guessed and never defaulted - a
+        defaulted stage table is a hand-listed check set with extra steps.  #>
+    param([Parameter(Mandatory)][string] $Skill)
+
+    $out = [pscustomobject]@{
+        Source      = 'none'
+        Note        = ''
+        Keys        = @()
+        Required    = @()
+        Blocking    = @()
+        Conditional = @()
+        Terminal    = @()
+        Rows        = @()
+        ScriptOf    = @{}
+        Found       = $false
+    }
+    $gate = Join-Path $Skill 'scripts\Stage-Ledger.ps1'
+    if (-not (Test-Path -LiteralPath $gate)) {
+        $out.Note = 'stage table not found: scripts\Stage-Ledger.ps1 is not on disk'
+        return $out
+    }
+
+    $tokens = $null; $errors = $null; $ast = $null
+    try { $ast = [System.Management.Automation.Language.Parser]::ParseFile($gate, [ref]$tokens, [ref]$errors) }
+    catch {
+        $out.Note = ('stage table not found: parsing Stage-Ledger.ps1 threw: ' + (Get-ShortLine -Value $_.Exception.Message -Max 140))
+        return $out
+    }
+    if ($null -ne $errors -and $errors.Count -gt 0) {
+        $out.Note = ("stage table not found: Stage-Ledger.ps1 does not parse (line {0}: {1})" -f $errors[0].Extent.StartLineNumber, (Get-ShortLine -Value $errors[0].Message -Max 120))
+        return $out
+    }
+
+    $assign = $null
+    $assignCount = 0
+    foreach ($asn in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.AssignmentStatementAst] }, $true)) {
+        if ("$($asn.Left.Extent.Text)".Trim() -ne '$script:LedgerStages') { continue }
+        $assignCount++
+        if ($null -eq $assign) { $assign = $asn }
+    }
+    if ($null -eq $assign) {
+        $out.Note = 'stage table not found: no assignment to $script:LedgerStages in scripts\Stage-Ledger.ps1'
+        return $out
+    }
+    if ($assignCount -gt 1) {
+        #  Reported, not silently taken from the first. Two assignments to the
+        #  one table is two sources of truth inside the file that exists to be
+        #  the only one.
+        $out.Note = ("{0} assignments to the stage table were found; the first is read and the rest are a finding for the ledger's own author" -f $assignCount)
+    }
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    $problems = New-Object System.Collections.Generic.List[string]
+    foreach ($ht in $assign.Right.FindAll({ param($n) $n -is [System.Management.Automation.Language.HashtableAst] }, $true)) {
+        $row = [ordered]@{ Key = ''; Required = $false; Blocking = $false; Conditional = $false; Terminal = $false; Script = '' }
+        $seen = @{}
+        foreach ($pair in $ht.KeyValuePairs) {
+            $k = "$($pair.Item1.Extent.Text)".Trim().Trim("'", '"')
+            $vTxt = "$($pair.Item2.Extent.Text)".Trim()
+            $seen[$k] = $true
+            switch -Regex ($k) {
+                '^(?i)key$'         { $row.Key = $vTxt.Trim("'", '"'); break }
+                '^(?i)script$'      { $row.Script = $vTxt.Trim("'", '"'); break }
+                '^(?i)required$'    { $row.Required = ($vTxt -imatch '^\$true$'); break }
+                '^(?i)blocking$'    { $row.Blocking = ($vTxt -imatch '^\$true$'); break }
+                '^(?i)conditional$' { $row.Conditional = ($vTxt -imatch '^\$true$'); break }
+                '^(?i)terminal$'    { $row.Terminal = ($vTxt -imatch '^\$true$'); break }
+                default { }
+            }
+        }
+        if (-not $row.Key) { continue }
+        foreach ($need in @('Required', 'Blocking')) {
+            if (-not $seen.ContainsKey($need)) { $problems.Add(("stage '{0}' declares no {1} column" -f $row.Key, $need)) }
+        }
+        $rows.Add([pscustomobject]$row)
+    }
+
+    if ($rows.Count -eq 0) {
+        $out.Note = 'stage table not found: the assignment to the stage table holds no rows this reader could read as {Key=...}'
+        return $out
+    }
+
+    $keys = New-Object System.Collections.Generic.List[string]
+    $req = New-Object System.Collections.Generic.List[string]
+    $blk = New-Object System.Collections.Generic.List[string]
+    $cnd = New-Object System.Collections.Generic.List[string]
+    $trm = New-Object System.Collections.Generic.List[string]
+    $scriptOf = @{}
+    foreach ($r in $rows) {
+        if (-not $keys.Contains($r.Key)) { $keys.Add($r.Key) }
+        if ($r.Required) { $req.Add($r.Key) }
+        if ($r.Blocking) { $blk.Add($r.Key) }
+        if ($r.Conditional) { $cnd.Add($r.Key) }
+        if ($r.Terminal) { $trm.Add($r.Key) }
+        if ($r.Script) { $scriptOf[$r.Key] = $r.Script }
+    }
+    $out.Source = 'syntax tree of scripts\Stage-Ledger.ps1 (the stage table rows, read as HashtableAst nodes; nothing executed)'
+    $out.Keys = $keys.ToArray()
+    $out.Required = $req.ToArray()
+    $out.Blocking = $blk.ToArray()
+    $out.Conditional = $cnd.ToArray()
+    $out.Terminal = $trm.ToArray()
+    $out.Rows = $rows.ToArray()
+    $out.ScriptOf = $scriptOf
+    $out.Found = $true
+    if ($problems.Count -gt 0) { $out.Note = (($out.Note, ($problems -join '; ') | Where-Object { $_ }) -join '; ') }
+    return $out
+}
+
+# ---------------------------------------------------------------------------
+# '# GATE:' headers against the stage table; the refusal probe set; hashing
+# ---------------------------------------------------------------------------
+
+function Get-HeaderReconciliation {
+    <#  One row per gate on disk: does its '# GATE:' header agree with the
+        stage table? REPORTED during the transition (not every gate carries a
+        header yet) - the output says how many do.
+
+        States: AGREE (header stages equal the table's stage set for the
+        script), DISAGREE (they differ, both printed), NO-HEADER, and
+        NOT-IN-TABLE (a header with no table row to reconcile against, stages
+        printed). Independently: a header stage the ledger does not know, a
+        malformed clause, or a 'requires=' name that is not a parameter of
+        the script is a problem on the row.  #>
+    param($FsSet, $DocRows, $Ledger)
+
+    $tableStages = @{}
+    foreach ($row in $DocRows) {
+        if (-not $row.Name -or -not $row.OnDisk) { continue }
+        if (-not $tableStages.ContainsKey($row.Name)) { $tableStages[$row.Name] = New-Object System.Collections.Generic.List[string] }
+        foreach ($k in @($row.StageKeys)) { if (-not $tableStages[$row.Name].Contains($k)) { $tableStages[$row.Name].Add($k) } }
+    }
+    $known = @{}
+    if ($null -ne $Ledger) { foreach ($k in @($Ledger.Keys)) { $known["$k"] = $true } }
+
+    $out = New-Object System.Collections.Generic.List[object]
+    foreach ($g in $FsSet) {
+        $h = $g.GateHeader
+        $problems = New-Object System.Collections.Generic.List[string]
+        $state = 'NO-HEADER'
+        $hdrStages = @()
+        $tbl = @()
+        if ($tableStages.ContainsKey($g.Name)) { $tbl = @($tableStages[$g.Name]) }
+        if ($null -ne $h) {
+            $hdrStages = @($h.Stages)
+            foreach ($p in @($h.Problems)) { $problems.Add($p) }
+            if ($known.Count -gt 0) {
+                foreach ($s in $hdrStages) { if (-not $known.ContainsKey($s)) { $problems.Add(("stage '{0}' is not a stage key the ledger knows" -f $s)) } }
+                foreach ($s in @($h.Clauses.Keys)) { if (-not $known.ContainsKey("$s")) { $problems.Add(("clause stage '{0}' is not a stage key the ledger knows" -f $s)) } }
+            }
+            if ($g.Parses) {
+                $pset = @{}
+                foreach ($pn in @($g.ParamNames)) { $pset["$pn"] = $true }
+                foreach ($r in @($h.Requires)) { if (-not $pset.ContainsKey("$r")) { $problems.Add(("requires={0} names no parameter of the script" -f $r)) } }
+                foreach ($s in @($h.Clauses.Keys)) { foreach ($r in @($h.Clauses[$s])) { if (-not $pset.ContainsKey("$r")) { $problems.Add(("{0}: {1} names no parameter of the script" -f $s, $r)) } } }
+            }
+            if ($tbl.Count -eq 0) { $state = 'NOT-IN-TABLE' }
+            else {
+                $a = @($hdrStages | Sort-Object -Unique); $b = @($tbl | Sort-Object -Unique)
+                $same = ($a.Count -eq $b.Count)
+                if ($same) { for ($i = 0; $i -lt $a.Count; $i++) { if ("$($a[$i])" -ne "$($b[$i])") { $same = $false } } }
+                $state = $(if ($same) { 'AGREE' } else { 'DISAGREE' })
+            }
+        }
+        $out.Add([pscustomobject]@{
+            Gate = $g.Name; State = $state; HasHeader = ($null -ne $h)
+            HeaderStages = @($hdrStages); TableStages = @($tbl)
+            Requires = $(if ($null -ne $h) { @($h.Requires) } else { @() })
+            Problems = $problems.ToArray()
+        })
+    }
+    return $out.ToArray()
+}
+
+function Get-RefusalProbeSet {
+    <#  Which scripts the bare refusal probe may run, and with what.
+
+        THE STAGE TABLE'S Script COLUMN, AND NOTHING ELSE. The first version
+        probed every .ps1 in scripts\ with no arguments, which ran
+        Patch-GuideTemplateGeometry bare (it resolves a template for itself and
+        patches it) and Probe-GenerationEndpoints bare (it spends image
+        credit). Those are not gates and nobody asked them anything; the probe
+        was a side effect of enumerating a directory.
+
+        So the set is the Script column of the ledger's own stage table - the
+        scripts the pipeline actually binds to a stage - and a script outside
+        it is NOT PROBED and its row says so rather than being scored as
+        "exits 0 on nothing".
+
+        -WhatIf IS ADDED ONLY ON EVIDENCE. A script whose param block declares
+        SupportsShouldProcess (read from the CmdletBinding attribute in the
+        SYNTAX TREE, never from its name and never from a list here) is probed
+        with -WhatIf, so it can refuse without doing anything. A script that
+        does NOT declare it is probed WITHOUT -WhatIf and the row records
+        that, because passing -WhatIf to a script that cannot take it is a
+        parameter-binding error - which exits non-zero and would be read as a
+        refusal the script never made.
+
+        WHEN THERE IS NO STAGE TABLE THERE IS NO PROBE SET. It returns empty
+        with a reason and the caller carries a named partial. An empty probe
+        set is never a clean probe sweep.  #>
+    param($Ledger, [Parameter(Mandatory)][string] $Skill)
+
+    $out = [pscustomobject]@{ Set = @{}; Source = ''; Note = ''; Found = $false }
+    if ($null -eq $Ledger -or -not $Ledger.Found) {
+        $out.Note = 'stage table not found, so no refusal probe could be planned from a Script column'
+        return $out
+    }
+    $dir = Join-Path $Skill 'scripts'
+    $set = @{}
+    $missing = New-Object System.Collections.Generic.List[string]
+    foreach ($row in @($Ledger.Rows)) {
+        if (-not $row.Script) { continue }
+        $leaf = [System.IO.Path]::GetFileName(("$($row.Script)" -replace '/', '\'))
+        if (-not $leaf) { continue }
+        if ($leaf -notmatch '(?i)\.ps1$') { $leaf = $leaf + '.ps1' }
+        $name = [System.IO.Path]::GetFileNameWithoutExtension($leaf)
+        if ($set.ContainsKey($name)) {
+            if (-not (@($set[$name].Stages) -contains $row.Key)) { $set[$name].Stages = @($set[$name].Stages) + $row.Key }
+            continue
+        }
+        $file = Join-Path $dir $leaf
+        if (-not (Test-Path -LiteralPath $file)) { $missing.Add(("stage {0} names {1}, which is not in scripts\" -f $row.Key, $leaf)); continue }
+        $facts = Get-ScriptFacts -File $file
+        $whatIf = [bool]$facts.SupportsShouldProcess
+        $why = 'its param block does not declare SupportsShouldProcess, so -WhatIf would be a binding error and is not passed; the probe asks only whether it exits 0 on no input'
+        if ($whatIf) { $why = 'its CmdletBinding declares SupportsShouldProcess, read from the syntax tree, so the probe passes -WhatIf and it cannot write anything' }
+        $set[$name] = [pscustomobject]@{
+            Name      = $name
+            File      = $file
+            Stages    = @($row.Key)
+            Blocking  = [bool]$row.Blocking
+            Arguments = $(if ($whatIf) { @('-WhatIf') } else { @() })
+            WhatIf    = $whatIf
+            WhatIfWhy = $why
+        }
+    }
+    $out.Set = $set
+    $out.Found = ($set.Count -gt 0)
+    $out.Source = ("the Script column of the ledger stage table ({0} rows, {1} distinct script(s))" -f @($Ledger.Rows).Count, $set.Count)
+    if ($missing.Count -gt 0) { $out.Note = ($missing -join '; ') }
+    if (-not $out.Found -and -not $out.Note) { $out.Note = 'the stage table declares no Script for any stage, so nothing could be probed' }
+    return $out
+}
+
+function Get-RunnerPlanView {
+    <#  What the two runners believe their membership is, read by syntax tree.
+
+        Run-SpineGates derives its bands from each gate's '# GATE:' header, so
+        what it publishes is the STAGE VOCABULARY it will accept
+        ($script:ValidGateStages): a header naming a stage outside that list is
+        a member of nothing, and the runner will say so at run time. It is read
+        here so the reconciliation can say it at write time instead.
+
+        Run-Gates plans stages 4 and 7c. Its plan is built from `Entry ...
+        -Script <expr>` calls; the entries whose script resolves to a literal
+        '*.ps1' are read, and the ones behind a variable are counted as
+        UNRESOLVED and named. A reconciliation that quietly dropped the
+        unresolved ones would report a clean sweep over half a plan.
+
+        Nothing is executed and neither runner is required to exist: an absent
+        or unparseable runner is a NOTE and a named partial, never a pass.  #>
+    param([Parameter(Mandatory)][string] $Skill)
+
+    $out = [pscustomobject]@{
+        SpineStages = @(); SpineFound = $false; SpineNote = ''
+        GatesScripts = @(); GatesUnresolved = @(); GatesFound = $false; GatesNote = ''
+    }
+    $dir = Join-Path $Skill 'scripts'
+
+    $sp = Join-Path $dir 'Run-SpineGates.ps1'
+    if (-not (Test-Path -LiteralPath $sp)) { $out.SpineNote = 'scripts\Run-SpineGates.ps1 is not on disk' }
+    else {
+        $err = $null; $tok = $null; $ast = $null
+        try { $ast = [System.Management.Automation.Language.Parser]::ParseFile($sp, [ref]$tok, [ref]$err) } catch { $ast = $null }
+        if ($null -eq $ast -or ($null -ne $err -and $err.Count -gt 0)) { $out.SpineNote = 'scripts\Run-SpineGates.ps1 does not parse, so its stage vocabulary could not be read' }
+        else {
+            foreach ($asn in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.AssignmentStatementAst] }, $true)) {
+                if ("$($asn.Left.Extent.Text)".Trim() -ne '$script:ValidGateStages') { continue }
+                try {
+                    $v = $asn.Right.SafeGetValue()
+                    $out.SpineStages = @(@($v) | ForEach-Object { "$_" } | Where-Object { $_ })
+                    $out.SpineFound = ($out.SpineStages.Count -gt 0)
+                }
+                catch {
+                    #  SafeGetValue refuses an ArrayExpressionAst - `@('1','2')`
+                    #  is not the ArrayLiteralAst it accepts - so the constants
+                    #  are read off the extent instead. Reporting "no
+                    #  vocabulary" for a list that is right there would have
+                    #  turned every header stage into an unverifiable one.
+                    $out.SpineStages = @([regex]::Matches("$($asn.Right.Extent.Text)", "'([^']+)'") | ForEach-Object { $_.Groups[1].Value } | Where-Object { $_ })
+                    $out.SpineFound = ($out.SpineStages.Count -gt 0)
+                }
+                break
+            }
+            if (-not $out.SpineFound -and -not $out.SpineNote) { $out.SpineNote = 'Run-SpineGates.ps1 publishes no stage vocabulary this reader could read as constants' }
+        }
+    }
+
+    $rg = Join-Path $dir 'Run-Gates.ps1'
+    if (-not (Test-Path -LiteralPath $rg)) { $out.GatesNote = 'scripts\Run-Gates.ps1 is not on disk' }
+    else {
+        $err = $null; $tok = $null; $ast = $null
+        try { $ast = [System.Management.Automation.Language.Parser]::ParseFile($rg, [ref]$tok, [ref]$err) } catch { $ast = $null }
+        if ($null -eq $ast -or ($null -ne $err -and $err.Count -gt 0)) { $out.GatesNote = 'scripts\Run-Gates.ps1 does not parse, so its 4/7c plan could not be read' }
+        else {
+            $named = New-Object System.Collections.Generic.List[string]
+            $unres = New-Object System.Collections.Generic.List[string]
+            foreach ($cmd in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.CommandAst] }, $true)) {
+                $head = "$($cmd.CommandElements[0].Extent.Text)".Trim()
+                if ($head -ne 'Entry' -and $head -ne 'New-PlanEntry' -and $head -ne 'New-GateEntry') { continue }
+                #  THE TITLE IS PART OF THE PLAN, NOT DECORATION. Three of
+                #  Run-Gates' entries carry no -Script at all: the guide, deck
+                #  and readability arms are Kind-dispatched and name the gate
+                #  they run inside the title - 'GUIDE GATE (Test-GuideRules)'.
+                #  Reading only -Script reported Test-GuideRules as absent from
+                #  a plan that runs it in two bands.
+                $want = ''
+                foreach ($el in $cmd.CommandElements) {
+                    if ($el -is [System.Management.Automation.Language.CommandParameterAst]) {
+                        $pn = "$($el.ParameterName)"
+                        $want = ''
+                        if ($pn -ieq 'Script' -or $pn -ieq 'Title') { $want = $pn }
+                        continue
+                    }
+                    if (-not $want) { continue }
+                    $txt = "$($el.Extent.Text)"
+                    if ($want -ieq 'Title') {
+                        $want = ''
+                        foreach ($tm in [regex]::Matches($txt, '(?<![\w-])(Assert|Check|Test|Get|New|Run|Set|Invoke|Merge|Probe|Stage|Finish)-[A-Za-z0-9]+')) {
+                            if (-not $named.Contains($tm.Value)) { $named.Add($tm.Value) }
+                        }
+                        continue
+                    }
+                    $want = ''
+                    $m = [regex]::Match($txt, "['`"]([A-Za-z0-9_.-]+\.ps1)['`"]")
+                    if ($m.Success) {
+                        $n = [System.IO.Path]::GetFileNameWithoutExtension($m.Groups[1].Value)
+                        if (-not $named.Contains($n)) { $named.Add($n) }
+                    }
+                    else { $unres.Add((Get-ShortLine -Value $txt -Max 80)) }
+                }
+            }
+            $out.GatesScripts = $named.ToArray()
+            $out.GatesUnresolved = @(@($unres) | Select-Object -Unique)
+            $out.GatesFound = ($named.Count -gt 0)
+            if (-not $out.GatesFound) { $out.GatesNote = 'Run-Gates.ps1 has no plan entry naming a script literal this reader could resolve' }
+        }
+    }
+    return $out
+}
+
+function Get-StaticFindings {
+    <#  Everything that can be decided WITHOUT SPAWNING A PROCESS, as findings.
+
+        This is the band member. It answers six questions, and each answer is a
+        row with a Kind, the gate it is about, whether that gate BLOCKS, and
+        the detail a reader needs:
+
+          PARSE-ERROR   the gate does not parse. It runs nothing, and the first
+                        version of this harness DROPPED it from the set (an
+                        unparseable script has no exit statements, so it "cannot
+                        fail"), which is exactly backwards.
+          ORPHAN-RECIPE a recipe in this harness names a gate that is not on
+                        disk. The fixture can never run, and the recipe count in
+                        the banner made it look like cover that does not exist.
+          NO-HEADER     a gate script with no '# GATE:' line. Run-SpineGates
+                        derives band membership from that line, so a gate
+                        without one is in no band and is gated by nobody.
+          HEADER        a header naming a stage the ledger stage table does not
+                        know, a malformed clause, a disagreement with the
+                        gates.md stage table, or a requires= name that is not a
+                        parameter of the script.
+          PLAN          a header stage no runner will honour: a stage outside
+                        Run-SpineGates' vocabulary, or a 4/7c member that
+                        Run-Gates' plan does not name.
+          NO-COVER      a BLOCKING gate with neither a -SelfTest switch nor a
+                        recipe here. The allow-list beside this rule
+                        ($script:StaticCoverAllow) carries a written reason per
+                        entry and never covers an Assert-/Check-/Test- name.
+
+        Findings on a BLOCKING gate decide the exit. Findings on the rest are
+        printed and carried in the report - that is what "split by Blocks"
+        means.  #>
+    param(
+        $FsSet,
+        $DocRows,
+        $Recipes,
+        $Headers,
+        $Plans,
+        $Ledger
+    )
+
+    $rows = New-Object System.Collections.Generic.List[object]
+    $blockingOf = @{}
+    foreach ($d in @($DocRows)) {
+        if (-not $d.Name) { continue }
+        if ($d.BlocksYes) { $blockingOf[$d.Name] = $true }
+        elseif (-not $blockingOf.ContainsKey($d.Name)) { $blockingOf[$d.Name] = $false }
+    }
+    function Add-StaticFinding {
+        param([string] $Kind, [string] $Gate, [string] $Detail)
+        $rows.Add([pscustomobject]@{
+            Kind = $Kind; Gate = $Gate; Detail = $Detail
+            Blocking = [bool]($blockingOf.ContainsKey($Gate) -and $blockingOf[$Gate])
+        })
+    }
+
+    $onDisk = @{}
+    foreach ($g in @($FsSet)) { $onDisk[$g.Name] = $g }
+
+    foreach ($g in @($FsSet)) {
+        if (-not $g.Parses) {
+            Add-StaticFinding -Kind 'PARSE-ERROR' -Gate $g.Name -Detail ("does not parse: {0}. A gate with a syntax error runs nothing and proves nothing." -f $g.ParseError)
+        }
+    }
+
+    foreach ($r in @($Recipes)) {
+        if ($null -eq $r -or -not $r.Gate) { continue }
+        if ($onDisk.ContainsKey("$($r.Gate)")) { continue }
+        $rows.Add([pscustomobject]@{
+            Kind = 'ORPHAN-RECIPE'; Gate = "$($r.Gate)"
+            Detail = ("this harness holds a fixture recipe ('{0}') for a gate that is not in scripts\, so the recipe can never run and its place in the recipe count is false cover" -f $r.Kind)
+            Blocking = $true
+        })
+    }
+
+    $spineVocab = @()
+    if ($null -ne $Plans) { $spineVocab = @($Plans.SpineStages) }
+    $planNames = @{}
+    if ($null -ne $Plans) { foreach ($n in @($Plans.GatesScripts)) { $planNames["$n"] = $true } }
+
+    foreach ($h in @($Headers)) {
+        $isGateName = [regex]::IsMatch($h.Gate, '^(Assert|Check|Test)-')
+        if (-not $h.HasHeader) {
+            #  Only a script that CLAIMS A VERDICT owes a header. A library or
+            #  a renderer in the derived set is not a band member, and a header
+            #  on it would say nothing.
+            if ($isGateName -or ($blockingOf.ContainsKey($h.Gate) -and $blockingOf[$h.Gate])) {
+                Add-StaticFinding -Kind 'NO-HEADER' -Gate $h.Gate -Detail "carries no '# GATE: stages=...; requires=...' line, so Run-SpineGates puts it in no band and no runner threads its inputs"
+            }
+            continue
+        }
+        foreach ($p in @($h.Problems)) { Add-StaticFinding -Kind 'HEADER' -Gate $h.Gate -Detail $p }
+        if ($h.State -eq 'DISAGREE') {
+            #  A SUBSET RULE, NOT AN EQUALITY. The gates.md Stage cell records
+            #  the band a gate is DOCUMENTED under; the header records every
+            #  band it is a member of, and several gates legitimately run in
+            #  more than one. Requiring the two sets to be equal made a finding
+            #  out of every correct multi-band header - Assert-Provenance's
+            #  '2,3c,4,7c' against a cell that says '2' - which is the false
+            #  half of a report nobody then reads. What IS a contradiction is
+            #  a header that DROPS a band the documentation binds it to: that
+            #  gate leaves a band by editing its own header.
+            $missing = @(@($h.TableStages) | Where-Object { @($h.HeaderStages) -notcontains "$_" })
+            if ($missing.Count -gt 0) {
+                Add-StaticFinding -Kind 'HEADER' -Gate $h.Gate -Detail ("the gates.md stage table binds it to {0} and its header says stages={1} - it drops {2}, so that band would run without it" -f (@($h.TableStages) -join ','), (@($h.HeaderStages) -join ','), ($missing -join ','))
+            }
+            else {
+                $rows.Add([pscustomobject]@{
+                    Kind = 'HEADER-EXTRA'; Gate = $h.Gate; Blocking = $false
+                    Detail = ("its header says stages={0}, more than the gates.md cell's {1}. Reported so the cell can be widened; a header may name more bands than the documentation records." -f (@($h.HeaderStages) -join ','), (@($h.TableStages) -join ','))
+                })
+            }
+        }
+        if ($spineVocab.Count -gt 0) {
+            foreach ($s in @($h.HeaderStages)) {
+                if ($spineVocab -contains "$s") { continue }
+                #  A STAGE WITH ITS OWN RUNNER IS NOT AN ORPHAN. Stage 0 is not
+                #  in Run-SpineGates' vocabulary because Run-SpineGates does not
+                #  run it - the ledger stage table names the script that does.
+                #  Reading the band runner's vocabulary as the whole pipeline
+                #  reported the Stage 0 runner's own header as belonging to
+                #  nothing.
+                if ($null -ne $Ledger -and $Ledger.Found -and $Ledger.ScriptOf.ContainsKey("$s")) { continue }
+                Add-StaticFinding -Kind 'PLAN' -Gate $h.Gate -Detail ("its header declares stage '{0}', which is outside Run-SpineGates' stage vocabulary ({1}) and the ledger stage table names no script for that stage, so no runner will pick it up" -f $s, ($spineVocab -join ', '))
+            }
+        }
+        if ($planNames.Count -gt 0) {
+            foreach ($s in @($h.HeaderStages)) {
+                if (@('4', '7c') -notcontains "$s") { continue }
+                if (-not $planNames.ContainsKey($h.Gate)) {
+                    Add-StaticFinding -Kind 'PLAN' -Gate $h.Gate -Detail ("its header declares stage {0} and Run-Gates' plan names no entry for it, so the stage {0} band would run without it" -f $s)
+                }
+            }
+        }
+    }
+
+    $recipeFor = @{}
+    foreach ($r in @($Recipes)) { if ($null -ne $r -and $r.Gate) { $recipeFor["$($r.Gate)"] = $true } }
+    foreach ($g in @($FsSet)) {
+        if (-not ($blockingOf.ContainsKey($g.Name) -and $blockingOf[$g.Name])) { continue }
+        if ($g.HasSelfTest -or $recipeFor.ContainsKey($g.Name)) { continue }
+        if ($script:StaticCoverAllow.Contains($g.Name) -and -not [regex]::IsMatch($g.Name, '^(Assert|Check|Test)-')) { continue }
+        Add-StaticFinding -Kind 'NO-COVER' -Gate $g.Name -Detail 'a BLOCKING gate with neither a -SelfTest switch nor a seeded-defect recipe in this harness: nothing anywhere proves it can fail'
+    }
+
+    return $rows.ToArray()
+}
+
+function Get-ScriptsHash {
+    <#  sha256 over the bytes of every scripts\*.ps1 (sorted by name) plus the
+        recipe set (gate, kind, claim and every scriptblock's text), so a
+        result file can say which scripts and which recipes its verdicts are
+        about, and a reader can tell a stale one from a current one.  #>
+    param([Parameter(Mandatory)][string] $Skill, $Recipes)
+
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $ms = New-Object System.IO.MemoryStream
+    try {
+        $dir = Join-Path $Skill 'scripts'
+        foreach ($f in @(Get-ChildItem -LiteralPath $dir -Filter '*.ps1' -File -ErrorAction SilentlyContinue | Sort-Object Name)) {
+            $nb = [System.Text.Encoding]::UTF8.GetBytes($f.Name + "`n")
+            $ms.Write($nb, 0, $nb.Length)
+            $bytes = [System.IO.File]::ReadAllBytes($f.FullName)
+            $ms.Write($bytes, 0, $bytes.Length)
+        }
+        foreach ($r in @($Recipes)) {
+            if ($null -eq $r) { continue }
+            $sb = New-Object System.Text.StringBuilder
+            [void]$sb.Append("recipe`n").Append("$($r.Gate)`n").Append("$($r.Kind)`n")
+            foreach ($p in $r.PSObject.Properties) {
+                if ($p.Value -is [scriptblock]) { [void]$sb.Append($p.Name).Append("`n").Append($p.Value.ToString()).Append("`n") }
+                elseif ($p.Value -is [string]) { [void]$sb.Append($p.Name).Append('=').Append($p.Value).Append("`n") }
+            }
+            $rb = [System.Text.Encoding]::UTF8.GetBytes($sb.ToString())
+            $ms.Write($rb, 0, $rb.Length)
+        }
+        $ms.Position = 0
+        return ([BitConverter]::ToString($sha.ComputeHash($ms)).Replace('-', '').ToLowerInvariant())
+    }
+    finally { $sha.Dispose(); $ms.Dispose() }
+}
+
+#  THE STATIC RULE'S ALLOW-LIST, beside the rule it weakens. A BLOCKING gate
+#  with neither a self-test switch nor a recipe in this harness is a FAIL in
+#  -StaticOnly. The scripts below are in the derived set because they can
+#  exit non-zero, but they are libraries, renderers or tools, not gates: they
+#  decide no verdict about a build, so a plant has nothing to make them fail
+#  ON. Each carries the reason. A gate-named script (Assert-/Check-/Test-) is
+#  never allow-listed here: it claims a verdict, so it owes a proof.
+$script:StaticCoverAllow = [ordered]@{
+    'Lib-Resolve'                  = 'library: resolves sibling skills and loads libraries; throws on a missing one, decides nothing about a build'
+    'Pptx-Blocks'                  = 'library: slide-building primitives dot-sourced by the deck renderer'
+    'Xml-Scan'                     = 'library: OOXML part scanning primitives used by the gates, no verdict of its own'
+    'Build-Guide'                  = 'renderer: writes the guide from the spine; its output is gated by Test-GuideRules and the 4/7c band'
+    'Set-ResourceBrand'            = 'renderer step: applies the palette; the mark is PROVED afterwards by Check-Identity (stage 4c)'
+    'Patch-GuideTemplateGeometry'  = 'tool: one-off template geometry patch, ShouldProcess-guarded; its effect is gated by Test-GuideRules content width'
+    'New-WithholdRegister'         = 'producer: derives the register at Stage 2; enforced by Assert-WithholdRegister, Check-ShapeMirror and Check-FigureMirror, which carry the proofs'
+    'New-FigureSheet'              = 'producer: cuts the figure sheet; refusal on a failed band is the P0-07 proof owned by its own self-test once landed'
+    'Get-DocText'                  = 'producer: text extracts with a stamp; every rendered-arm gate consumes it and proves against it'
+}
+
 
 # ---------------------------------------------------------------------------
 # What does this gate actually CLAIM to catch?
@@ -1097,6 +1904,194 @@ function Get-SpineFile {
 #  and from gates.md - so a gate with no recipe here is REPORTED, as UNPROVEN
 #  with the reason, rather than quietly falling out of the set.
 
+function Get-FixtureStem {
+    <#  The register's own crude suffix stem (ing, ed, es, s), reproduced so a
+        fixture's content-word sets are COMPUTED through the pipeline the
+        cells declare, never hand-typed. A hand-typed stem that is wrong makes
+        a gate look unable to fire when the truth is that the fixture could
+        not be matched.  #>
+    param([string] $Word)
+    $w = $Word
+    if ($w.Length -gt 5 -and $w.EndsWith('ing')) { return $w.Substring(0, $w.Length - 3) }
+    if ($w.Length -gt 4 -and $w.EndsWith('ed'))  { return $w.Substring(0, $w.Length - 2) }
+    if ($w.Length -gt 4 -and $w -match '(ss|sh|ch|x|z)es$') { return $w.Substring(0, $w.Length - 2) }
+    if ($w.Length -gt 3 -and $w.EndsWith('s') -and -not $w.EndsWith('ss')) { return $w.Substring(0, $w.Length - 1) }
+    return $w
+}
+
+function Get-FixtureWords {
+    <#  Content words of a fixture bullet: lower-cased, letters only, crude
+        stem, with the function words the sentence needs dropped. Every word
+        left is a content word under every gate's stopword list, which is why
+        the fixture bullets are written the way they are.  #>
+    param([string] $Text)
+    $stop = @('a', 'an', 'and', 'the', 'with', 'or', 'of', 'in', 'on', 'that', 'under', 'at', 'to', 'its', 'it', 'is', 'are')
+    $out = New-Object System.Collections.Generic.List[string]
+    foreach ($tok in (($Text.ToLowerInvariant() -replace '[^a-z0-9 ]', ' ') -split '\s+')) {
+        if (-not $tok -or $tok.Length -lt 2) { continue }
+        if ($stop -contains $tok) { continue }
+        $s = Get-FixtureStem $tok
+        if (-not $out.Contains($s)) { $out.Add($s) }
+    }
+    return $out.ToArray()
+}
+
+#  The round-6 grid: one labelled task, six assessed items, one assessed
+#  column of spoilage indicators. Every bullet uses vocabulary no other bullet
+#  uses, so the shape gate's document-frequency ceiling (a word in more than a
+#  quarter of all bullets is not evidence of copying) strips nothing.
+$script:Round6Headers = @('Food item', 'Spoilage indicators', 'Action at the door')
+$script:Round6Rows = @(
+    [pscustomobject]@{ Item = 'Fresh whole fish';       Text = 'dull sunken eyes and slimy grey gills with an ammonia smell' }
+    [pscustomobject]@{ Item = 'Chicken breast fillets'; Text = 'tacky surface, greenish tinge and a sour odour under the wrap' }
+    [pscustomobject]@{ Item = 'Cos lettuce';            Text = 'wilted limp leaves with brown edges and watery ribs' }
+    [pscustomobject]@{ Item = 'Soft ripened cheese';    Text = 'pink or black mould spots and a bitter sharp taste' }
+    [pscustomobject]@{ Item = 'Cooked rice';            Text = 'clumped sticky grains that feel warm, with a musty stale scent' }
+    [pscustomobject]@{ Item = 'Fresh milk';             Text = 'curdled lumps, a swollen carton and an acidic tang' }
+)
+foreach ($row in $script:Round6Rows) { Add-Member -InputObject $row -NotePropertyName 'Words' -NotePropertyValue @(Get-FixtureWords -Text $row.Text) -Force }
+
+function New-Round6Fixture {
+    <#  A lean fixture build for the round-6 recipes: register, gate-only
+        cells, a learner-facing corpus with Stage 1's typed grid parse, two
+        renderer stubs (the withhold gate derives channel ownership from the
+        field names a renderer reads), and a CLEAN spine for sub-section 1.4
+        that teaches spoilage without naming a row beside its answer. Every
+        value is synthetic; no real pack's model answer is in here.  #>
+    param([Parameter(Mandatory)][string] $Root)
+
+    New-Item -ItemType Directory -Force -Path (Join-Path $Root 'spine') | Out-Null
+    New-Item -ItemType Directory -Force -Path (Join-Path $Root 'corpus') | Out-Null
+    $rows = $script:Round6Rows
+    $items = @($rows | ForEach-Object { $_.Item })
+    $taskRef = 'Task 6(a)'
+    $taskId = 'FIXTURE_UAT Task 6(a)'
+
+    Write-FixtureText -File (Join-Path $Root 'contract.json') -Body ([ordered]@{
+        build = [ordered]@{ brand = 'FIXTURE' }
+        unit = [ordered]@{ code = 'FIXTURE' }
+        wordFloors = [ordered]@{ topic = 50; underpinningKnowledge = 20 }
+    } | ConvertTo-Json -Depth 6)
+
+    #  Renderer stubs: the field names each reads decide which artefact a
+    #  spine channel belongs to.
+    Write-FixtureText -File (Join-Path $Root 'Build-Guide-Fixture.ps1') -Body @'
+param($node)
+$null = $node.whatThisMeans
+$null = $node.underpinningKnowledge
+$null = $node.visuals
+$null = $node.selfCheck.questions
+$null = $node.title
+$null = $node.ref
+'@
+    Write-FixtureText -File (Join-Path $Root 'Build-Deck-Fixture.ps1') -Body @'
+param($node)
+$null = $node.slides
+foreach ($s in $node.slides) { $null = $s.headline; $null = $s.bullets; $null = $s.notes }
+'@
+
+    #  The learner-facing corpus and Stage 1's typed grid parse.
+    $toolLines = New-Object System.Collections.Generic.List[string]
+    $toolLines.Add('FIXTURE_UAT - Unit Assessment Tool (fixture)')
+    $toolLines.Add('Task 6 Receiving deliveries')
+    $toolLines.Add('(a) For each food item below, list the spoilage indicators you would look for and the action you would take at the door.')
+    $toolLines.Add(($script:Round6Headers -join ' | '))
+    foreach ($it in $items) { $toolLines.Add(("{0} | Write here | Write here" -f $it)) }
+    $toolLines.Add('Task 7 Storage temperatures')
+    Write-FixtureText -File (Join-Path $Root 'corpus\FIXTURE_UAT.txt') -Body (($toolLines -join "`r`n") + "`r`n")
+    Write-FixtureText -File (Join-Path $Root 'corpus\manifest.json') -Body ([ordered]@{
+        documents = @([ordered]@{ file = 'FIXTURE_UAT.txt'; audience = 'learner' })
+    } | ConvertTo-Json -Depth 6)
+    Write-FixtureText -File (Join-Path $Root 'corpus\grids.json') -Body ([ordered]@{
+        _purpose = 'fixture: Stage 1 typed parse of the assessed response grids'
+        grids = @([ordered]@{ doc = 'FIXTURE_UAT'; id = $taskId; ref = $taskRef; labels = $items; headers = @($script:Round6Headers); kind = 'labelled' })
+    } | ConvertTo-Json -Depth 6)
+
+    $aliases = [ordered]@{}
+    foreach ($it in $items) { $aliases[$it] = @() }
+    Write-FixtureText -File (Join-Path $Root 'withhold-register.json') -Body ([ordered]@{
+        unit = 'FIXTURE'
+        documents = [ordered]@{ FIXTURE_UAT = [ordered]@{ audience = 'learner'; referencePattern = 'Task {n}({part})' } }
+        subSections = [ordered]@{
+            '1.4' = [ordered]@{
+                subSection = '1.4'
+                refs = @($taskRef)
+                tasks = @([ordered]@{
+                    ref = $taskRef; id = $taskId; document = 'FIXTURE_UAT'; kind = 'labelled'
+                    headers = @($script:Round6Headers); assessedHeaders = @(1)
+                    items = $items; prefilledItems = @(); aliases = $aliases
+                    subjectClass = 'food'; subjects = @(); unassessedSubjects = @('Dry pasta')
+                    allowance = 1
+                    permittedGround = 'Set the worked example on dry pasta, which this task does not assess.'
+                    shape = [ordered]@{ rows = 6; assessedColumns = 1; benchmarkMinimum = 1; wordGuide = [ordered]@{ min = 5; max = 20 } }
+                })
+                freeText = @(); observations = @()
+            }
+        }
+        unclassified = @(); unresolvedReferences = @()
+    } | ConvertTo-Json -Depth 10)
+
+    $cellRows = New-Object System.Collections.Generic.List[object]
+    foreach ($row in $rows) {
+        $cellRows.Add([ordered]@{
+            item = $row.Item; assessed = $true
+            cells = @(
+                [ordered]@{ col = 1; header = $script:Round6Headers[1]; state = 'answered'; bullets = @([ordered]@{ text = $row.Text; words = @($row.Words) }) },
+                [ordered]@{ col = 2; header = $script:Round6Headers[2]; state = 'answered'; bullets = @([ordered]@{ text = 'reject it at the door and record the rejection'; words = @('reject', 'door', 'record', 'rejection') }) }
+            )
+        })
+    }
+    Write-FixtureText -File (Join-Path $Root 'assessor-cells.json') -Body ([ordered]@{
+        _WARNING = 'GATE-ONLY fixture written by Assert-GateFixtures. Synthetic content; no real model answer appears here.'
+        wordPipeline = [ordered]@{
+            normalise = 'lower case, letters digits and single spaces only'
+            stem = 'crude suffix strip: ing, ed, es, s'
+            stopwords = 176
+            stripLearnerWords = 'every word in the learner-facing text of the same task'
+            dfCeiling = 0.25
+        }
+        grids = @([ordered]@{
+            ref = $taskRef; id = $taskId; subSection = '1.4'; kind = 'labelled'; document = 'FIXTURE_UAT'
+            headers = @($script:Round6Headers); assessedHeaders = @(1); rowSource = 'modelRows'
+            rows = $cellRows.ToArray(); extraPoints = @()
+        })
+        freeText = @(); taskLevel = @()
+    } | ConvertTo-Json -Depth 12)
+
+    #  The CLEAN spine: mechanism, not the row beside its answer.
+    Write-FixtureText -File (Join-Path $Root 'spine\t1_1.4.json') -Body ([ordered]@{
+        ref = '1.4'; pc = '1.4'; topic = 1; title = 'Checking deliveries at the door'
+        whatThisMeans = @(
+            'Every delivery is checked at the door before it is signed for, because a rejected item costs nothing and an accepted one is yours.',
+            'Dry pasta is the example this sub-section works, since the assessment does not ask about it.'
+        )
+        remember = 'Look, smell, touch, then decide - and write the decision down.'
+        underpinningKnowledge = @(
+            'Spoilage is a process, and the senses catch it in order: sight first, then smell, then touch.',
+            'A cold chain that was broken shows up as condensation inside packaging long before anything smells wrong.',
+            'Dry pasta arriving damp or with a split bag is refused and the refusal is written on the delivery docket.',
+            'The action at the door is always the same shape: refuse, isolate, record, tell the supplier.'
+        )
+        regulatoryBasis = @('The Food Standards Code requires food to be received in a condition fit for its intended use.')
+        selfCheck = [ordered]@{
+            questions = @('What is the first sense you use at the door, and why?')
+            answerGuide = @('Points to the teaching above rather than to a model answer.')
+        }
+        assessmentLink = [ordered]@{ refs = @($taskRef); wording = 'Prepares you for: Task 6(a).' }
+        visuals = @([ordered]@{ slot = '1.4.1'; kind = 'Image'; caption = 'Figure 1.4.1 A delivery being checked at the door'; alt = 'A cook checking a delivery on a trolley.'; prompt = 'A commercial kitchen back door, a delivery on a trolley, a cook with a probe thermometer.' })
+        slides = @([ordered]@{ layout = 'single'; kind = 'teaching'; headline = 'Check it at the door'; bullets = @('Sight, smell, touch, decide.'); notes = 'Work the dry pasta example on the board.' })
+        openQuestions = @(); provenance = @()
+    } | ConvertTo-Json -Depth 12)
+    Write-FixtureText -File (Join-Path $Root 'spine\t1_topic.json') -Body ([ordered]@{
+        number = 1; element = '1'; title = 'Receiving and storing'; elementText = 'Receive and store stock'
+        overview = 'The fixture topic exists so the sweep has more than one file to read.'
+        outcomes = @('Check a delivery at the door.'); summary = @('Refuse what has turned.')
+        slides = @([ordered]@{ layout = 'single'; kind = 'title'; headline = 'Receiving and storing'; bullets = @('Fixture'); notes = 'Open the topic.' })
+        openQuestions = @(); provenance = @()
+    } | ConvertTo-Json -Depth 8)
+    return $Root
+}
+
 function Get-FixtureRecipe {
     param([Parameter(Mandatory)][string] $Skill)
 
@@ -1220,7 +2215,7 @@ function Get-FixtureRecipe {
             foreach ($fig in @($rules.figures)) {
                 if ($null -eq $fig -or $null -eq $fig.PSObject.Properties['forbid']) { continue }
                 foreach ($v in @($fig.forbid)) {
-                    if ($v -and "$v".Trim().Length -ge 2) { $lit = "$v".Trim(); $figName = "$($fig.name)"; break }
+                    if ($v -and "$v".Trim().Length -ge 3) { $lit = "$v".Trim(); $figName = "$($fig.name)"; break }
                 }
                 if ($lit) { break }
             }
@@ -1258,11 +2253,12 @@ function Get-FixtureRecipe {
             param($fx)
             $gate = Join-Path $fx.Skill 'scripts\Stage-Ledger.ps1'
             if (-not (Test-Path -LiteralPath $gate)) { return }
-            $src = Read-FixtureText -File $gate
-            $m = [regex]::Match($src, '(?m)^\s*\$script:LedgerRequired\s*=\s*@\(([^)]*)\)')
-            if (-not $m.Success) { return }
+            #  THE DERIVED VIEW, not a regex over a literal array: the required
+            #  set is whatever the ledger publishes, however it builds it.
+            $view = Get-LedgerStageView -Skill $fx.Skill
             $stages = New-Object System.Collections.Generic.List[string]
-            foreach ($q in [regex]::Matches($m.Groups[1].Value, "'([^']+)'")) { $stages.Add($q.Groups[1].Value) }
+            foreach ($s in @($view.Required)) { if ("$s") { $stages.Add("$s") } }
+            $script:LedgerViewSource = $view.Source
             if ($stages.Count -eq 0) { return }
             #  Every record must postdate every file the build renders from.
             $newest = [datetime]::UtcNow.AddMinutes(-30)
@@ -1335,6 +2331,11 @@ function Get-FixtureRecipe {
             return (-not [regex]::IsMatch($back, $rx))
         }
         Args = { param($fx) @('-BuildDir', $fx.Dir, '-Check') }
+        #  A removal plant has no needle to find in the output - the token is
+        #  a stage key like '0', which is too short to mean anything and is
+        #  absent from the build by design. The gate must instead say, in its
+        #  own words, that THIS stage has no record. {0} is the escaped token.
+        ExpectRx = '(?i)stage\s+{0}\s+has\s+no\s+record'
         NameInOutput = ''
     })
 
@@ -1361,12 +2362,27 @@ function Get-FixtureRecipe {
             $p = $profiles[0]
             #  The RTO id is DERIVED from the filename, not typed.
             $rtoId = [regex]::Match($p.Name, '(?i)^rto-profile\.([^.]+)\.json$').Groups[1].Value
+            #  THE CLEAN ARM GETS ITS OWN, UNBROKEN COPY. The first version
+            #  declared CleanArgsDynamic and never supplied clean arguments, so
+            #  the clean arm never ran and the verdict rested on the planted
+            #  exit alone - the tautology this rewrite removes. Same assets,
+            #  same -SkillPath shape, minus the defect.
+            $cleanDst = Join-Path $fx.Dir 'skillclean'
+            New-Item -ItemType Directory -Force -Path (Join-Path $cleanDst 'assets') | Out-Null
+            foreach ($j in (Get-ChildItem -LiteralPath (Join-Path $dst 'assets') -Filter '*.json' -File)) {
+                Copy-Item -LiteralPath $j.FullName -Destination (Join-Path $cleanDst ('assets\' + $j.Name)) -Force
+            }
             $body = Read-FixtureText -File $p.FullName
             $marker = 'plantedmissingrequiredfield'
             $new = [regex]::Replace($body, '"brandingFile"', ('"' + $marker + '"'), 1)
             if ($new -eq $body) { return $null }
             Write-FixtureText -File $p.FullName -Body $new
-            return [pscustomobject]@{ Token = $marker; Channel = $p.FullName; Describe = 'a required property renamed in a copy of the RTO profile pack'; Extra = $rtoId; SkillCopy = $dst }
+            return [pscustomobject]@{
+                Token = $marker; Channel = $p.FullName
+                Describe = 'a required property renamed in a copy of the RTO profile pack'
+                Extra = $rtoId; SkillCopy = $dst
+                CleanArgs = @('-Rto', $rtoId, '-SkillPath', $cleanDst, '-Check')
+            }
         }
         Verify = {
             param($fx, $plant)
@@ -1376,6 +2392,133 @@ function Get-FixtureRecipe {
         Args = { param($fx, $plant) @('-Rto', $plant.Extra, '-SkillPath', $plant.SkillCopy, '-Check') }
         CleanArgsDynamic = $true
         NameInOutput = ''
+    })
+
+    # -----------------------------------------------------------------------
+    #  THE ROUND-6 LEAK CLASSES, as named recipes. Six clean-room rounds on
+    #  one build found the same leak in a new shape each time; the sixth found
+    #  it in guide sub-section 1.4 (six list sentences giving a task's spoilage
+    #  indicators, row by row, in the assessor's own order) and in Figure
+    #  7.1.4 (a row labelled 'On this run' carrying the assessed values under
+    #  the task's own column headings). Three gates each own one shape of it,
+    #  and each recipe plants exactly the shape its gate owns into a LEAN
+    #  FIXTURE SPINE this harness writes for itself - a synthetic register,
+    #  gate-only cells and corpus, with no model answer from any real pack -
+    #  so the recipe runs without a reference build and can never leak one.
+    #  A gate that does not yet fail on its shape reads UNPROVEN, which is the
+    #  honest state while those gates are being rewritten.
+    # -----------------------------------------------------------------------
+
+    $r.Add([pscustomobject]@{
+        Gate  = 'Check-ShapeMirror'
+        Kind  = 'round-6: six list sentences giving a grid''s indicators row by row, in the assessor''s order, each carrying most of a model bullet'
+        ClaimRx = '(?i)(shape of the assessor|written to the shape|row order|in the task''s own order|assessor''s own order)'
+        Fixture = { param($fx) New-Round6Fixture -Root $fx.Dir }
+        Plant = {
+            param($fx)
+            $spine = Join-Path $fx.Dir 'spine\t1_1.4.json'
+            $obj = (Read-FixtureText -File $spine) | ConvertFrom-Json
+            $rows = $script:Round6Rows
+            $lines = New-Object System.Collections.Generic.List[string]
+            foreach ($row in $rows) {
+                #  Most of the bullet's content words - never all of them, so
+                #  this is the SHAPE leak (the withhold gate's complete-bullet
+                #  rule stays silent) and the row is named at the front.
+                $keep = @($row.Words | Select-Object -First ([Math]::Max(2, $row.Words.Count - 1)))
+                $lines.Add(("{0} shows {1}." -f $row.Item, ($keep -join ', ')))
+            }
+            $obj.underpinningKnowledge = @($obj.underpinningKnowledge) + $lines.ToArray()
+            Write-FixtureText -File $spine -Body ($obj | ConvertTo-Json -Depth 14)
+            #  NO Token: there is nothing this gate may quote back (see ExpectRx below), so a token would be an anchor it can never satisfy.
+            return [pscustomobject]@{ Channel = $spine; Describe = ('six row-by-row list sentences in the assessor''s order added to t1_1.4.json underpinningKnowledge') }
+        }
+        Verify = {
+            param($fx, $plant)
+            $back = Read-FixtureText -File $plant.Channel
+            $obj = $null
+            try { $obj = $back | ConvertFrom-Json } catch { return $false }
+            $n = 0
+            foreach ($row in $script:Round6Rows) { foreach ($s in @($obj.underpinningKnowledge)) { if ("$s".StartsWith($row.Item + ' shows ')) { $n++; break } } }
+            return ($n -eq 6)
+        }
+        Args = { param($fx) @('-BuildDir', $fx.Dir, '-Quiet') }
+        #  THIS GATE DELIBERATELY DOES NOT PRINT WHAT IT FOUND. Check-ShapeMirror
+        #  sweeps assessor-only material, so its per-grid detail goes into the
+        #  report file and its stdout carries the arm roster instead - measured:
+        #  968 bytes, not one of them a quotation. Anchoring on a phrase from a
+        #  gate that must not quote is asking it to leak, so the ANCHOR IS THE
+        #  ROSTER LINE: the blocking full-rows arm ran and found at least one.
+        NameInOutput = ''
+        ExpectRx = '(?m)^ARMS:[^\r\n]*full-rows\|true\|ran\|\d+\|[1-9]'
+    })
+
+    $r.Add([pscustomobject]@{
+        Gate  = 'Check-FigureMirror'
+        Kind  = 'round-6: a figure row labelled ''On this run'' carrying assessed values under the task''s own column headings'
+        ClaimRx = '(?i)(column headings|transposed|answer sheet''s shape|reproduce[s]? an assessed answer grid)'
+        Fixture = { param($fx) New-Round6Fixture -Root $fx.Dir }
+        Plant = {
+            param($fx)
+            $spine = Join-Path $fx.Dir 'spine\t1_1.4.json'
+            $obj = (Read-FixtureText -File $spine) | ConvertFrom-Json
+            $rows = $script:Round6Rows
+            $fig = [ordered]@{
+                slot = '7.1.4'; kind = 'Table'
+                caption = 'Figure 7.1.4 What the receiving check found on this run'
+                alt = 'A table of the receiving check on one delivery run.'
+                spec = [ordered]@{
+                    headers = @($script:Round6Headers)
+                    rows = @(
+                        @('On this run', ($rows[0].Words -join ' '), 'rejected at the door and logged'),
+                        @('On the previous run', ($rows[1].Words -join ' '), 'rejected at the door and logged')
+                    )
+                }
+            }
+            $obj.visuals = @($obj.visuals) + @([pscustomobject]$fig)
+            Write-FixtureText -File $spine -Body ($obj | ConvertTo-Json -Depth 14)
+            return [pscustomobject]@{ Token = 'On this run'; Channel = $spine; Describe = 'a table under the task''s own three column headings with two filled rows, one labelled On this run, added to t1_1.4.json visuals' }
+        }
+        Verify = {
+            param($fx, $plant)
+            $back = Read-FixtureText -File $plant.Channel
+            $obj = $null
+            try { $obj = $back | ConvertFrom-Json } catch { return $false }
+            foreach ($v in @($obj.visuals)) {
+                if ($null -eq $v -or $null -eq $v.PSObject.Properties['spec'] -or $null -eq $v.spec) { continue }
+                foreach ($row in @($v.spec.rows)) { if (@($row).Count -ge 3 -and "$(@($row)[0])" -eq 'On this run') { return $true } }
+            }
+            return $false
+        }
+        Args = { param($fx) @('-BuildDir', $fx.Dir, '-Quiet') }
+        NameInOutput = 'On this run'
+    })
+
+    $r.Add([pscustomobject]@{
+        Gate  = 'Assert-WithholdRegister'
+        Kind  = 'round-6: six sentences each naming a withheld row and stating one of its model bullets completely, in the assessor''s order'
+        ClaimRx = '(?i)(withheld value|withheld row|complete content-word set|names the row)'
+        Fixture = { param($fx) New-Round6Fixture -Root $fx.Dir }
+        Plant = {
+            param($fx)
+            $spine = Join-Path $fx.Dir 'spine\t1_1.4.json'
+            $obj = (Read-FixtureText -File $spine) | ConvertFrom-Json
+            $lines = New-Object System.Collections.Generic.List[string]
+            foreach ($row in $script:Round6Rows) { $lines.Add(("{0}: {1}." -f $row.Item, $row.Text)) }
+            $obj.underpinningKnowledge = @($obj.underpinningKnowledge) + $lines.ToArray()
+            Write-FixtureText -File $spine -Body ($obj | ConvertTo-Json -Depth 14)
+            return [pscustomobject]@{ Token = $lines[0]; Channel = $spine; Describe = 'six sentences each naming a withheld row and carrying its complete model bullet, added to t1_1.4.json underpinningKnowledge' }
+        }
+        Verify = {
+            param($fx, $plant)
+            $back = Read-FixtureText -File $plant.Channel
+            $obj = $null
+            try { $obj = $back | ConvertFrom-Json } catch { return $false }
+            $n = 0
+            foreach ($row in $script:Round6Rows) { foreach ($s in @($obj.underpinningKnowledge)) { if ("$s" -eq ("{0}: {1}." -f $row.Item, $row.Text)) { $n++; break } } }
+            return ($n -eq 6)
+        }
+        Args = { param($fx) @('-BuildDir', $fx.Dir, '-SkillDir', $fx.Skill, '-Quiet') }
+        NameInOutput = 'answered outside a posed-question context'
     })
 
     return $r.ToArray()
@@ -1395,7 +2538,12 @@ function Test-OneGate {
         [string] $Scratch,
         [int] $TimeoutSec,
         #  An empty section is normal: most gates are not named in gates.md at all.
-        [AllowEmptyString()][string] $SectionText = ''
+        [AllowEmptyString()][string] $SectionText = '',
+        #  The refusal probe plan for THIS gate, from Get-RefusalProbeSet, or
+        #  $null when the stage table binds this script to no stage. A gate
+        #  outside the table is NOT PROBED - see that function for what a bare
+        #  probe over a whole directory was doing.
+        $Probe
     )
 
     $res = [pscustomobject]@{
@@ -1420,6 +2568,13 @@ function Test-OneGate {
         FailsOnPlant = $false
         PassesClean = $false
         RefusesEmpty = $false
+        ProbeState  = 'NOT-PROBED'
+        ProbeWhy    = 'the ledger stage table binds this script to no stage, so the refusal probe does not run it'
+        ProbeWhatIf = $false
+        CleanExit   = ''
+        PlantExit   = ''
+        CleanRan    = $false
+        NeedleState = 'n/a'
         Verdict     = 'UNPROVEN'
         Reason      = ''
         Seconds     = 0.0
@@ -1429,15 +2584,23 @@ function Test-OneGate {
 
     # ---- channel: REFUSAL. A gate that exits 0 on nothing proves nothing.
     #  A refusal happens at parameter validation, in the first second. A gate
-    #  that is still working after this has not refused - it has started, which
-    #  is the answer this probe was asking for.
-    $bare = Invoke-GateProcess -File $Facts.File -Arguments @() -TimeoutSec ([Math]::Min($TimeoutSec, 45))
-    $res.RefusesEmpty = ($bare.Exit -ne 0)
+    #  still working after that has not refused - it has started, which is the
+    #  answer this probe was asking for. It runs only for a script the stage
+    #  table binds to a stage, and it adds -WhatIf only where the syntax tree
+    #  said the script supports it.
+    if ($null -ne $Probe) {
+        $res.ProbeWhatIf = [bool]$Probe.WhatIf
+        $res.ProbeWhy = "$($Probe.WhatIfWhy)"
+        $bare = Invoke-GateProcess -File $Facts.File -Arguments @($Probe.Arguments) -TimeoutSec ([Math]::Min($TimeoutSec, 45))
+        if ($bare.TimedOut) { $res.ProbeState = 'TIMEOUT'; $res.RefusesEmpty = $false }
+        elseif ($bare.Exit -ne 0) { $res.ProbeState = 'REFUSED'; $res.RefusesEmpty = $true }
+        else { $res.ProbeState = 'EXITED-0'; $res.RefusesEmpty = $false }
+    }
 
     # ---- channel: SELFTEST
     if ($Facts.HasSelfTest) {
         $stArgs = New-Object System.Collections.Generic.List[string]
-        $stArgs.Add('-SelfTest')
+        $stArgs.Add('-' + $(if ($Facts.SelfTestSwitch) { $Facts.SelfTestSwitch } else { 'SelfTest' }))
         $unsatisfied = ''
         foreach ($m in $Facts.Mandatory) {
             $filled = $false
@@ -1519,23 +2682,41 @@ function Test-OneGate {
         try {
             $null = New-LeanBuildCopy -Source $Build -Dest $fxDir
             $fx = [pscustomobject]@{ Dir = $fxDir; Skill = $Skill; SourceBuild = $Build }
+            #  $null = ON BOTH, AND THE REASON IS NOT TIDINESS. A scriptblock
+            #  called bare inside a function puts whatever it emits onto THIS
+            #  function's output stream, and New-Round6Fixture returns the
+            #  directory it built. The caller then received a two-element array
+            #  - a path, then the result object - and wrote it into the report,
+            #  so every recipe with a Fixture block produced a results[] row the
+            #  runners read as a gate with no name and no verdict. The gate was
+            #  PROVEN and the file said nothing.
+            if ($null -ne $Recipe.PSObject.Properties['Fixture'] -and $null -ne $Recipe.Fixture) {
+                #  A recipe that builds its own synthetic fixture writes it over
+                #  the lean copy rather than depending on the real build's shape.
+                $null = & $Recipe.Fixture $fx
+            }
             if ($null -ne $Recipe.PSObject.Properties['Prepare'] -and $null -ne $Recipe.Prepare) {
-                & $Recipe.Prepare $fx
+                $null = & $Recipe.Prepare $fx
             }
 
             #  CLEAN FIRST, on the untouched copy. A gate that fails on a clean
-            #  build cannot have its failure on a planted one believed.
+            #  build cannot have its failure on a planted one believed, and -
+            #  since P0-13 - a clean arm that did not RUN AT ALL means the
+            #  planted arm proves nothing either.
             $cleanArgs = @()
             if ($null -ne $Recipe.PSObject.Properties['CleanArgs'] -and $null -ne $Recipe.CleanArgs) { $cleanArgs = & $Recipe.CleanArgs $fx }
             elseif ($null -eq $Recipe.PSObject.Properties['CleanArgsDynamic']) { $cleanArgs = & $Recipe.Args $fx }
 
             $ranClean = $false
             $cleanRc = -9999
+            $cleanText = ''
             if ($null -ne $cleanArgs -and @($cleanArgs).Count -gt 0) {
                 $cl = Invoke-GateProcess -File $Facts.File -Arguments @($cleanArgs) -TimeoutSec $TimeoutSec
                 $res.PassesClean = ((-not $cl.TimedOut) -and ($cl.Exit -eq 0))
                 $cleanRc = $cl.Exit
-                $ranClean = $true
+                $cleanText = "$($cl.Text)"
+                $ranClean = (-not $cl.TimedOut)
+                $res.CleanExit = $(if ($cl.TimedOut) { 'timeout' } else { "$($cl.Exit)" })
             }
 
             $plant = & $Recipe.Plant $fx
@@ -1558,38 +2739,96 @@ function Test-OneGate {
                     if (-not $ranClean -and $null -ne $plant.PSObject.Properties['CleanArgs']) {
                         $cl = Invoke-GateProcess -File $Facts.File -Arguments @($plant.CleanArgs) -TimeoutSec $TimeoutSec
                         $res.PassesClean = ((-not $cl.TimedOut) -and ($cl.Exit -eq 0))
+                        $cleanRc = $cl.Exit
+                        $cleanText = "$($cl.Text)"
+                        $ranClean = (-not $cl.TimedOut)
+                        $res.CleanExit = $(if ($cl.TimedOut) { 'timeout' } else { "$($cl.Exit)" })
                     }
 
                     $pl = Invoke-GateProcess -File $Facts.File -Arguments @($pArgs) -TimeoutSec $TimeoutSec
-                    #  The gate must NAME the plant. Where a recipe declares no
-                    #  token of its own, the planted value itself is the token -
-                    #  never "assume named", which is what silently switched the
-                    #  discrimination guard off for the gates that crash before
-                    #  they run.
+                    $res.PlantExit = $(if ($pl.TimedOut) { 'timeout' } else { "$($pl.Exit)" })
+                    $res.CleanRan = $ranClean
+
+                    #  THE ANCHOR. The gate must NAME the plant. Where a recipe
+                    #  declares no token of its own, the planted value itself is
+                    #  the token - never "assume named", which is what silently
+                    #  switched the discrimination guard off for the gates that
+                    #  crash before they run.
+                    #
+                    #  A NEEDLE IS AT LEAST THREE CHARACTERS AND MUST BE ABSENT
+                    #  FROM THE CLEAN OUTPUT. `0` matches the exit code, the
+                    #  year, a count and a column heading in almost any gate's
+                    #  output, so "the gate named the plant" was true of gates
+                    #  that had never seen it. Three characters is the floor,
+                    #  and a needle the gate already prints on the CLEAN build
+                    #  is not evidence about the planted one whatever its
+                    #  length.
+                    #
+                    #  A REMOVAL PLANT HAS NO NEEDLE. Deleting a required line
+                    #  leaves nothing for the gate to quote back, so its recipe
+                    #  declares an ExpectRx that the failing output must match,
+                    #  and that pattern is the anchor instead.
                     $needle = ''
                     if ($Recipe.NameInOutput) { $needle = "$($Recipe.NameInOutput)" }
-                    if (-not $needle -and $plant.Token) { $needle = "$($plant.Token)" }
-                    $named = $false
-                    if ($needle) { $named = Test-OutputNames -Text $pl.Text -Token $needle }
-
-                    #  DID IT DISCRIMINATE? A gate that returns the same code on
-                    #  the clean build and the planted one told us nothing about
-                    #  the plant - it very likely never ran. One gate here dies
-                    #  inside its own parameter block under -File, because it
-                    #  resolves its skill directory from $PSScriptRoot in a
-                    #  parameter default and $PSScriptRoot is empty there; it
-                    #  exits 1 on clean input and 1 on planted input, and
-                    #  reading only "non-zero on the plant" would have scored
-                    #  that as the gate catching the defect.
-                    $discriminated = ($ranClean -and ($cleanRc -ne $pl.Exit)) -or $named
-                    $res.FailsOnPlant = ((-not $pl.TimedOut) -and ($pl.Exit -ne 0) -and $named -and $discriminated)
-
-                    if ($pl.TimedOut) { $res.Reason = 'the gate timed out on the planted fixture' }
-                    elseif ($pl.Exit -eq 0) { $res.Reason = 'the gate PASSED a verified plant of the defect it claims to catch' }
-                    elseif (-not $discriminated) {
-                        $res.Reason = ("the gate exited {0} on the clean build and {1} on the planted one and never named the plant, so it did not discriminate it - check whether it ran at all" -f $cleanRc, $pl.Exit)
+                    if (-not $needle -and $null -ne $plant.PSObject.Properties['Token'] -and $plant.Token) { $needle = "$($plant.Token)" }
+                    $expectRx = ''
+                    if ($null -ne $Recipe.PSObject.Properties['ExpectRx'] -and $Recipe.ExpectRx) { $expectRx = "$($Recipe.ExpectRx)" }
+                    if ($null -ne $plant.PSObject.Properties['ExpectRx'] -and $plant.ExpectRx) { $expectRx = "$($plant.ExpectRx)" }
+                    #  A recipe may parameterise its ExpectRx on the plant.
+                    if ($expectRx -and $expectRx.Contains('{0}') -and $null -ne $plant.PSObject.Properties['Token']) {
+                        $expectRx = ($expectRx -f [regex]::Escape("$($plant.Token)"))
                     }
-                    elseif (-not $named) { $res.Reason = 'the gate failed on the plant but its output never names it, so the failure may be about something else' }
+
+                    $named = $false
+                    $anchorWhy = ''
+                    if ($needle -and $needle.Length -lt 3) {
+                        $res.NeedleState = 'TOO-SHORT'
+                        $anchorWhy = ("the anchor '{0}' is {1} character(s) and a needle is at least three characters, because a one-character needle matches an exit code, a count and a column heading in almost any gate's output" -f $needle, $needle.Length)
+                        $needle = ''
+                    }
+                    elseif ($needle -and $ranClean -and (Test-OutputNames -Text $cleanText -Token $needle)) {
+                        $res.NeedleState = 'IN-CLEAN-OUTPUT'
+                        $anchorWhy = ("the anchor '{0}' is already printed by this gate on the CLEAN build, so finding it in the planted output says nothing about the plant" -f (Get-ShortLine -Value $needle -Max 60))
+                        $needle = ''
+                    }
+                    elseif ($needle) { $res.NeedleState = 'OK' }
+
+                    if ($needle) {
+                        $named = Test-OutputNames -Text $pl.Text -Token $needle
+                        if (-not $named) { $anchorWhy = ("the gate's output never contains the anchor '{0}', so the failure it reported may be about something else - either the gate does not name what it caught, or this recipe's anchor is wrong" -f (Get-ShortLine -Value $needle -Max 60)) }
+                    }
+                    elseif ($expectRx) {
+                        $res.NeedleState = $(if ($res.NeedleState -eq 'n/a') { 'EXPECT-RX' } else { $res.NeedleState + '+EXPECT-RX' })
+                        $named = [regex]::IsMatch("$($pl.Text)", $expectRx)
+                        if (-not $named -and -not $anchorWhy) { $anchorWhy = "the failing output does not match the recipe's ExpectRx, so the failure may be about something else" }
+                    }
+                    elseif (-not $anchorWhy) {
+                        $res.NeedleState = 'NO-ANCHOR'
+                        $anchorWhy = 'this recipe declares no NameInOutput, its plant returned no Token, and it declares no ExpectRx - a removal plant must carry a recipe ExpectRx for the failing output to be matched against'
+                    }
+
+                    #  DISCRIMINATION, STATED ONCE AND WITH NO ESCAPE HATCH.
+                    #  FailsOnPlant is true only when the planted run did not
+                    #  time out, exited non-zero, NAMED the plant, the clean arm
+                    #  RAN, and the clean exit DIFFERS. The first version wrote
+                    #  `($ranClean -and $cleanRc -ne $pl.Exit) -or $named`, and
+                    #  that `-or` is a tautology: a gate that dies in its own
+                    #  parameter block exits 1 on clean and 1 on planted and its
+                    #  error text names the file it was handed, so it scored as
+                    #  having caught the defect. Everything below is an AND.
+                    $res.FailsOnPlant = ((-not $pl.TimedOut) -and ($pl.Exit -ne 0) -and $named -and $ranClean -and ($cleanRc -ne $pl.Exit))
+
+                    if ($pl.TimedOut) { $res.Reason = ("the gate timed out on the planted fixture (clean exit {0})" -f $res.CleanExit) }
+                    elseif ($pl.Exit -eq 0) { $res.Reason = 'the gate PASSED a verified plant of the defect it claims to catch' }
+                    elseif (-not $ranClean) {
+                        $res.Reason = ("the clean arm did not run (clean {0}, plant {1}), so there is nothing to compare the planted run against and a non-zero exit is not evidence of discrimination" -f $res.CleanExit, $res.PlantExit)
+                    }
+                    elseif ($cleanRc -eq $pl.Exit) {
+                        $res.Reason = ("the gate exited {0} on the clean build and {1} on the planted one - the same code, so it did not discriminate the plant; check whether it ran at all" -f $res.CleanExit, $res.PlantExit)
+                    }
+                    elseif (-not $named) {
+                        $res.Reason = ("the gate exited {0} clean and {1} planted, but the anchor was not found: {2}" -f $res.CleanExit, $res.PlantExit, $anchorWhy)
+                    }
                 }
             }
         }
@@ -1616,17 +2855,24 @@ function Test-OneGate {
     $res.Seconds = [Math]::Round($sw.Elapsed.TotalSeconds, 1)
 
     # ---- verdict
+    #  KEEP THE PLANT'S OWN REASON. A gate whose plant ran, landed and did NOT
+    #  discriminate, but whose -SelfTest passed, used to be reported purely on
+    #  the self-test - so the one sentence saying WHY the strong channel
+    #  rejected it was overwritten by a sentence about a weaker one.
+    $plantReason = ''
+    if ($res.PlantLanded -and -not $res.FailsOnPlant -and $res.Reason) { $plantReason = " THE PLANT CHANNEL ALSO RAN AND DID NOT PROVE IT: " + $res.Reason }
+
     if ($res.PlantLanded -and $res.FailsOnPlant -and $res.PassesClean) {
         $res.Verdict = 'PROVEN'
-        $res.Reason = 'failed on a verified plant and passed the same build clean'
+        $res.Reason = ("failed on a verified plant (exit {0}), named it, and passed the same build clean (exit {1})" -f $res.PlantExit, $res.CleanExit)
     }
     elseif ($res.PlantLanded -and $res.FailsOnPlant) {
         $res.Verdict = 'PROVEN-NOCLEAN'
-        $res.Reason = 'failed on a verified plant, but did not pass the clean build, so it may be failing for another reason'
+        $res.Reason = ("failed on a verified plant (exit {0}) and named it, but the clean build did not pass (exit {1}), so it may be failing for another reason" -f $res.PlantExit, $res.CleanExit)
     }
     elseif ($res.SelfTestOk -and $Facts.PlantVerifyState -eq 'VERIFIED') {
         $res.Verdict = 'PROVEN-SELFTEST'
-        $res.Reason = ('its own -SelfTest plants a defect, reads the plant back and branches to failure on it, then requires the gate to catch it. ' + $Facts.PlantVerifyEvidence)
+        $res.Reason = ('its own -SelfTest plants a defect, reads the plant back and branches to failure on it, then requires the gate to catch it. ' + $Facts.PlantVerifyEvidence + $plantReason)
     }
     elseif ($res.SelfTestOk -and $Facts.PlantVerifyState -eq 'INDETERMINATE') {
         #  NEVER WEAK BY DEFAULT. A false WEAK sends someone to add a read-back
@@ -1634,11 +2880,11 @@ function Test-OneGate {
         #  expensive. Where the syntax tree cannot settle it, say so and say
         #  what was looked for.
         $res.Verdict = 'SELFTEST-INDETERMINATE'
-        $res.Reason = ('its -SelfTest passes; whether it reads its own plant back could not be settled from the syntax tree. ' + $Facts.PlantVerifyEvidence + ' LOOKED FOR: ' + $Facts.PlantVerifyLookedFor)
+        $res.Reason = ('its -SelfTest passes; whether it reads its own plant back could not be settled from the syntax tree. ' + $Facts.PlantVerifyEvidence + ' LOOKED FOR: ' + $Facts.PlantVerifyLookedFor + $plantReason)
     }
     elseif ($res.SelfTestOk) {
         $res.Verdict = 'WEAK-SELFTEST'
-        $res.Reason = ('its -SelfTest passes but nothing in it reads the plant back before the gate is believed, which is the exact way a gate was recorded as proven while shipping the defect. ' + $Facts.PlantVerifyEvidence)
+        $res.Reason = ('its -SelfTest passes but nothing in it reads the plant back before the gate is believed, which is the exact way a gate was recorded as proven while shipping the defect. ' + $Facts.PlantVerifyEvidence + $plantReason)
     }
     elseif (-not $res.Reason) {
         #  Say which of the two it actually is. A blanket "it has no -SelfTest"
@@ -1721,9 +2967,47 @@ if (-not $BuildDir) { Write-Host 'REFUSE'; exit 2 }
 exit 0
 '@
 
+        #  4. THE TAUTOLOGY, REPRODUCED. This gate exits 1 on the clean build
+        #  and 1 on the planted one, and names the plant when it is there. The
+        #  first version scored that as discrimination, because "named" was an
+        #  OR against the exit comparison. A gate that dies in its own parameter
+        #  block behaves exactly like this, and one of the real gates does.
+        Write-FixtureText -File (Join-Path $fxScripts 'Check-AlwaysAngry.ps1') -Body @'
+<#  A fixture gate that claims to enforce a FORBIDDEN MARKER and exits 1
+    whatever it is handed - the shape of a gate that dies before it runs.  #>
+param([string] $BuildDir, [switch] $SelfTest)
+$p = Join-Path "$BuildDir" 'target.txt'
+if ((Test-Path -LiteralPath $p) -and ([System.IO.File]::ReadAllText($p, [System.Text.Encoding]::UTF8).IndexOf('PLANTEDMARKER', [System.StringComparison]::Ordinal) -ge 0)) {
+    Write-Host 'FAIL - PLANTEDMARKER is present'
+}
+else { Write-Host 'FAIL - something else went wrong' }
+exit 1
+'@
+
+        #  5. a gate whose param block declares SupportsShouldProcess, for the
+        #  refusal probe's -WhatIf decision.
+        Write-FixtureText -File (Join-Path $fxScripts 'Check-Careful.ps1') -Body @'
+<# A fixture gate that writes, and says so in its CmdletBinding. #>
+[CmdletBinding(SupportsShouldProcess = $true)]
+param([string] $BuildDir)
+if (-not $BuildDir) { Write-Host 'REFUSE - no build directory'; exit 2 }
+exit 0
+'@
+
+        #  6. a gate with a syntax error. It runs nothing and proves nothing,
+        #  and the first version made it VANISH from the report.
+        Write-FixtureText -File (Join-Path $fxScripts 'Check-Broken.ps1') -Body @'
+<# A fixture gate that does not parse. #>
+param([string] $BuildDir
+if (-not $BuildDir) { exit 2 }
+exit 0
+'@
+
         $honest = Get-ScriptFacts -File (Join-Path $fxScripts 'Check-Honest.ps1')
         $cannot = Get-ScriptFacts -File (Join-Path $fxScripts 'Check-CannotFail.ps1')
         $blind = Get-ScriptFacts -File (Join-Path $fxScripts 'Check-BlindSelfTest.ps1')
+        $angry = Get-ScriptFacts -File (Join-Path $fxScripts 'Check-AlwaysAngry.ps1')
+        $broken = Get-ScriptFacts -File (Join-Path $fxScripts 'Check-Broken.ps1')
 
         if ($honest.Parses -and $cannot.Parses -and $blind.Parses) { TOk 'all three fixture gates parse' } else { TBad 'a fixture gate does not parse' }
         if ($blind.HasSelfTest -and -not $blind.SelfTestVerifiesPlant) { TOk 'a self-test that never checks its plant is read as NOT verifying it' }
@@ -1780,6 +3064,19 @@ exit 0
             ClaimRx = '(?i)catches an unregistered figure'
         }
 
+        #  A NEEDLE OF ONE CHARACTER. `0` sits in the exit code, the year, a
+        #  count and a column heading of almost every gate's output, so it
+        #  matched everywhere and "the gate named the plant" was true of gates
+        #  that had never seen it.
+        $shortNeedleRecipe = [pscustomobject]@{
+            Gate = 'Check-Honest'; Kind = 'a marker anchored on a one-character needle'
+            Plant = $landingRecipe.Plant
+            Verify = $landingRecipe.Verify
+            Args = $landingRecipe.Args
+            NameInOutput = '0'
+            ClaimRx = '(?i)forbidden marker'
+        }
+
         $scratch = Join-Path $tmp 'scratch'
         New-Item -ItemType Directory -Force -Path $scratch | Out-Null
 
@@ -1804,13 +3101,225 @@ exit 0
         if ($rU.Reason -notmatch 'PASSED a verified plant') { TOk 'the harness never says a gate passed a plant of a claim it never made' }
         else { TBad 'the harness emitted the false-HIGH wording' }
 
-        $r3 = Test-OneGate -Facts $cannot -DocRow $null -Recipe $landingRecipe -Skill $Skill -Build $fxBuild -Scratch $scratch -TimeoutSec 60
+        $probeCannot = [pscustomobject]@{ Name = 'Check-CannotFail'; File = $cannot.File; Stages = @('3c'); Blocking = $true
+                                          Arguments = @(); WhatIf = $false; WhatIfWhy = 'fixture probe plan' }
+
+        $r3 = Test-OneGate -Facts $cannot -DocRow $null -Recipe $landingRecipe -Skill $Skill -Build $fxBuild -Scratch $scratch -TimeoutSec 60 -Probe $probeCannot
         if ($r3.Verdict -eq 'UNPROVEN') { TOk 'a gate that exits 0 on everything is UNPROVEN' } else { TBad ("a gate that cannot fail was reported {0}" -f $r3.Verdict) }
-        if (-not $r3.RefusesEmpty) { TOk 'a gate that exits 0 with no arguments at all is recorded as not refusing' } else { TBad 'the refusal probe misread the always-pass gate' }
+        if (-not $r3.RefusesEmpty -and $r3.ProbeState -eq 'EXITED-0') { TOk 'a gate that exits 0 with no arguments at all is recorded as not refusing' }
+        else { TBad ("the refusal probe misread the always-pass gate ({0})" -f $r3.ProbeState) }
 
         $r4 = Test-OneGate -Facts $blind -DocRow $null -Recipe $null -Skill $Skill -Build $fxBuild -Scratch $scratch -TimeoutSec 60
         if ($r4.Verdict -eq 'WEAK-SELFTEST') { TOk 'a passing self-test that never verifies its plant is WEAK-SELFTEST, not PROVEN' }
         else { TBad ("expected WEAK-SELFTEST, got {0}" -f $r4.Verdict) }
+
+        # -------------------------------------------------------------------
+        # P0-13: the tautology, and the anchor rules
+        # -------------------------------------------------------------------
+
+        $rA = Test-OneGate -Facts $angry -DocRow $null -Recipe $landingRecipe -Skill $Skill -Build $fxBuild -Scratch $scratch -TimeoutSec 60
+        if ($rA.Verdict -ne 'PROVEN' -and $rA.Verdict -ne 'PROVEN-NOCLEAN') {
+            TOk ("a gate that exits 1 on the clean build AND on the planted one is {0}, not PROVEN, even though it named the plant" -f $rA.Verdict)
+        }
+        else { TBad ("the tautology survived: a gate exiting 1 on both arms was reported {0}" -f $rA.Verdict) }
+        if ("$($rA.Reason)" -match 'exited 1 on the clean build and 1 on the planted one') {
+            TOk 'the unproven verdict names BOTH exit codes rather than only the failing one'
+        }
+        else { TBad ("expected both exits in the reason, got: {0}" -f $rA.Reason) }
+        if ("$($rA.CleanExit)" -eq '1' -and "$($rA.PlantExit)" -eq '1' -and -not $rA.FailsOnPlant) {
+            TOk 'FailsOnPlant is false when the clean exit and the planted exit are the same code'
+        }
+        else { TBad ("clean {0} / plant {1} / failsOnPlant {2}" -f $rA.CleanExit, $rA.PlantExit, $rA.FailsOnPlant) }
+
+        #  ONE ROW, WHATEVER THE RECIPE EMITS. A recipe with a Fixture block
+        #  that returns the directory it built put that string on
+        #  Test-OneGate's output stream, and every results[] row for such a
+        #  gate reached the report as [path, object] - which the runners read
+        #  as a gate with no name and no verdict, on gates that were PROVEN.
+        $chattyRecipe = [pscustomobject]@{
+            Gate = 'Check-Honest'; Kind = 'a marker, from a recipe whose Fixture block returns a value'
+            Fixture = { param($fx) return $fx.Dir }
+            Prepare = { param($fx) return 'and so does Prepare' }
+            Plant = $landingRecipe.Plant
+            Verify = $landingRecipe.Verify
+            Args = $landingRecipe.Args
+            NameInOutput = 'PLANTEDMARKER'
+            ClaimRx = '(?i)forbidden marker'
+        }
+        $rC = @(Test-OneGate -Facts $honest -DocRow $null -Recipe $chattyRecipe -Skill $Skill -Build $fxBuild -Scratch $scratch -TimeoutSec 60)
+        if ($rC.Count -eq 1 -and $null -ne $rC[0].PSObject.Properties['Verdict'] -and $rC[0].Verdict -eq 'PROVEN') {
+            TOk 'a recipe whose Fixture and Prepare blocks return values still yields exactly ONE result row carrying a verdict'
+        }
+        else { TBad ("expected one PROVEN row, got {0} object(s): {1}" -f $rC.Count, (($rC | ForEach-Object { "$_" }) -join ' | ')) }
+
+        $rN = Test-OneGate -Facts $honest -DocRow $null -Recipe $shortNeedleRecipe -Skill $Skill -Build $fxBuild -Scratch $scratch -TimeoutSec 60
+        if ($rN.NeedleState -eq 'TOO-SHORT') { TOk "the needle '0' is rejected as too short before it can match an exit code" }
+        else { TBad ("expected NeedleState TOO-SHORT, got {0}" -f $rN.NeedleState) }
+        if ($rN.Verdict -ne 'PROVEN' -and "$($rN.Reason)" -match 'at least three characters') {
+            TOk 'a gate anchored only on a one-character needle is not PROVEN, and the reason says three characters'
+        }
+        else { TBad ("expected an unproven short-needle verdict, got {0} / {1}" -f $rN.Verdict, $rN.Reason) }
+
+        # -------------------------------------------------------------------
+        # P0-02 (this half): the ledger stage table, read BY SYNTAX TREE
+        # -------------------------------------------------------------------
+
+        $noTable = Get-LedgerStageView -Skill $tmp
+        if (-not $noTable.Found -and "$($noTable.Note)" -match 'stage table not found') {
+            TOk 'with no stage table on disk the reader reports "stage table not found" rather than a default'
+        }
+        else { TBad ("expected a named stage-table-not-found, got Found={0} / {1}" -f $noTable.Found, $noTable.Note) }
+
+        Write-FixtureText -File (Join-Path $fxScripts 'Stage-Ledger.ps1') -Body @'
+<# A fixture ledger carrying the one ordered stage table. #>
+param([switch] $Check)
+$script:LedgerStages = @(
+    [pscustomobject]@{ Key = '0';  Required = $true;  Blocking = $true;  Conditional = $false; Terminal = $false; Script = 'Check-Honest.ps1' }
+    [pscustomobject]@{ Key = '3c'; Required = $true;  Blocking = $true;  Conditional = $false; Terminal = $false; Script = 'Check-Careful.ps1' }
+    [pscustomobject]@{ Key = '7';  Required = $false; Blocking = $false; Conditional = $true;  Terminal = $false; Script = '' }
+    [pscustomobject]@{ Key = '8';  Required = $true;  Blocking = $true;  Conditional = $false; Terminal = $true;  Script = '' }
+)
+if ($Check) { exit 0 }
+'@
+
+        $view = Get-LedgerStageView -Skill $tmp
+        if ($view.Found -and "$($view.Source)" -match 'syntax tree' -and (@($view.Keys) -join ',') -eq '0,3c,7,8') {
+            TOk 'the stage table is read from the HashtableAst rows of the one assignment, in order, with nothing executed'
+        }
+        else { TBad ("the stage table was misread: found={0} source={1} keys={2}" -f $view.Found, $view.Source, (@($view.Keys) -join ',')) }
+        if ((@($view.Blocking) -join ',') -eq '0,3c,8' -and (@($view.Conditional) -join ',') -eq '7' -and (@($view.Terminal) -join ',') -eq '8') {
+            TOk 'Blocking, Conditional and Terminal come off the table columns, not from an array typed here'
+        }
+        else { TBad ("blocking={0} conditional={1} terminal={2}" -f (@($view.Blocking) -join ','), (@($view.Conditional) -join ','), (@($view.Terminal) -join ',')) }
+
+        $probeSet = Get-RefusalProbeSet -Ledger $view -Skill $tmp
+        if ($probeSet.Found -and $probeSet.Set.ContainsKey('Check-Honest') -and $probeSet.Set.ContainsKey('Check-Careful')) {
+            TOk 'the refusal probe set is the Script column of the stage table and nothing else'
+        }
+        else { TBad ("the probe set was not derived from the Script column: {0}" -f $probeSet.Note) }
+        if ($probeSet.Found -and -not $probeSet.Set['Check-Honest'].WhatIf -and @($probeSet.Set['Check-Honest'].Arguments).Count -eq 0 -and
+            "$($probeSet.Set['Check-Honest'].WhatIfWhy)" -match 'does not declare SupportsShouldProcess') {
+            TOk 'a stage-table row whose script lacks SupportsShouldProcess is probed WITHOUT -WhatIf, and the row records why'
+        }
+        else { TBad 'the no-ShouldProcess script was not recorded as probed without -WhatIf' }
+        if ($probeSet.Found -and $probeSet.Set['Check-Careful'].WhatIf -and (@($probeSet.Set['Check-Careful'].Arguments) -join ' ') -eq '-WhatIf') {
+            TOk 'a script whose CmdletBinding declares SupportsShouldProcess is probed with -WhatIf, decided from the syntax tree'
+        }
+        else { TBad 'the ShouldProcess script was not probed with -WhatIf' }
+
+        # -------------------------------------------------------------------
+        # The static arms: orphan recipe, unparseable gate, header findings
+        # -------------------------------------------------------------------
+
+        $fsSetFx = Get-FilesystemGateSet -Skill $tmp
+        $docFx = @(
+            [pscustomobject]@{ Stage = '3c'; StageKeys = @('3c'); Gate = 'broken'; Name = 'Check-Broken'; Marker = 'implemented'
+                               Blocks = 'yes'; BlocksYes = $true; Section = ''; File = $broken.File; OnDisk = $true
+                               AsFunction = ''; Aliases = @(); Judgement = $false; ScriptCell = '' }
+            [pscustomobject]@{ Stage = '3c'; StageKeys = @('3c'); Gate = 'honest'; Name = 'Check-Honest'; Marker = 'implemented'
+                               Blocks = 'yes'; BlocksYes = $true; Section = ''; File = $honest.File; OnDisk = $true
+                               AsFunction = ''; Aliases = @(); Judgement = $false; ScriptCell = '' }
+        )
+        $orphan = @([pscustomobject]@{ Gate = 'Check-NotOnDisk'; Kind = 'a defect in a gate that does not exist' })
+        $hdrFx = Get-HeaderReconciliation -FsSet $fsSetFx -DocRows $docFx -Ledger $view
+        $findFx = Get-StaticFindings -FsSet $fsSetFx -DocRows $docFx -Recipes $orphan -Headers $hdrFx -Plans $null -Ledger $view
+
+        $orphanRow = @($findFx | Where-Object { $_.Kind -eq 'ORPHAN-RECIPE' -and $_.Gate -eq 'Check-NotOnDisk' })
+        if ($orphanRow.Count -eq 1 -and $orphanRow[0].Blocking) { TOk 'a recipe naming a gate that is not on disk is an ORPHAN-RECIPE finding that blocks' }
+        else { TBad ("expected one blocking ORPHAN-RECIPE row, got {0}" -f $orphanRow.Count) }
+
+        $parseRow = @($findFx | Where-Object { $_.Kind -eq 'PARSE-ERROR' -and $_.Gate -eq 'Check-Broken' })
+        if ($parseRow.Count -eq 1 -and $parseRow[0].Blocking -and "$($parseRow[0].Detail)" -match 'does not parse') {
+            TOk 'a gate script with a syntax error is a blocking PARSE-ERROR finding that names it, instead of vanishing from the set'
+        }
+        else { TBad ("expected one blocking PARSE-ERROR row naming Check-Broken, got {0}" -f $parseRow.Count) }
+
+        $hdrRow = @($findFx | Where-Object { $_.Kind -eq 'NO-HEADER' -and $_.Gate -eq 'Check-Honest' })
+        if ($hdrRow.Count -eq 1) { TOk "a gate carrying no '# GATE:' header is a finding, because Run-SpineGates puts it in no band" }
+        else { TBad ("expected a NO-HEADER finding for Check-Honest, got {0}" -f $hdrRow.Count) }
+
+        #  A header naming a stage the table does not know, and a requires=
+        #  name that is not a parameter of the script.
+        Write-FixtureText -File (Join-Path $fxScripts 'Check-Headered.ps1') -Body @'
+<# A fixture gate whose header names a stage nobody knows. #>
+# GATE: stages=3c,99z; requires=BuildDir,NotAParameter
+param([string] $BuildDir)
+if (-not $BuildDir) { exit 2 }
+exit 0
+'@
+        $fsSet2 = Get-FilesystemGateSet -Skill $tmp
+        $hdr2 = Get-HeaderReconciliation -FsSet $fsSet2 -DocRows $docFx -Ledger $view
+        $hrow = @($hdr2 | Where-Object { $_.Gate -eq 'Check-Headered' })
+        $probs = @()
+        if ($hrow.Count -eq 1) { $probs = @($hrow[0].Problems) }
+        if (@($probs | Where-Object { $_ -match "stage '99z' is not a stage key the ledger knows" }).Count -eq 1) {
+            TOk 'a header naming a stage the ledger stage table does not know is a finding'
+        }
+        else { TBad ("expected an unknown-stage problem, got: {0}" -f ($probs -join ' | ')) }
+        if (@($probs | Where-Object { $_ -match 'requires=NotAParameter names no parameter' }).Count -eq 1) {
+            TOk 'a requires= name that is not a parameter of the script is a finding'
+        }
+        else { TBad ("expected a requires-not-a-parameter problem, got: {0}" -f ($probs -join ' | ')) }
+
+        #  A HEADER UNDER A LONG BLOCK COMMENT IS STILL A HEADER. This
+        #  script's own header sits at line 117; a 60-line window reported the
+        #  harness itself as headerless while Run-SpineGates read the same
+        #  line without difficulty.
+        $deepBody = New-Object System.Text.StringBuilder
+        [void]$deepBody.AppendLine('<#')
+        for ($di = 0; $di -lt 80; $di++) { [void]$deepBody.AppendLine('    a long header block comment, line ' + $di) }
+        [void]$deepBody.AppendLine('#>')
+        [void]$deepBody.AppendLine('# GATE: stages=3c; requires=BuildDir')
+        [void]$deepBody.AppendLine('param([string] $BuildDir)')
+        [void]$deepBody.AppendLine('if (-not $BuildDir) { exit 2 }')
+        [void]$deepBody.AppendLine('exit 0')
+        Write-FixtureText -File (Join-Path $fxScripts 'Check-Deep.ps1') -Body $deepBody.ToString()
+        $deepFacts = Get-ScriptFacts -File (Join-Path $fxScripts 'Check-Deep.ps1')
+        if ($null -ne $deepFacts.GateHeader -and (@($deepFacts.GateHeader.Stages) -join ',') -eq '3c' -and $deepFacts.GateHeader.Line -gt 60) {
+            TOk ("a '# GATE:' header on line {0}, under an 82-line block comment, is still read - the scan stops at param(), not at a line count" -f $deepFacts.GateHeader.Line)
+        }
+        else { TBad 'a header below the first 60 lines was missed' }
+
+        # -------------------------------------------------------------------
+        # The scripts hash keys the result file NAME
+        # -------------------------------------------------------------------
+
+        $h1 = Get-ScriptsHash -Skill $tmp -Recipes $orphan
+        $victim = Join-Path $fxScripts 'Check-CannotFail.ps1'
+        $bytes = [System.IO.File]::ReadAllBytes($victim)
+        [System.IO.File]::WriteAllBytes($victim, ($bytes + [byte]32))
+        $h2 = Get-ScriptsHash -Skill $tmp -Recipes $orphan
+        if ($h1 -ne $h2 -and $h1.Length -eq 64 -and $h2.Length -eq 64) {
+            TOk 'one byte appended to one scripts\*.ps1 changes the hash, so a later run writes a differently named result file'
+        }
+        else { TBad ("the scripts hash did not move on a one-byte edit ({0} vs {1})" -f $h1, $h2) }
+        if (('gate-fixtures.' + $h1 + '.json') -ne ('gate-fixtures.' + $h2 + '.json')) {
+            TOk 'the result file NAME carries the hash, so a stale report cannot be read as a verdict about these scripts'
+        }
+        else { TBad 'the result file name did not change with the hash' }
+
+        # -------------------------------------------------------------------
+        # -StaticOnly runs end to end and prints its wall clock
+        # -------------------------------------------------------------------
+
+        $selfPath = $PSCommandPath
+        if (-not $selfPath -and $MyInvocation.MyCommand.Path) { $selfPath = $MyInvocation.MyCommand.Path }
+        if ($selfPath -and (Test-Path -LiteralPath $selfPath)) {
+            $so = Invoke-GateProcess -File $selfPath -Arguments @('-StaticOnly', '-SkillDir', $tmp) -TimeoutSec 180
+            if (-not $so.TimedOut -and @(0, 1, 3) -contains $so.Exit) {
+                TOk ("-StaticOnly runs end to end over a skill directory and exits {0} in {1}s" -f $so.Exit, $so.Seconds)
+            }
+            else { TBad ("-StaticOnly did not finish (timedOut={0}, exit={1})" -f $so.TimedOut, $so.Exit) }
+            if ([regex]::IsMatch("$($so.Text)", '(?m)^\s*STATIC ARMS - \d+ script\(s\) examined in [0-9.]+s wall clock\.')) {
+                TOk '-StaticOnly prints how many scripts it examined and its wall clock'
+            }
+            else { TBad '-StaticOnly printed no wall-clock line' }
+            if ([regex]::IsMatch("$($so.Text)", '(?i)(stage table not found|ledger stage table)')) {
+                TOk '-StaticOnly names the stage table it read, or says it could not find one'
+            }
+            else { TBad '-StaticOnly said nothing about the stage table' }
+        }
+        else { TBad 'the self-test could not locate its own script path to run -StaticOnly' }
 
         $set = Get-FilesystemGateSet -Skill $tmp
         if ($set.Count -ge 3) { TOk ("discovery enumerates {0} gates from the filesystem with no list typed anywhere" -f $set.Count) }
@@ -1824,7 +3333,7 @@ exit 0
 
     Write-Host ''
     if ($script:stFail -eq 0) {
-        Write-Host ("SELF-TEST PASS - {0} checks, including the plant that did not land." -f $script:stPass) -ForegroundColor Green
+        Write-Host ("SELF-TEST PASS - {0} checks, including the plant that did not land and the gate that fails on everything." -f $script:stPass) -ForegroundColor Green
         return 0
     }
     Write-Host ("SELF-TEST FAIL - {0} of {1} checks failed. This harness is not evidence of anything until they pass." -f $script:stFail, ($script:stFail + $script:stPass)) -ForegroundColor Red
@@ -1843,28 +3352,68 @@ if (-not $SkillDir -or -not (Test-Path -LiteralPath $SkillDir)) {
 }
 if (-not $GatesDoc) { $GatesDoc = Join-Path $SkillDir 'references\gates.md' }
 
+$script:WallClock = [System.Diagnostics.Stopwatch]::StartNew()
+
 $partial = $false
 $partialWhy = New-Object System.Collections.Generic.List[string]
 if ($null -ne $Only -and $Only.Count -gt 0) { $partial = $true; $partialWhy.Add('only ' + ($Only -join ', ')) }
-if (-not $BuildDir) { $partial = $true; $partialWhy.Add('no -BuildDir, so no external plant could be cut') }
-elseif (-not (Test-Path -LiteralPath $BuildDir)) {
+if (-not $StaticOnly) {
+    if (-not $BuildDir) { $partial = $true; $partialWhy.Add('no -BuildDir, so no external plant could be cut') }
+    elseif (-not (Test-Path -LiteralPath $BuildDir)) {
+        Write-Host ("{0}: -BuildDir '{1}' does not exist." -f $GATE, $BuildDir) -ForegroundColor Red
+        exit 2
+    }
+}
+elseif ($BuildDir -and -not (Test-Path -LiteralPath $BuildDir)) {
     Write-Host ("{0}: -BuildDir '{1}' does not exist." -f $GATE, $BuildDir) -ForegroundColor Red
     exit 2
 }
+if (-not $ResultDir -and $BuildDir) { $ResultDir = $BuildDir }
 
 $Only = Expand-CommaList -Value $Only
-$fsSet = Get-FilesystemGateSet -Skill $SkillDir
-$docRows = Get-GatesDocClaim -Doc $GatesDoc -Skill $SkillDir
+
+# ---------------------------------------------------------------------------
+# Derivation. Both modes share it; the static mode stops after it.
+# ---------------------------------------------------------------------------
+
+#  -Deep (the plant-verification walk over every syntax tree) is the expensive
+#  half of discovery and the static arms do not use it: they ask whether a
+#  self-test EXISTS, not whether it reads its plant back. Leaving it off is
+#  what keeps -StaticOnly inside a band's budget.
+#  EVERY DERIVED SET IS WRAPPED IN @(). An empty result unrolls to $null on
+#  the way into the next Mandatory parameter, and the harness died in a
+#  parameter binder on a skill whose gates.md was not where it usually is -
+#  before printing a single line about the set it had already derived.
+$script:BeforeStamp = Get-ScriptStamp -Skill $SkillDir
+$fsSet = @(Get-FilesystemGateSet -Skill $SkillDir -Deep:(-not $StaticOnly))
+$docRows = @(Get-GatesDocClaim -Doc $GatesDoc -Skill $SkillDir)
 $script:GatesDocText = ''
 try { $script:GatesDocText = Read-FixtureText -File $GatesDoc } catch { $script:GatesDocText = '' }
-$recipes = Get-FixtureRecipe -Skill $SkillDir
+$recipes = @(Get-FixtureRecipe -Skill $SkillDir)
+$ledger = Get-LedgerStageView -Skill $SkillDir
+$plans = Get-RunnerPlanView -Skill $SkillDir
+$headers = @(Get-HeaderReconciliation -FsSet $fsSet -DocRows $docRows -Ledger $ledger)
+$probes = Get-RefusalProbeSet -Ledger $ledger -Skill $SkillDir
+$findings = @(Get-StaticFindings -FsSet $fsSet -DocRows $docRows -Recipes $recipes -Headers $headers -Plans $plans -Ledger $ledger)
+$scriptsHash = Get-ScriptsHash -Skill $SkillDir -Recipes $recipes
+
+#  NAMED PARTIALS, never a silent narrowing. Each of these is an input this
+#  harness reconciles against and did not get; a run missing one still reports
+#  what it did see, and says by name what it could not.
+if (-not $ledger.Found) { $partial = $true; $partialWhy.Add('stage table not found: ' + $ledger.Note) }
+if (-not $probes.Found) { $partial = $true; $partialWhy.Add('no refusal probe set: ' + $probes.Note) }
+if (-not $plans.SpineFound) { $partial = $true; $partialWhy.Add('Run-SpineGates stage vocabulary unreadable: ' + $plans.SpineNote) }
+if (-not $plans.GatesFound) { $partial = $true; $partialWhy.Add('Run-Gates 4/7c plan unreadable: ' + $plans.GatesNote) }
 
 if (-not $Quiet) {
     Write-Host ''
-    Write-Host ('GATE FIXTURES - {0}' -f $GATE) -ForegroundColor Cyan
+    Write-Host ('GATE FIXTURES - {0}{1}' -f $GATE, $(if ($StaticOnly) { ' (static arms only)' } else { '' })) -ForegroundColor Cyan
     Write-Host ('  check-set: {0} gate scripts, derived from {1}' -f $fsSet.Count, (Join-Path $SkillDir 'scripts')) -ForegroundColor DarkGray
     Write-Host ('  plus {0} script names claimed by the stage table in {1}' -f $docRows.Count, [System.IO.Path]::GetFileName($GatesDoc)) -ForegroundColor DarkGray
     Write-Host ('  fixture recipes available: {0}' -f $recipes.Count) -ForegroundColor DarkGray
+    Write-Host ('  scripts+recipes hash: {0}' -f $scriptsHash.Substring(0, 16)) -ForegroundColor DarkGray
+    Write-Host ('  ledger stage table: {0}' -f $(if ($ledger.Found) { ("{0} stage(s), from the {1}" -f @($ledger.Keys).Count, $ledger.Source) } else { $ledger.Note })) -ForegroundColor DarkGray
+    Write-Host ('  refusal probe set: {0}' -f $(if ($probes.Found) { ("{0} script(s), from {1}" -f $probes.Set.Count, $probes.Source) } else { $probes.Note })) -ForegroundColor DarkGray
 }
 
 #  Reconcile the doc's claims against the filesystem, both ways.
@@ -1897,6 +3446,97 @@ foreach ($row in $docRows) {
             Detail = ('the stage table names it without a marker, and no script or function of that name is on disk in this skill or any sibling skill' + $(if ($row.Aliases.Count -gt 0) { ' (nor any of: ' + ($row.Aliases -join ', ') + ')' } else { '' })) })
     }
 }
+
+# ---------------------------------------------------------------------------
+# The static findings, printed the same way in both modes
+# ---------------------------------------------------------------------------
+
+function Write-StaticFindings {
+    param($Rows, $Headers, $Plans)
+    if ($Quiet) { return }
+    $withHeader = @(@($Headers) | Where-Object { $_.HasHeader })
+    Write-Host ''
+    Write-Host ("'# GATE:' HEADERS - {0} of {1} scripts carry one" -f $withHeader.Count, @($Headers).Count) -ForegroundColor Cyan
+    if ($null -ne $Plans) {
+        Write-Host ('  Run-SpineGates vocabulary: {0}' -f $(if ($Plans.SpineFound) { (@($Plans.SpineStages) -join ', ') } else { $Plans.SpineNote })) -ForegroundColor DarkGray
+        $gatesLine = $Plans.GatesNote
+        if ($Plans.GatesFound) {
+            $gatesLine = ("{0} named entr(ies)" -f @($Plans.GatesScripts).Count)
+            if (@($Plans.GatesUnresolved).Count -gt 0) { $gatesLine = $gatesLine + (", {0} behind a variable and UNRESOLVED" -f @($Plans.GatesUnresolved).Count) }
+        }
+        Write-Host ('  Run-Gates 4/7c plan: {0}' -f $gatesLine) -ForegroundColor DarkGray
+    }
+    $rowsOut = @($Rows)
+    if ($rowsOut.Count -eq 0) {
+        Write-Host '  no static finding' -ForegroundColor Green
+        return
+    }
+    Write-Host ''
+    Write-Host 'STATIC FINDINGS - decided without running anything' -ForegroundColor Yellow
+    foreach ($f in ($rowsOut | Sort-Object @{ Expression = { -[int][bool]$_.Blocking } }, Kind, Gate)) {
+        $c = 'Yellow'
+        if ($f.Blocking) { $c = 'Red' }
+        Write-Host ("  {0,-14} {1,-30} {2,-10} {3}" -f $f.Kind, $f.Gate, $(if ($f.Blocking) { '[blocks]' } else { '[reported]' }), (Get-ShortLine -Value $f.Detail -Max 180)) -ForegroundColor $c
+    }
+}
+
+$blockingFindings = @(@($findings) | Where-Object { $_.Blocking })
+
+if ($StaticOnly) {
+    Write-StaticFindings -Rows $findings -Headers $headers -Plans $plans
+
+    if ($ResultDir) {
+        if (-not (Test-Path -LiteralPath $ResultDir)) { New-Item -ItemType Directory -Force -Path $ResultDir | Out-Null }
+        $sbody = [ordered]@{
+            gate         = $GATE
+            mode         = 'static'
+            checkedAt    = (Get-Date).ToString('o')
+            scriptsHash  = $scriptsHash
+            skillDir     = "$SkillDir"
+            gatesDoc     = "$GatesDoc"
+            partialRun   = $partial
+            partialWhy   = $partialWhy.ToArray()
+            gateSetSize  = $fsSet.Count
+            recipeCount  = $recipes.Count
+            ledger       = [ordered]@{ found = [bool]$ledger.Found; source = "$($ledger.Source)"; note = "$($ledger.Note)"; keys = @($ledger.Keys); blocking = @($ledger.Blocking) }
+            probeSet     = [ordered]@{ found = [bool]$probes.Found; source = "$($probes.Source)"; note = "$($probes.Note)"
+                                       scripts = @(@($probes.Set.Keys) | Sort-Object | ForEach-Object { [ordered]@{ name = $_; whatIf = [bool]$probes.Set[$_].WhatIf; why = "$($probes.Set[$_].WhatIfWhy)" } }) }
+            runnerPlans  = [ordered]@{ spineStages = @($plans.SpineStages); spineNote = "$($plans.SpineNote)"
+                                       gatesScripts = @($plans.GatesScripts); gatesUnresolved = @($plans.GatesUnresolved); gatesNote = "$($plans.GatesNote)" }
+            headers      = @($headers)
+            findings     = @($findings)
+            claimIssues  = $claimIssues.ToArray()
+            seconds      = [Math]::Round($script:WallClock.Elapsed.TotalSeconds, 2)
+        }
+        Write-FixtureText -File (Join-Path $ResultDir 'gate-fixtures.static.json') -Body ($sbody | ConvertTo-Json -Depth 8)
+    }
+
+    $script:WallClock.Stop()
+    Write-Host ''
+    Write-Host ("STATIC ARMS - {0} script(s) examined in {1}s wall clock." -f $fsSet.Count, [Math]::Round($script:WallClock.Elapsed.TotalSeconds, 2)) -ForegroundColor Cyan
+    if ($blockingFindings.Count -gt 0) {
+        Write-Host ("STATIC FAIL - {0} finding(s) on blocking gates: {1}. The plant channel is a separate run and does not excuse these." -f `
+            $blockingFindings.Count, ((@($blockingFindings | ForEach-Object { $_.Gate }) | Select-Object -Unique) -join ', ')) -ForegroundColor Red
+        exit 1
+    }
+    if ($partial) {
+        #  NEVER A PASS ON A MISSING INPUT. The stage table, the probe plan and
+        #  the two runner plans are inputs this arm reconciles against; with one
+        #  of them absent the reconciliation covered less than it claims, and
+        #  saying so is what an exit code is for. 3 is PARTIAL RUN.
+        Write-Host ("STATIC PARTIAL - the arms that ran found no blocking finding, but this run could not read: {0}. A partial run cannot stand for the fixtures gate." -f ($partialWhy -join '; ')) -ForegroundColor Yellow
+        exit 3
+    }
+    if (@($findings).Count -gt 0) {
+        Write-Host ("STATIC PASS - {0} finding(s), none on a blocking gate; they are reported and carried in the report." -f @($findings).Count) -ForegroundColor Green
+    }
+    else { Write-Host 'STATIC PASS - no static finding.' -ForegroundColor Green }
+    exit 0
+}
+
+# ---------------------------------------------------------------------------
+# The plant channel
+# ---------------------------------------------------------------------------
 
 $results = New-Object System.Collections.Generic.List[object]
 $scratch = Join-Path ([System.IO.Path]::GetTempPath()) ('gatefx_' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
@@ -1937,6 +3577,8 @@ try {
         foreach ($r in $recipes) { if ($r.Gate -ieq $g.Name) { $recipe = $r } }
         $docRow = $null
         if ($docByName.ContainsKey($g.Name)) { $docRow = $docByName[$g.Name] }
+        $probe = $null
+        if ($probes.Set.ContainsKey($g.Name)) { $probe = $probes.Set[$g.Name] }
 
         if ($ListOnly) {
             $results.Add([pscustomobject]@{
@@ -1949,6 +3591,9 @@ try {
                 ClaimState = 'n/a'; ClaimEvidence = ''; Disclaimers = @(); SelfTestVerdict = 'NOT-RUN'
                 HasFixture = ($null -ne $recipe); PlantKind = $(if ($null -ne $recipe) { $recipe.Kind } else { '' })
                 PlantLanded = $false; FailsOnPlant = $false; PassesClean = $false; RefusesEmpty = $false
+                ProbeState = $(if ($null -ne $probe) { 'PLANNED' } else { 'NOT-PROBED' }); ProbeWhy = ''
+                ProbeWhatIf = $(if ($null -ne $probe) { [bool]$probe.WhatIf } else { $false })
+                CleanExit = ''; PlantExit = ''; CleanRan = $false; NeedleState = 'n/a'
                 Verdict = 'NOT RUN'; Reason = '-ListOnly'; Seconds = 0.0
             })
             continue
@@ -1956,8 +3601,18 @@ try {
 
         if (-not $Quiet) { Write-Host ("  proving {0} ..." -f $g.Name) -ForegroundColor DarkGray }
         $sectionText = Get-GateSectionText -DocText $script:GatesDocText -Name $g.Name
-        $r = Test-OneGate -Facts $g -DocRow $docRow -Recipe $recipe -Skill $SkillDir -Build $baseline -Scratch $scratch -TimeoutSec $timeoutSec -SectionText $sectionText
-        $results.Add($r)
+        #  ONE ROW PER GATE, CHECKED. A recipe scriptblock that emits anything
+        #  puts it on Test-OneGate's output stream, and the row that reached
+        #  this report was then an array whose first element was a path. The
+        #  runners read results[].Gate and results[].Verdict, so a proven gate
+        #  arrived as UNPROVEN with no name. It is cheaper to refuse here than
+        #  to read a report that says nothing.
+        $rowSet = @(Test-OneGate -Facts $g -DocRow $docRow -Recipe $recipe -Skill $SkillDir -Build $baseline -Scratch $scratch -TimeoutSec $timeoutSec -SectionText $sectionText -Probe $probe)
+        $rows = @($rowSet | Where-Object { $null -ne $_ -and $null -ne $_.PSObject.Properties['Verdict'] })
+        if ($rows.Count -ne 1) {
+            throw ("HARNESS DEFECT proving {0}: Test-OneGate emitted {1} object(s) carrying a Verdict out of {2} returned. A recipe scriptblock is writing to the output stream; suppress it with `$null = . The report is not written." -f $g.Name, $rows.Count, $rowSet.Count)
+        }
+        $results.Add($rows[0])
     }
 }
 finally {
@@ -1978,38 +3633,56 @@ foreach ($row in $docRows) {
     #  Get-DocText.ps1 - was reported as performed by nobody. The script is
     #  right there in the cell.
     if ($row.File) { continue }
+    $verdict = 'SPECIFIED-ABSENT'
+    $reason = ('the stage table names this gate ({0}) and no script or function of that name is on disk, so nothing performs it' -f $row.Marker)
+    if ($row.Judgement) {
+        #  A JUDGEMENT ROW IS NOT A MISSING GATE. The table says in as many
+        #  words that a reader performs it and records a verdict; no fixture
+        #  can plant into a reader, and pretending otherwise would put a
+        #  permanent false finding at the top of every run.
+        $verdict = 'JUDGEMENT-ONLY'
+        $reason = 'the stage table records this as a judgement with a verdict, performed by a reader and not by a script, so no fixture can prove it and none is claimed'
+    }
     $results.Add([pscustomobject]@{
-        Gate = $row.Name; Stage = $row.Stage; Blocks = $row.Blocks; Section = $row.Section
+        Gate = $(if ($row.Name) { $row.Name } else { $row.Gate }); Stage = $row.Stage; Blocks = $row.Blocks; Section = $row.Section
         Claim = ''; HasSelfTest = $false; SelfTestVerifiesPlant = $false; SelfTestRc = ''; SelfTestOk = $false
         PlantVerifyState = 'N/A'; PlantVerifyEvidence = ''
         ClaimState = 'n/a'; ClaimEvidence = ''; Disclaimers = @(); SelfTestVerdict = 'NOT-RUN'
         HasFixture = $false; PlantKind = ''; PlantLanded = $false; FailsOnPlant = $false
         PassesClean = $false; RefusesEmpty = $false
-        Verdict = 'SPECIFIED-ABSENT'
-        Reason = ('the stage table names this gate ({0}) and no script or function of that name is on disk, so nothing performs it' -f $row.Marker)
-        Seconds = 0.0
+        ProbeState = 'NOT-PROBED'; ProbeWhy = 'there is no script to probe'; ProbeWhatIf = $false
+        CleanExit = ''; PlantExit = ''; CleanRan = $false; NeedleState = 'n/a'
+        Verdict = $verdict; Reason = $reason; Seconds = 0.0
     })
 }
 
 #  Anything that moved while this ran is named rather than covered silently.
+#  BOTH SIDES ARE THE SAME SET. Comparing the after-stamp of every scripts\*.ps1
+#  against the derived GATE SET reported Xml-Scan and Get-DocText as having
+#  APPEARED on every run: they are in the directory and not in the gate set,
+#  because neither can return a verdict. A movement report that cries wolf on
+#  two files every time is a report nobody reads the third time.
 $moved = New-Object System.Collections.Generic.List[string]
-$after = Get-FilesystemGateSet -Skill $SkillDir
-$beforeMap = @{}
-foreach ($g in $fsSet) { $beforeMap[$g.File] = $g }
-foreach ($a in $after) {
-    if (-not $beforeMap.ContainsKey($a.File)) { $moved.Add('APPEARED  ' + $a.Name); continue }
-    $b = $beforeMap[$a.File]
+$afterStamp = Get-ScriptStamp -Skill $SkillDir
+foreach ($k in @($afterStamp.Keys)) {
+    $a = $afterStamp[$k]
+    if (-not $script:BeforeStamp.ContainsKey($k)) { $moved.Add('APPEARED  ' + $a.Name); continue }
+    $b = $script:BeforeStamp[$k]
     if ($b.Length -ne $a.Length -or $b.Mtime -ne $a.Mtime) { $moved.Add('REWRITTEN ' + $a.Name) }
 }
-$afterMap = @{}
-foreach ($a in $after) { $afterMap[$a.File] = $a }
-foreach ($g in $fsSet) { if (-not $afterMap.ContainsKey($g.File)) { $moved.Add('VANISHED  ' + $g.Name) } }
+foreach ($k in @($script:BeforeStamp.Keys)) { if (-not $afterStamp.ContainsKey($k)) { $moved.Add('VANISHED  ' + $script:BeforeStamp[$k].Name) } }
 
 # ---------------------------------------------------------------------------
 # Report
 # ---------------------------------------------------------------------------
 
 function Get-Mark { param($Value) if ($Value) { return 'yes' } else { return ' - ' } }
+
+$blockingOfName = @{}
+foreach ($d in $docRows) { if ($d.Name -and $d.BlocksYes) { $blockingOfName[$d.Name] = $true } }
+foreach ($r in $results) {
+    Add-Member -InputObject $r -NotePropertyName 'BlocksYes' -NotePropertyValue ([bool]$blockingOfName.ContainsKey($r.Gate)) -Force
+}
 
 if (-not $Quiet) {
     Write-Host ''
@@ -2018,20 +3691,21 @@ if (-not $Quiet) {
     foreach ($r in ($results | Sort-Object Verdict, Gate)) {
         $colour = 'Red'
         if ($r.Verdict -eq 'PROVEN') { $colour = 'Green' }
-        elseif ($r.Verdict -like 'PROVEN*') { $colour = 'Green' }
+        elseif ($r.Verdict -like 'PROVEN*') { $colour = 'DarkGreen' }
         elseif ($r.Verdict -eq 'WEAK-SELFTEST') { $colour = 'Yellow' }
+        elseif ($r.Verdict -eq 'JUDGEMENT-ONLY') { $colour = 'DarkGray' }
         elseif ($r.Verdict -eq 'NOT RUN') { $colour = 'DarkGray' }
         Write-Host ('  {0,-26} {1,-6} {2,-7} {3,-7} {4,-6} {5,-6} {6,-6} {7,-6} {8,-13} {9}' -f `
             $r.Gate, (Get-Mark $r.HasSelfTest), (Get-Mark $r.SelfTestVerifiesPlant), (Get-Mark $r.HasFixture), `
             (Get-Mark $r.PlantLanded), (Get-Mark $r.FailsOnPlant), (Get-Mark $r.PassesClean), (Get-Mark $r.RefusesEmpty), $r.ClaimState, $r.Verdict) -ForegroundColor $colour
     }
 
-    $unproven = @($results | Where-Object { $_.Verdict -notlike 'PROVEN*' -and $_.Verdict -ne 'NOT RUN' })
+    $unproven = @($results | Where-Object { $_.Verdict -ne 'PROVEN' -and $_.Verdict -ne 'NOT RUN' -and $_.Verdict -ne 'JUDGEMENT-ONLY' })
     if ($unproven.Count -gt 0) {
         Write-Host ''
-        Write-Host 'UNPROVEN - each of these is a finding, with the reason it could not be proven' -ForegroundColor Yellow
-        foreach ($r in ($unproven | Sort-Object Gate)) {
-            Write-Host ("  {0,-26} {1}" -f $r.Gate, (Get-ShortLine -Value $r.Reason -Max 200)) -ForegroundColor Yellow
+        Write-Host 'NOT PROVEN - each of these is a finding, with the reason it could not be proven' -ForegroundColor Yellow
+        foreach ($r in ($unproven | Sort-Object @{ Expression = { -[int][bool]$_.BlocksYes } }, Gate)) {
+            Write-Host ("  {0,-26} {1,-10} {2}" -f $r.Gate, $(if ($r.BlocksYes) { '[blocks]' } else { '[reported]' }), (Get-ShortLine -Value $r.Reason -Max 180)) -ForegroundColor Yellow
         }
     }
 
@@ -2048,11 +3722,16 @@ if (-not $Quiet) {
         }
     }
 
-    $noRefuse = @($results | Where-Object { -not $_.RefusesEmpty -and $_.Verdict -ne 'NOT RUN' -and $_.Verdict -ne 'SPECIFIED-ABSENT' })
+    $noRefuse = @($results | Where-Object { $_.ProbeState -eq 'EXITED-0' })
     if ($noRefuse.Count -gt 0) {
         Write-Host ''
         Write-Host 'EXITS 0 WITH NO ARGUMENTS AT ALL - a green result from these means nothing on its own' -ForegroundColor Red
         foreach ($r in ($noRefuse | Sort-Object Gate)) { Write-Host ("  {0}" -f $r.Gate) -ForegroundColor Red }
+    }
+    $notProbed = @($results | Where-Object { $_.ProbeState -eq 'NOT-PROBED' -and $_.Verdict -ne 'SPECIFIED-ABSENT' -and $_.Verdict -ne 'JUDGEMENT-ONLY' })
+    if ($notProbed.Count -gt 0) {
+        Write-Host ''
+        Write-Host ("NOT PROBED - {0} script(s) the stage table binds to no stage; the refusal channel says nothing about them" -f $notProbed.Count) -ForegroundColor DarkGray
     }
 
     if ($claimIssues.Count -gt 0) {
@@ -2068,11 +3747,21 @@ if (-not $Quiet) {
     }
 }
 
+Write-StaticFindings -Rows $findings -Headers $headers -Plans $plans
+
+$script:WallClock.Stop()
+
 if ($ResultDir) {
     if (-not (Test-Path -LiteralPath $ResultDir)) { New-Item -ItemType Directory -Force -Path $ResultDir | Out-Null }
     $body = [ordered]@{
         gate         = $GATE
+        mode         = 'full'
         checkedAt    = (Get-Date).ToString('o')
+        #  THE HASH IS STAMPED INSIDE THE FILE AS WELL AS IN ITS NAME. A reader
+        #  who copies the file somewhere still knows which scripts and which
+        #  recipes these verdicts are about; a name alone can be renamed.
+        scriptsHash  = $scriptsHash
+        seconds      = [Math]::Round($script:WallClock.Elapsed.TotalSeconds, 2)
         skillDir     = "$SkillDir"
         buildDir     = "$BuildDir"
         gatesDoc     = "$GatesDoc"
@@ -2081,30 +3770,67 @@ if ($ResultDir) {
         gateSetSize  = $fsSet.Count
         docClaims    = $docRows.Count
         recipeCount  = $recipes.Count
+        ledger       = [ordered]@{ found = [bool]$ledger.Found; source = "$($ledger.Source)"; note = "$($ledger.Note)"; keys = @($ledger.Keys); blocking = @($ledger.Blocking) }
+        probeSet     = [ordered]@{ found = [bool]$probes.Found; source = "$($probes.Source)"; note = "$($probes.Note)"
+                                   scripts = @(@($probes.Set.Keys) | Sort-Object | ForEach-Object { [ordered]@{ name = $_; whatIf = [bool]$probes.Set[$_].WhatIf; why = "$($probes.Set[$_].WhatIfWhy)" } }) }
+        runnerPlans  = [ordered]@{ spineStages = @($plans.SpineStages); spineNote = "$($plans.SpineNote)"
+                                   gatesScripts = @($plans.GatesScripts); gatesUnresolved = @($plans.GatesUnresolved); gatesNote = "$($plans.GatesNote)" }
+        headers      = @($headers)
+        findings     = @($findings)
         results      = $results.ToArray()
         claimIssues  = $claimIssues.ToArray()
         movedDuringRun = $moved.ToArray()
     }
-    Write-FixtureText -File (Join-Path $ResultDir 'gate-fixtures.json') -Body ($body | ConvertTo-Json -Depth 6)
+    #  gate-fixtures.<hash>.json: the runners read the NEWEST hash-stamped file
+    #  and print UNPROVEN beside every member it did not prove. A file whose
+    #  name carries the hash of the scripts it judged cannot be mistaken for a
+    #  verdict about a different set of scripts.
+    Write-FixtureText -File (Join-Path $ResultDir ('gate-fixtures.' + $scriptsHash + '.json')) -Body ($body | ConvertTo-Json -Depth 8)
 }
 
-$proven = @($results | Where-Object { $_.Verdict -like 'PROVEN*' })
-$unprovenAll = @($results | Where-Object { $_.Verdict -notlike 'PROVEN*' -and $_.Verdict -ne 'NOT RUN' })
+# ---------------------------------------------------------------------------
+# The exit, SPLIT BY Blocks. Only PROVEN counts toward exit 0.
+# ---------------------------------------------------------------------------
+
+$judged = @($results | Where-Object { $_.Verdict -ne 'NOT RUN' -and $_.Verdict -ne 'JUDGEMENT-ONLY' })
+$proven = @($judged | Where-Object { $_.Verdict -eq 'PROVEN' })
+$provenNoClean = @($judged | Where-Object { $_.Verdict -eq 'PROVEN-NOCLEAN' })
+$provenSelfTest = @($judged | Where-Object { $_.Verdict -eq 'PROVEN-SELFTEST' })
+$judgementOnly = @($results | Where-Object { $_.Verdict -eq 'JUDGEMENT-ONLY' })
+
+$blockingRows = @($judged | Where-Object { $_.BlocksYes })
+$blockingUnproven = @($blockingRows | Where-Object { $_.Verdict -ne 'PROVEN' })
+$reportedUnproven = @($judged | Where-Object { -not $_.BlocksYes -and $_.Verdict -ne 'PROVEN' })
 
 Write-Host ''
+Write-Host ("TALLY  PROVEN {0} | PROVEN-NOCLEAN {1} | PROVEN-SELFTEST {2} | judgement-only rows {3} | wall clock {4}s" -f `
+    $proven.Count, $provenNoClean.Count, $provenSelfTest.Count, $judgementOnly.Count, [Math]::Round($script:WallClock.Elapsed.TotalSeconds, 1)) -ForegroundColor Cyan
+Write-Host '  PROVEN-NOCLEAN and PROVEN-SELFTEST are counted here and NOT toward the pass. Only a gate that failed a verified plant, named it, and passed the same build clean is proven.' -ForegroundColor DarkGray
+
 if ($ListOnly) {
     Write-Host ("LIST ONLY - {0} gates enumerated, nothing was run. This cannot stand for the fixtures gate." -f $results.Count) -ForegroundColor Yellow
     exit 3
 }
-if ($partial) {
-    Write-Host ("PARTIAL RUN - {0} proven, {1} unproven; {2}. A partial run cannot stand for the fixtures gate." -f $proven.Count, $unprovenAll.Count, ($partialWhy -join '; ')) -ForegroundColor Yellow
-    if ($unprovenAll.Count -gt 0) { exit 1 }
-    exit 3
-}
-if ($unprovenAll.Count -gt 0) {
-    Write-Host ("FIXTURES FAIL - {0} of {1} gates proven. {2} gates cannot be shown to fail on the defect they claim to catch, and a clean result from any of them is not evidence yet." -f `
-        $proven.Count, ($proven.Count + $unprovenAll.Count), $unprovenAll.Count) -ForegroundColor Red
+if ($blockingFindings.Count -gt 0) {
+    Write-Host ("FIXTURES FAIL - {0} static finding(s) on blocking gates: {1}." -f `
+        $blockingFindings.Count, ((@($blockingFindings | ForEach-Object { ($_.Kind + ' ' + $_.Gate) }) | Select-Object -Unique) -join '; ')) -ForegroundColor Red
     exit 1
 }
-Write-Host ("FIXTURES PASS - all {0} gates fail on a verified plant of the defect they claim to catch." -f $proven.Count) -ForegroundColor Green
+if ($partial) {
+    Write-Host ("PARTIAL RUN - {0} of {1} blocking gates PROVEN; {2}. A partial run cannot stand for the fixtures gate." -f `
+        ($blockingRows.Count - $blockingUnproven.Count), $blockingRows.Count, ($partialWhy -join '; ')) -ForegroundColor Yellow
+    if ($blockingUnproven.Count -gt 0) { exit 1 }
+    exit 3
+}
+if ($blockingUnproven.Count -gt 0) {
+    Write-Host ("FIXTURES FAIL - {0} of {1} BLOCKING gates proven. {2} cannot be shown to fail on the defect they claim to catch, and a clean result from any of them is not evidence yet: {3}." -f `
+        ($blockingRows.Count - $blockingUnproven.Count), $blockingRows.Count, $blockingUnproven.Count, ((@($blockingUnproven | ForEach-Object { $_.Gate }) | Select-Object -Unique) -join ', ')) -ForegroundColor Red
+    exit 1
+}
+if ($reportedUnproven.Count -gt 0) {
+    Write-Host ("FIXTURES PASS - all {0} BLOCKING gates fail on a verified plant of the defect they claim to catch. {1} non-blocking row(s) are unproven and reported above, not gated." -f `
+        $blockingRows.Count, $reportedUnproven.Count) -ForegroundColor Green
+    exit 0
+}
+Write-Host ("FIXTURES PASS - all {0} BLOCKING gates fail on a verified plant of the defect they claim to catch." -f $blockingRows.Count) -ForegroundColor Green
 exit 0

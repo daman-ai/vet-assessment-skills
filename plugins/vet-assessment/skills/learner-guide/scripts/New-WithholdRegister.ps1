@@ -57,9 +57,21 @@
     pattern, recipe, equipment item and workplace document is read from the
     build or the pack, never typed here.
 
+    THE SELF-SWEEP IS A RULE, AND IT COVERS _shared. Every file under
+    agent-pack is swept for assessor-authored text, `_shared` included - it was
+    excluded, and figures.json sat there with fifteen assessorOnly literals in
+    it. `_shared` may hold only what this run produced: the learner-held
+    documents and the unit extract, by the manifest built as they are written.
+    Anything else is named and the pack is removed. The sha256 of contract.json
+    and of every `_shared` file is recorded in the generated block of the
+    register, of grids.json and of every pack slice, so a pack copy that has
+    gone stale against the build's own contract is a comparison rather than a
+    guess.
+
     PS 5.1. ASCII only in this file. Exit 0 when the register is written and
-    the sweeps pass, 1 when a sweep finds assessor text in an agent-facing file,
-    2 on a usage error.
+    the sweeps pass, 1 when a sweep finds assessor text in an agent-facing file
+    or _shared carries a file this run did not produce, 2 on a usage error,
+    4 when -SelfTest fails.
 #>
 
 [CmdletBinding()]
@@ -79,6 +91,10 @@ param(
     #  Document frequency above which a word is too common to identify an
     #  answer, as a fraction of all model bullets.
     [double] $DfCeiling = 0.25,
+    #  Prove the self-sweep rules on a planted fixture and exit. -BuildDir is
+    #  mandatory for the producer path and is not read in this mode; pass any
+    #  value with it.
+    [switch] $SelfTest,
     [switch] $Quiet
 )
 
@@ -224,6 +240,115 @@ function Test-Verbatim {
     param([string] $NeedleNorm, [string] $HayNorm)
     if (-not $NeedleNorm -or -not $HayNorm) { return $false }
     return (' ' + $HayNorm + ' ').Contains(' ' + $NeedleNorm + ' ')
+}
+
+function Get-WrFileSha256 {
+    <# The sha256 of a file, lower-case hex. #>
+    param([Parameter(Mandatory)][string] $Path)
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $fs = [System.IO.File]::OpenRead($Path)
+        try { return (($sha.ComputeHash($fs) | ForEach-Object { $_.ToString('x2') }) -join '') }
+        finally { $fs.Dispose() }
+    }
+    finally { $sha.Dispose() }
+}
+
+function Get-WrUnexpectedShared {
+    <#  Every file under agent-pack\_shared that this run did NOT produce, by
+        relative path. The allow-list is the manifest of what was written, not a
+        pattern: a directory whose contents are only described is a directory
+        anything can be dropped into, and figures.json - fifteen assessorOnly
+        literals in it - was dropped into this one.  #>
+    param([Parameter(Mandatory)][string] $SharedDir, [string[]] $Produced)
+    $out = New-Object System.Collections.Generic.List[string]
+    if (-not (Test-Path -LiteralPath $SharedDir)) { return $out.ToArray() }
+    $set = @{}
+    foreach ($rel in @($Produced | Where-Object { "$_".Trim() })) { $set[$rel.ToLowerInvariant()] = $true }
+    foreach ($f in (Get-ChildItem -LiteralPath $SharedDir -Recurse -File)) {
+        $rel = $f.FullName.Substring($SharedDir.Length + 1)
+        if (-not $set.ContainsKey($rel.ToLowerInvariant())) { $out.Add($rel) }
+    }
+    return $out.ToArray()
+}
+
+# ---------------------------------------------------------------------------
+#  SELF-TEST. This script is a producer, not a gate - but its self-sweep IS a
+#  rule, and a rule with no planted proof is a rule nobody has seen work. Two
+#  plants, on the two rules that changed:
+#
+#    1. figures.json under _shared: a file this run did not produce. The
+#       manifest check must name it.
+#    2. an assessor-authored string inside a _shared file: the leak sweep used
+#       to exclude the whole directory, so it could not see this at all.
+#
+#  Run it with a dummy -BuildDir; nothing under it is read.
+# ---------------------------------------------------------------------------
+if ($SelfTest) {
+    $stRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('nwr_selftest_' + [Guid]::NewGuid().ToString('N').Substring(0, 10))
+    $stPass = 0; $stFail = 0
+    function Record-St {
+        param([string] $Name, [bool] $Ok, [string] $Detail)
+        if ($Ok) { Write-Host ("  PASS  {0}: {1}" -f $Name, $Detail) -ForegroundColor Green }
+        else { Write-Host ("  FAIL  {0}: {1}" -f $Name, $Detail) -ForegroundColor Red }
+    }
+    try {
+        Write-Host ''
+        Write-Host ("{0} SELF-TEST - the self-sweep rules, on a planted _shared directory" -f $SCRIPT_NAME) -ForegroundColor Cyan
+        $shared = Join-Path $stRoot 'agent-pack\_shared'
+        New-Item -ItemType Directory -Force -Path (Join-Path $shared 'learner-docs') | Out-Null
+        $produced = @('learner-docs\Fixture_Tool.txt', 'unit_extract.md')
+        Write-AsciiText -Text "Task 1(a) Fixture learner tool text." -Path (Join-Path $shared $produced[0])
+        Write-AsciiText -Text "# Fixture unit extract" -Path (Join-Path $shared $produced[1])
+
+        # --- control: only what the run produced
+        $u0 = @(Get-WrUnexpectedShared -SharedDir $shared -Produced $produced)
+        if ($u0.Count -eq 0) { $stPass++; Record-St 'control' $true ('the {0} produced file(s) are accepted and nothing else is present' -f $produced.Count) }
+        else { $stFail++; Record-St 'control' $false ('the clean _shared was reported as carrying [{0}]' -f ($u0 -join ', ')) }
+
+        # --- plant 1: figures.json, which this run did not produce
+        $plantPath = Join-Path $shared 'figures.json'
+        Write-AsciiText -Text '{ "figures": [ { "name": "planted", "assessorOnly": [ "the model bullet nobody may see" ] } ] }' -Path $plantPath
+        if (-not (Test-Path -LiteralPath $plantPath)) { $stFail++; Record-St 'unproduced file named' $false 'the plant did not land' }
+        else {
+            $u1 = @(Get-WrUnexpectedShared -SharedDir $shared -Produced $produced)
+            $named = @($u1 | Where-Object { $_ -match '(?i)figures\.json' })
+            if ($named.Count -eq 1 -and $u1.Count -eq 1) { $stPass++; Record-St 'unproduced file named' $true "a planted figures.json under _shared is named as a file this run did not produce" }
+            else { $stFail++; Record-St 'unproduced file named' $false ("the check returned [{0}], wanted figures.json alone" -f ($u1 -join ', ')) }
+        }
+
+        # --- plant 2: an assessor-authored string inside a _shared file. The
+        #     sweep excluded _shared entirely, so it could not have seen this.
+        $needle = ConvertTo-GateNormal 'the model bullet nobody may see'
+        $swept = 0
+        $hit = 0
+        foreach ($f in (Get-ChildItem -LiteralPath (Join-Path $stRoot 'agent-pack') -Recurse -File)) {
+            $swept++
+            $txt = ConvertTo-GateNormal (ConvertFrom-JsonEscape (Get-GateFileText -Path $f.FullName))
+            if (Test-Verbatim -NeedleNorm $needle -HayNorm $txt) { $hit++ }
+        }
+        if ($swept -ge 3 -and $hit -ge 1) { $stPass++; Record-St 'the sweep reaches _shared' $true ("{0} file(s) swept under agent-pack, {1} carrying the assessor-authored string - the old sweep excluded this directory and swept 0 of them" -f $swept, $hit) }
+        else { $stFail++; Record-St 'the sweep reaches _shared' $false ("{0} file(s) swept, {1} hit(s) - the sweep is not reaching _shared" -f $swept, $hit) }
+
+        # --- the hash helper the pack copies are compared with
+        $h1 = Get-WrFileSha256 -Path (Join-Path $shared $produced[0])
+        Write-AsciiText -Text "Task 1(a) Fixture learner tool text. Edited." -Path (Join-Path $shared $produced[0])
+        $h2 = Get-WrFileSha256 -Path (Join-Path $shared $produced[0])
+        if ($h1 -match '^[0-9a-f]{64}$' -and $h2 -match '^[0-9a-f]{64}$' -and $h1 -ne $h2) {
+            $stPass++; Record-St 'sha256 of a _shared file changes with its bytes' $true ("{0} -> {1}" -f $h1.Substring(0, 12), $h2.Substring(0, 12))
+        }
+        else { $stFail++; Record-St 'sha256 of a _shared file changes with its bytes' $false ("{0} / {1}" -f $h1, $h2) }
+    }
+    finally {
+        if ((Test-Path -LiteralPath $stRoot) -and $stRoot.Length -gt 20) { Remove-Item -LiteralPath $stRoot -Recurse -Force -ErrorAction SilentlyContinue }
+    }
+    Write-Host ''
+    if ($stFail -gt 0) {
+        Write-Host ("  SELF-TEST FAILED - {0} of {1} check(s)" -f $stFail, ($stPass + $stFail)) -ForegroundColor Red
+        exit 4
+    }
+    Write-Host ("  SELF-TEST PASSED - {0} check(s); every plant was verified to have landed before it was believed" -f $stPass) -ForegroundColor Green
+    exit 0
 }
 
 # ---------------------------------------------------------------------------
@@ -1457,6 +1582,51 @@ foreach ($tl in $assessorTaskLevel) {
 # ---------------------------------------------------------------------------
 
 $stamp = (Get-Date).ToString('yyyy-MM-dd HH:mm')
+
+# ---------------------------------------------------------------------------
+#  agent-pack\_shared, BUILT FIRST so its hashes can be recorded in every file
+#  this run writes.
+#
+#  THE PACK COPIES GO STALE AND NOTHING SAID SO. Each sub-section pack carries a
+#  verbatim copy of contract.json and points at _shared; on the reference build
+#  those copies were three days older than the contract the gates read, and an
+#  agent briefed from a stale contract writes to a question map that has moved.
+#  The sha256 of contract.json and of every _shared file is recorded in the
+#  generated block of the register, the grids and every pack slice, so a stale
+#  copy is a comparison rather than a guess.
+# ---------------------------------------------------------------------------
+$packRoot = Join-Path $BuildDir 'agent-pack'
+if (Test-Path -LiteralPath $packRoot) { Remove-Item -LiteralPath $packRoot -Recurse -Force }
+New-Item -ItemType Directory -Force -Path $packRoot | Out-Null
+$sharedDir = Join-Path $packRoot '_shared'
+New-Item -ItemType Directory -Force -Path (Join-Path $sharedDir 'learner-docs') | Out-Null
+
+#  THE PRODUCED-FILE MANIFEST. Every path this run writes under _shared is
+#  recorded here as it is written, and the sweep below fails by name on anything
+#  under _shared that is not in it. figures.json - which carries assessorOnly
+#  literals - sat in _shared on the reference build, where the leak sweep
+#  excluded the whole directory and no gate ever looked.
+$sharedProduced = New-Object System.Collections.Generic.List[string]
+foreach ($dn in $learnerDocs.Keys) {
+    # learner-held ground, copied so no agent has a reason to browse the corpus directory beside the assessor guides
+    $rel = 'learner-docs\' + $dn + '.txt'
+    Write-AsciiText -Text ($learnerDocs[$dn].Lines -join "`r`n") -Path (Join-Path $sharedDir $rel)
+    $sharedProduced.Add($rel)
+}
+if ($UnitExtract -and (Test-Path -LiteralPath $UnitExtract)) {
+    $rel = Split-Path $UnitExtract -Leaf
+    Write-AsciiText -Text (Get-GateFileText -Path $UnitExtract) -Path (Join-Path $sharedDir $rel)
+    $sharedProduced.Add($rel)
+}
+
+$contractPath = Join-Path $BuildDir 'contract.json'
+$contractBytes = [System.IO.File]::ReadAllBytes($contractPath)
+$contractSha = Get-WrFileSha256 -Path $contractPath
+$sharedHashes = [ordered]@{}
+foreach ($rel in ($sharedProduced.ToArray() | Sort-Object)) {
+    $sharedHashes[$rel] = (Get-WrFileSha256 -Path (Join-Path $sharedDir $rel))
+}
+
 $provenance = [ordered]@{
     generatedOn = $stamp
     generatedBy = (Split-Path (Get-ScriptPath) -Leaf)
@@ -1465,6 +1635,13 @@ $provenance = [ordered]@{
     corpusDir   = $corpusDirResolved
     typedTaskFiles = @($taskFiles | ForEach-Object { $_.Name })
     unitExtract = $(if ($UnitExtract) { $UnitExtract } else { '' })
+    #  READ BY Test-SubSection -File AND BY THE STAGE 2 RESULTS FILE. A pack
+    #  copy whose contractSha256 differs from the sha256 of the build's own
+    #  contract.json is stale, and a brief cut from a stale contract is a brief
+    #  to the wrong question map. Field names are fixed; see
+    #  scratchpad\p0\REQUESTS\K.md.
+    contractSha256 = $contractSha
+    sharedSha256   = $sharedHashes
 }
 
 # A. grids.json - into the corpus directory the gates resolve
@@ -1543,19 +1720,9 @@ $assessorDoc = [ordered]@{
 $assessorPath = Join-Path $BuildDir 'assessor-cells.json'
 Write-AsciiJson -Object $assessorDoc -Path $assessorPath
 
-# D. agent-pack\<sub-section>\
-$packRoot = Join-Path $BuildDir 'agent-pack'
-if (Test-Path -LiteralPath $packRoot) { Remove-Item -LiteralPath $packRoot -Recurse -Force }
-New-Item -ItemType Directory -Force -Path $packRoot | Out-Null
-$sharedDir = Join-Path $packRoot '_shared'
-New-Item -ItemType Directory -Force -Path (Join-Path $sharedDir 'learner-docs') | Out-Null
-foreach ($dn in $learnerDocs.Keys) {
-    # learner-held ground, copied so no agent has a reason to browse the corpus directory beside the assessor guides
-    Write-AsciiText -Text ($learnerDocs[$dn].Lines -join "`r`n") -Path (Join-Path (Join-Path $sharedDir 'learner-docs') ($dn + '.txt'))
-}
-if ($UnitExtract -and (Test-Path -LiteralPath $UnitExtract)) { Write-AsciiText -Text (Get-GateFileText -Path $UnitExtract) -Path (Join-Path $sharedDir (Split-Path $UnitExtract -Leaf)) }
-
-$contractBytes = [System.IO.File]::ReadAllBytes((Join-Path $BuildDir 'contract.json'))
+# D. agent-pack\<sub-section>\  ($packRoot and _shared are built in section 7,
+#    before the provenance block, so every file this run writes can record their
+#    hashes.)
 $learnerDocList = (($learnerDocs.Keys | Sort-Object | ForEach-Object { $_ + '.txt' }) -join ', ')
 $assessorDocList = ((@($corpus.Assessor) | ForEach-Object { $_.Name + '.txt' }) -join ', ')
 
@@ -1696,10 +1863,21 @@ function Test-FileForLeaks {
 $leakCount = 0
 $leakCount += Test-FileForLeaks -Path $registerPath -Label 'withhold-register.json'
 $leakCount += Test-FileForLeaks -Path $gridsPath -Label 'grids.json'
-foreach ($f in (Get-ChildItem -LiteralPath $packRoot -Recurse -File | Where-Object { $_.FullName -notlike ('*' + [System.IO.Path]::DirectorySeparatorChar + '_shared' + [System.IO.Path]::DirectorySeparatorChar + '*') })) {
+#  EVERY FILE UNDER agent-pack, _shared INCLUDED. _shared used to be excluded
+#  from this sweep on the reasoning that it holds only learner-held documents.
+#  It held figures.json as well, with fifteen assessorOnly literals in it, and
+#  the sweep that would have caught them was told not to look there.
+foreach ($f in (Get-ChildItem -LiteralPath $packRoot -Recurse -File)) {
     $rel = $f.FullName.Substring($packRoot.Length + 1)
     $leakCount += Test-FileForLeaks -Path $f.FullName -Label ('agent-pack\' + $rel)
 }
+
+#  AND _shared MAY HOLD ONLY WHAT THIS RUN PRODUCED. The allow-list is the
+#  manifest built as the files were written - learner-docs\*.txt and the unit
+#  extract - not a pattern, so a file of any name that this run did not write
+#  is named and the pack is refused. A directory whose contents are only
+#  described is a directory anything can be dropped into.
+$sharedUnexpected = @(Get-WrUnexpectedShared -SharedDir $sharedDir -Produced $sharedProduced.ToArray())
 
 # and the gate file must actually carry them, or a gate reading it checks nothing
 $assessorTxt = ConvertTo-GateNormal (ConvertFrom-JsonEscape (Get-GateFileText -Path $assessorPath))
@@ -1746,6 +1924,7 @@ if ($corpusDirResolved -ne (Join-Path $BuildDir 'corpus')) {
 Say ("  withhold-register.json {0}" -f $registerPath) 'Gray'
 Say ("  assessor-cells.json    {0}  (GATE-ONLY; {1} forbidden strings, {2} common words stripped)" -f $assessorPath, $forbiddenSet.Count, $common.Count) 'Gray'
 Say ("  agent-pack\            {0}  ({1} sub-sections + _shared)" -f $packRoot, $subSectionKeys.Count) 'Gray'
+Say ("    generated.contractSha256 {0}; generated.sharedSha256 carries {1} file(s) - every slice and the register record them, so a stale pack copy is a comparison" -f $contractSha.Substring(0, 12), $sharedHashes.Count) 'DarkGray'
 if ($script:asciiLossCount -gt 0) { Say ("  {0} non-ASCII character(s) with no transliteration were written as '?'" -f $script:asciiLossCount) 'DarkGray' }
 
 Say ''
@@ -1757,7 +1936,15 @@ if ($leakCount -gt 0) {
     Remove-Item -LiteralPath $packRoot -Recurse -Force -ErrorAction SilentlyContinue
     $rc = 1
 }
-else { Say ("  ok  none of the {0} assessor-authored strings appears in the register, grids.json or any agent-pack file" -f $forbiddenSet.Count) 'Green' }
+else { Say ("  ok  none of the {0} assessor-authored strings appears in the register, grids.json or any agent-pack file, _shared included" -f $forbiddenSet.Count) 'Green' }
+if ($sharedUnexpected.Count -gt 0) {
+    Write-Host ("  X {0} file(s) under agent-pack\_shared that this run did not produce:" -f $sharedUnexpected.Count) -ForegroundColor Red
+    foreach ($u in $sharedUnexpected) { Write-Host ("     _shared\{0}" -f $u) -ForegroundColor Red }
+    Write-Host '  _shared may hold only the learner-held documents and the unit extract this run wrote. figures.json sat here with fifteen assessorOnly literals in it and the sweep was told not to look. The agent-pack is removed.' -ForegroundColor Red
+    Remove-Item -LiteralPath $packRoot -Recurse -Force -ErrorAction SilentlyContinue
+    $rc = 1
+}
+else { Say ("  ok  agent-pack\_shared holds exactly the {0} file(s) this run produced, each recorded with its sha256" -f $sharedProduced.Count) 'Green' }
 if ($missingFromGate -gt 0) {
     Write-Host ("  X {0} forbidden string(s) are missing from assessor-cells.json - a gate reading it would check less than it claims" -f $missingFromGate) -ForegroundColor Red
     $rc = 1

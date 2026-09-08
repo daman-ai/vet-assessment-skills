@@ -20,42 +20,48 @@ Five executable gates used to be the whole set. They are not any more. One build
 
 Sections 1 to 11 are the original five gates and are unchanged. Sections 12 onward are everything added afterwards. Every gate blocks unless the Blocks column says otherwise, and the Section column says where to read its rule, its false-positive control and the failure it exists to catch.
 
-**Read the Script column honestly.** A name marked **NOT YET IMPLEMENTED** is a specification: no file of that name exists under `scripts\` and no function of that name is defined in any script there (checked against the directory listing on 3 September 2026). The section in the last column says what performs that check today, and where the answer is *nobody*, it says so. A name marked **BEING IMPLEMENTED** is a script a sibling build is writing at the time of this revision; treat it as absent until it is on disk. Nothing marked is removed from this file, because the plan is to build it - but a rule nobody can execute must say so, or a builder reads this table as a list of things that ran. *The failure:* a builder read the previous version of this table, recorded Stage 0 as `pass`, and had run two of its eight gates.
+**Read the Script column honestly.** A name marked **Status: NOT YET IMPLEMENTED** is a specification: no file of that name exists under `scripts\` and no function of that name is defined in any script there (re-checked against the directory listing on 8 September 2026). The marker is written in one fixed form, per row and per bullet, never per section - `**Status: NOT YET IMPLEMENTED** - performed today by: <what exists>` - so a reader and a script read the same sentence; `Invoke-Stage0.ps1` reads its Stage 0 members' status out of this table by that marker. The section in the last column says what performs that check today, and where the answer is *nobody*, it says so.
+
+**Read the Stage column as BAND MEMBERSHIP.** It records the runner bands a gate belongs to - the same set its own `# GATE: stages=` header declares - because `Assert-GateFixtures -StaticOnly` reconciles the two and FAILS a header that drops a band this column names. Where a gate is also invoked directly at a pipeline stage that has no runner (Stage 3 at write time, the Stage 3b exit, Stage 3d, Stage 4c, a Stage 7 round), that fact is written in the Gate column and in the gate's own section, and it is not a stage key here.
+
+**Nothing marked is removed from this file**, because the plan is to build it - but a rule nobody can execute must say so, or a builder reads this table as a list of things that ran. *The failure:* a builder read an earlier version of this table, recorded Stage 0 as `pass`, and had run two of its eight gates. The mirror failure is just as expensive and this revision found it too: on 8 September 2026 this file was naming eight gates that do not exist AND marking seven landed gates "not yet implemented", so it was wrong in both directions at once. The **BEING IMPLEMENTED** marker an earlier revision used is gone: all four scripts it covered are on disk.
 
 | Stage | Gate | Script | Blocks | Section |
 |---|---|---|---|---|
 | S0-RTO | RTO profile pack resolves and validates | `scripts\Get-RtoProfile.ps1 -Rto <id> -Check` (`Assert-RtoProfile`) | yes | 29 |
-| 0 | Renderer contract compiled into the spine schema | `Assert-RendererContract` - NOT YET IMPLEMENTED; the write-time arm is `scripts\Test-SpineRead.ps1` | yes | 21 |
-| 0 | Palette resolves as a total function over a closed role enum | `Get-BrandPalettePairs` in `Set-ResourceBrand.ps1` throws on an unresolved role (no standalone `Resolve-Palette` yet) | yes | 29 |
-| 0 | Every styled sub-skill accepts an injected palette | `Assert-DownstreamPalette` - NOT YET IMPLEMENTED | yes | 29 |
-| 0 | Every gate fails on a planted defect that is verified to have landed | `scripts\Assert-GateFixtures.ps1` (landed 4 Sep 2026); further cover from `scripts\Test-Pipeline.ps1` and `Check-Identity.ps1 -SelfTest` | yes | 35 |
+| 0 | The RTO profile SCHEMA compiles, and every check-set Assert-RtoProfile derives from it is non-empty | `scripts\Invoke-Stage0.ps1` (`schema-compile` member, over `assets\rto-profile.schema.json`) | yes | 29 |
+| 0 | Renderer contract compiled into the spine schema | `Assert-RendererContract` - **Status: NOT YET IMPLEMENTED** - performed today by: see section 21 | yes | 21 |
+| 0 | Palette resolves as a total function over a closed role enum; on a CROSS-BRAND build a role that maps to itself THROWS | `Get-BrandPalettePairs` in `Set-ResourceBrand.ps1` throws on an unresolved role (no standalone `Resolve-Palette` yet) - the self-map rule fires only when the pack's templates.brand differs from the target brand | yes | 29 |
+| 0 | Every styled sub-skill accepts an injected palette | `Assert-DownstreamPalette` - **Status: NOT YET IMPLEMENTED** - performed today by: nobody; the palette is passed to `docx-images` by hand and nothing asserts it was accepted | yes | 29 |
+| 0, 1, 2, 3c, 4, 7c | Every gate fails on a planted defect that is verified to have landed | `scripts\Assert-GateFixtures.ps1` (landed 4 Sep 2026; `-StaticOnly` is the band member in every one of those bands, the full plant channel is a detached background report); further cover from `scripts\Test-Pipeline.ps1` and `Check-Identity.ps1 -SelfTest` | yes | 35 |
 | 0 | Gate hygiene, portability and allow-list discipline | `scripts\Assert-GateHygiene.ps1` (landed 4 Sep 2026) | yes | 35 |
-| 0 | Long-stage output contract declared | `Assert-LongStageOutputContract` - NOT YET IMPLEMENTED | yes | 36 |
+| 0 | Long-stage output contract declared | `Assert-LongStageOutputContract` - **Status: NOT YET IMPLEMENTED** - performed today by: nobody; the contract is a policy the orchestrating agent applies by hand | yes | 36 |
 | 0 | Generation endpoints probed for quota | `scripts\Probe-GenerationEndpoints.ps1` | **no** | 30 |
+| 0 | Every library the build calls actually loaded | `scripts\Invoke-Stage0.ps1` (`library-load` member, over `scripts\Lib-Resolve.ps1`) | yes | 29 |
 | 1 | One canonical corpus, every pack document extracted exactly once | `scripts\Assert-CorpusComplete.ps1` (landed 4 Sep 2026; proves fidelity, not just presence) | yes | 20 |
-| 1 | Pack self-consistency hazards raised and dispositioned | `scripts\Assert-PackSelfConsistency.ps1` (landed 4 Sep 2026; undispositioned hazard blocks) | yes | 20 |
-| 1 | Assessor-only shingle set derived | `scripts\Check-FigureLeakage.ps1` derives it from the corpus on every run; there is no separate `-Derive` step | yes | 14 |
-| 2 | Registry seeded with authority class and resolving provenance | `scripts\Assert-Provenance.ps1` (landed 4 Sep 2026) | yes | 18 |
+| 1, 2 | Pack self-consistency hazards raised and dispositioned | `scripts\Assert-PackSelfConsistency.ps1` (landed 4 Sep 2026; undispositioned hazard blocks; `-Stage 1` records the count-vs-grid arm DEFERRED with its reason because `grids.json` is a Stage 2 product, `-Stage 2` fails on an absent one, an unknown `-Stage` is exit 2) | yes | 20 |
+| 3c | Assessor-only leakage sweep, its shingle set derived from the corpus on every run | `scripts\Check-FigureLeakage.ps1` - there is no separate `-Derive` step and no Stage 1 run; Stage 1's only job for this gate is to have extracted every document into the corpus | yes | 14 |
+| 2, 3c, 4, 7c | Registry seeded with authority class and resolving provenance, then every authored assertion | `scripts\Assert-Provenance.ps1` (landed 4 Sep 2026; `-SeedOnly -Stage 2` reads no spine and writes `provenance-seed-report.json`, `-Stage 7c -DocText <guide>,<deck>` reads the extracts) | yes | 18 |
 | 2 | Withhold register, `grids.json`, gate-only assessor cells and one agent pack per sub-section, all DERIVED from the assessed response cells | `scripts\New-WithholdRegister.ps1` | yes | 16 |
-| 2 | Identifier namespaces do not collide with the pack's | `scripts\Assert-IdentifierNamespace.ps1` (landed 4 Sep 2026) | yes | 28 |
-| 3 | Every agent write validated against the compiled schema | `New-SpineWriter` - NOT YET IMPLEMENTED; `scripts\Test-SpineRead.ps1` detects after the write | yes | 21 |
-| 3 | Spec renderability, exact arm, at write time | `scripts\Assert-SpecRenderable.ps1` (landed 4 Sep 2026) | yes | 22 |
-| 3b exit | Prompt lint, before any generation spend | `scripts\Assert-PromptLint.ps1` | yes | 30 |
-| 3c | THE SPINE GATE BAND - every check whose inputs are already on disk, fanned out | see section 12; `scripts\Run-SpineGates.ps1.ps1` (landed 3 Sep 2026; eleven members wired, the rest of section 12's table still specified only); shared helpers in `scripts\Lib-GateCommon.ps1` | yes | 12-28 |
-| 3c | Readability, count-based arm, on the spine's prose fields | `Test-Readability` spine arm - NOT YET IMPLEMENTED; no wrapper feeds it spine fields | yes | 11b |
+| 2, 3c, 4 | Identifier namespaces do not collide with the pack's, and every cross-reference resolves | `scripts\Assert-IdentifierNamespace.ps1` (landed 4 Sep 2026; `-SeedOnly -Stage 2` reads no spine and writes `identifier-namespace-seed-report.json`; `-Stage 2` without `-SeedOnly` is refused by name) | yes | 28 |
+| 3 | Every agent write validated against the compiled schema | `New-SpineWriter` - **Status: NOT YET IMPLEMENTED** - performed today by: see section 21 | yes | 21 |
+| 3c | Spec renderability, whole-spine arm (the write-time exact arm is **Status: NOT YET IMPLEMENTED** - performed today by: this same whole-spine run, one stage later) | `scripts\Assert-SpecRenderable.ps1` (landed 4 Sep 2026; `-BuildDir`, no per-file write-time mode) | yes | 22 |
+| 3c | Prompt lint, run at the Stage 3b exit before any generation spend and again as a band member | `scripts\Assert-PromptLint.ps1` | yes | 30 |
+| 3c | THE SPINE GATE BAND - every check whose inputs are already on disk, fanned out | see section 12; `scripts\Run-SpineGates.ps1` (landed 3 Sep 2026; membership DERIVED from each gate's own `# GATE: stages=` header, never hand-listed); shared helpers in `scripts\Lib-GateCommon.ps1` | yes | 12-28 |
+| 3c | Readability, count-based arm, on the spine's prose fields | `Test-Readability` spine arm - **Status: NOT YET IMPLEMENTED** - performed today by: nobody before the render; `Test-Readability` takes an unpacked `.docx` and no wrapper feeds it spine fields, so first detection is the Stage 4b run | yes | 11b |
 | 3d | Figure sheet review (judgement, narrow) | reader, not a script | yes | 13 |
-| 3d | Figure sheet CUT from the spine and fingerprint-stamped | `scripts\New-FigureSheet.ps1` | yes | 31 |
+| 3c | Figure sheet CUT from the spine and fingerprint-stamped, in the band's phase 3 and only on a green band; read at 3d | `scripts\New-FigureSheet.ps1` | yes | 31 |
 | 4 | Every blocking gate from one entry point, every parameter threaded and printed | `scripts\Run-Gates.ps1` | yes | 33 |
 | 4 | Extract stamping and the channel manifest | `scripts\Get-DocText.ps1` stamp (FIGURES / CHANNELS / SOURCE) | yes | 31 |
 | 4b | Readability, on the rendered document | `Test-Readability` | yes | 11b |
-| 4c | Brand applied, and the mark PROVED on every artefact | `scripts\Check-Identity.ps1` (`Assert-BrandCrossover`) | yes | 29 |
+| 4, 7c | Brand applied at Stage 4c, and the mark PROVED on every artefact - re-run at 7c and again at 8 | `scripts\Check-Identity.ps1` (`Assert-BrandCrossover`) | yes | 29 |
 | 5 / 6 | Review band (personas, flow pass, clean-room audit) | judgement | yes | 10 |
 | 6b | Finding arbitration before any work order | `scripts\Test-Finding.ps1` (specified as Assert-FindingProvenance) | yes | 19 |
 | 7 | Enumerate before fixing | `scripts\Assert-EnumerateBeforeFix.ps1` (landed 4 Sep 2026) | yes | 32 |
-| 7 | Figure sheet regenerated from the corrected spine | `scripts\New-FigureSheet.ps1` | yes | 31 |
+| 3c | Figure sheet re-cut from the corrected spine at every Stage 7 round, by re-running the band | `scripts\New-FigureSheet.ps1` (a direct re-cut takes `-BandResults` and refuses a spine the band did not pass) | yes | 31 |
 | 7b-i | Every generated image reviewed before it is placed | judgement, ledgered as `7b-i` | yes | 30.3 |
-| 7b-ii | Resolved palette passed into the artwork sub-skill | `Assert-DownstreamPalette` - NOT YET IMPLEMENTED | yes | 29 |
-| 7c | FULL re-gate after the last mutation | `scripts\Assert-FullRegateAfterMutation.ps1` (landed 4 Sep 2026; derives the 7c set from the runner plan, gates.md and SKILL.md Stage 7c | yes | 33 |
+| 7b | Resolved palette passed into the artwork sub-skill | `Assert-DownstreamPalette` - **Status: NOT YET IMPLEMENTED** - performed today by: nobody; a wrong-brand repaint is seen only by the 7c crossover sweep, after the fact | yes | 29 |
+| 7c | FULL re-gate after the last mutation | `scripts\Assert-FullRegateAfterMutation.ps1` (landed 4 Sep 2026; derives the 7c set from the runner plan, gates.md and SKILL.md Stage 7c) | yes | 33 |
 | 7c | Placed drawings: alt text, figure numbering, caption-to-slot | `scripts\Check-Figures.ps1` | yes | 33 |
 | 7d | Confirming audit read, scoped to what placement changed, images re-checked against final content | judgement, with a verdict | yes | 30.3, 31 |
 | 8 | Ledger integrity, staleness proved from files, figure sheet current | `Test-StageLedger`; `scripts\Assert-RenderDelta.ps1` + `Test-StageLedger` per-topic rule | yes | 34 |
@@ -263,9 +269,11 @@ Stages 5 and 6 are judgement stages: an agent reads the documents and reports wh
 | Fails when | Because |
 |---|---|
 | A required stage has no record | It either did not run or was not recorded, and delivery cannot claim it either way |
-| A blocking stage is recorded `skipped` | `skipped` is an honest status and it is allowed — it just does not ship |
-| A stage is recorded `n-a` with no note | A stage that does not apply must say why it does not apply. `n-a` is the honest answer for a stage that genuinely cannot run, and it is also the easiest way to rubber-stamp one that can |
+| A stage in the pipeline is recorded `skipped` | `skipped` is an honest status and it is allowed to be WRITTEN — it just does not ship |
+| A stage is recorded `n-a` anywhere but the artwork stages, or with no note | `n-a` is accepted at delivery only on `7b-i` and `7b`, and only where a Stage 2 record in the same ledger records the artwork decision as no-go. Everywhere else it is a hard problem naming the stage: three blocking stages were once recorded `n-a` plus a note and passed delivery. A stage that does not apply must still say why |
 | A record carries partial gate rules with no note | A gate run with `-AllowPartial` left blocking rules unrun (section 7). That is allowed and recorded, and it costs the same written reason an allow-list entry costs |
+| A record has no known span, or a blocking stage's `started` equals its `ended`, or two DIFFERENT stages end in the same second with an unknown or overlapping span | Section 34 item 3. The append time `utc` is not a span and no rule reads it as one |
+| A delivered artefact's sha256 no longer matches the newest 4/7c results payload that judged it, or it was written after that run | Section 34 item 1. The staleness proof comes from files and hashes, never from clock order in a ledger |
 | Stage 4b, 5 or 6 predates the newest Stage 4 or 7 record | Those stages **re-render** from a fresh template. A verdict taken before the last render describes a document that no longer exists |
 | Stage 7c or 7d predates the newest 7b or 7c record | **Placement** is a mutation of the page, and what follows it must postdate it — see section 34 for why Stage 5 is deliberately not on this line |
 | No Stage 6 or 7d record postdates the newest placement | No build ships on a verdict issued against a document that had no figures in it |
@@ -273,23 +281,28 @@ Stages 5 and 6 are judgement stages: an agent reads the documents and reports wh
 | Stage 6's or 7d's verdict reads `Not Compliant` | Remediate and re-audit |
 | The figure sheet's stamped spine fingerprint does not match the spine | Section 31. Every reviewer downstream of a stale sheet read figure content the document no longer carries, while the ledger recorded that the figures were read |
 
-**The required set is `$script:LedgerRequired` in `Stage-Ledger.ps1`, and it is the only copy.** Read it from the script rather than transcribing it, because a transcribed stage list is how this gate came to enforce a pipeline that no longer existed: the rewrite added `3c`, `3d`, `4c`, `6b`, `7c` and `7d` as blocking stages and added none of them here, so **a build that skipped all six passed `Test-StageLedger` and delivered** — no spine gate band, no figure adjudication, the brand never proved, a false finding straight to a work order, no post-placement re-gate, and no verdict ever issued against a document containing figures. `7b-i` — generate and review the artwork — was added at the same time for the same reason (section 30.3). The list now reads:
+**The stage table is `$script:LedgerStages` in `scripts\Stage-Ledger.ps1`, and it is the only copy.** `$script:LedgerRequired`, `$script:LedgerBlocking`, `$script:LedgerOrder`, `$script:LedgerRenders`, `$script:LedgerPlacements`, `$script:LedgerStaleAfterRender`, `$script:LedgerStaleAfterPlacement`, `$script:LedgerPostPlacementRead`, `$script:LedgerVerdict`, `$script:LedgerArtwork`, `$script:LedgerTerminal`, `$script:LedgerConditional` and `$script:LedgerScripted` are DERIVED VIEWS of that table and cannot drift from it. Read them from the script; do not transcribe them here. The table also carries a **`Script` column** naming the runner that writes `<stage>-results.json` - `Invoke-Stage0.ps1` for 0, `Run-SpineGates.ps1` for 1, 2 and 3c, `Run-Gates.ps1` for 4 and 7c - and a stage with a Script entry cannot be recorded `pass` without that file.
 
-```
-0  1  2  3  3b  3c  3d  4  4b  4c  5  6  6b  7b-i  7b  7c  7d  8
-```
+A transcribed stage list is how this gate came to enforce a pipeline that no longer existed: the rewrite added `3c`, `3d`, `4c`, `6b`, `7c` and `7d` as blocking stages and added none of them here, so **a build that skipped all six passed `Test-StageLedger` and delivered** — no spine gate band, no figure adjudication, the brand never proved, a false finding straight to a work order, no post-placement re-gate, and no verdict ever issued against a document containing figures. `7b-i` — generate and review the artwork — was added at the same time for the same reason (section 30.3). Five hand-listed arrays are five copies to keep in step, which is why there is now one table and twelve views of it.
 
-Stage 7 is deliberately **not** required. A build with no findings needs no remediation round, and requiring one would push builds into inventing work. Stage `7b` is required but is **not** blocked when recorded `skipped`: with no API key, or where the user declines the artwork spend, a build legitimately delivers with the prompts in place and says so.
+Stage 7 is **conditional**, and the table is the single owner of that rule: it is required when a Stage 6 or 7d record carries `round > 0` or a verdict below the best one in the closed vocabulary (read from `Merge-AuditFindings.ps1` by AST), or when a Stage 6b record carries a non-empty work order; it blocks whenever it is present. It is deliberately **not** in the unconditional required set. A build with no findings needs no remediation round, and requiring one would push builds into inventing work. Stage `7b` is required but is **not** blocked when recorded `skipped`: with no API key, or where the user declines the artwork spend, a build legitimately delivers with the prompts in place and says so.
 
 **Record each stage as it finishes, never from memory at the end.** A ledger written at the end records what was intended, which is exactly the thing this gate exists to distrust.
 
 ```powershell
 . "$SkillDir\scripts\Stage-Ledger.ps1"
 New-StageLedger -BuildDir $out -Unit $code | Out-Null
+$t0 = (Get-Date).ToUniversalTime().ToString('o')
+# ... run the stage ...
 Add-StageRecord -BuildDir $out -Stage '6' -Name 'Clean-room audit' `
-                -Status pass -Findings 3 -Verdict 'Partially Compliant'
-Test-StageLedger -BuildDir $out | Write-StageLedgerReport
+                -Status pass -Findings 3 -Verdict 'Partially Compliant' `
+                -Started $t0 -Ended ((Get-Date).ToUniversalTime().ToString('o'))
+Test-StageLedger -BuildDir $out [-InProgress] [-SpineDir <dir>] | Write-StageLedgerReport
 ```
+
+`-Started`/`-Ended` are ISO 8601 UTC, sub-second; omitted, they are DERIVED from the stage's results file (`startedAt`, `ranAt`, `wallClockSeconds`), and with neither source the record carries `spanKnown = false`. `Add-StageRecord` also takes `-Machine` (a sha256 from a stage whose own writer produced the evidence; refused on a stage that has a results file, and requires `-Round` >= 1), `-OperatorNote`, `-ClearancesApplied`, `-FigureSheet` and `-SpineDir`; `-Round` may no longer go backwards for a stage. `Test-StageLedger` returns `.Reported`, `.Machine`, `.Stage7`, `.Required`, `.InProgress` and `.GeneratedNote` beside `.Ok`/`.Problems`, and **the Stage 8 note is generated from `.GeneratedNote`, not typed**. `-InProgress` excludes ONLY the terminal stage 8. **There are four statuses and there is no fifth**: a dispositioned failure is a `pass` whose `-ClearancesApplied` entries the report prints every time it runs.
+
+Exit codes are the house convention: **0 pass, 1 finding, 2 refused (input missing), 4 self-test failed**. The old `exit 6` for a ledger finding is gone. `Stage-Ledger.ps1 -SelfTest` proves the file against itself.
 
 **The evidence.** The 27 August 2026 SITHKOP013 build ran Stage 5 not at all and reduced Stage 6 to a cross-reference check. Both gates passed, the readability gate passed, and the guide shipped with a fabricated legal requirement in its food-safety topic. The defect was found because the user asked whether a compliance check had been done — not by anything in this pipeline.
 
@@ -328,7 +341,7 @@ Test-StageLedger -BuildDir $out | Write-StageLedgerReport
 | **Blocks** | Yes, at every one of those positions |
 | **Ledger** | Stage `4b`, required, blocking, and stale if it predates the newest render |
 
-**The 3c run is specified, not yet implemented.** `Test-Readability` takes an unpacked `.docx` (`-WorkDir`, `-Part`) and reads its XML; no wrapper yet feeds it the spine's prose fields. Until one exists, this check is performed by nobody before the render, first readability detection is the Stage 4b run on the rendered document, and the artwork-prompt confound that run scripts around is still live.
+**The 3c run: Status: NOT YET IMPLEMENTED** - performed today by: nobody before the render. `Test-Readability` takes an unpacked `.docx` (`-WorkDir`, `-Part`) and reads its XML; no wrapper yet feeds it the spine's prose fields, so first readability detection is the Stage 4b run on the rendered document and the artwork-prompt confound that run scripts around is still live.
 
 **The 3c run is an ADDED run, not a moved one, and the distinction is the whole point.** On the spine, prompt text and body prose are separate fields and cannot be confused — which deletes outright the artwork-prompt confound the rendered gate had to script around by stripping prompt paragraphs from a copy of the file. **The Stage 4b run on the rendered document is untouched**, because a spine measurement and a rendered measurement make different claims: the renderer joins, wraps, tables and captions the prose, and a document can fail one and pass the other. Nothing here is faster by being weaker; it is earlier as well as, never instead of.
 
@@ -340,7 +353,27 @@ Test-StageLedger -BuildDir $out | Write-StageLedgerReport
 
 **Runs at** Stage 3c: after authoring closes, before the first render, concurrently with background artwork generation. **Blocks.** The whole band re-runs unchanged before every Stage 7 re-render. **Invoked** from one entry point that fans out and joins: `scripts\Run-SpineGates.ps1 -BuildDir $out`.
 
-**`Run-SpineGates.ps1` landed 3 Sep 2026** (`-BuildDir`, `-SpineDir`, `-UnitExtract`, `-Profile`, `-ResultDir`, `-Only`, `-MaxJobs`, `-TimeoutMinutes`, `-Serial`, `-SelfTest`). Phase 1 fans out nineteen gates - `Test-Spine` (whole-spine), `Test-SpineRead`, `Test-FigureConsistency` (source arm), `Check-FigureMirror`, `Check-FigureLeakage`, `Assert-PromptLint`, `Test-SubSection -All`, `Check-ShapeMirror`, `Check-RowCoverage`, `Assert-FigureCoverage`, `Assert-Provenance`, `Assert-WithholdRegister`, `Assert-SpineCounts`, `Assert-Terminology`, `Assert-CitationConsistency`, `Assert-ScenarioClock`, `Assert-IdentifierNamespace`, `Assert-SpecRenderable` and `Assert-DeckParity` (the band grew from 11 to 21 members on 4 Sep 2026; the member list lives in ONE ordered array the self-test reads, so the plan and its proof cannot drift apart); phase 2 runs `Test-GridDisposition` over their reports; phase 3 cuts the figure sheet only on a green band. Every member is called with only the parameters its copy declares; an absent, refusing, throwing or timed-out member is a FAIL naming the reason, never a skip; a missing `unit_extract.md` refuses the whole run (exit 2); `-Only` is a PARTIAL RUN (banner, exit 3) that cannot stand for the band; a spine whose fingerprint changed during the run fails. It writes `3c-results.json` (per-gate exit code, seconds, verdict and summary; the slowest member; wall clock against the serial sum) and per-gate logs under `3cogs`. Measured on the reference build, 4 Sep 2026, at 21 members: 157 s wall clock against 741 s run one after another, 21 per cent of the sum, the slowest member being the sub-section wrapper at 153 s - so the ten gates added that day cost 28 s of wall clock rather than 410. The members marked not yet implemented in their own sections (15 to 18 and 22 to 28) are performed by nobody at 3c; the runner does not list them, so the 3c record must list them as not run rather than let the band's pass stand for them.
+**`Run-SpineGates.ps1` landed 3 Sep 2026** (`-BuildDir`, `-SpineDir`, `-UnitExtract`, `-Profile`, `-ResultDir`, `-Stage`, `-Only`, `-MaxJobs`, `-TimeoutMinutes`, `-Serial`, `-NoPlantChannel`, `-SelfTest`).
+
+**Membership is DERIVED, and the member list is not repeated here.** It is the roster in `Run-SpineGates.ps1` plus every script whose own `# GATE: stages=` header declares the stage, read at run time. A roster member whose header omits `3c` is **REFUSED** ("a member cannot leave the band by editing its own header"). A script with no header yet gets a printed `REPORT: no GATE header` line and is treated as `stages=3c` - never a silent skip. **Where a header is** matters: at column 0, below the `<# #>` doc block, above `[CmdletBinding()]`. A `# GATE:` line inside a doc comment, or inside a here-string below `param()`, is **not** a header and is not read as one.
+
+`Assert-GateVisualCount` (P0-11) and `Assert-GateFixtures -StaticOnly` (P0-13) are 3c members. The fixtures member is the one member NOT handed `-BuildDir`: `-BuildDir` starts the plant channel, which is a background report and never a band member, and a fixtures copy without `-StaticOnly` is REFUSED by name.
+
+**Phase order.** Phase 1 fans out. Phase 2 is the grid disposition alone, over the reports phase 1 produced, and **the interim band verdict `3c-band-verdict.json` is written at the join**. Phase 3 is the figure sheet, cut only on a green band over an unmoved spine.
+
+Every member is called with only the parameters its copy declares; an absent, refusing, throwing or timed-out member is a FAIL naming the reason, never a skip; a missing `unit_extract.md` refuses the whole run (exit 2); a spine whose fingerprint changed during the run fails. A member that exits 0 while a **blocking arm** on its `ARMS:` line neither ran nor was declared not applicable is recorded FAIL ("arm not run: `<name>`"), and `Test-SubSection -All` exiting 0 while any per-file `gate.json` it wrote says fail - or was never written, or disagrees with the wrapper - fails by name in the wrapper and again in the runner.
+
+**`-Stage 1|2|3c`.** Stages 1 and 2 are the **seed** bands over the corpus, the contract and the registry; membership comes from the same headers, nothing is hand-listed, and a stage no script declares is REFUSED (exit 2) with a `<stage>-results.json` recording FAIL and no member - never a pass. Every arm of a seed run is labelled `seed`, and a seed result never counts as 3c evidence.
+
+**`-Only` is a partial run and cannot stand as evidence.** It writes `3c-results.partial.json` and `3c-band-verdict.partial.json`, leaves `3c-results.json` and `3c-band-verdict.json` untouched, never cuts the figure sheet, and **exits 3 even when every selected gate passed**.
+
+The band prints **UNPROVEN** beside every member the newest `gate-fixtures.<hash>.json` did not record as PROVEN, and starts the full fixtures plant channel as a **detached background process after the band**, keyed on a hash of `scripts\*.ps1`, which it never waits for. `-NoPlantChannel` suppresses the start and nothing else.
+
+**Exit codes:** 0 pass, 1 a member failed / was refused / timed out / is unavailable, 2 a usage error (no unit extract at 3c, or a stage no script declares), 3 a partial run, 4 the self-test failed. It writes `3c-results.json` (per-gate exit code, seconds, verdict and summary; the slowest member; wall clock against the serial sum) and per-gate logs under `<result dir>\logs`; **the results-file key list is documented in the header comment of `Run-SpineGates.ps1`, and that file is the reference shape for `Run-Gates`.**
+
+Measured on the reference build, 4 Sep 2026, at 21 members: 157 s wall clock against 741 s run one after another, 21 per cent of the sum, the slowest member being the sub-section wrapper at 153 s - so the ten gates added that day cost 28 s of wall clock rather than 410. Any row of the table below that no gate's header binds to `3c` is performed by nobody at 3c, and the 3c record must list it as not run rather than let the band's pass stand for it.
+
+**On the reference build two members now exit 2 rather than printing green, and that is the P0-09 measurement.** `Assert-CitationConsistency` - `provisos` is starved: `figures.json` carries figures whose required value holds a digit and no derivable qualifier, so the dropped-caveat arm swept nothing, and the refusal names `figures.json`. `Assert-ScenarioClock` - `deliveries` is starved: no learner-facing corpus document yields an item-bound delivery, so the produced-after-delivery arm compared nothing; the refusal names the delivery input and offers `contract.json gateArms.Assert-ScenarioClock.deliveries` with a written reason as the declared-not-applicable route. **Both are resolved by supplying the input in its declared shape, never by narrowing the rule.**
 
 **The rule. Every check whose only inputs are the spine, the corpus, the unit extract and the renderer source runs here, before a document exists.** Not one of them replaces a later check. Every one re-runs at its original position later, on the artefact it always read.
 
@@ -360,6 +393,40 @@ Test-StageLedger -BuildDir $out | Write-StageLedgerReport
 | Citation consistency | 26 |
 | Scenario clock | 27 |
 | Cross-reference resolution | 28 |
+| Prompt lint (again, after its Stage 3b exit run) | 30.1 |
+| Gate fixtures, static arms only | 35 |
+
+### The arm roster, and how a runner reads it
+
+Every gate declares its ARMS and prints one roster line. The contract lives in `Lib-GateCommon.ps1` - `Reset-GateArmRoster`, `Register-GateArm -Name x [-Blocking]`, `Write-GateCheckSet`, `Complete-GateArm -Name x -State ran|empty|declared-n-a`, `Write-GateArmRoster`, `Assert-GateArmsComplete`, `Get-GateDeclaredNa` - and every gate carries the same shape:
+
+> **Arms.** Named arms are blocking or advisory. Each ends `ran` (size > 0), `empty` (a refusal, exit 2, naming the input) or `declared-n-a` with a written reason read from `contract.json` `gateArms.<gate>.<arm>`. The gate prints one `ARMS: name|blocking|state|size|findings;...` line both runners parse, and the roster is written into its report as `arms`.
+
+**A runner reads the roster line CASE-SENSITIVELY** - `ARMS:` in capitals, the shape `Write-GateArmRoster` prints. Gates also print a human line `arms: 4 registered, 2 blocking, all complete`, and reading that as a roster reported "ARMS cell does not parse" against six PASSING gates on a real band run. Both runners use `(?-i)`.
+
+Blocking arms, per gate, as the scripts now print them:
+
+| Gate | Blocking arms | Advisory arms |
+| --- | --- | --- |
+| Assert-Terminology | spine-cells, locked-terms, authority-classes | acronyms, glossary-variants, ambiguity |
+| Assert-CitationConsistency | sentences, cited-sentences, provisos | duty-clusters |
+| Assert-ScenarioClock | two-production-dates, production-after-delivery | loose-time-attachment, outside-production-run, interval-vs-registry |
+| Assert-DeckParity | spine-files, require-strings, benchmark-entries, slide-notes | no-notes-exemptions, table-shape, count-claims |
+| Assert-SpecRenderable | spine-files, renderer-layouts, visual-specs | slot-cross-references |
+| Assert-PromptLint | person-nouns, required-negatives, route-a-prompts, cover-visual, manifest-parity | subject-classes (blocking only when the profile declares `imageFraming.subjectClassMandatory`) |
+| Assert-SpineCounts | spine-files, counted-prose, word-floors, pack-questions | - |
+| Test-Spine (whole-spine) | spine-files, front-matter-files, front-matter-fields | - |
+| Test-SpineRead | renderer-read-set, spine-files, content-fields | - |
+| Test-DeckRules | slides, placeholder-vocabulary, docprops-identity, printed-number, plan-structure | overset-text |
+| Check-Identity | identity-strings, palette-hexes, artefacts | - |
+| Test-FigureConsistency | registry, sources, rendered (blocking at 7c) | deck-must |
+| Test-GridDisposition | report-freshness, grid-disposition, channel-coverage | clearances, unmatched-entries |
+| Check-FigureLeakage | spine-channels, blocking-runs | marking-vocabulary, reported-runs, rendered-extracts |
+| New-FigureSheet | the spine's visual entries (one blocking check-set) | - |
+
+**`-BuildDir` is no longer `[Parameter(Mandatory)]` on five gates.** `Assert-Terminology`, `Assert-CitationConsistency`, `Assert-ScenarioClock`, `Test-SpineRead` and `Check-Identity` (`-Path`) previously declared their main input mandatory, which made `-SelfTest` unrunnable without a build - PowerShell refused the call before the script started - and a mandatory parameter PROMPTS, so a gate that prompts inside a runner's job hangs instead of failing. Each now refuses the absent input BY NAME with exit 2 in the body, and `-SelfTest` synthesises its own build. Every documented invocation is unchanged; what changes is that the self-tests can be asked to run at all.
+
+**Two checks were REPLACED, not removed.** `Assert-Terminology`'s old "every derived check-set is empty" exit 2 - which fired only when locked terms AND authority rules AND acronyms were all zero - is now three separate blocking arms, each refusing on its own, which is strictly stronger: an empty locked-terms list no longer hides behind a non-empty acronym list. `Assert-PromptLint`'s old "no Route A prompt on the spine" exit 2 is now the `route-a-prompts` blocking check-set: same exit code, now on the roster and named in the refusal text.
 
 **Why the band exists, stated plainly.** One ordering defect produced four separate expensive symptoms: every check that reads MEANING ran at the end, on the rendered document, while the data those checks need was complete on the spine three to four stages earlier. Figure content that was machine-readable JSON at 01:00 could not be read as a figure until placement at 03:47 and was not read by any human until 05:13. Detection lag on the blocker that stopped that build was **4h12m38s from spine write to discovery**, and the fix cost a full serial audit-remediate-re-render-re-audit cycle of about forty minutes per round for three rounds.
 
@@ -393,7 +460,15 @@ Test-StageLedger -BuildDir $out | Write-StageLedgerReport
 
 ## 14. Assessor-only leakage sweep - blocking, scoped
 
-**Runs at** Stage 3c over every channel of the spine, Stage 4 over the rendered extracts (`-DocText`), and 7c against the placed document. **Blocks.** **Invoked** `scripts\Check-FigureLeakage.ps1 -BuildDir $out -ReportPath <file>`. **There is no separate Stage 1 derivation step and no `-Derive` switch**: the script derives the shingle set from the canonical corpus on every run (`Get-ShingleSet`), prints the size of each set it derived and names what it derived it from, and `-ReportPath` writes the complete hit list - blocking and reported - to a file, because a finding cannot be closed against a list nobody has. Stage 1's only job for this gate is to have extracted every document into the corpus; a document not extracted is not swept, which is section 20's failure.
+**Runs at** Stage 3c over every channel of the spine, Stage 4 over the rendered extracts (`-DocText`), and 7c against the placed document. **Blocks.** **Invoked** `scripts\Check-FigureLeakage.ps1 -BuildDir $out -ReportPath <file>`. **There is no separate Stage 1 derivation step and no `-Derive` switch**: the script derives the shingle set from the canonical corpus on every run (`Get-ShingleSet`), prints the size of each set it derived and names what it derived it from, and `-ReportPath` writes the complete hit list - blocking and reported - to a file, because a finding cannot be closed against a list nobody has. Stage 1's only job for this gate is to have extracted every document into the corpus; a document not extracted is not swept, which is section 20's failure. Its `# GATE:` header declares `stages=3c; requires=BuildDir,ExcludeText; 7c: DocText`.
+
+**The sweep includes the spine's front matter (P0-11, 8 Sep 2026).** `Get-GateSpineFiles` excludes `front.json`, `cover.json` and `deckframe.json` by default, and this gate kept that default: `deckframe.json`'s frame slides - the deck's opening, section and closing furniture, authored by the same hand as every other slide - and `front.json` had never been text-gated by anything. Both are swept now; the gate passes `-IncludeFrontMatter -Exclude @('cover.json')`, so `cover.json` is the ONE exclusion (`Assert-PromptLint` owns the cover), and the exclusion is printed beside the check-set line.
+
+**A spine file the sweep cannot read is a finding, not a skip**: an empty, whitespace-only or unparseable file used to fall through the loop in silence, and a file that had lost its content swept clean by having no text in it.
+
+Arms: `spine-channels` and `blocking-runs` block; `marking-vocabulary`, `reported-runs` and `rendered-extracts` report. One `ARMS:` line is printed. An empty blocking check-set - no assessor-only document in the corpus, no learner-facing document, or no blocking phrase - is exit 2 naming the input, where it used to be an uncaught `throw`. `-BuildDir` is no longer `[Parameter(Mandatory)]`: a mandatory parameter PROMPTS, and a gate that prompts inside a runner's job hangs instead of failing; it is now a refusal that names itself.
+
+`-SelfTest` plants an assessor literal in `deckframe.json` (reported, naming the file), the same literal in `front.json` (reported) and in `cover.json` (correctly not swept), a derived marking phrase in a learner channel, a unit quotation that must NOT be a leak, an empty spine file, a missing `-ExcludeText` file and a corpus with no assessor guide. 17 checks, passing 8 Sep 2026.
 
 **The test.** Normalise the assessor-only guides and the learner-facing documents out of the one canonical corpus. Any **n-gram of 8 to 15 words present in an assessor guide and absent from every learner-facing document** is candidate leakage - by definition it is content the learner is not meant to have, whatever it looks like and whatever field it sits in. Swept over EVERY text channel the build produces: body prose, callouts, tables, figure cells, captions, alt text, slide bodies, chips and speaker notes, **with the channel list enumerated from the renderer contract** so a channel cannot be added to the build without being swept (rule 1).
 
@@ -411,9 +486,23 @@ Test-StageLedger -BuildDir $out | Write-StageLedgerReport
 
 ## 15. Coverage and leakage - ONE gate, ONE verdict - blocking
 
-**Runs at** Stage 3c, again at Stage 4, again at every Stage 7 remediation, again at 7c. **Blocks.** **Invoked** `scripts\Test-GridDisposition.ps1 -BuildDir $out`.
+**Runs at** Stage 3c, again at Stage 4, again at every Stage 7 remediation, again at 7c. **Blocks.** **Invoked** `scripts\Test-GridDisposition.ps1 -BuildDir $out -ShapeReport <file> -CoverageReport <file> -MirrorReport <file> -NotBefore <run start, ISO 8601 UTC>`. All four inputs are required: an absent one is exit 2 naming it. `-NotBefore` is the runner's own start time, and a report generated before it is a previous round's and is refused.
 
-**Landed 3 Sep 2026 as `Test-GridDisposition.ps1`.** It returns one verdict per (sub-section, grid) over the check-set derived from `withhold-register.json`, reading three channels: the shape mirror's prose channel (`shape-mirror-report.json`), the row-coverage floor (`row-coverage-report.json`, whole-spine run only - a per-file coverage report is refused, because the floor that disposes a grid is the whole-spine one), and the table channel (`figure-mirror-report.json`, written by `Check-FigureMirror.ps1` on every run since 4 Sep 2026). A grid is disposed by teaching every row to the floor AND answering none beyond the register's allowance; it is cleared only by a written reason in `figures.json` "mirrorAllow", surfaced to the audit as evidence, and never by editing a gate. A mirror entry that does not resolve to a register grid is listed as unmatched, never silently dropped. Measured on the reference build: 35 grids, 26 disposed, 1 cleared with its reason printed, 8 NOT DISPOSED - and the table channel is what raised that count from 4, so before it was wired the gate was blind to half its own evidence.
+**Landed 3 Sep 2026 as `Test-GridDisposition.ps1`.** It returns one verdict per (sub-section, grid) over the check-set derived from `withhold-register.json`, reading three channels - the shape mirror's prose channel (`shape-mirror-report.json`), the row-coverage floor (`row-coverage-report.json`, whole-spine run only - a per-file coverage report is refused, because the floor that disposes a grid is the whole-spine one) and the table channel (`figure-mirror-report.json`). **None of the three is optional, and none is believed on sight (P0-08, 8 Sep 2026).** Each must carry `spineFingerprint` (v2, equal to the spine's fingerprint right now), `generated` (UTC ISO 8601, at or after `-NotBefore`) and `mode` = `whole`; a report that is absent, unparseable, unstamped, cut from another spine, cut in file mode or cut before `-NotBefore` is exit 2 **naming the file, the channel and its producer**. Before this, Run-Gates started the disposition beside the producers it reads, so every 4 and 7c verdict was cut from the previous round's reports.
+
+A grid is disposed by teaching every row to the floor AND answering none beyond the register's allowance; it is cleared only by a written reason in `figures.json` "mirrorAllow", surfaced to the audit as evidence, and never by editing a gate.
+
+**A grid absent from all three channels is NOT PROVEN**, naming the channels that are silent about it, and a `mirrorAllow` entry does not clear it: a written reason adjudicates a leak someone read, it cannot stand in for a channel that never looked. An absent key used to be read as zero, which disposed grids on no evidence at all.
+
+An entry in ANY of the three reports that does not resolve to a register grid is listed in `unmatched[]` with its channel and printed - never silently dropped.
+
+Arms: `report-freshness`, `grid-disposition` and `channel-coverage` block; `clearances` and `unmatched-entries` report. One `ARMS:` line is printed on every path, refusals included, and the roster is written into `grid-disposition.json`.
+
+`-SelfTest` builds a synthetic build, drives the real `Check-ShapeMirror.ps1` to prove the stamp this gate reads is the stamp that gate writes, and plants: prior-round reports, a missing shape report, a missing mirror report, an unstamped report, a `mode file` report, a report older than `-NotBefore`, an absent and an unparseable `-NotBefore`, a grid no channel examined, and an unmatched entry. 23 checks, passing 8 Sep 2026.
+
+Measured on the reference build: 35 grids, 26 disposed, 1 cleared with its reason printed, 8 NOT DISPOSED - and the table channel is what raised that count from 4, so before it was wired the gate was blind to half its own evidence.
+
+**All three producers stamp their reports**, and the stamp is what makes freshness checkable: `spineFingerprint` (v2), `generated` (UTC round-trip `o`), `mode` (`whole` for a directory run, `file` for `-SpineFile`) and `spineFiles` (the list they read), plus their `arms` roster. All three accept `-ReportPath` and `-Produces`; `-Produces` alone IS the report path, and `-Produces` naming a different file from `-ReportPath` is exit 2 naming both, because a runner reading one path while the gate writes another is the stale-report defect the stamp exists to catch.
 
 **The rule.** For every typed assessed grid, the gate returns **one verdict over the mapped sub-section**: every row label must be TAUGHT in the prose (coverage) **AND** no figure, slide, chip, caption, alt text or speaker note may present those rows as a completed grid (leakage). Structural matching on normalised row labels, not wording. A mirroring visual must carry an explicit disposition - `withheld`, or `cleared, reason: ...` - so consistency follows from the derived list rather than from an author remembering.
 
@@ -429,7 +518,7 @@ Test-StageLedger -BuildDir $out | Write-StageLedgerReport
 
 ## 15b. Three defect classes no current gate can see
 
-The last build's audits found three defects that passed every mechanical check in this file and would pass them again today. Each is recorded here so a builder knows where the net has holes until the planned gate exists, and reads those parts of the document by eye instead of trusting a green result. **None of the three planned gates is on disk yet.**
+The last build's audits found three defects that passed every mechanical check in this file and would pass them again today. Each is recorded here so a builder knows where the net has holes until the planned gate exists, and reads those parts of the document by eye instead of trusting a green result. **Two of the three gates have since landed** - `Check-ShapeMirror.ps1` and `Check-RowCoverage.ps1`, both 3 Sep 2026, both 3c band members with their own planting self-tests. **(c)'s heading test is Status: NOT YET IMPLEMENTED** - performed today by: a reader, who checks every figure whose column headings match an assessed task's and treats a row labelled by time, day, run or batch as an assessed row in disguise.
 
 **(a) Numbered-row grids.** Workbook tasks 2(b), 2(c), 3(a) and 3(b) hand the learner a grid whose rows are numbered, not labelled - the learner supplies the row content. The mirror gate (section 13) matches on normalised row LABELS, so a guide table that fills such a grid shares no label with the assessed one and the gate cannot fire: there is nothing to match. The leak is the SHAPE - the same column headings, the same row count, the assessed columns filled. *Gate, landed 3 Sep 2026:* **`Check-ShapeMirror.ps1`** - match a spine table to a typed grid on its column-heading set and row count where the grid's first column is a numeral, and report the anchor for 3d exactly as section 13 does. Calibrated on the pre-round-4 spine (blocks on Tasks 11(a), 4(a)/(b), 9(a) and 6(a); 25 of 25 audited rows detected) and on the round-6 spine (silent where that audit was clean; four real residuals found); the recall and false-positive counts are in the script header, and a row is FULL only when ONE channel answers every assessed cell.
 
@@ -449,9 +538,13 @@ The last build's audits found three defects that passed every mechanical check i
 
 **Two calibrations recorded in the script header rather than as an allow-list.** A hit requires a model bullet's COMPLETE content-word set and a floor of three content words: at two words the sweep fired on 817 cells that were mostly the guide legitimately teaching a row, and a gate that noisy is switched off within a week. And **27 register rows have no model row in the assessor cells, so they are NOT CHECKED** - the gate prints them prominently instead of letting its pass stand for them, because a check-set that silently shrinks is the failure this file was rewritten against.
 
-**Runs at** Stage 2 to derive, Stage 3c to enforce, 7c across both finished artefacts. **Blocks.** **Invoked** `scripts\New-WithholdRegister.ps1 -BuildDir $out` at Stage 2 to derive; `scripts\Assert-WithholdRegister.ps1 -BuildDir $out` at 3c and 7c to enforce.
+**Runs at** Stage 2 to derive, Stage 3c to enforce, 7c across both finished artefacts. **Blocks.** **Invoked** `scripts\New-WithholdRegister.ps1 -BuildDir $out` at Stage 2 to derive; `scripts\Assert-WithholdRegister.ps1 -BuildDir $out` at 3c, and `-Stage 7c -DocText <guide>,<deck>` at 7c, to enforce. `-Stage 7c` with zero extracts is exit 2 naming `guide_gate.txt` and `deck_gate.txt`.
 
-**The Stage 2 derivation step is `scripts\New-WithholdRegister.ps1 -BuildDir $out [-PackDir <pack>]`**, and it exists. It reads the pack's typed task JSON, the contract's questionMap, the learner-facing corpus and the unit extract, and writes four things nobody types: `grids.json` in the corpus dir the gates resolve (the mirror gate loads it in preference to its regex parse - and the proof that matters is that WITHOUT it the gate passes a planted answer grid green, and WITH it the gate catches it); `withhold-register.json` per sub-section with kind (labelled | numbered | records | lookup | freeText), items, subjects, unassessedSubjects, allowance and a numeric shape; `assessor-cells.json`, gate-only, carrying the model bullets and their content-word sets; and `agent-pack\<sub-section>\` holding exactly what a content agent may see. On the reference build: 35 grids (27 labelled, 5 numbered, 3 records), 31 prose parts, 28 packs, and a self-sweep proving none of 1,710 assessor-authored strings appears in any agent-facing file.
+- "**across both finished artefacts**": **Status: NOT YET IMPLEMENTED** - performed today by: `Run-Gates.ps1 -AfterArtwork` phase 3, which runs `Test-FigureConsistency`, `Check-FigureLeakage`, `Assert-WithholdRegister` and `Assert-FigureCoverage` against the two `Get-DocText` extracts (`guide_gate.txt`, `deck_gate.txt`). No gate reads the finished `.docx`/`.pptx` themselves at 7c except `Check-Figures` (drawings, captions and alt text) and `Check-Identity`.
+
+**Rendered lines are no longer swept in one channel called `rendered`.** Each extract's lines are stamped `rendered:guide` or `rendered:deck` from the extract's own name, so the one-artefact-only rule can fire on a delivered document; an extract naming neither artefact is refused. The guide/deck split is now derived at FUNCTION scope (`Invoke-GuideRender` / `Invoke-DeckRender` in `Invoke-Render.ps1`) before the file-scope renderer glob - on the fixture that moved 11 of 12 channels off 'both' - and a run where NO channel attributes to a single artefact is a refusal naming the renderer files searched.
+
+**The Stage 2 derivation step is `scripts\New-WithholdRegister.ps1 -BuildDir $out [-PackDir <pack>]`**, and it exists. It reads the pack's typed task JSON, the contract's questionMap, the learner-facing corpus and the unit extract, and writes four things nobody types: `grids.json` in the corpus dir the gates resolve (the mirror gate loads it in preference to its regex parse - and the proof that matters is that WITHOUT it the gate passes a planted answer grid green, and WITH it the gate catches it); `withhold-register.json` per sub-section with kind (labelled | numbered | records | lookup | freeText), items, subjects, unassessedSubjects, allowance and a numeric shape; `assessor-cells.json`, gate-only, carrying the model bullets and their content-word sets; and `agent-pack\<sub-section>\` holding exactly what a content agent may see. On the reference build: 35 grids (27 labelled, 5 numbered, 3 records), 31 prose parts, 28 packs, and a self-sweep proving none of 1,710 assessor-authored strings appears in any agent-facing file. **`agent-pack\_shared` is INSIDE that self-sweep, not excluded from it**, and may hold only the files the run produced (`learner-docs\*.txt` and the unit extract); anything else is named and the pack is removed. The generated block of the register, `grids.json` and every pack slice carry `contractSha256` and `sharedSha256`. `New-WithholdRegister` gained `-SelfTest` (exit 4 on failure); `-BuildDir` is still mandatory and is not read in that mode. It carries no `# GATE:` header because it is a producer, not a band member.
 
 **The enforcement arm is implemented in two places, neither named `Assert-WithholdRegister`.** In-loop, `scripts\Test-SubSection.ps1 -File <spine file>` runs a relocation arm: any table sharing two or more headings with one of the sub-section's register grids fails on a row whose label is an assessed item with an assessed column filled, and for numbered grids reports a cell that names one of the grid's `subjects` together with two or more content words of that subject's model row (read from the gate-only assessor cells; never printed). At 3c, `Check-FigureMirror.ps1` counts answered rows against the register's per-grid `allowance` (0 where unassessed subjects exist, else 1) with the numbered-grid subject rule. First sweep of the reference spine under the register: 23 of 28 sub-sections pass; five fail because the register's allowance 0 is tighter than the old one-exemplar rule (Workbook 1(c), 2(a), 3(b); Knowledge 6(a), 5(b)), and one "relocated" example names an assessed subject after all. Those are content findings for the next round, and they are exactly what this arm exists to find before an auditor does.
 
@@ -471,7 +564,9 @@ The last build's audits found three defects that passed every mechanical check i
 
 **Runs at** Stage 3c on the spine, again before every Stage 7 re-render, and at 7c on the rendered text of both artefacts. **Blocks.** **Invoked** `scripts\Assert-FigureCoverage.ps1 -BuildDir $out`.
 
-**Specified, not yet implemented.** Until it exists, this check is performed by nobody. `Test-FigureConsistency.ps1` checks registered figures only - the whitelist this section says must be inverted - so an unregistered figure passes it today exactly as the batch weight in section 19 did.
+**Landed as `scripts\Assert-FigureCoverage.ps1`.** Its `# GATE:` header declares `stages=3c,4,7c; requires=BuildDir; 7c: DocText`. **The rendered arm is optional at 3c and REQUIRED at 7c**: at `-Stage 7c` an absent `-DocText` is a refusal naming both extracts, `guide_gate.txt` and `deck_gate.txt`. `Test-FigureConsistency.ps1` checks registered figures only - the whitelist this section says must be inverted - so an unregistered figure passes it exactly as the batch weight in section 19 did, and this gate is the inversion.
+
+**A known defect is recorded rather than tuned away (P1-02).** `Assert-FigureCoverage -SelfTest` prints one KNOWN-DEFECT line and counts it in neither tally: `7.45 am` is harvested as `45 am`, because the harvester cuts at the decimal point, so the work order names a figure that is not in the document. The disposition is right and the string is not. **The bounded harvester and the closed unit tails are Status: NOT YET IMPLEMENTED** - performed today by: today's harvester, whose behaviour the self-test asserts as it stands rather than narrowing the harvest to go green. The fix is P1-02.
 
 **A figure nobody registered is a figure nobody is checking.** The registry's own header says exactly that - and then implements a **whitelist of what IS checked**, which is the precise inverse of a proof that nothing is unchecked. This gate inverts it.
 
@@ -497,7 +592,13 @@ The last build's audits found three defects that passed every mechanical check i
 
 **Runs at** Stage 2 (registry seed), Stage 3c (every authored assertion), re-run at 7c. **Blocks.** **Invoked** `scripts\Assert-Provenance.ps1 -BuildDir $out`.
 
-**Landed 4 Sep 2026 as `scripts\Assert-Provenance.ps1`.** Two arms: every registry entry proved to resolve in the source its locator names, and every *source noun + reporting verb + quantity* sentence proved to carry a locator that resolves. Dispositions are RESOLVED, NEAR-MISS, SOURCE-ABSENT and UNRESOLVED, and only UNRESOLVED blocks - a stale locator over a correct figure is a different defect from a fabricated one, and collapsing the two would make the gate useless in both directions. `-PackDir` is how a SOURCE-ABSENT row is fixed: by adding the source, not by cutting the sentence. Assessor evidence is never printed - on the reference build 512 evidence lines came from assessor documents and all 512 were recorded as a withheld reference to a document and line.
+**Landed 4 Sep 2026 as `scripts\Assert-Provenance.ps1`.** Its `# GATE:` header declares `stages=2,3c,4,7c; requires=BuildDir; 2: SeedOnly; 7c: DocText`. `-SeedOnly -Stage 2` checks registry rows against the corpus with no spine and writes `provenance-seed-report.json`; a missing `figures.json` is exit 2 naming it. `-Stage 7c -DocText <guide>,<deck>` reads the extracts, and zero extracts at 7c is exit 2 naming both.
+
+Two arms: every registry entry proved to resolve in the source its locator names, and every *source noun + reporting verb + quantity* sentence proved to carry a locator that resolves. Dispositions are RESOLVED, NEAR-MISS, SOURCE-ABSENT, UNRESOLVED and NOT RUN, and only UNRESOLVED blocks - a stale locator over a correct figure is a different defect from a fabricated one, and collapsing the two would make the gate useless in both directions. `-PackDir` is how a SOURCE-ABSENT row is fixed: by adding the source, not by cutting the sentence. Assessor evidence is never printed - on the reference build 512 evidence lines came from assessor documents and all 512 were recorded as a withheld reference to a document and line.
+
+**A spine file carrying no `provenance` block is now REPORTED by name** (`spineFilesWithoutProvenance` in the report), rather than passing by being silent. **A registry row whose locator begins `DERIVED` is recorded NOT RUN with its reason** - never UNRESOLVED and never a pass - until P1-04 lands; that is why the disposition list has five entries rather than four.
+
+**The V-class arm no longer passes vacuously.** A build whose contract names no venue used to satisfy the V-class test on every page, because an empty token list made the test true by having nothing to fail. Zero venue tokens with at least one V-class row is now a refusal naming `contract.json build.brand / build.tradingName / scenario.employer / scenario.venue`.
 
 **Its first real run returned 216 UNRESOLVED and every one checked was FALSE** - composed rows ("50 portions of 350 Gms, 5 buckets of 3.5 L, 17.5 L in total"), abbreviations where the registry says *teaspoons* and the card says *tsp*, and values sitting in a pack document the locator did not happen to name. Three rules took it to 1: the verbatim test runs on the QUANTITIES inside a row rather than on the sentence around them; the whole corpus is searched before anything is called an absence; and a document matched only by a CITATION carries a mention of the instrument, not the instrument, so it reports SOURCE-ABSENT rather than resolving. That is the difference between a gate people use and a gate people switch off, and it is recorded here because the next gate written against this corpus will meet the same three.
 
@@ -571,9 +672,15 @@ Three sweeps over the corpus: **numeral divergence** (the same anchor given diff
 
 ## 21. Renderer contract and the validating spine writer - blocking
 
-**Runs at** Stage 0 (compile) and Stage 3 (every write). **Blocks.** **Invoked** `scripts\Assert-RendererContract.ps1 -SkillDir $SkillDir` at pre-flight; the writer is the only way content reaches the spine at Stage 3.
+**Runs at** Stage 0 (compile) and Stage 3 (every write). **Blocks.** **Invoked** `scripts\Assert-RendererContract.ps1 -SkillDir $SkillDir` at pre-flight - a script that does not exist; the writer is the only way content reaches the spine at Stage 3, and it does not exist either. What runs today is `scripts\Test-SpineRead.ps1 -BuildDir $out`, after every write and again across the whole spine at 3c.
 
-**`Assert-RendererContract`, `Get-RendererContract` and `New-SpineWriter` are all specified, not yet implemented.** No renderer exports a contract, nothing compiles a schema, and there is no refusing writer: agents write spine JSON directly. Until they exist, this check is performed by `scripts\Test-SpineRead.ps1 -BuildDir $out`, run after every write and across the whole spine at 3c. It reports UNREAD and MISSING by parsing the renderers' PowerShell AST, so the two classes that shipped the empty role-play boxes are caught - but after the write, not instead of it, and an agent that does not run it is not refused. The `kind` and dangling-token classes are performed by nobody at write time; a missing `kind` is discovered at placement, which is the failure section 22 records.
+Three names in this section are specifications. Each is marked separately, because each has a different performer today:
+
+- **`Assert-RendererContract`**: **Status: NOT YET IMPLEMENTED** - performed today by: `scripts\Test-SpineRead.ps1 -BuildDir $out`, which detects an unread field AFTER the write rather than compiling the contract before it, and by `Invoke-Stage0.ps1`'s `schema-compile` member, which compiles the RTO profile schema only.
+- **`Get-RendererContract`**: **Status: NOT YET IMPLEMENTED** - performed today by: nobody. No renderer exports a contract and nothing compiles a spine schema; `Test-SpineRead.ps1` derives the read-set by walking the renderers' PowerShell AST instead, at run time.
+- **`New-SpineWriter`**: **Status: NOT YET IMPLEMENTED** - performed today by: `scripts\Test-SpineRead.ps1`, which reports UNREAD and MISSING after the write, and `scripts\Test-SubSection.ps1 -File <spine file>`, the agent's own pre-return check. Agents write spine JSON directly and nothing refuses a write, so an agent that does not run either is not refused. The `kind` and dangling-token classes are performed by nobody at write time; a missing `kind` is discovered at placement, which is the failure section 22 records.
+
+`Test-SpineRead` reports UNREAD and MISSING by parsing the renderers' PowerShell AST, so the two classes that shipped the empty role-play boxes are caught - but after the write, not instead of it. Its `# GATE:` header declares `stages=3c; requires=BuildDir`, so the band runs it; the Stage 3 write-time run is the agent's own.
 
 **Each renderer exports `Get-RendererContract`**: the field names it reads per node type, which are required, and which must be non-empty for the node to render at all. Pre-flight **compiles those into the spine schema** and fails if two renderers declare different field sets for the same node type, if a container type declares no must-be-non-empty field, or if the compiled schema changed without a version bump. **The schema is compiled, never hand-written** (rule 1).
 
@@ -600,9 +707,9 @@ Three sweeps over the corpus: **numeral divergence** (the same anchor given diff
 
 ## 22. Spec renderability - blocking
 
-**Runs at** Stage 3 at write time for the exact arm, Stage 3c for the whole-spine arm. **Blocks.** **Invoked** `scripts\Assert-SpecRenderable.ps1 -BuildDir $out`.
+**Runs at** Stage 3c for the whole-spine arm (the exact arm at Stage 3 write time is specified below and not built). **Blocks.** **Invoked** `scripts\Assert-SpecRenderable.ps1 -BuildDir $out`.
 
-**Specified, not yet implemented.** Until it exists, this check is performed by nobody before placement: the `docx-images` sub-skill discovers an over-length flow or a flattened decision when it builds the figure at 7b-ii, which is the failure this section describes. A 3d reader can count nodes against the renderer's cap by hand, and should.
+**Landed 4 Sep 2026 as `scripts\Assert-SpecRenderable.ps1`**, whose `# GATE:` header declares `stages=3c; requires=BuildDir`. It takes `-BuildDir` and reads the whole spine; **the exact arm at Stage 3 write time is Status: NOT YET IMPLEMENTED** - performed today by: this same whole-spine run one stage later, because the script declares no per-file write-time mode. Every cap and width is read, never typed: `diagram.maxNodes`, `diagram.renderer`, `diagram.typography`, `placement.widthFraction` and `placement.maxHeightCm` from the `docx-images` config, and the page height, margins and `contentWidthDxa` from the RTO profile pack's guide profile. Three typographic estimators are in neither file and are therefore PARAMETERS whose resolved values and sources are printed on every run: `-CellPaddingCm`, `-NodeGapCm` and `-AvgCharEmShare`, with `-NodeHeightCm` overriding the derived per-node height outright. Arms: `spine-files`, `renderer-layouts` and `visual-specs` block; `slot-cross-references` reports. **A declared slot with no spine spec is a SPINE DEFECT and fails**, rather than passing over what the gate cannot see.
 
 For every visual spec on the spine, **before any render**:
 
@@ -627,6 +734,10 @@ For every visual spec on the spine, **before any render**:
 
 **Performed by `scripts\Test-Spine.ps1` since 3 Sep 2026**, in whole-spine mode at 3c and in `-File` mode in-loop: word floors from the contract (topic 3000, underpinning knowledge 800, slides 15), the two-way cross-reference against the contract's questionMap, prepared-exactly-once, four visuals per sub-section with Route B specs, empty boxes, ASCII, and a machine-readable result with the file's sha256. Byte-identical result to the build's validator on the reference spine; five planted defects each caught. A standalone `Assert-SpineCounts` is no longer needed. **A standalone scripts\Assert-SpineCounts.ps1 landed 4 Sep 2026 and is NOT a duplicate**, on two points that decide different facts. Its question set is derived from the CORPUS's own extracted text, where Test-Spine's comes from the contract's questionMap - so a question the pack contains and the contract forgot is invisible to one and caught by the other. And it prints the EXCLUDED field complement, 110 field paths on the reference build carrying 10,565 words of artwork prompt text, which is the confound the render-side gate has to script around and the spine simply does not have. It measured the reference build clean: seven Topics from 6,728 to 11,740 words against a floor of 3,000, all 28 underpinning blocks between 1,113 and 3,012 against 800, and 74 pack questions prepared in both directions. Its topic-BALANCE arm is implemented but prints NOT RUN, because no wordFloors.balanceTolerance is declared anywhere and the gate will not invent one - its pass does not cover that rule and says so.
 
+**Test-Spine's whole-spine walk gains a front-matter arm set.** `front.json`, `cover.json` and `deckframe.json` are enumerated with `Get-GateSpineFiles -IncludeFrontMatter` and swept for parse and charset like every other file, and each is checked against the fields the renderers read from it - derived at run time from the AST of `Invoke-Render.ps1`, `Build-Guide.ps1` and `Pptx-Blocks.ps1`, following the variable each file is loaded into, never from a list typed into the gate. On the reference spine that derivation yields 19 field names (front 9, deckframe 9, cover 1). Arms: `spine-files`, `front-matter-files` and `front-matter-fields` block. `Assert-SpineCounts`'s own arms are `spine-files`, `counted-prose`, `word-floors` and `pack-questions`, all blocking.
+
+**Test-SubSection's self-test counts skipped cases outside the pass tally.** A case that did not run is SKIPPED, and the summary reads "N of M cases RUN passed, K SKIPPED and not counted: `<names>`". The `mirror plant (real file)` case is skipped unless `-PlantFile` is supplied - it used to be recorded as a pass having planted nothing, which is the shape rule 2 exists to refuse.
+
 Word floors per Topic and per Underpinning knowledge block, and the two-way question cross-reference against references **derived from the corpus**, measured on the spine JSON **where prompt text and body prose are separate fields and cannot be confused**. It also asserts that words-per-topic tracks criteria-and-knowledge-points-per-topic within a declared tolerance.
 
 **It uses the same exclusion rule the render gate uses, and it does not replace that gate.** It moves FIRST detection of a content shortfall to before a render, which is the expensive part of the build.
@@ -639,7 +750,13 @@ Word floors per Topic and per Underpinning knowledge block, and the two-way ques
 
 **Runs at** Stage 3c, one pass over every authored string. **Blocks.** **Invoked** `scripts\Assert-Terminology.ps1 -BuildDir $out`.
 
-**Specified, not yet implemented.** Until it exists, this check is performed by the Stage 5 personas and the Stage 6 auditor - two of whom had to raise the legislated-figure defect below independently before it was believed. The RTO profile pack carries the locked terminology (`assets\rto-profile.<rto>.json`), `Assert-RtoProfile` validates that the list is present and well-formed, and no script yet reads it against the spine.
+**Landed as `scripts\Assert-Terminology.ps1`**, whose `# GATE:` header declares `stages=3c; requires=BuildDir`. The RTO profile pack carries the locked terminology (`assets\rto-profile.<rto>.json`), `Assert-RtoProfile` validates that the list is present and well-formed, and this gate reads it against the spine.
+
+**Arms.** `spine-cells`, `locked-terms` and `authority-classes` block; `acronyms`, `glossary-variants` and `ambiguity` report. The old "every derived check-set is empty" exit 2 - which fired only when locked terms AND authority rules AND acronyms were all zero - is now three separate blocking arms, each refusing on its own. That is strictly stronger: an empty locked-terms list no longer hides behind a non-empty acronym list.
+
+`-SelfTest` **synthesises** a build - a locked term with its `never` proviso, an acronym adoption pair, and a class L figure in the registry - and carries a PLANT ROSTER, one row per BLOCK arm it claims to prove. A plant that cannot be found in the fixture is exit 4 naming its arm ("no plant for arm X"), never a case quietly dropped from the tally. It also proves that a DECLARED terminology block yielding zero locked terms is a `CHECK-SET EMPTY` refusal naming `contract.json terminology`, and that the shipping gate maps it to exit 2. `-BuildDir` is no longer `[Parameter(Mandatory)]`, so the self-test can be asked to run at all.
+
+**One real defect found and fixed in passing.** The gate read `$authRules.Count` on the value returned by `Get-TrmAuthorityRules`, which returns a `List`. PowerShell unrolls a one-element list to the element itself and `[pscustomobject]` has no `.Count`, so a registry with **exactly one** classed figure read as **zero** authority rules. The call is now wrapped in `@()`.
 
 **Blocking arms**, every one of them exact matching against a list DERIVED from the contract or the corpus, never typed per rule (rule 1):
 
@@ -669,7 +786,9 @@ Word floors per Topic and per Underpinning knowledge block, and the two-way ques
 
 **Runs at** Stage 3c, and per-surface again at Stage 4 and 7c. **Blocks.** **Invoked** `scripts\Assert-DeckParity.ps1 -BuildDir $out`.
 
-**Specified, not yet implemented.** Until it exists, two of its arms are partly performed by scripts that do exist: `Test-FigureConsistency.ps1`'s `deckMust` list, which is **still the global OR this section says it replaces**; and `Test-DeckRules -Plan`, which checks that teaching slides carry notes. The per-surface `require`, the benchmark-derived per-topic set, and the row-and-column-count rules are performed by nobody. The 24-figures-with-no-deck-requirement failure below is therefore still open.
+**Landed as `scripts\Assert-DeckParity.ps1`**, whose `# GATE:` header declares `stages=3c; requires=BuildDir`. **Arms.** `spine-files`, `require-strings`, `benchmark-entries` and `slide-notes` block; `no-notes-exemptions`, `table-shape` and `count-claims` report.
+
+`Test-DeckRules.ps1` is dot-sourced by Run-Gates, and run **as a script** with `-SelfTest` it proves itself on an unpacked deck fixture it builds: a clean deck passes with every arm `ran`; the template's own exemplar sentence left on a slide fails naming the slide; a printed slide number that disagrees with the slide's position fails; a supplied template that harvests no placeholder phrase is a `CHECK-SET EMPTY` refusal naming the template; an empty `-Plan` fails naming `-Plan`. No PowerPoint is needed. The switch is declared `[Alias('SelfTest')][switch] $DeckRulesSelfTest`, for the reason `Lib-GateCommon` states: a dot-sourced script binds its parameters as variables in the CALLER's scope, so a parameter named `$SelfTest` here would set every caller's own `-SelfTest` to `$false`.
 
 **It replaces the registry's global-OR `require` with a per-surface rule.** Every required string must appear in the **guide-facing** source set AND the **deck-facing** set, unless the entry explicitly narrows its surfaces in a declared field. **A `.ps1` comment can never satisfy a `require`** (see section 35 on gate hygiene).
 
@@ -688,7 +807,7 @@ It adds four rules on top:
 
 **Runs at** Stage 3c. **Blocks.** **Invoked** `scripts\Assert-CitationConsistency.ps1 -BuildDir $out`. Pure self-consistency over the spine - **it needs no copy of the legislation**, which is why it can run this early.
 
-**Specified, not yet implemented.** Until it exists, this check is performed by the Stage 6 auditor - the same reader that let the inverted scope statement below survive three rounds by fixing the instance in front of it.
+**Landed as `scripts\Assert-CitationConsistency.ps1`**, whose `# GATE:` header declares `stages=3c; requires=BuildDir`. **Arms.** `sentences`, `cited-sentences` and `provisos` block; `duty-clusters` reports. On the reference build `provisos` is STARVED and the gate exits 2 naming `figures.json`: the registry carries figures whose required value holds a digit and no derivable qualifier, so the dropped-caveat arm swept nothing. That is resolved by supplying the input in its declared shape, never by narrowing the rule. `-BuildDir` is no longer `[Parameter(Mandatory)]`.
 
 **Blocking arm, exact:**
 
@@ -711,7 +830,7 @@ It adds four rules on top:
 
 **Runs at** Stage 3c. **Blocks.** **Invoked** `scripts\Assert-ScenarioClock.ps1 -BuildDir $out`.
 
-**Specified, not yet implemented.** Until it exists, this check is performed by the Stage 5 personas and the Stage 6 auditor, reading scenario dates against the pack's order form by eye. The typed schedule it reads from does not exist either (section 20).
+**Landed as `scripts\Assert-ScenarioClock.ps1`**, whose `# GATE:` header declares `stages=3c; requires=BuildDir`. **Arms.** `two-production-dates` and `production-after-delivery` block; `loose-time-attachment`, `outside-production-run` and `interval-vs-registry` report. On the reference build `deliveries` is STARVED and the gate exits 2: no learner-facing corpus document yields an item-bound delivery, so the produced-after-delivery arm compared nothing. The refusal names the delivery input and offers `contract.json gateArms.Assert-ScenarioClock.deliveries` with a written reason as the declared-not-applicable route. The typed schedule this gate reads from is still whatever the Stage 1 agent writes (section 20). `-BuildDir` is no longer `[Parameter(Mandatory)]`.
 
 Extracts every date, day name and time in scenario text **with the pack identifier it attaches to**, and checks it against the corpus's typed schedule and against itself.
 
@@ -729,7 +848,9 @@ Extracts every date, day name and time in scenario text **with the pack identifi
 
 **Runs at** Stage 2 for the namespace assertion, Stage 3c and Stage 4 for dangling-reference resolution. **Blocks.** **Invoked** `scripts\Assert-IdentifierNamespace.ps1 -BuildDir $out`.
 
-**Specified, not yet implemented.** Until it exists, the namespace assertion is performed by the Stage 2 agent when it locks the numbering plan, and cross-reference resolution by `Test-GuideRules -QuestionsInPack` for question references only. Appendix and section references are resolved by nobody, and no resolved index is written for the audit - so the false "non-existent section" finding below would have to be refuted by hand again.
+**Landed 4 Sep 2026 as `scripts\Assert-IdentifierNamespace.ps1`**, whose `# GATE:` header declares `stages=2,3c,4; requires=BuildDir; 2: SeedOnly`. Seed mode reads no spine: NS-COLLISION over `contract.identifierNamespace.guideOwns` against `identifierNamespace.packOwns` plus the head-anchored definitions in `withhold-register.json`, written to `identifier-namespace-seed-report.json`. `-Stage 2` without `-SeedOnly` is refused by name.
+
+**The cross-reference resolver is letter-capable** - "Appendix A" resolves and can be reported dangling - and **a vocabulary entry defines an identifier only where the identifier stands at the HEAD of it**, so "Appendix D - Stock on Hand Report, Monday 14 September 2026" defines Appendix D and does not define "Monday 14".
 
 **The guide's own appendix and section identifier scheme must not collide with any identifier scheme in the source pack.** A collision forces a qualified convention into the build contract *before* anything is authored. Every internal cross-reference must resolve to a target, and **the resolved cross-reference index is supplied to the audit stage as evidence**.
 
@@ -771,11 +892,11 @@ Everything a build would otherwise hard-code that is a property of **the RTO rat
 
 **The failure it exists to catch, and it is the root of the whole brand defect.** One palette role was named `Fill` on the object the swap actually passes and `lightFill` on the one the lookup expected. The lookup fell through to its own default, mapped the role to itself, and the apply loop skipped it. **Nothing was written and nothing errored** - a silent no-op that left 608 foreign light fills in the guide and 158 on the deck, found about two and a half hours after branding was first reported clean. A lookup that can silently return its own input must assert that it did not.
 
-### 29.3 Downstream palette injection - Stage 0, enforced at 7b-ii
+### 29.3 Downstream palette injection - Stage 0, enforced at 7b
 
-**Runs at** Stage 0 (pre-flight reads each styled sub-skill's config) and 7b-ii (placement passes the palette in). **Blocks.** **Invoked** `scripts\Assert-DownstreamPalette.ps1 -BuildDir $out`.
+**Runs at** Stage 0 (pre-flight reads each styled sub-skill's config) and 7b (placement passes the palette in). **Blocks.** **Invoked** `scripts\Assert-DownstreamPalette.ps1 -BuildDir $out`.
 
-**Specified, not yet implemented.** Until it exists, the injection is performed by the builder passing the resolved palette to `docx-images` by hand at 7b-ii, and nothing asserts that the sub-skill accepted it or that it would throw without one. The only thing that would see a wrong-brand repaint is the crossover sweep at 7c (`Check-Identity.ps1`), after the fact - which is where the 177 header rows below were found.
+**Status: NOT YET IMPLEMENTED** - performed today by: the builder passing the resolved palette to `docx-images` by hand at 7b, with nothing asserting that the sub-skill accepted it or that it would throw without one. The only thing that would see a wrong-brand repaint is the crossover sweep at 7c (`Check-Identity.ps1`), after the fact - which is where the 177 header rows below were found.
 
 **Every sub-skill or shared config that emits styled output must accept an injected palette, and must THROW when a caller that declared a brand supplies none.** No silent defaults. Pre-flight reads each such configuration, compares it to the brand resolved for THIS build, and fails if the sub-skill has no injection path. Where a repaint is genuinely unavoidable, it **registers that repaint as a required stage whose absence fails delivery**.
 
@@ -805,6 +926,14 @@ The gate **prints the count of what it checked and what it found**, asserts whic
 
 Every generation prompt is checked against the RTO profile's **house framing rules** and the artwork sub-skill's own **negative-constraint list**. It fails a prompt whose grammatical subject is a person noun where the house rule requires hands-and-equipment framing, and fails any prompt omitting a required negative constraint for its subject class. A string check over `visuals[].prompt` costing seconds.
 
+The walk asks for the front matter, so **`cover.json` is linted with everything else**: it plans the guide's first image under the singular name `visual`, and it is a blocking arm of its own.
+
+The gate also reconciles the spine's **Route A count against the artwork manifest's generated-slot count** (default `<build>\images\manifest.json`, overridden with `-ManifestPath`). The manifest's generated slots are counted with the same route predicate the spine is read with, so one definition decides both sides. A mismatch is a finding naming BOTH numbers.
+
+**Absent sub-skill.** An absent manifest is REFUSED BY NAME when the spine declares any Route B visual (the sub-skill is in use) or when `-RequireManifest` is passed. A guide-only build with no diagram kinds prints the absence by name and continues on the spine's declared kinds.
+
+**Arms.** `person-nouns`, `required-negatives`, `route-a-prompts`, `cover-visual` and `manifest-parity` block; `subject-classes` reports `examined = 0` unless the profile declares `imageFraming.subjectClassMandatory`, and it never passes silently. The old "no Route A prompt on the spine" exit 2 is now the `route-a-prompts` blocking check-set: same exit code, now on the roster and named in the refusal text.
+
 **False-positive control.** The subject test is a **closed person-noun list from the RTO profile**, matched at the head of the prompt's subject phrase - not a semantic judgement. The constraint test is set membership.
 
 **Allow-list:** required, per slot with a written reason, for the rare prompt where a person is the legitimate subject.
@@ -829,7 +958,7 @@ One minimum-cost probe of every external generation endpoint the build will use,
 
 **Runs at** 7b-i, in the background arm launched at the end of Stage 3b, once per generated image; again at Stage 7 step 7 for any slot whose figure content or prompt changed in the round; and its final check is part of the confirming read at 7d. **Blocks.** **Invoked** by a reader, not a script: the agent that launches the generation arm owns the review, and the arm is not finished until its record is written.
 
-**Who owns it: whoever launches 7b-i.** Under the serial pipeline the review was an inline step of placement and could not be skipped. Moving generation into the background took the review with it, and a background arm with no owner, no gate row and no ledger record is an arm that can simply not happen while every structural gate passes. So the launcher owns the review, names itself in the record, and **placement at 7b-ii may only use a slot with a passing review record.** An unreviewed image is not placed.
+**Who owns it: whoever launches 7b-i.** Under the serial pipeline the review was an inline step of placement and could not be skipped. Moving generation into the background took the review with it, and a background arm with no owner, no gate row and no ledger record is an arm that can simply not happen while every structural gate passes. So the launcher owns the review, names itself in the record, and **placement at 7b may only use a slot with a passing review record.** An unreviewed image is not placed.
 
 **What it checks, per image, at full scope.** No identifiable face. No lettering, numbers or signage text inside the image. No real brand, logo or trademark. Nothing that contradicts the document: wrong PPE, a non-Australian fitting or plug, unsafe practice - bare hands on ready-to-eat food is a food-safety defect on the page, not a styling quibble - or a subject that does not match the caption and alt text on the spine for that slot. A fail is a regeneration of that slot with its prompt corrected, never a quiet placement. The prompt lint in 30.1 removes the volume this review must wade through; it does not narrow what the review looks for.
 
@@ -846,6 +975,8 @@ One minimum-cost probe of every external generation endpoint the build will use,
 ## 31. Channel disposition, extract stamping, and the confirming read - blocking
 
 **Runs at** Stage 4 (stamping), Stage 5 and 6 (the review band), Stage 7d (the confirming read) and Stage 8 (delivery). **Blocks.** **Invoked** `Get-DocText` writes the stamp; `scripts\Assert-ChannelDisposition.ps1 -BuildDir $out` enforces it.
+
+- **`Assert-ChannelDisposition`**: **Status: NOT YET IMPLEMENTED** - performed today by: `Assert-WithholdRegister`'s rendered arm, for the withhold channels only. `Run-Gates.ps1` carries the entry and records it `not-implemented` in the results file's `partial[]`, so the stage cannot pass on a gate nobody ran without saying so. The stamping half is implemented and is described below.
 
 **Implemented: `scripts\Get-DocText.ps1` writes the stamp.** `FIGURES: n placed drawings, m unresolved artwork prompt blocks`, a `CHANNELS:` line with the counts that apply to the artefact (tables, slides, captions, alt texts, speaker notes), and `SOURCE: <file> SHA256: <byte pairs> EXTRACTED: <utc>`, then a blank line, then the text unchanged to the byte. Proven neutral on the reference build: the figure registry's rendered arm produced identical output, the leakage sweep an identical verdict and hit list, and the claims digest read the three lines and digested nothing from them. The hash is written as byte pairs because the registry sweeps extracts for numeric literals and a 64-hex run could contain one; with no digit run longer than two, no forbid can match inside the stamp. A fourth line, `FIGURE CONTENT NOT PRESENT IN THIS EXTRACT`, is written only when m is above zero.
 
@@ -868,7 +999,13 @@ FIGURE CONTENT NOT PRESENT IN THIS EXTRACT
 
 **The failure it exists to catch, and it is the process defect underneath the whole revision.** `Get-DocText` appends alt text so that "a review that skips it has not read the figures" - but **placement runs after the audit**, so that rule was **guaranteed vacuous in every pre-artwork round** and nothing detected the vacuity. Round 1 reported "every figure is missing", was correctly told that was expected at that stage, and **nobody drew the consequence that the figures had therefore never been read by anyone**. They were not read until round 3, four hours in, and round 3 failed the build. A placeholder contents page went the same way: closed on a claim about a later stage, and found unrebuilt a round afterwards.
 
-**The figure sheet** - the spine's visual entries dumped as plain text, one block per slot with rows, caption, alt text, slide bodies and speaker notes - is produced at Stage 3d and **travels with every later review pack**. That is what lets a reviewer read figure content whether or not a picture exists yet.
+**The figure sheet** - the spine's visual entries dumped as plain text, one block per slot with rows, caption, alt text, slide bodies and speaker notes - is cut by the 3c band in its phase 3, read and adjudicated at Stage 3d, and it **travels with every later review pack**. That is what lets a reviewer read figure content whether or not a picture exists yet.
+
+**`New-FigureSheet.ps1` inputs and stamps.** `-BuildDir`, `-BandResults` (blocking; default `3c-results.json`, and the runner hands it the interim `3c-band-verdict.json` written at its own join), `-SpineDir`, `-OutPath`. It **exits 2 with no file written** on a band that did not pass, a spine that moved, an empty visual set, or `-Force` without `-ForceReason`; the refusal names the failed members and both fingerprints. Every sheet stamps `SPINE-FINGERPRINT`, `BAND-VERDICT`, `BAND-RESULTS`, `BAND-RESULTS-SHA256` and `BAND-RAN-AT`, and `BAND-FORCED` / `BAND-PROBLEM` on a forced cut. **`Test-FigureSheetCurrent` requires `BAND-VERDICT: PASS`**, compares the fingerprint through `Test-GateFingerprintVersion` (which distinguishes "the format changed, re-cut" from "the spine moved") and treats an EMPTY expected fingerprint as a problem, never a match.
+
+**Its check-set.** `New-FigureSheet` declares one blocking check-set through `Write-GateCheckSet -Blocking -Input "the spine's visual entries in <spine dir>"`, derived from `Get-GateSpineVisuals ... -IncludeFrontMatter` so the cover counts. Zero visuals is `CHECK-SET EMPTY`, exit 2, no file written - not a sheet reporting its own emptiness.
+
+On the reference build the runner refused the cut and the old direct call cut the sheet 19 seconds later from that same failed spine. That route no longer exists.
 
 ---
 
@@ -876,7 +1013,7 @@ FIGURE CONTENT NOT PRESENT IN THIS EXTRACT
 
 **Runs at** Stage 7, every remediation round. **Blocks.** **Invoked** `scripts\Assert-EnumerateBeforeFix.ps1 -BuildDir $out -Finding <id>`.
 
-**Specified, not yet implemented.** Until it exists, the enumeration itself is performed by the two sweeps that do exist - `Test-FigureConsistency.ps1`, which once the registry rule is added lists every hit across the spine, the build scripts and both extracts; and `Check-FigureLeakage.ps1 -ReportPath`, which writes its complete hit list to a file - and the assertion that a finding cannot be closed without one is performed by nobody. So the Stage 7 ledger note must name the hit-list file per finding, or the closure is a sentence, which is the failure below.
+**Landed 4 Sep 2026 as `scripts\Assert-EnumerateBeforeFix.ps1`.** The enumerating sweeps it works from are `Test-FigureConsistency.ps1`, which lists every hit across the spine, the declared content sources and both extracts, and `Check-FigureLeakage.ps1 -ReportPath`, which writes its complete hit list to a file. The Stage 7 ledger note still names the hit-list file per finding, because a closure with no file behind it is a sentence, which is the failure below.
 
 **A finding cannot be marked closed without a machine-generated hit list across every content channel of every artefact, produced BEFORE the fix.** The fix must clear the whole list, and **the sweep is retained as a permanent registry rule that re-runs every round**. When an audit finds a defect **class**, the fix is not complete until the sweep has run over every channel and both artefacts, and the channel list it covered is recorded in the ledger.
 
@@ -894,7 +1031,25 @@ FIGURE CONTENT NOT PRESENT IN THIS EXTRACT
 
 **Runs at** Stage 7c, immediately after artwork placement - the last mutation of both artefacts. **Blocks.** **Invoked** `scripts\Run-Gates.ps1 -BuildDir $out -AfterArtwork` plus the spine band and the crossover sweep.
 
-**Implemented: `scripts\Run-Gates.ps1 -BuildDir $out [-PackDir] [-Brand] [-Variant] [-Rto] [-Cricos] [-UnitCode] [-AfterArtwork]`.** It derives the pack references from the pack's own content files, threads every parameter each gate's blocking rules depend on and PRINTS the list at the end so nothing can be omitted silently, fans nine gates out as jobs (guide, readability, deck, registry source arm, both extracts, mirror, identity on both artefacts, placed artwork) and then runs the registry's rendered arm and the leakage sweep on extracts it derives itself, REFUSES the leakage gate when `unit_extract.md` is absent rather than letting it degrade, and exits 0 only when every gate passes. On the reference build it reproduces the build copy's result in about 40 seconds against 46 serial. The whole-set assertion the gate table calls `Assert-FullRegateAfterMutation` remains specified, not implemented: nothing yet proves that a 7c run followed the LAST mutation.
+**Implemented: `scripts\Run-Gates.ps1 -BuildDir $out [-PackDir] [-Brand] [-Variant] [-Rto] [-Cricos] [-UnitCode] [-AfterArtwork] [-AllowPartial] [-SpineDir] [-RequireFresh] [-SkipPlantChannel]`.** It derives the pack references from the pack's own content files, threads every parameter each gate's blocking rules depend on and PRINTS the list at the end so nothing can be omitted silently, REFUSES the leakage gate when `unit_extract.md` is absent rather than letting it degrade, and exits 0 only when every gate passes. On the reference build it reproduces the build copy's result in about 40 seconds against 46 serial.
+
+**The Stage 4 and Stage 7c member list is `New-GateInvocationPlan` in `scripts\Run-Gates.ps1`. It is not repeated in this document.** Each entry carries the phase it runs in, the arguments threaded to it, the ones its blocking rules depend on (an undeclared one REFUSES the entry rather than being dropped) and the report file it must write. Run-Gates reads every gate's `# GATE: stages=` header at run time and FAILS naming any gate that declares itself a member of the stage and is not in the plan. A hand-listed member set in a document is a second source of truth that drifts from the plan the moment either is edited, and it is what let sections 16 to 18 promise a 7c re-run nobody performed.
+
+**The plan runs in three phases:** 1 fan-out (both extracts, the guide, deck, readability, brand crossover, the spine re-verification members and the static fixtures arm), 2 the grid disposition alone - after the three producers it reads have joined, threaded `-NotBefore` set to the runner's start so it cannot read an earlier round's report - and 3 the gates that read the extracts.
+
+**Two results files, and a Stage 4 run can never overwrite the 7c evidence.** A run without `-AfterArtwork` is Stage 4 and writes `4-results.json`; a run with it is 7c and writes `7c-results.json`. Entries the stage cannot run are recorded by name and reason in the results file's `partial[]`, never dropped: `placed` (`Check-Figures`) and the two rendered arms are `not-applicable` before artwork, and `Assert-ChannelDisposition` is `not-implemented`.
+
+**The runner REFUSES (exit 2) and runs nothing** when the spine's v2 fingerprint differs from the one stamped in the newest FULL `3c-results.json`, naming both fingerprints. A spine edited after the band was cut has been gated against no valid band. A `-Only` run's `3c-results.partial.json` is not the band and does not satisfy this.
+
+**Arm rosters.** Every member's `ARMS:` line is parsed by the runner with the same parser and the same result keys Run-SpineGates uses, case-sensitively. A blocking arm that neither ran nor was declared not applicable makes that member FAIL with `arm not run: <name>`, whatever the gate's own exit code was, and both the member and the arm are named in the results file and on the terminal.
+
+**`-RequireFresh` is Stage 8 only:** it runs no gate and writes nothing, and refuses (exit 2) when a delivered artefact was written after the results file that judges it, when its sha256 no longer matches, or when that file's verdict is not pass. Before the Stage 8 record, `Run-Gates.ps1 -BuildDir <dir> -RequireFresh` must exit 0.
+
+**`Assert-FullRegateAfterMutation` landed 4 Sep 2026** and derives the 7c set from the runner plan, this document and SKILL.md Stage 7c. Its arms:
+
+- **Arm I is BLOCKING**, not a warning: a gate that ran before its own input (the spine or `figures.json`) read something the document no longer renders.
+- **Arm K:** a delivered artefact newer than the results file that judges it, or whose sha256 no longer matches the one that file recorded. Named with the artefact, the file and both times.
+- **Arm H** gains a case: a gate whose only result comes from a run recording `afterArtwork = false` (`4-results.json`) has no 7c evidence, and is named as such rather than reading as a pass.
 
 **Standing rule: any stage that changes what is on the page is followed by the COMPLETE gate set, never a subset.**
 
@@ -914,9 +1069,17 @@ At 7c that means all of: guide rules with `-AfterArtwork`; deck rules; readabili
 
 **1. Staleness is proven from FILES and hashes, not from clock order in a ledger.** Delivery fails if any delivered artefact's hash or mtime is older than the newest file in the spine, the registry, or any input it renders from. **The ledger was the thing that lied, so the ledger cannot be the witness.**
 
+- **`Assert-Staleness`**: **Status: NOT YET IMPLEMENTED** - performed today by: the delivery-staleness rules implemented inside `Test-StageLedger` in `scripts\Stage-Ledger.ps1`. It recomputes each delivered artefact's sha256 against the newest 4/7c results payload and names both hashes on a mismatch, names an artefact whose last write postdates the run that judged it, names a payload that stamps no `artefacts[]` at all, and holds the spine fingerprint against `3c-results.json`.
+
 **2. Placement is a mutation, held to its own class.** `$script:LedgerRenders` is `4` and `7` and holds `4b`, `5` and `6`; `$script:LedgerPlacements` is `7b` and `7c` and holds `7c` and `7d`. The two classes are separate because they invalidate different things: a render assembles both artefacts from a fresh template, a placement changes the page without changing the prose. `7b` used to sit in the required list and in neither class, so a verdict taken before placement still counted as current. **Stage 5 is deliberately NOT held to placement** - nothing re-runs the personas after it, and a blocking rule no build can satisfy is how a check gets waived by whoever holds the delivery; what placement changes is figure content, and that is read at 3d, by the review band through the figure sheet, and at 7d against the placed page. **Delivery fails unless at least one Stage 6-class verdict - a Stage 6 record or the 7d confirming read - postdates the newest placement** (section 31). `Test-Pipeline.ps1` proves both halves: placement makes 7c stale, and re-running 7c and 7d clears it.
 
 **3. Ledger honesty.** Each stage appends its own real start and end timestamps **as it completes**. **Two records in different stages sharing a timestamp to the second fail** as the mechanical signature of retroactive batch-writing. The one tunable is that same-second rule, and it needs a documented carve-out for stages that genuinely finish within a second of each other: **record sub-second precision and compare start AND end**, which is enough to separate a real coincidence from a batch flush.
+
+- **`Assert-LedgerIntegrity`**: **Status: NOT YET IMPLEMENTED** - performed today by: the span and same-second rules implemented inside `Test-StageLedger` in `scripts\Stage-Ledger.ps1`. It reports a legacy utc-only record, names a record written with neither `-Started` nor `-Ended`, refuses a blocking stage whose started equals its ended, and names any two DIFFERENT stages that end in the same second unless both spans are known and do not overlap.
+
+The carve-out is exactly that last clause, and it is declared rather than assumed: two records of DIFFERENT stages may share an ended-second **only** when both spans are known and do not overlap. `utc` is an APPEND time and no rule reads it as a span; legacy records that carry only one are REPORTED, never accepted. On one build 21 of 33 records sat within 0.1 s of their predecessor, which is a list of intentions, not a record of what happened.
+
+**A PS 5.1 trap this rule paid for, worth carrying into any gate.** `@($listOfObject)` - the array subexpression over a `System.Collections.Generic.List[object]` - throws `Argument types do not match` on PowerShell 5.1.26100, while `foreach`, `.ToArray()`, `[object[]]` and the pipeline all work. It bit the same-second rule: the whole rule threw and checked nothing while every structural test still passed. Use `.ToArray()`.
 
 **4. Stage 8's record must enumerate which mandated sweeps actually ran**, and a substituted script must record what it does **not** cover. **No report may state measured counts unless it postdates the final gate run and every artefact it describes.**
 
@@ -934,9 +1097,47 @@ At 7c that means all of: guide rules with `-AfterArtwork`; deck rules; readabili
 
 **Real portability findings from the same sweep**, each verified against the source before being written here: `Test-DeckRules.ps1` hard-codes one RTO's trading name and its RTO and CRICOS codes while building the template's placeholder vocabulary, so another RTO's template would have its own branding read as unfilled placeholder text; `Check-Identity.ps1` hand-lists ten identity field names that `rto-profile.schema.json` already declares and `Get-RtoProfile.ps1` already reads from it; `Stage-Ledger.ps1` ends on a condition requiring both a switch and a path, so a caller that omits either exits 0 having checked no ledger at all. Twenty-seven presence tests are written as `@($x).Count -gt 0` on a property, which answers YES for a property that does not exist.
 
-**Runs at** Stage 0 (fixtures, hygiene, portability), Stage 4 (source scoping), and continuously over every gate's allow-list. **Blocks.** **Invoked** `scripts\Assert-GateFixtures.ps1 -SkillDir $SkillDir` and `scripts\Assert-GateHygiene.ps1 -BuildDir $out`. These are the enforcement of the five rules at the top of this file.
+**Runs at** Stage 0 (fixtures, hygiene, portability), Stage 4 (source scoping), and continuously over every gate's allow-list. **Blocks.** **Invoked** `scripts\Assert-GateFixtures.ps1 -SkillDir $SkillDir -StaticOnly -ResultDir <dir>` as a band member (and `-BuildDir <lean copy>` for the full plant channel, off every critical path), and `scripts\Assert-GateHygiene.ps1 -BuildDir $out`. These are the enforcement of the five rules at the top of this file.
 
-**Both specified, not yet implemented.** Until they exist: **fixtures** are performed piecemeal - `scripts\Test-Pipeline.ps1 -SkipOffice` plants a word-form variant for the registry gate, omits every degrading parameter for the two rules gates, and drives the ledger through missing, skipped, stale, `n-a`, partial and stale-figure-sheet states (47 checks, passing on 3 September 2026); `Check-Identity.ps1 -SelfTest` plants a forbidden token in a copy of a real part and verifies the plant landed. `Check-FigureMirror.ps1`, `Check-FigureLeakage.ps1`, `Check-Figures.ps1`, `Test-SpineRead.ps1` and `Get-RtoProfile.ps1` have no seeded-defect fixture in the skill, so a clean result from any of them is a result rule 2 says not to trust yet. **Hygiene and portability** are performed by nobody: `Test-FigureConsistency.ps1` still scans every `.ps1` in the build directory behind a filename-regex exclusion, which is the behaviour this section says was replaced, and no script scans a gate for a literal unit code, RTO code or hex. **Allow-list discipline** is performed by `Get-GateAllowList` in `Lib-GateCommon.ps1`, which refuses an entry with no reason, for the gates that read their allow-lists through it.
+**Both are on disk.** `Check-Figures.ps1`, `Test-SpineRead.ps1` and `Get-RtoProfile.ps1` have no seeded-defect fixture in the skill, so a clean result from any of them is a result rule 2 says not to trust yet. `Check-FigureMirror.ps1`, `Check-FigureLeakage.ps1`, `Check-ShapeMirror.ps1`, `Check-RowCoverage.ps1` and `Test-GridDisposition.ps1` each carry a `-SelfTest` that plants every defect the file claims to catch, reads the plant back from the fixture before trusting the verdict, and keeps a negative control (8 Sep 2026: 19, 17, 19, 19 and 23 checks, all passing). Further cover: `scripts\Test-Pipeline.ps1 -SkipOffice` plants a word-form variant for the registry gate, omits every degrading parameter for the two rules gates, and drives the ledger through missing, skipped, stale, `n-a`, partial and stale-figure-sheet states; `Check-Identity.ps1 -SelfTest` plants a forbidden token in a copy of a real part and verifies the plant landed. **Allow-list discipline** is performed by `Get-GateAllowList` in `Lib-GateCommon.ps1`, which refuses an entry with no reason, for the gates that read their allow-lists through it.
+
+### 35.1 Two modes, on different paths of the pipeline
+
+`Assert-GateFixtures` runs in two modes and they sit on different paths.
+
+**`-StaticOnly`** spawns no process. It derives the gate set from `scripts\*.ps1`, parses every script, reads every `# GATE:` header and reconciles it against the ledger stage table, this document's stage table and both runner plans, reconciles every fixture recipe against the disk, and reports a BLOCKING gate that has neither a `-SelfTest` switch nor a recipe. Measured on this skill: about 5.5 s over 54 scripts. It is the band member - Run-SpineGates plans it at phase 1 with `-Must @('SkillDir', 'StaticOnly', 'ResultDir')` - and it writes `gate-fixtures.static.json` into `-ResultDir`.
+
+**The full plant channel** (`-BuildDir`, a lean copy) is the strong channel and never sits on a band's critical path. It writes `gate-fixtures.<hash>.json`, where `<hash>` is the sha256 over every `scripts\*.ps1` plus the recipe set, stamped inside the file as well as in its name, so a reader can always tell which scripts a verdict is about. Measured: about 3 minutes for three gates against the SITXINV007 evidence copy. Both runners read the newest such file and print UNPROVEN beside every member it did not prove.
+
+### 35.2 What PROVEN means, and what no longer counts
+
+`FailsOnPlant` is true only when ALL of these hold: the planted run did not time out, it exited non-zero, its output NAMED the plant, the clean arm RAN, and the clean exit DIFFERS from the planted exit. Otherwise the row is UNPROVEN and the reason names BOTH exit codes.
+
+Only **PROVEN** counts toward exit 0. PROVEN-NOCLEAN and PROVEN-SELFTEST are tallied separately and printed, and the tally line says so.
+
+An anchor is at least three characters and must be ABSENT from the gate's clean output. A removal plant has no value to quote back, so its recipe declares an `ExpectRx` that the failing output must match, and that pattern is the anchor instead. (`Check-ShapeMirror`'s recipe uses one: that gate deliberately prints no quotation, because it sweeps assessor-only material, so its anchor is the `ARMS:` roster line showing the blocking full-rows arm ran and found at least one.)
+
+**The exit is split by Blocks.** Exit 0 requires every **Blocks=yes** gate PROVEN. Non-blocking rows and JUDGEMENT-ONLY rows - stage-table rows the table itself records as performed by a reader with a verdict, which no fixture can plant into - are reported and never decide the exit. A FAIL row (an orphan recipe naming a gate that is not on disk, or a gate that does not parse) exits 1 on its own.
+
+### 35.3 The refusal probe is no longer a directory sweep
+
+The bare refusal probe runs only the scripts the ledger stage table binds to a stage, through its `Script` column. `-WhatIf` is added only when the script's `CmdletBinding` declares `SupportsShouldProcess`, read from the syntax tree; a script that does not declare it is probed WITHOUT `-WhatIf` and the row records that, because passing `-WhatIf` to a script that cannot take it is a binding error that would read as a refusal it never made. A script outside the table is recorded NOT PROBED, never as "exits 0 on nothing". This is what stops the probe running `Patch-GuideTemplateGeometry` (it patches a template it resolves for itself) and `Probe-GenerationEndpoints` (it spends image credit) bare.
+
+### 35.4 The stage table is read by syntax tree
+
+`Assert-GateFixtures` reads `$script:LedgerStages` from `Stage-Ledger.ps1` by walking the HashtableAst rows of the one literal assignment. It never dot-sources the file: a dot-sourced `param()` block clobbers the caller's variables, a half-written file yields a SHORT table that would be read as agreement, and executing a file to learn what it declares runs whatever else it declares. With no table on disk the run reports "stage table not found" as a NAMED PARTIAL and exits 3 - never a pass.
+
+The three round-6 leak recipes (withhold, shape-mirror, figure-mirror) are written against a **SYNTHETIC fixture**, not the SITHCCC032 text: the exact prose the audit cites is not present in the evidence copies, so the recipes plant the equivalent defect - an assessed grid's answer column reproduced in a spine table - into a fixture the harness builds itself.
+
+### 35.5 Gate hygiene has three statuses, not two
+
+`Assert-GateHygiene` reports CONFIRMED, SUSPECTED and **REPORT**. A REPORT row is a CONFIRMED row that an independent audit re-read and refuted: the detector is wrong at that line, not the gate under it. Those rows are named, one per file and line with a written reason, in `assets\gate-hygiene.reclassified.json`, and the gate prints each of them with its reason.
+
+**Every rule stays blocking.** Narrowing the blocking set to the rules that happened to be right would have switched off live checks. A row the list does not name still fails the gate, including another row of the same rule in the same file.
+
+The list is meant to be **short-lived**. When P1-18 fixes the detectors each entry stops matching and is printed as STALE. A stale entry silences nothing, so it does not block; it is printed, counted in the report, and named in Stage 0's `partial[]`.
+
+Three further rules, all blocking: a rule that **throws** on a file is CONFIRMED (that file was never inspected by it, and a rule that cannot run clears nothing); a file that cannot be read **leaves the denominator** and is named, so "scanned N scripts" means N scripts were read; and `-Only` naming a rule id the gate does not have **exits 2**, because a name that matches no rule used to filter every rule out and report a partial run with no findings, which reads exactly like a clean one.
 
 **FIXTURES.** Every gate must be shown to FAIL on a seeded-defect fixture before any clean result from it is trusted, **and the plant must itself be verified to have landed** (rule 2).
 
@@ -960,7 +1161,7 @@ At 7c that means all of: guide rules with `-AfterArtwork`; deck rules; readabili
 
 **Runs at** Stage 0 as policy, enforced at Stage 5 and 6, at 6b, at 7b-i and at 7d. **Blocks.** **Invoked** by the orchestrator around every long-running judgement stage.
 
-**`Assert-LongStageOutputContract` is specified, not yet implemented.** There is no script; the contract is a policy the orchestrating agent applies by hand - create the file first, check it is non-empty inside the deadline, keep the heartbeat, resume from disk. Nothing asserts any of it, so a judgement stage that writes at the end fails exactly as the third audit below did, and only its absence from the ledger says so afterwards.
+- **`Assert-LongStageOutputContract`**: **Status: NOT YET IMPLEMENTED** - performed today by: nobody; the contract is a policy the orchestrating agent applies by hand - create the file first, check it is non-empty inside the deadline, keep the heartbeat, resume from disk. Nothing asserts any of it, so a judgement stage that writes at the end fails exactly as the third audit below did, and only its absence from the ledger says so afterwards.
 
 **Every long-running judgement stage creates its output file and writes its header and scope section BEFORE analysis begins**, then appends each section as it completes. The orchestrator asserts the file exists and is non-empty within a short deadline of the stage starting, keeps a **heartbeat** so a dead run is detected in seconds rather than at the deadline, and **on restart the stage resumes by reading what it already wrote**.
 
