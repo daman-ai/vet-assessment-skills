@@ -49,11 +49,39 @@
     THE IMAGE REVIEW IS NOT WEAKENED. It keeps its full scope and authority;
     this removes the volume it has to wade through.
 
+    THE COVER IS LINTED WITH EVERYTHING ELSE. cover.json plans the guide's
+    first image under the SINGULAR name 'visual', and every visuals gate read
+    only the plural, so the one image a reader sees before anything else was
+    linted, sheeted, mirrored and reconciled by nobody. The walk here asks for
+    the front matter explicitly, and the cover is an arm of its own.
+
+    AND THE ROUTE A COUNT IS RECONCILED AGAINST THE ARTWORK MANIFEST. The
+    sub-skill's manifest is what actually gets generated; the spine is what was
+    planned. Where the two disagree, either an image is paid for that nothing
+    plans or a planned illustration is never made, and until now nothing
+    compared them. The manifest's GENERATED slots are counted with the SAME
+    route predicate this file applies to the spine, so one definition decides
+    both sides.
+
+    ABSENT SUB-SKILL, settled once for P0-11 and P3-14: an absent manifest is
+    REFUSED BY NAME when the spine declares any Route B visual (this build uses
+    the sub-skill) or when the comparison is asked for with -RequireManifest. A
+    guide-only build with no diagram kinds prints the absence by name and
+    continues on the spine's declared kinds.
+
     No API call. No unit code, brand or build path is typed in this file.
     PS 5.1. ASCII only in this file.
-    Exit 0 every Route A prompt passes; 1 at least one fails; 2 a usage error
-    (no profile, no spine, nothing to lint); 4 the self-test failed.
+    Exit 0 every Route A prompt passes; 1 at least one fails; 2 a usage error,
+    an empty blocking check-set, or an absent input refused by name; 4 the
+    self-test failed.
+
+    ARMS (Lib-GateCommon roster): person-nouns, required-negatives,
+    route-a-prompts, cover-visual and manifest-parity are BLOCKING;
+    subject-classes is advisory unless the profile declares it mandatory, and
+    reports examined = 0 rather than passing silently.
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
@@ -63,6 +91,13 @@ param(
     [string] $Profile,
     [string] $SpineDir,
     [string] $SkillDir,
+    #  The docx-images manifest this build's artwork is generated from.
+    #  Default: <BuildDir>\images\manifest.json.
+    [string] $ManifestPath,
+    #  Ask for the manifest comparison outright. Without it the comparison is
+    #  still required whenever the spine declares a Route B visual - see the
+    #  absent-sub-skill rule above.
+    [switch] $RequireManifest,
     [switch] $SelfTest,
     [switch] $Quiet
 )
@@ -83,6 +118,9 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
 
 $GATE = 'Assert-PromptLint'
+#  This script's own path, for the self-test's child runs ($PSCommandPath is
+#  empty inside a function, so it is captured once here at script scope).
+$script:PlSelf = $PSCommandPath
 
 #  Function words that END a subject phrase. The head of the subject is what
 #  sits before the first of these; a person noun after one is inside a
@@ -286,10 +324,33 @@ function Test-RouteA {
 # 3. The lint
 # ---------------------------------------------------------------------------
 
+function Get-PlManifestGeneratedSlot {
+    <#  The slots the ARTWORK MANIFEST says are generated, counted with the same
+        route predicate this file applies to the spine, so one definition
+        decides both sides of the comparison. A placeholder counts when its
+        kind is a Route A kind (or it carries no spec and no Route B kind),
+        which is exactly Test-RouteA.  #>
+    param([string] $Path)
+    $j = Get-GateJson -Path $Path
+    if ($null -eq $j) { return $null }
+    $slots = New-Object System.Collections.Generic.List[string]
+    foreach ($p in @(Get-GateProp -Object $j -Names @('placeholders', 'entries', 'images') -Default @())) {
+        if ($null -eq $p) { continue }
+        $v = [pscustomobject]@{
+            Kind = [string](Get-GateProp -Object $p -Names @('kind', 'type'))
+            Spec = (Get-GateProp -Object $p -Names @('spec'))
+        }
+        if (Test-RouteA $v) { $slots.Add([string](Get-GateProp -Object $p -Names @('slot', 'id', 'figure'))) }
+    }
+    return $slots.ToArray()
+}
+
 function Invoke-PromptLint {
     param($Rules, [string] $BuildDir, [string] $SpineDir, [hashtable] $ExtraAllow)
 
-    $visuals = @(Get-GateSpineVisuals -BuildDir $BuildDir -SpineDir $SpineDir)
+    #  -IncludeFrontMatter IS LOAD-BEARING. Without it cover.json is outside the
+    #  walk and the guide's first image is linted by nobody.
+    $visuals = @(Get-GateSpineVisuals -BuildDir $BuildDir -SpineDir $SpineDir -IncludeFrontMatter)
     $allow = @{}
     foreach ($k in $Rules.Allow.Keys) { $allow[$k] = $Rules.Allow[$k] }
     if ($null -ne $ExtraAllow) { foreach ($k in $ExtraAllow.Keys) { $allow[$k] = $ExtraAllow[$k] } }
@@ -350,11 +411,21 @@ function Invoke-PromptLint {
         })
     }
 
+    #  The cover is one of the walked files, not a special case in the lint: it
+    #  is linted by the same rules and only COUNTED separately, so its arm can
+    #  say whether it was examined at all.
+    $coverResults = @($results | Where-Object { "$($_.File)" -eq 'cover.json' })
+    #  The subjectClass arm reports what it EXAMINED. A prompt that declares no
+    #  class is not a prompt that passed the class rule.
+    $classDeclared = @($results | Where-Object { @($_.Classes | Where-Object { $_ -ne 'any' -and $_ -ne 'person-present' }).Count -gt 0 })
+
     return [pscustomobject]@{
         Results = $results.ToArray(); Visuals = $visuals.Count
         RouteA = $routeA; RouteB = $routeB
         KindsA = @($kindsA | Sort-Object); KindsB = @($kindsB | Sort-Object)
         Allow = $allow
+        Cover = $coverResults
+        SubjectClassExamined = $classDeclared.Count
     }
 }
 
@@ -459,6 +530,91 @@ function Invoke-LintSelfTest {
     }
     finally { Remove-Item -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue }
 
+    # -----------------------------------------------------------------------
+    # THE COVER AND THE MANIFEST (P0-11), proved through the EXIT CODE a runner
+    # reads. These run THIS script as a child: the cover arm, the manifest
+    # reconciliation and the absent-sub-skill rule all live at the top level.
+    # -----------------------------------------------------------------------
+
+    $root2 = Join-Path ([System.IO.Path]::GetTempPath()) ('apl_cover_' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    try {
+        $enc = New-Object System.Text.UTF8Encoding($true)
+        $cleanPrompt = $framing + ("Close view of gloved hands weighing diced potato on a bench scale at a stainless steel bench. {0}." -f ($anyAll -join ', '))
+        $facePrompt  = ("A {0} in whites looks up from the pass while checking a delivery docket. {1}." -f $noun, ($anyAll -join ', '))
+
+        function New-PlFixture {
+            param([string] $Dir, [string] $CoverPrompt, [int] $ManifestGenerated = -1, [switch] $NoRouteB)
+            New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'spine') | Out-Null
+            [System.IO.File]::WriteAllText((Join-Path $Dir 'contract.json'), (([ordered]@{ build = [ordered]@{ brand = '' }; unit = [ordered]@{ code = 'FIXTURE001' } }) | ConvertTo-Json -Depth 8), $enc)
+            $vis = New-Object System.Collections.Generic.List[object]
+            $vis.Add([ordered]@{ slot = '9.1.1'; kind = 'Image'; prompt = $script:PlCleanPrompt; caption = 'hands only, clean' })
+            if (-not $NoRouteB) { $vis.Add([ordered]@{ slot = '9.1.2'; kind = 'Diagram'; prompt = 'A flow of the order line.'; caption = 'Route B'; spec = [ordered]@{ layout = 'table'; rows = @(@('Step', 'Do')) } }) }
+            $sub = [ordered]@{ ref = '9.1'; pc = '9.1'; topic = 9; title = 'Fixture'; visuals = $vis.ToArray() }
+            [System.IO.File]::WriteAllText((Join-Path $Dir 'spine\t9_9.1.json'), ($sub | ConvertTo-Json -Depth 10), $enc)
+            #  The cover plans its image under the SINGULAR name, which is the
+            #  shape every visuals gate used to miss.
+            $cover = [ordered]@{ title = 'Fixture cover'; visual = [ordered]@{ slot = '0.1'; kind = 'Image'; prompt = $CoverPrompt; caption = 'cover image' } }
+            [System.IO.File]::WriteAllText((Join-Path $Dir 'spine\cover.json'), ($cover | ConvertTo-Json -Depth 10), $enc)
+            if ($ManifestGenerated -ge 0) {
+                New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'images') | Out-Null
+                $ph = New-Object System.Collections.Generic.List[object]
+                for ($i = 1; $i -le $ManifestGenerated; $i++) { $ph.Add([ordered]@{ id = ('IMG-{0:d3}' -f $i); slot = ('9.1.' + $i); kind = 'illustration'; status = 'generated' }) }
+                if (-not $NoRouteB) { $ph.Add([ordered]@{ id = 'DIA-001'; slot = '9.1.9'; kind = 'diagram'; status = 'drawn'; spec = [ordered]@{ layout = 'table' } }) }
+                [System.IO.File]::WriteAllText((Join-Path $Dir 'images\manifest.json'), (([ordered]@{ sourceDocument = 'fixture.docx'; placeholders = $ph.ToArray() }) | ConvertTo-Json -Depth 10), $enc)
+            }
+            return $Dir
+        }
+        $script:PlCleanPrompt = $cleanPrompt
+
+        function Invoke-PlChild {
+            param([string] $Build, [int] $Expect, [string[]] $Names, [string] $What, [switch] $Require)
+            $out = ''
+            $args = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $script:PlSelf, '-BuildDir', $Build, '-Profile', $Rules.Path)
+            if ($Require) { $args += '-RequireManifest' }
+            try { $out = (& powershell.exe @args 2>&1 | Out-String -Width 4096) } catch { $out = "$($_.Exception.Message)" }
+            $code = $LASTEXITCODE
+            $missing = @($Names | Where-Object { $out.IndexOf($_, [System.StringComparison]::OrdinalIgnoreCase) -lt 0 })
+            if ($code -eq $Expect -and $missing.Count -eq 0) { & $ok ("{0} -> exit {1}, naming {2}" -f $What, $code, (($Names | ForEach-Object { "'" + $_ + "'" }) -join ' and ')) }
+            else {
+                & $bad ("{0} -> exit {1} (wanted {2}); not named: {3}" -f $What, $code, $Expect, $(if ($missing.Count) { ($missing -join ' | ') } else { 'nothing' }))
+                foreach ($ln in @(($out -split "`r?`n") | Where-Object { $_.Trim() } | Select-Object -Last 5)) { Write-Host ("      | {0}" -f $ln) -ForegroundColor DarkGray }
+            }
+        }
+
+        #  0. the clean control: cover clean, manifest agrees (2 Route A: the
+        #     sub-section image and the cover).
+        $b0 = New-PlFixture -Dir (Join-Path $root2 'clean') -CoverPrompt $cleanPrompt -ManifestGenerated 2
+        Invoke-PlChild -Build $b0 -Expect 0 -Names @('ARMS: ', 'cover-visual|true|ran|1', 'manifest-parity|true|ran|2') -What 'clean cover with a manifest that agrees'
+
+        #  1. A FACE-NAMING COVER PROMPT. Verified to have landed first.
+        $b1 = New-PlFixture -Dir (Join-Path $root2 'facecover') -CoverPrompt $facePrompt -ManifestGenerated 2
+        $backCover = Get-GateFileText -Path (Join-Path $b1 'spine\cover.json')
+        if ($backCover.IndexOf($noun, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) { & $bad 'cover plant did not land: the person noun is not in cover.json' }
+        else {
+            Write-Host ("    plant landed: the cover prompt names a {0} as its subject" -f $noun) -ForegroundColor DarkGray
+            Invoke-PlChild -Build $b1 -Expect 1 -Names @('cover.json', $noun) -What 'a face-naming cover prompt fails naming cover.json'
+        }
+
+        #  2. A ROUTE A COUNT THAT DISAGREES WITH THE MANIFEST. 2 planned, 5
+        #     generated: both numbers must be named.
+        $b2 = New-PlFixture -Dir (Join-Path $root2 'countgap') -CoverPrompt $cleanPrompt -ManifestGenerated 5
+        $gen = @(Get-PlManifestGeneratedSlot -Path (Join-Path $b2 'images\manifest.json'))
+        if ($gen.Count -ne 5) { & $bad ("count plant did not land: the fixture manifest declares {0} generated slot(s), wanted 5" -f $gen.Count) }
+        else {
+            Write-Host '    plant landed: the manifest declares 5 generated slots against 2 planned Route A prompts' -ForegroundColor DarkGray
+            Invoke-PlChild -Build $b2 -Expect 1 -Names @('2 Route A prompt', '5 generated slot') -What 'a Route A count differing from the manifest fails naming both numbers'
+        }
+
+        #  3. THE ABSENT-SUB-SKILL RULE, both halves. Route B declared and no
+        #     manifest is a refusal naming the manifest; a guide-only build
+        #     with no Route B prints the absence and continues.
+        $b3 = New-PlFixture -Dir (Join-Path $root2 'nomanifest') -CoverPrompt $cleanPrompt
+        Invoke-PlChild -Build $b3 -Expect 2 -Names @('CHECK-SET EMPTY', 'manifest.json', 'Route B') -What 'an absent manifest with a Route B visual on the spine is refused by name'
+        $b4 = New-PlFixture -Dir (Join-Path $root2 'guideonly') -CoverPrompt $cleanPrompt -NoRouteB
+        Invoke-PlChild -Build $b4 -Expect 0 -Names @('artwork manifest absent', 'manifest.json', 'manifest-parity|false|empty') -What 'a guide-only build with no Route B prints the absence by name and continues'
+    }
+    finally { Remove-Item -LiteralPath $root2 -Recurse -Force -ErrorAction SilentlyContinue }
+
     Write-Host ''
     Write-Host ("  self-test: {0} passed, {1} failed" -f $script:stPass, $script:stFail) -ForegroundColor $(if ($script:stFail) { 'Red' } else { 'Green' })
     return $script:stFail
@@ -494,9 +650,113 @@ catch { Write-Host ("  X {0}" -f $_.Exception.Message) -ForegroundColor Red; exi
 
 Write-LintReport -Rules $rules -Run $run -Quiet:$Quiet
 
-if ($run.RouteA -eq 0) {
-    Write-Host ("  X {0}: no Route A prompt on the spine ({1} visual(s), all Route B). A lint with nothing to lint passes by having nothing to check; if this build genuinely generates no illustration, record that at Stage 3b." -f $GATE, $run.Visuals) -ForegroundColor Red
-    exit 2
+# ---------------------------------------------------------------------------
+# The arm roster, the cover arm, and the manifest reconciliation
+# ---------------------------------------------------------------------------
+
+if (-not $ManifestPath) { $ManifestPath = Join-Path $BuildDir 'images\manifest.json' }
+$manifestPresent = (Test-Path -LiteralPath $ManifestPath)
+#  A build that declares a Route B visual is a build that uses the sub-skill,
+#  so its manifest is not optional. Derived from the spine, never declared.
+$manifestRequired = ($RequireManifest -or $run.RouteB -gt 0)
+
+$plNa = @{}
+try {
+    foreach ($arm in @('cover-visual', 'manifest-parity')) {
+        $r = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm $arm
+        if ($r) { $plNa[$arm] = $r }
+    }
 }
+catch { Write-Host ("  X {0}: {1}" -f $GATE, $_.Exception.Message) -ForegroundColor Red; exit 2 }
+
+#  The profile decides whether the subjectClass arm blocks. It reports
+#  examined = 0 otherwise - never a green line over an arm that saw nothing.
+$classMandatory = $false
+$imf = Get-GateProp -Object (Get-GateJson -Path $rules.Path) -Names @('imageFraming')
+if ($null -ne $imf) {
+    $sc = Get-GateProp -Object $imf -Names @('subjectClassMandatory', 'requireSubjectClass')
+    if ("$sc" -match '^(?i)(true|yes|1)$') { $classMandatory = $true }
+}
+
+Reset-GateArmRoster
+Register-GateArm -Name 'person-nouns' -Blocking
+Register-GateArm -Name 'required-negatives' -Blocking
+Register-GateArm -Name 'route-a-prompts' -Blocking
+Register-GateArm -Name 'cover-visual' -Blocking:(-not $plNa.ContainsKey('cover-visual'))
+Register-GateArm -Name 'manifest-parity' -Blocking:($manifestRequired -and -not $plNa.ContainsKey('manifest-parity'))
+Register-GateArm -Name 'subject-classes' -Blocking:$classMandatory
+
+$plFail = 0
+$plRoster = @()
+try {
+    Write-GateCheckSet -What 'person noun(s)' -Count $rules.PersonNouns.Count -DerivedFrom ('imageFraming.personNouns in ' + (Split-Path $rules.Path -Leaf)) -Blocking -Input ($rules.Path + ' imageFraming.personNouns - the closed list the subject rule is matched against yielded nothing, so no prompt could fail on its subject')
+    Complete-GateArm -Name 'person-nouns' -State 'ran' -Size $rules.PersonNouns.Count
+
+    $negCount = 0
+    foreach ($k in $rules.Negatives.Keys) { $negCount += @($rules.Negatives[$k]).Count }
+    Write-GateCheckSet -What 'required negative phrase(s), all classes' -Count $negCount -DerivedFrom ('imageFraming.requiredNegatives in ' + (Split-Path $rules.Path -Leaf)) -Blocking -Input ($rules.Path + ' imageFraming.requiredNegatives - not one required phrase is declared, so no prompt could fail on a missing negative')
+    Complete-GateArm -Name 'required-negatives' -State 'ran' -Size $negCount
+
+    Write-GateCheckSet -What 'Route A prompt(s) linted' -Count $run.RouteA -DerivedFrom ("the spine's own visuals, front matter included ({0} visual(s), {1} Route B)" -f $run.Visuals, $run.RouteB) -Blocking -Input ('the spine under ' + $BuildDir + ': no Route A prompt at all (' + $run.Visuals + ' visual(s), all Route B). A lint with nothing to lint passes by having nothing to check; if this build genuinely generates no illustration, declare it in contract.json gateArms')
+    Complete-GateArm -Name 'route-a-prompts' -State 'ran' -Size $run.RouteA -Findings @($run.Results | Where-Object { -not $_.Pass }).Count
+
+    if ($plNa.ContainsKey('cover-visual')) { Complete-GateArm -Name 'cover-visual' -State 'declared-n-a' -Reason $plNa['cover-visual'] }
+    else {
+        Write-GateCheckSet -What 'cover visual(s) linted' -Count @($run.Cover).Count -DerivedFrom "cover.json's own visual node, singular or plural, walked with the front matter" -Blocking -Input ((Join-Path $BuildDir 'spine\cover.json') + ' - no visual could be read from the cover, so the guide''s first image was linted by nobody')
+        Complete-GateArm -Name 'cover-visual' -State 'ran' -Size @($run.Cover).Count -Findings @($run.Cover | Where-Object { -not $_.Pass }).Count
+    }
+
+    if ($plNa.ContainsKey('manifest-parity')) { Complete-GateArm -Name 'manifest-parity' -State 'declared-n-a' -Reason $plNa['manifest-parity'] }
+    elseif ($manifestPresent) {
+        $genSlots = Get-PlManifestGeneratedSlot -Path $ManifestPath
+        if ($null -eq $genSlots) { throw ("CHECK-SET EMPTY: {0} is present and unreadable, so the generated-slot count could not be derived from it." -f $ManifestPath) }
+        $genCount = @($genSlots).Count
+        Write-GateCheckSet -What 'generated slot(s) in the artwork manifest' -Count $genCount -DerivedFrom ((Split-Path $ManifestPath -Leaf) + ' placeholders, counted with the same route predicate the spine is read with') -Blocking -Input ($ManifestPath + ' - the manifest is present and declares no generated slot, so the Route A count would be compared against nothing')
+        if ($genCount -ne $run.RouteA) {
+            Write-Host ("  X {0}: the spine plans {1} Route A prompt(s) and {2} declares {3} generated slot(s). One of them is wrong: either an image is generated that nothing plans, or a planned illustration is never made." -f $GATE, $run.RouteA, (Split-Path $ManifestPath -Leaf), $genCount) -ForegroundColor Red
+            $plFail++
+        }
+        elseif (-not $Quiet) {
+            Write-Host ("  manifest parity: {0} Route A prompt(s) on the spine = {1} generated slot(s) in {2}" -f $run.RouteA, $genCount, (Split-Path $ManifestPath -Leaf)) -ForegroundColor DarkGray
+        }
+        Complete-GateArm -Name 'manifest-parity' -State 'ran' -Size $genCount -Findings $plFail
+    }
+    elseif ($manifestRequired) {
+        #  THE ABSENT-SUB-SKILL RULE. Refused BY NAME, because this build's own
+        #  spine declares a Route B visual (or the comparison was asked for).
+        throw ("CHECK-SET EMPTY: {0} is absent and this build needs it - the spine declares {1} Route B visual(s), so the artwork sub-skill is in use and its manifest is what actually gets generated. Supply the manifest, or declare gateArms.{2}.manifest-parity applicable:false with a written reason." -f $ManifestPath, $run.RouteB, $GATE)
+    }
+    else {
+        #  A guide-only build with no diagram kind: print the absence BY NAME
+        #  and continue on the spine's declared kinds.
+        Write-Host ("  ! artwork manifest absent: {0}. This build declares no Route B visual, so the sub-skill is not in use and the Route A count is not reconciled against anything. Named here so its absence is on the record." -f $ManifestPath) -ForegroundColor Yellow
+        Complete-GateArm -Name 'manifest-parity' -State 'empty'
+    }
+
+    if ($classMandatory) {
+        Write-GateCheckSet -What 'visual(s) declaring a subjectClass' -Count $run.SubjectClassExamined -DerivedFrom 'the spine visuals'' own subjectClass field' -Blocking -Input ('the spine under ' + $BuildDir + ': the profile declares subjectClass mandatory and not one visual declares one')
+        Complete-GateArm -Name 'subject-classes' -State 'ran' -Size $run.SubjectClassExamined
+    }
+    elseif ($run.SubjectClassExamined -gt 0) { Complete-GateArm -Name 'subject-classes' -State 'ran' -Size $run.SubjectClassExamined }
+    else {
+        Write-Host '  ! subjectClass arm examined 0 visual(s): the profile does not declare subjectClass mandatory and no visual declares one. Reported, not passed.' -ForegroundColor Yellow
+        Complete-GateArm -Name 'subject-classes' -State 'empty'
+    }
+
+    Assert-GateArmsComplete
+    $plRoster = Write-GateArmRoster
+}
+catch {
+    $msg = $_.Exception.Message
+    if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0} REFUSED - {1}" -f $GATE, $msg) -ForegroundColor Red
+        [void](Write-GateArmRoster)
+        exit 2
+    }
+    Write-Host ("  X {0}: {1}" -f $GATE, $msg) -ForegroundColor Red
+    exit 1
+}
+
+if ($plFail -gt 0) { exit 1 }
 if (@($run.Results | Where-Object { -not $_.Pass }).Count -gt 0) { exit 1 }
 exit 0

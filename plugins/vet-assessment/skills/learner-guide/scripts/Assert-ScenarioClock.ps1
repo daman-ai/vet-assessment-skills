@@ -58,10 +58,15 @@
     Exit 0 clean, 1 a blocking impossibility, 2 a usage error or an empty
     check-set, 4 the self-test failed.
 #>
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][string] $BuildDir,
+    #  Refused by name below rather than declared Mandatory, so -SelfTest can
+    #  synthesise its own build: a mandatory parameter made the self-test
+    #  unrunnable without a build, and the self-test is the only evidence this
+    #  gate discriminates.
+    [string] $BuildDir,
     [string] $SpineDir,
     [string] $CorpusDir,
     [string] $RulesPath,
@@ -241,6 +246,14 @@ function Get-ClkStamp {
 # The scan
 # ---------------------------------------------------------------------------
 
+function Complete-ClkArm {
+    <#  ran when the arm examined something, empty when it did not. The
+        library refuses 'ran' at size 0; an advisory arm may end empty.  #>
+    param([Parameter(Mandatory)][string] $Name, [int] $Size, [int] $Findings = 0)
+    if ($Size -gt 0) { Complete-GateArm -Name $Name -State ran -Size $Size -Findings $Findings }
+    else { Complete-GateArm -Name $Name -State empty -Size 0 }
+}
+
 function Invoke-ClkScan {
     param(
         [Parameter(Mandatory)][string] $Build,
@@ -248,6 +261,9 @@ function Invoke-ClkScan {
         $Contract,
         $Registry,
         $Deliveries,
+        #  arm name -> the contract's written not-applicable reason, from
+        #  Get-GateDeclaredNa. Keys read: deliveries, production-dates.
+        [hashtable] $DeclaredNa,
         [int] $Window = 24,
         [switch] $Announce
     )
@@ -256,6 +272,22 @@ function Invoke-ClkScan {
     $script:RuleBook = New-Object System.Collections.Generic.List[object]
     $script:Suppressed = @{}
     $script:SuppressWhy = @{}
+
+    #  THE ARM ROSTER. Every rule below is declared before it runs and ends
+    #  ran (N > 0), empty (a refusal, exit 2) or declared-n-a (the contract's
+    #  written reason). Reset first: the self-test drives this scan once on a
+    #  planted fixture and the real run drives it again in the same process.
+    Reset-GateArmRoster
+    Register-GateArm -Name 'two-production-dates' -Blocking
+    Register-GateArm -Name 'production-after-delivery' -Blocking
+    Register-GateArm -Name 'loose-time-attachment'
+    Register-GateArm -Name 'outside-production-run'
+    Register-GateArm -Name 'interval-vs-registry'
+    $na = @{}
+    if ($null -ne $DeclaredNa) { foreach ($k in $DeclaredNa.Keys) { $na["$k"] = $DeclaredNa[$k] } }
+    #  @($null).Count is 1. The delivery list is normalised once, here.
+    $delivList = @()
+    if ($null -ne $Deliveries) { $delivList = @($Deliveries | Where-Object { $null -ne $_ }) }
 
     Add-ClkRule -Name 'two-production-dates' -Level 'BLOCK' -Reason 'one pack-identified item carries two different production dates on the spine'
     Add-ClkRule -Name 'production-after-delivery' -Level 'BLOCK' -Reason 'one pack-identified item is produced after the delivery the pack''s own order form sets for it'
@@ -330,23 +362,33 @@ function Invoke-ClkScan {
     if ($Announce -and -not $Quiet) {
         Write-Host ''
         Write-Host 'SCENARIO CLOCK - can the timeline the scenario states actually happen?' -ForegroundColor Cyan
-        Write-GateCheckSet -What 'pack identifiers' -Count $items.Count -DerivedFrom 'the build contract''s own scenario block'
-        Write-GateCheckSet -What 'production verbs' -Count $prodWords.Count -DerivedFrom ("the one shared list in this script plus " + $methodWords.Count + " cookery method(s) the spine records from the unit")
-        Write-GateCheckSet -What 'order-form deliveries' -Count @($Deliveries).Count -DerivedFrom 'the contract scenario and the LEARNER-FACING pack documents only'
-        Write-GateCheckSet -What 'authored sentences' -Count $sentences.Count -DerivedFrom 'every string of every spine file'
+    }
+    #  THE BLOCKING CHECK-SETS PRINT ON EVERY RUN, quiet or not, and an empty
+    #  one throws CHECK-SET EMPTY naming its input, which the top-level catch
+    #  maps to exit 2. Until this existed the pack-identifier case exited 2 by
+    #  hand and the delivery case printed 'a gap in the inputs, not a pass' and
+    #  then exited 0 - which every runner recorded as a pass.
+    Write-GateCheckSet -What 'pack identifiers' -Count $items.Count -DerivedFrom 'the build contract''s own scenario block' -Blocking -Input 'contract.json scenario.items (or recipes / products), each carrying an id, no, number or code'
+    Write-GateCheckSet -What 'production verbs' -Count $prodWords.Count -DerivedFrom ("the one shared list in this script plus " + $methodWords.Count + " cookery method(s) the spine records from the unit") -Blocking -Input 'the shared production vocabulary in this script'
+    Write-GateCheckSet -What 'authored sentences' -Count $sentences.Count -DerivedFrom 'every string of every spine file' -Blocking -Input 'the spine (no authored string in any spine file)'
+    #  The delivery arm: an empty schedule is a refusal UNLESS the contract
+    #  declares the arm not applicable with a written reason, in which case the
+    #  arm ends declared-n-a and the gate can still pass.
+    $deliveriesApply = $true
+    if ($delivList.Count -eq 0 -and $na.ContainsKey('deliveries') -and $na['deliveries']) {
+        $deliveriesApply = $false
+        Write-Host ("  check-set: 0 order-form deliveries - DECLARED NOT APPLICABLE by contract.json gateArms.Assert-ScenarioClock.deliveries: {0}" -f $na['deliveries']) -ForegroundColor Yellow
+        Complete-GateArm -Name 'production-after-delivery' -State declared-n-a -Reason $na['deliveries']
+    }
+    else {
+        Write-GateCheckSet -What 'order-form deliveries' -Count $delivList.Count -DerivedFrom 'the contract scenario and the LEARNER-FACING pack documents only' -Blocking -Input 'an item-bound delivery: a line in a LEARNER-FACING corpus document (or contract.json scenario.outlets) naming exactly one pack identifier with a day and a clock time - or contract.json gateArms.Assert-ScenarioClock.deliveries declared applicable:false with a written reason'
+    }
+    if ($Announce -and -not $Quiet) {
         if ($null -ne $runEnd) { Write-Host ("  production run: the week ending {0} (weekday index 1 = Monday)" -f $runEnd.ToString('yyyy-MM-dd')) -ForegroundColor DarkGray }
         else { Write-Host '  ! the contract declares no production run, so the outside-the-run report arm cannot run' -ForegroundColor Yellow }
         Write-Host ("  production-verb binding window: {0} characters between the verb and the date" -f $Window) -ForegroundColor DarkGray
-        foreach ($d in @($Deliveries)) {
+        foreach ($d in $delivList) {
             Write-Host ("    delivery: item {0} -> day {1} at {2} (from {3})" -f $d.Item, $d.DayIndex, $d.Minutes, $d.Source) -ForegroundColor DarkGray
-        }
-    }
-
-    if ($items.Count -eq 0) {
-        return [pscustomobject]@{
-            Findings = $script:Findings.ToArray(); Rules = $script:RuleBook.ToArray()
-            Suppressed = $script:Suppressed; SuppressWhy = $script:SuppressWhy
-            CheckSets = [pscustomobject]@{ items = 0; sentences = $sentences.Count; deliveries = @($Deliveries).Count; productionVerbs = $prodWords.Count; bindWindow = $Window }
         }
     }
 
@@ -362,6 +404,7 @@ function Invoke-ClkScan {
 
     $prodDates = @{}
     $loose = New-Object System.Collections.Generic.List[object]
+    $itemSentences = 0
     foreach ($s in $sentences) {
         $txt = [string]$s.Sentence
         $here = New-Object System.Collections.Generic.List[string]
@@ -369,6 +412,7 @@ function Invoke-ClkScan {
             if ((Get-ClkRx -Pattern (Get-ClkWordRx -Term $id)).IsMatch($txt)) { $here.Add($id) }
         }
         if ($here.Count -eq 0) { continue }
+        $itemSentences++
 
         #  ONE SENTENCE, TWO ITEMS, ONE DATE BINDS TO NEITHER. "Thursday's
         #  curry, recipe A, and the ratatouille, recipe B, in the same session"
@@ -436,8 +480,26 @@ function Invoke-ClkScan {
         Add-ClkFinding -Rule 'loose-time-attachment' -Level 'REPORT' -Anchors @($l.At) -Item (($l.Items) -join ', ') `
             -Detail 'a date or a time sits beside a pack identifier with no production verb bound to it'
     }
+    Complete-ClkArm -Name 'loose-time-attachment' -Size $itemSentences -Findings $loose.Count
+
+    #  ITEMS CARRYING A BOUND PRODUCTION DATE are the check-set BLOCK 1 runs
+    #  over. An empty one is a refusal naming the spine - never the green line
+    #  this gate printed while zero items were being compared - unless the
+    #  contract declares the arm not applicable with a written reason.
+    $productionApply = $true
+    $naProd = ''
+    foreach ($k in @('production-dates', 'two-production-dates')) { if ($na.ContainsKey($k) -and $na[$k]) { $naProd = $na[$k]; break } }
+    if ($prodDates.Count -eq 0 -and $naProd) {
+        $productionApply = $false
+        Write-Host ("  check-set: 0 pack items carrying a bound production date - DECLARED NOT APPLICABLE by contract.json gateArms.Assert-ScenarioClock.production-dates: {0}" -f $naProd) -ForegroundColor Yellow
+        Complete-GateArm -Name 'two-production-dates' -State declared-n-a -Reason $naProd
+    }
+    else {
+        Write-GateCheckSet -What 'pack items carrying a production date bound to a production verb' -Count $prodDates.Count -DerivedFrom ("{0} sentence(s) naming a pack identifier, a production verb within {1} characters of a date" -f $itemSentences, $Window) -Blocking -Input ('the spine: no sentence binds a production verb to a date within ' + $Window + ' characters of a pack identifier (' + $items.Count + ' identifier(s) declared, ' + $itemSentences + ' sentence(s) name one) - or contract.json gateArms.Assert-ScenarioClock.production-dates declared applicable:false with a written reason')
+    }
 
     # -- BLOCK 1: two production dates for one item --------------------------
+    if ($productionApply) {
     foreach ($id in ($prodDates.Keys | Sort-Object)) {
         $rows = $prodDates[$id]
         $stamps = @($rows | ForEach-Object { $_.Stamp } | Sort-Object -Unique)
@@ -458,9 +520,13 @@ function Invoke-ClkScan {
             -Detail ("pack item {0} carries {1} different production dates: {2}" -f $id, $stamps.Count, ($stamps -join ' vs ')) `
             -Extra ("item name: " + [string]$items[$id])
     }
+    Complete-GateArm -Name 'two-production-dates' -State ran -Size $prodDates.Count `
+        -Findings @($script:Findings | Where-Object { $_.Rule -eq 'two-production-dates' -and $_.Level -eq 'BLOCK' }).Count
+    }
 
     # -- BLOCK 2: produced after the pack's own delivery ---------------------
-    foreach ($d in @($Deliveries)) {
+    if ($deliveriesApply) {
+    foreach ($d in $delivList) {
         if (-not $d.Item) { continue }
         if (-not $prodDates.ContainsKey($d.Item)) { continue }
         if ($d.DayIndex -lt 1) { continue }
@@ -486,13 +552,18 @@ function Invoke-ClkScan {
                 -Extra ("delivery source: " + $d.Source + " | production phrase: " + $r.Match)
         }
     }
+    Complete-GateArm -Name 'production-after-delivery' -State ran -Size $delivList.Count `
+        -Findings @($script:Findings | Where-Object { $_.Rule -eq 'production-after-delivery' -and $_.Level -eq 'BLOCK' }).Count
+    }
 
     # -- REPORT: outside the declared production run -------------------------
+    $datedRows = 0
     if ($null -ne $runEnd) {
         $runStart = $runEnd.AddDays(-6)
         foreach ($id in ($prodDates.Keys | Sort-Object)) {
             foreach ($r in $prodDates[$id]) {
                 if (-not $r.Date.Iso) { continue }
+                $datedRows++
                 $dt = [datetime]::ParseExact($r.Date.Iso, 'yyyy-MM-dd', $null)
                 if ($dt -ge $runStart -and $dt -le $runEnd) { continue }
                 Add-ClkFinding -Rule 'outside-production-run' -Level 'REPORT' -Anchors @($r.At) -Item $id `
@@ -500,6 +571,7 @@ function Invoke-ClkScan {
             }
         }
     }
+    Complete-ClkArm -Name 'outside-production-run' -Size $datedRows -Findings @($script:Findings | Where-Object { $_.Rule -eq 'outside-production-run' }).Count
 
     # -- REPORT: a stated interval against a registry duration ---------------
     $durations = New-Object System.Collections.Generic.List[object]
@@ -537,6 +609,7 @@ function Invoke-ClkScan {
             }
         }
     }
+    Complete-ClkArm -Name 'interval-vs-registry' -Size $durations.Count -Findings @($script:Findings | Where-Object { $_.Rule -eq 'interval-vs-registry' }).Count
 
     return [pscustomobject]@{
         Findings = $script:Findings.ToArray()
@@ -546,7 +619,8 @@ function Invoke-ClkScan {
         CheckSets = [pscustomobject]@{
             items = $items.Count
             sentences = $sentences.Count
-            deliveries = @($Deliveries).Count
+            deliveries = $delivList.Count
+            itemSentences = $itemSentences
             productionVerbs = $prodWords.Count
             durations = $durations.Count
             itemsWithProductionDate = $prodDates.Count
@@ -637,6 +711,64 @@ function Get-ClkDeliveries {
 # Inputs
 # ---------------------------------------------------------------------------
 
+function New-ClkSelfTestBuild {
+    <#  A synthetic build the self-test can plant into when no -BuildDir is to
+        hand: two pack-identified items, a production run, a spine that binds a
+        production verb to a date, and a learner-facing order form that yields
+        one item-bound delivery. Hoisted out of the self-test block so
+        -SelfTest never needs a real build - a self-test that can only run
+        where a build already exists is a self-test that does not run.  #>
+    param([Parameter(Mandatory)][string] $Dir)
+    $e = New-Object System.Text.UTF8Encoding($true)
+    New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'spine') | Out-Null
+    New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'corpus') | Out-Null
+    $contract = [ordered]@{
+        build = [ordered]@{ brand = 'fixture'; tradingName = 'Fixture Venue' }
+        unit = [ordered]@{ code = 'FIXTURE001' }
+        topics = @([ordered]@{ id = 1; title = 'Fixture topic'; pcs = @('1.1', '1.2') })
+        scenario = [ordered]@{
+            productionRun = 'the week ending 13 March 2026'
+            items = @(
+                [ordered]@{ id = 'PA'; name = 'planted alpha batch' },
+                [ordered]@{ id = 'PB'; name = 'planted beta batch' }
+            )
+        }
+    }
+    [System.IO.File]::WriteAllText((Join-Path $Dir 'contract.json'), ($contract | ConvertTo-Json -Depth 40), $e)
+    $registry = [ordered]@{ _comment = 'fixture registry'; figures = @([ordered]@{ name = 'Fixture chill window'; authority = 'L'; require = @('2 hours') }) }
+    [System.IO.File]::WriteAllText((Join-Path $Dir 'figures.json'), ($registry | ConvertTo-Json -Depth 40), $e)
+    foreach ($pc in @('1.1', '1.2')) {
+        $sub = [ordered]@{
+            ref = ('PC ' + $pc); pc = $pc; topic = 1; title = ('Fixture sub-section ' + $pc)
+            #  PA carries a production date, so the blocking arm has a set to
+            #  run over. PB deliberately carries NONE: the self-test's own
+            #  false-positive control plants one date for a second item, and a
+            #  date already sitting here would make that control a real clash.
+            underpinningKnowledge = @(
+                'The planted batch of recipe PA is cooked on 10 March 2026 in the planted production run.',
+                'Recipe PB is one of the planted items the store carries through the run.'
+            )
+        }
+        [System.IO.File]::WriteAllText((Join-Path $Dir ('spine\t1_' + $pc + '.json')), ($sub | ConvertTo-Json -Depth 40), $e)
+    }
+    #  ONLY PA gets a delivery. PB is the item the self-test's own
+    #  false-positive control writes its single correct date on, and an item
+    #  carrying a delivery would let the production-after-delivery arm fire on
+    #  that control - which would read as the gate blocking correct content.
+    [System.IO.File]::WriteAllText((Join-Path $Dir 'corpus\Learner_Order_Form.txt'), "Order form`r`nPA planted alpha batch - deliver Thursday 11 am`r`n", $e)
+    return $Dir
+}
+
+$clkSynthRoot = ''
+if ($SelfTest -and -not $BuildDir) {
+    $clkSynthRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('clk-synth-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    $BuildDir = New-ClkSelfTestBuild -Dir $clkSynthRoot
+    Write-Host ("  {0} -SelfTest with no -BuildDir: a synthetic build was written to {1}" -f $GATE, $clkSynthRoot) -ForegroundColor DarkGray
+}
+if (-not $BuildDir) {
+    Write-Host ("  X {0}: -BuildDir is required (or run with -SelfTest, which synthesises its own build). A scenario clock with no build has no scenario to read." -f $GATE) -ForegroundColor Red
+    exit 2
+}
 if (-not (Test-Path -LiteralPath $BuildDir)) { throw "$GATE`: no build directory at $BuildDir" }
 $buildResolved = (Resolve-Path -LiteralPath $BuildDir).Path
 $spineResolved = $SpineDir
@@ -665,6 +797,30 @@ if (-not $Quiet) {
     Write-Host ("  order-form sources read: {0}" -f $(if ($sched.Sources.Count) { ($sched.Sources -join ', ') } else { 'none' })) -ForegroundColor $(if ($sched.Sources.Count) { 'DarkGray' } else { 'Yellow' })
     if ($sched.Held.Count) { Write-Host ("  held back as assessor-only, never read: {0}" -f ($sched.Held -join ', ')) -ForegroundColor DarkGray }
     Write-Host ("  destination-level deliveries carried for the record (no item bound): {0}" -f $sched.Destinations.Count) -ForegroundColor DarkGray
+}
+
+#  Arms the contract declares NOT APPLICABLE, read through the library from
+#  contract.json gateArms.Assert-ScenarioClock.<arm>. A declaration with no
+#  written reason throws inside the library; that is a contract defect, named
+#  and exited 2 here, never a silent pass.
+$declaredNa = @{}
+try {
+    foreach ($arm in @('deliveries', 'production-dates', 'two-production-dates')) {
+        $reason = Get-GateDeclaredNa -BuildDir $buildResolved -Gate $GATE -Arm $arm -Contract $contractJson
+        if ($reason) { $declaredNa[$arm] = $reason }
+    }
+}
+catch { Write-Host ("  X {0}: {1}" -f $GATE, $_.Exception.Message) -ForegroundColor Red; exit 2 }
+
+function Write-ClkRefusalReport {
+    <# The report a refused run leaves behind: the message, the roster, exit 2. #>
+    param([string] $Path, [string] $Message, $Roster)
+    $p = [pscustomobject]@{
+        gate = $GATE; generatedUtc = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
+        buildDir = $buildResolved; spineDir = $spineResolved
+        refused = $Message; arms = @($Roster); blockingCount = 0; reportCount = 0; exitCode = 2
+    }
+    [System.IO.File]::WriteAllText($Path, ($p | ConvertTo-Json -Depth 8), (New-Object System.Text.UTF8Encoding($true)))
 }
 
 # ---------------------------------------------------------------------------
@@ -743,22 +899,27 @@ if ($SelfTest) {
         $plants.Add([pscustomobject]@{ Rule = 'two-production-dates'; Needle = 'planted batch of recipe'; What = 'two production dates for one pack-identified item'; Ok = $ok1 })
 
         #  2. PRODUCED AFTER THE ORDER FORM'S OWN DELIVERY. The delivery comes
-        #     from the pack; the plant only has to be later than it.
+        #     from the pack where the pack yields one. Where it does not, the
+        #     fixture SUPPLIES one - noon on the first production day - so the
+        #     arm is proved here rather than left UNPROVEN (a self-test that
+        #     plants nothing for a blocking arm is the false green rule 4 of
+        #     gates.md exists to prevent). The REAL run still refuses on the
+        #     real inputs; nothing synthesised here reaches it.
         $delivery = $null
         foreach ($d in $sched.Deliveries) { if ($d.Item -eq $anItem) { $delivery = $d; break } }
         if ($null -eq $delivery -and $sched.Deliveries.Count -gt 0) { $delivery = $sched.Deliveries[0] }
-        $ok2 = $false
-        $lateNeedle = ''
-        if ($null -ne $delivery) {
-            $lateDay = $script:DAYNAME[[Math]::Min(6, $delivery.DayIndex)]
-            $lateNeedle = 'The planted late batch of recipe ' + $delivery.Item + ' is cooked on ' + (Get-Culture).TextInfo.ToTitleCase($lateDay) + ' at 11:59 pm, after the order form deadline.'
-            Set-ClkPlant -File $victimA -Field 'underpinningKnowledge' -Values @($lateNeedle)
-            $ok2 = Test-ClkPlant -File $victimA -Needle $lateNeedle -What ('production after the order form delivery for item ' + $delivery.Item)
-            $plants.Add([pscustomobject]@{ Rule = 'production-after-delivery'; Needle = 'planted late batch of recipe'; What = 'an item produced after its own order-form delivery'; Ok = $ok2 })
+        $probeDeliveries = @($sched.Deliveries)
+        if ($null -eq $delivery) {
+            $dayOneIdx = [int]((Get-ClkDate -Text $dayOne.ToString('dddd', [System.Globalization.CultureInfo]::InvariantCulture)).DayIndex)
+            $delivery = [pscustomobject]@{ Item = $anItem; DayIndex = $dayOneIdx; Minutes = 720; Source = 'synthesised by the self-test: the pack yielded no item-bound delivery' }
+            $probeDeliveries = @($delivery)
+            Write-Host ("    fixture: the pack yields no item-bound delivery, so one is synthesised for item {0} (weekday {1}, noon) for the probe run only" -f $anItem, $dayOneIdx) -ForegroundColor DarkGray
         }
-        else {
-            Write-Host '    ! no item-bound delivery could be derived from the pack, so the production-after-delivery arm cannot be planted on this build. It is UNPROVEN here and says so.' -ForegroundColor Yellow
-        }
+        $lateDay = $script:DAYNAME[[Math]::Min(6, [Math]::Max(0, $delivery.DayIndex - 1))]
+        $lateNeedle = 'The planted late batch of recipe ' + $delivery.Item + ' is cooked on ' + (Get-Culture).TextInfo.ToTitleCase($lateDay) + ' at 11:59 pm, after the order form deadline.'
+        Set-ClkPlant -File $victimA -Field 'underpinningKnowledge' -Values @($lateNeedle)
+        $ok2 = Test-ClkPlant -File $victimA -Needle $lateNeedle -What ('production after the order form delivery for item ' + $delivery.Item)
+        $plants.Add([pscustomobject]@{ Rule = 'production-after-delivery'; Needle = 'planted late batch of recipe'; What = 'an item produced after its own order-form delivery'; Ok = $ok2 })
 
         #  3. THE CORRECT CASE, which must NOT fire: one item, one production
         #     date, stated twice. It uses a DIFFERENT pack item from the two
@@ -783,7 +944,7 @@ if ($SelfTest) {
             $selfTestFailed++
         }
         else {
-            $probe = Invoke-ClkScan -Build $tmpRoot -Spine $tmpSpine -Contract $contractJson -Registry $registryJson -Deliveries $sched.Deliveries -Window $BindWindow
+            $probe = Invoke-ClkScan -Build $tmpRoot -Spine $tmpSpine -Contract $contractJson -Registry $registryJson -Deliveries $probeDeliveries -DeclaredNa @{} -Window $BindWindow
             foreach ($p in $plants) {
                 $hit = @($probe.Findings | Where-Object {
                     $_.Rule -eq $p.Rule -and $_.Level -eq 'BLOCK' -and
@@ -809,21 +970,122 @@ if ($SelfTest) {
                 $selfTestFailed++
             }
         }
+
+        #  REFUSAL PROBES. Each is a CHILD PROCESS on a synthetic fixture, so
+        #  the exit code itself is proved and not only the message: a starved
+        #  blocking arm exits 2 naming its input, and the declared-not-
+        #  applicable path exits 0 printing the arm. Nothing here reads the
+        #  build; the fixtures are shapes.
+        function New-ClkProbeFixture {
+            param([string] $Root, [switch] $NoItems, [switch] $DeclareDeliveriesNa, [switch] $WithDelivery, [switch] $NoProductionDate)
+            New-Item -ItemType Directory -Force -Path (Join-Path $Root 'spine') | Out-Null
+            $enc = New-Object System.Text.UTF8Encoding($true)
+            $contract = [ordered]@{
+                build = [ordered]@{ brand = '' }
+                scenario = [ordered]@{
+                    productionRun = ''
+                    items = @(
+                        [ordered]@{ id = 'PA'; name = 'planted alpha batch' },
+                        [ordered]@{ id = 'PB'; name = 'planted beta batch' }
+                    )
+                }
+            }
+            if ($NoItems) { $contract.scenario.items = @() }
+            if ($DeclareDeliveriesNa) {
+                $contract['gateArms'] = [ordered]@{ 'Assert-ScenarioClock' = [ordered]@{ deliveries = [ordered]@{ applicable = $false; reason = 'This fixture has no timed delivery scenario, so the delivery arm has nothing to read.' } } }
+            }
+            [System.IO.File]::WriteAllText((Join-Path $Root 'contract.json'), ($contract | ConvertTo-Json -Depth 10), $enc)
+            $sentence = 'The planted batch of recipe PA is cooked on Thursday in the planted run.'
+            if ($NoProductionDate) { $sentence = 'Recipe PA is popular with the Thursday crowd in the planted run.' }
+            $sub = [ordered]@{ ref = '1.1'; pc = '1.1'; topic = 1; title = 'Probe'; underpinningKnowledge = @($sentence) }
+            [System.IO.File]::WriteAllText((Join-Path $Root 'spine\t1_1.1.json'), ($sub | ConvertTo-Json -Depth 10), $enc)
+            if ($WithDelivery) {
+                New-Item -ItemType Directory -Force -Path (Join-Path $Root 'corpus') | Out-Null
+                [System.IO.File]::WriteAllText((Join-Path $Root 'corpus\Order_Form.txt'), "Order form`r`nPA planted alpha batch - deliver Thursday 11 am`r`n", $enc)
+            }
+        }
+        function Invoke-ClkProbe {
+            param([string] $Build, [int] $ExpectExit, [string[]] $ExpectText, [string] $What)
+            $out = ''
+            try { $out = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -BuildDir $Build -Quiet 2>&1 | Out-String) } catch { $out = "$($_.Exception.Message)" }
+            $code = $LASTEXITCODE
+            $missing = @($ExpectText | Where-Object { $out.IndexOf($_, [System.StringComparison]::OrdinalIgnoreCase) -lt 0 })
+            if ($code -eq $ExpectExit -and $missing.Count -eq 0) {
+                Write-Host ("    self-test: {0} -> exit {1}, output names {2}" -f $What, $code, (($ExpectText | ForEach-Object { "'" + $_ + "'" }) -join ' and ')) -ForegroundColor Green
+            }
+            else {
+                Write-Host ("    X self-test: {0} -> exit {1} (wanted {2}); not named: {3}" -f $What, $code, $ExpectExit, $(if ($missing.Count) { ($missing -join ' | ') } else { 'nothing' })) -ForegroundColor Red
+                $tail = @(($out -split "`r?`n") | Where-Object { $_.Trim() } | Select-Object -Last 4)
+                foreach ($ln in $tail) { Write-Host ("      | {0}" -f $ln) -ForegroundColor DarkGray }
+                $script:selfTestFailed++
+            }
+        }
+        $probeRoot = Join-Path $tmpRoot 'probes'
+        $pA = Join-Path $probeRoot 'starved-deliveries'; New-ClkProbeFixture -Root $pA
+        Invoke-ClkProbe -Build $pA -ExpectExit 2 -ExpectText @('CHECK-SET EMPTY', 'order-form deliveries', 'item-bound delivery') -What 'a fixture with production dates and no item-bound delivery REFUSES naming the delivery input'
+        $pB = Join-Path $probeRoot 'declared-na'; New-ClkProbeFixture -Root $pB -DeclareDeliveriesNa
+        Invoke-ClkProbe -Build $pB -ExpectExit 0 -ExpectText @('DECLARED NOT APPLICABLE', 'production-after-delivery|true|declared-n-a') -What 'the same fixture with gateArms.Assert-ScenarioClock.deliveries declared not applicable PASSES printing the arm as declared-n-a'
+        $pC = Join-Path $probeRoot 'starved-production'; New-ClkProbeFixture -Root $pC -WithDelivery -NoProductionDate
+        Invoke-ClkProbe -Build $pC -ExpectExit 2 -ExpectText @('CHECK-SET EMPTY', 'no sentence binds a production verb') -What 'a fixture with a delivery and no bound production date REFUSES naming the spine'
+        $pD = Join-Path $probeRoot 'starved-items'; New-ClkProbeFixture -Root $pD -NoItems
+        Invoke-ClkProbe -Build $pD -ExpectExit 2 -ExpectText @('CHECK-SET EMPTY', 'contract.json scenario.items') -What 'a fixture whose contract declares no pack identifier REFUSES naming the contract'
+
+        #  THE CLEAN CONTROL, end to end. A synthesised build with items, a
+        #  bound production date and an item-bound delivery must exit 0 with
+        #  every blocking arm 'ran' - so the refusals above are shown to be
+        #  discrimination and not this gate refusing everything.
+        $ctl = Join-Path $probeRoot 'control'
+        [void](New-ClkSelfTestBuild -Dir $ctl)
+        Invoke-ClkProbe -Build $ctl -ExpectExit 0 -ExpectText @('ARMS: ', 'two-production-dates|true|ran', 'production-after-delivery|true|ran') -What 'a clean synthesised build passes with every blocking arm ran'
     }
     finally {
         if ($tmpRoot -and (Test-Path -LiteralPath $tmpRoot)) { Remove-Item -LiteralPath $tmpRoot -Recurse -Force -ErrorAction SilentlyContinue }
+        if ($clkSynthRoot -and (Test-Path -LiteralPath $clkSynthRoot)) { Remove-Item -LiteralPath $clkSynthRoot -Recurse -Force -ErrorAction SilentlyContinue }
     }
+
+    #  THE SELF-TEST EXITS ON ITS OWN RESULT. It used to fall through into the
+    #  real run, so `-SelfTest` reported the BUILD's exit code: every case here
+    #  could pass and the caller would read exit 2 (or 1) and believe the gate
+    #  had failed its own self-test. It also wrote a report into the build
+    #  under test on the way past.
+    Write-Host ''
+    if ($selfTestFailed -eq 0) {
+        Write-Host '  SELF-TEST PASS - every plant landed and fired, every starved arm refused by name, and the clean control passed with a full roster' -ForegroundColor Green
+        exit 0
+    }
+    Write-Host ("  SELF-TEST FAIL - {0} check(s)" -f $selfTestFailed) -ForegroundColor Red
+    exit 4
 }
 
 # ---------------------------------------------------------------------------
 # The real run
 # ---------------------------------------------------------------------------
 
-$result = Invoke-ClkScan -Build $buildResolved -Spine $spineResolved -Contract $contractJson -Registry $registryJson -Deliveries $sched.Deliveries -Window $BindWindow -Announce
-
-if ($result.CheckSets.items -eq 0) {
-    Write-Host ("  X {0}: the contract declares no pack identifiers, so the blocking arm has nothing exact to attach a time to and this gate would pass vacuously." -f $GATE) -ForegroundColor Red
-    exit 2
+$result = $null
+$roster = @()
+try {
+    $result = Invoke-ClkScan -Build $buildResolved -Spine $spineResolved -Contract $contractJson -Registry $registryJson -Deliveries $sched.Deliveries -DeclaredNa $declaredNa -Window $BindWindow -Announce
+    Assert-GateArmsComplete
+    $roster = @(Write-GateArmRoster)
+}
+catch {
+    #  The library's two typed refusals - an empty blocking check-set, and a
+    #  blocking arm never completed - are exit 2, printed, with the roster
+    #  written into the report. Anything else is a real error and propagates.
+    $msg = $_.Exception.Message
+    if ($msg -like 'CHECK-SET EMPTY:*' -or $msg -like 'ARMS INCOMPLETE:*') {
+        Write-Host ("  X {0}: {1}" -f $GATE, $msg) -ForegroundColor Red
+        $roster = @(Write-GateArmRoster)
+        $refPath = $ReportPath
+        if (-not $refPath) { $refPath = Join-Path $buildResolved 'scenario-clock-report.json' }
+        Write-ClkRefusalReport -Path $refPath -Message $msg -Roster $roster
+        if ($selfTestFailed -gt 0) {
+            Write-Host ("  X {0}: the self-test failed as well, so no result from this run may be believed." -f $GATE) -ForegroundColor Red
+            exit 4
+        }
+        exit 2
+    }
+    throw
 }
 
 $blocking = @($result.Findings | Where-Object { $_.Level -eq 'BLOCK' })
@@ -849,7 +1111,9 @@ $payload = [pscustomobject]@{
     spineFingerprint = (Get-SpineFingerprint -BuildDir $buildResolved -SpineDir $spineResolved)
     orderFormSources = $sched.Sources
     orderFormHeldBack = $sched.Held
+    declaredNotApplicable = $declaredNa
     checkSets = $result.CheckSets
+    arms = $roster
     rules = $result.Rules
     suppressions = $suppressRows.ToArray()
     blockingCount = $blocking.Count
@@ -866,11 +1130,6 @@ if ($suppressRows.Count -gt 0) {
     foreach ($s in $suppressRows) { Write-Host ("    {0} x{1}: {2}" -f $s.Rule, $s.Count, $s.Reason) -ForegroundColor DarkGray }
 }
 else { Write-Host '  no named suppression rule fired on this run' -ForegroundColor DarkGray }
-
-if ($sched.Deliveries.Count -eq 0) {
-    Write-Host '  ! no item-bound delivery could be derived from the pack, so the production-after-delivery arm did not run on this build.' -ForegroundColor Yellow
-    Write-Host '    That is a gap in the inputs, not a pass: section 20 records that the typed schedule this arm wants does not exist yet.' -ForegroundColor Yellow
-}
 
 if ($reported.Count -gt 0) {
     $byRule = @{}

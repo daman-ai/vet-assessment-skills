@@ -49,11 +49,29 @@
     PS 5.1. ASCII only in this file.
     Exit 0 clean, 1 a blocking contradiction, 2 a usage error or an empty
     check-set, 4 the self-test failed.
+
+    ARMS (Lib-GateCommon roster). sentences, cited-sentences and provisos are
+    blocking; each ends ran, empty (a refusal, exit 2) or declared-n-a with a
+    written reason from contract.json gateArms. THE PROVISO ARM IS THE ONE THAT
+    WAS STARVED: over a registry full of measured figures it derived zero
+    provisos and printed a green line, so the arm that exists to catch a
+    dropped caveat examined nothing. Zero provisos while the registry holds a
+    figure whose required value carries a digit is now a CHECK-SET EMPTY
+    refusal naming figures.json.
+
+    -SelfTest with no -BuildDir SYNTHESISES a build, so the gate can prove it
+    discriminates anywhere; with -BuildDir it plants into a COPY of that build.
+    Neither ever writes to the build under test.
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][string] $BuildDir,
+    #  Refused by name below rather than declared Mandatory, so -SelfTest runs
+    #  with no build to hand - a mandatory parameter makes the only evidence
+    #  this gate discriminates unrunnable.
+    [string] $BuildDir,
     [string] $SpineDir,
     #  The figure registry. Provisos and every allow-list live here.
     [string] $RulesPath,
@@ -389,15 +407,49 @@ function Invoke-CitScan {
     $instrumentsSeen = @{}
     foreach ($c in $cited) { foreach ($i in $c.Instruments) { $instrumentsSeen[$i.Norm] = $true } }
 
+    # -- the arm roster -----------------------------------------------------
+    #  WHEN IS THE PROVISO ARM ALLOWED TO BE EMPTY? Only when the registry
+    #  holds no figure a proviso could attach to. A registry carrying a
+    #  required value with a digit in it, yielding no proviso pair, is the
+    #  starved arm the refusal exists for - the caveat sweep then examines
+    #  nothing and the gate prints success. Derived from the registry, never
+    #  declared: a figure counts if any required value carries a digit.
+    $naProvisos = Get-GateDeclaredNa -BuildDir $Build -Gate 'Assert-CitationConsistency' -Arm 'provisos'
+    $digitFigures = New-Object System.Collections.Generic.List[string]
+    if ($null -ne $Registry) {
+        foreach ($f in @(Get-GateProp -Object $Registry -Names @('figures') -Default @())) {
+            if ($null -eq $f) { continue }
+            $reqs = @(@(Get-GateProp -Object $f -Names @('require') -Default @()) | Where-Object { "$_".Trim() })
+            if (@($reqs | Where-Object { "$_" -match '\d' }).Count -gt 0) {
+                $digitFigures.Add([string](Get-GateProp -Object $f -Names @('name') -Default '(unnamed figure)'))
+            }
+        }
+    }
+    $provisoBlocking = ($digitFigures.Count -gt 0 -and -not $naProvisos)
+    $provisoInput = ('figures.json - {0} registry figure(s) carry a required value with a digit in it (first: {1}), and not one proviso pair could be derived from figures[].require paired with figures[].proviso' -f $digitFigures.Count, $(if ($digitFigures.Count -gt 0) { $digitFigures[0] } else { 'none' }))
+
+    Reset-GateArmRoster
+    Register-GateArm -Name 'sentences' -Blocking
+    Register-GateArm -Name 'cited-sentences' -Blocking
+    Register-GateArm -Name 'provisos' -Blocking:$provisoBlocking
+    Register-GateArm -Name 'duty-clusters'
+
     if ($Announce -and -not $Quiet) {
         Write-Host ''
         Write-Host 'CITATION CONSISTENCY - the spine against itself, with no copy of the legislation' -ForegroundColor Cyan
-        Write-GateCheckSet -What 'authored sentences' -Count $sentences.Count -DerivedFrom 'every string of every spine file, front matter and topics in one namespace'
-        Write-GateCheckSet -What 'sentences carrying a reference' -Count $cited.Count -DerivedFrom 'the reference SHAPES declared in this script, matched against the spine - no instrument is named here'
-        Write-GateCheckSet -What 'distinct instruments found on the spine' -Count $instrumentsSeen.Count -DerivedFrom 'the spine itself'
+    }
+    #  OUTSIDE the -Quiet guard: the band runs every member quiet, and a
+    #  blocking check-set only computed when the gate is talkative never fires
+    #  where it matters.
+    Write-GateCheckSet -What 'authored sentences' -Count $sentences.Count -DerivedFrom 'every string of every spine file, front matter and topics in one namespace' -Blocking -Input ('{0} (the spine)' -f $Spine)
+    Write-GateCheckSet -What 'sentences carrying a reference' -Count $cited.Count -DerivedFrom 'the reference SHAPES declared in this script, matched against the spine - no instrument is named here' -Blocking -Input ('{0} (the spine): not one authored sentence carries a clause or instrument reference' -f $Spine)
+    Write-GateCheckSet -What 'distinct instruments found on the spine' -Count $instrumentsSeen.Count -DerivedFrom 'the spine itself'
+    if ($Announce -and -not $Quiet) {
         foreach ($i in ($instrumentsSeen.Keys | Sort-Object)) { Write-Host ("    instrument: {0}" -f $i) -ForegroundColor DarkGray }
         Write-Host ("  fuzzy cluster similarity: {0} (report arm only - it changes nothing that blocks)" -f $Similarity) -ForegroundColor DarkGray
     }
+    Complete-GateArm -Name 'sentences' -State 'ran' -Size $sentences.Count
+    Complete-GateArm -Name 'cited-sentences' -State 'ran' -Size $cited.Count
 
     # -- 0. which instruments sit inside which, DERIVED FROM THE SPINE --------
     #  A guide that writes "Food Standards Code Standard 3.2.2" has told this
@@ -617,10 +669,13 @@ function Invoke-CitScan {
             }
         }
     }
+    Write-GateCheckSet -What 'registry provisos' -Count $provisos.Count -DerivedFrom 'the registry itself - a required value that carries a measurement, paired with a required qualifier that carries none' -Blocking:$provisoBlocking -Input $provisoInput
     if ($Announce -and -not $Quiet) {
-        Write-GateCheckSet -What 'registry provisos' -Count $provisos.Count -DerivedFrom 'the registry itself - a required value that carries a measurement, paired with a required qualifier that carries none'
         foreach ($p in $provisos) { Write-Host ("    proviso: '{0}' must accompany '{1}'  ({2})" -f $p.Proviso, $p.Value, $p.Figure) -ForegroundColor DarkGray }
     }
+    if ($naProvisos) { Complete-GateArm -Name 'provisos' -State 'declared-n-a' -Reason $naProvisos }
+    elseif ($provisos.Count -gt 0) { Complete-GateArm -Name 'provisos' -State 'ran' -Size $provisos.Count }
+    else { Complete-GateArm -Name 'provisos' -State 'empty' }
     foreach ($p in $provisos) {
         $units = @{}
         foreach ($s in $sentences) {
@@ -709,11 +764,15 @@ function Invoke-CitScan {
             -Extra ("anchor duty phrase: " + $withDuty[$i].DutyKey)
     }
 
+    if (@($withDuty).Count -gt 0) { Complete-GateArm -Name 'duty-clusters' -State 'ran' -Size @($withDuty).Count -Findings @($script:Findings | Where-Object { $_.Rule -eq 'duty-cluster' }).Count }
+    else { Complete-GateArm -Name 'duty-clusters' -State 'empty' }
+
     return [pscustomobject]@{
         Findings = $script:Findings.ToArray()
         Rules = $script:RuleBook.ToArray()
         Suppressed = $script:Suppressed
         SuppressWhy = $script:SuppressWhy
+        Arms = (Get-GateArmRoster)
         CheckSets = [pscustomobject]@{
             sentences = $sentences.Count
             citedSentences = $cited.Count
@@ -729,6 +788,54 @@ function Invoke-CitScan {
 # Inputs
 # ---------------------------------------------------------------------------
 
+function New-CitFixtureBuild {
+    <#  A whole synthetic build the self-test can plant into when no -BuildDir
+        is to hand: two sub-sections that already cite an instrument, and a
+        registry whose one figure carries a measured value AND a qualifier
+        with no number in it, which is the shape a proviso is derived from.
+        -NoProviso drops the qualifier, leaving a digit-bearing figure with no
+        derivable proviso: the starved-arm case.  #>
+    param([Parameter(Mandatory)][string] $Dir, [switch] $NoProviso)
+    $e = New-Object System.Text.UTF8Encoding($true)
+    New-Item -ItemType Directory -Force -Path (Join-Path $Dir 'spine') | Out-Null
+    $contract = [ordered]@{
+        build = [ordered]@{ brand = 'fixture'; tradingName = 'Fixture Venue' }
+        unit = [ordered]@{ code = 'FIXTURE001' }
+        topics = @([ordered]@{ id = 1; title = 'Fixture topic'; pcs = @('1.1', '1.2') })
+        referenceConvention = [ordered]@{ questionPattern = 'Task {n}' }
+    }
+    [System.IO.File]::WriteAllText((Join-Path $Dir 'contract.json'), ($contract | ConvertTo-Json -Depth 40), $e)
+    $req = @('5 degrees Celsius')
+    if (-not $NoProviso) { $req += 'measured at the thickest part of the load' }
+    $registry = [ordered]@{
+        _comment = 'fixture registry'
+        figures = @([ordered]@{ name = 'Fixture cold-chain limit'; authority = 'L'; require = $req })
+    }
+    [System.IO.File]::WriteAllText((Join-Path $Dir 'figures.json'), ($registry | ConvertTo-Json -Depth 40), $e)
+    foreach ($pc in @('1.1', '1.2')) {
+        $sub = [ordered]@{
+            ref = ('PC ' + $pc); pc = $pc; topic = 1; title = ('Fixture sub-section ' + $pc)
+            underpinningKnowledge = @(
+                'Standard 9.9.6 clause 1 requires the planted chilled load to be held at 5 degrees Celsius, measured at the thickest part of the load.'
+            )
+            regulatoryBasis = @('Standard 9.9.6 covers the planted chilled load in the planted store.')
+            slides = @([ordered]@{ layout = 'single'; kind = 'teaching'; headline = 'Fixture'; bullets = @('Hold the load at 5 degrees Celsius, measured at the thickest part of the load.'); notes = 'The trainer names the instrument and the caveat that travels with the figure.' })
+        }
+        [System.IO.File]::WriteAllText((Join-Path $Dir ('spine\t1_' + $pc + '.json')), ($sub | ConvertTo-Json -Depth 40), $e)
+    }
+    return $Dir
+}
+
+$citSynthRoot = ''
+if ($SelfTest -and -not $BuildDir) {
+    $citSynthRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('cit-synth-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    $BuildDir = New-CitFixtureBuild -Dir $citSynthRoot
+    Write-Host ("  {0} -SelfTest with no -BuildDir: a synthetic build was written to {1}" -f $GATE, $citSynthRoot) -ForegroundColor DarkGray
+}
+if (-not $BuildDir) {
+    Write-Host ("  X {0}: -BuildDir is required (or run with -SelfTest, which synthesises its own build). A citation gate with no spine has nothing to compare." -f $GATE) -ForegroundColor Red
+    exit 2
+}
 if (-not (Test-Path -LiteralPath $BuildDir)) { throw "$GATE`: no build directory at $BuildDir" }
 $buildResolved = (Resolve-Path -LiteralPath $BuildDir).Path
 $spineResolved = $SpineDir
@@ -853,21 +960,78 @@ if ($SelfTest) {
                 $selfTestFailed++
             }
         }
+
+        # -- THE STARVED ARM. A registry whose figures carry measured values
+        #    and no derivable qualifier leaves the proviso arm with nothing to
+        #    sweep. That is exit 2 naming figures.json, never a green line.
+        $starved = New-CitFixtureBuild -Dir (Join-Path $tmpRoot 'starved') -NoProviso
+        $global:LASTEXITCODE = 0
+        $sText = & $PSCommandPath -BuildDir $starved -ReportPath (Join-Path $tmpRoot 'starved-report.json') -Quiet *>&1 | Out-String -Width 4096
+        $sRc = $LASTEXITCODE
+        if ($sRc -eq 2 -and $sText -match 'CHECK-SET EMPTY' -and $sText -match 'figures\.json') {
+            Write-Host '    self-test: zero provisos over a digit-bearing registry figure is exit 2 naming figures.json' -ForegroundColor Green
+        }
+        else {
+            Write-Host ("    X self-test: the starved proviso arm exited {0} (wanted 2 naming figures.json): {1}" -f $sRc, $sText) -ForegroundColor Red
+            $selfTestFailed++
+        }
+
+        # -- THE CLEAN CONTROL, end to end: exit 0 with every arm 'ran'.
+        $cleanFx = New-CitFixtureBuild -Dir (Join-Path $tmpRoot 'control')
+        $global:LASTEXITCODE = 0
+        $cText = & $PSCommandPath -BuildDir $cleanFx -ReportPath (Join-Path $tmpRoot 'control-report.json') -Quiet *>&1 | Out-String -Width 4096
+        $cRc = $LASTEXITCODE
+        $armLine = ''
+        foreach ($ln in ($cText -split "`r?`n")) { if ($ln -match '^ARMS: ') { $armLine = $ln.Trim() } }
+        $notRan = @()
+        foreach ($cell in ($armLine -replace '^ARMS: ', '') -split ';') {
+            $parts = $cell -split '\|'
+            if ($parts.Count -ge 3 -and $parts[1] -eq 'true' -and $parts[2] -ne 'ran') { $notRan += $parts[0] }
+        }
+        if ($cRc -eq 0 -and $armLine -and $notRan.Count -eq 0) {
+            Write-Host ("    self-test: the clean control exits 0 with every blocking arm ran - {0}" -f $armLine) -ForegroundColor Green
+        }
+        else {
+            Write-Host ("    X self-test: the clean control exited {0}; roster '{1}'; blocking arm(s) not ran: {2}" -f $cRc, $armLine, ($notRan -join ', ')) -ForegroundColor Red
+            $selfTestFailed++
+        }
     }
     finally {
         if ($tmpRoot -and (Test-Path -LiteralPath $tmpRoot)) { Remove-Item -LiteralPath $tmpRoot -Recurse -Force -ErrorAction SilentlyContinue }
+        if ($citSynthRoot -and (Test-Path -LiteralPath $citSynthRoot)) { Remove-Item -LiteralPath $citSynthRoot -Recurse -Force -ErrorAction SilentlyContinue }
     }
+
+    Write-Host ''
+    if ($selfTestFailed -eq 0) {
+        Write-Host ("  SELF-TEST PASS - every plant landed, every blocking arm was starved and refused by name, and the clean control passed with a full roster") -ForegroundColor Green
+        exit 0
+    }
+    Write-Host ("  SELF-TEST FAIL - {0} check(s)" -f $selfTestFailed) -ForegroundColor Red
+    exit 4
 }
 
 # ---------------------------------------------------------------------------
 # The real run
 # ---------------------------------------------------------------------------
 
-$result = Invoke-CitScan -Build $buildResolved -Spine $spineResolved -Registry $registryJson -Similarity $ClusterSimilarity -Announce
-
-if ($result.CheckSets.citedSentences -eq 0) {
-    Write-Host ("  X {0}: not one authored sentence carries a legislative reference, so this gate would pass by having nothing to compare." -f $GATE) -ForegroundColor Red
-    exit 2
+#  Typed refusals (Write-GateCheckSet -Blocking, Assert-GateArmsComplete) are
+#  exit 2 with the roster printed; anything else is a gate defect and exits 1.
+$result = $null
+$armRoster = @()
+try {
+    $result = Invoke-CitScan -Build $buildResolved -Spine $spineResolved -Registry $registryJson -Similarity $ClusterSimilarity -Announce
+    Assert-GateArmsComplete
+    $armRoster = Write-GateArmRoster
+}
+catch {
+    $msg = $_.Exception.Message
+    if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0} REFUSED - {1}" -f $GATE, $msg) -ForegroundColor Red
+        [void](Write-GateArmRoster)
+        exit 2
+    }
+    Write-Host ("  X {0}: {1}" -f $GATE, $msg) -ForegroundColor Red
+    exit 1
 }
 
 $blocking = @($result.Findings | Where-Object { $_.Level -eq 'BLOCK' })
@@ -892,6 +1056,7 @@ $payload = [pscustomobject]@{
     spineDir = $spineResolved
     spineFingerprint = (Get-SpineFingerprint -BuildDir $buildResolved -SpineDir $spineResolved)
     checkSets = $result.CheckSets
+    arms = $armRoster
     rules = $result.Rules
     suppressions = $suppressRows.ToArray()
     blockingCount = $blocking.Count

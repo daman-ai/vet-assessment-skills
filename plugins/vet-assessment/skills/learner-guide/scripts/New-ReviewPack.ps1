@@ -161,6 +161,16 @@ function New-EmptyDir {
     else { Get-ChildItem -LiteralPath $Dir -File | Remove-Item -Force }
 }
 
+function Get-CanonicalDir {
+    <# One spelling for a directory - rooted, resolved, no trailing separator - so a given -PackDir can be compared with the directory Get-GateCorpusDir actually resolved. #>
+    param([AllowEmptyString()][string] $Path)
+    $p = "$Path".Trim()
+    if (-not $p) { return '' }
+    if (Test-Path -LiteralPath $p) { $p = (Resolve-Path -LiteralPath $p).ProviderPath }
+    elseif (-not [System.IO.Path]::IsPathRooted($p)) { $p = [System.IO.Path]::Combine((Get-Location).ProviderPath, $p) }
+    return ([System.IO.Path]::GetFullPath($p)).TrimEnd('\', '/')
+}
+
 # ---------------------------------------------------------------------------
 # 1. Resolve every input from the build, or from an override, and say which
 # ---------------------------------------------------------------------------
@@ -192,14 +202,40 @@ function Resolve-ReviewInput {
         $paths[$key] = $pick
     }
 
-    if ($Given['packDir']) { $paths['packDir'] = $Given['packDir']; $how.Add(("packDir: {0} (given)" -f $Given['packDir'])) }
-    else {
-        $pick = $null
-        foreach ($cand in @((Join-Path $cleanroom 'pack'), (Join-Path $BuildDir 'packtext'))) {
-            if (Test-Path -LiteralPath $cand) { $pick = $cand; break }
+    #  The pack text is resolved the way EVERY gate resolves it - through
+    #  Get-GateCorpusDir (an explicit directory, then corpus\, then the
+    #  pre-corpus locations) - so this cutter and the gates can never read two
+    #  different extractions of one pack. A hand-listed two-candidate loop here
+    #  once exited 2 on a build whose pack text lived under corpus\.
+    if ($Given['packDir']) {
+        $givenPack = [string]$Given['packDir']
+        try {
+            $resolvedPack = Get-GateCorpusDir -BuildDir $BuildDir -CorpusDir $givenPack
+            if ([string]::Equals((Get-CanonicalDir -Path $resolvedPack), (Get-CanonicalDir -Path $givenPack), [System.StringComparison]::OrdinalIgnoreCase)) {
+                $paths['packDir'] = $resolvedPack
+                $how.Add(("packDir: {0} (given; resolved through Get-GateCorpusDir)" -f $resolvedPack))
+            }
+            else {
+                #  A given directory is never silently swapped for another one.
+                $paths['packDir'] = $null
+                $how.Add(("packDir: NOT FOUND - the given {0} holds no .txt extract; Get-GateCorpusDir would have read {1} instead. Pass the directory that holds the extracts, or omit -PackDir." -f $givenPack, $resolvedPack))
+            }
         }
-        $paths['packDir'] = $pick
-        if ($pick) { $how.Add(("packDir: {0}" -f $pick)) } else { $how.Add('packDir: NOT FOUND - looked for cleanroom\pack and packtext') }
+        catch {
+            $paths['packDir'] = $null
+            $how.Add(("packDir: NOT FOUND - given {0}; {1}" -f $givenPack, ("$($_.Exception.Message)" -replace '\r?\n\s*', ' ')))
+        }
+    }
+    else {
+        try {
+            $resolvedPack = Get-GateCorpusDir -BuildDir $BuildDir
+            $paths['packDir'] = $resolvedPack
+            $how.Add(("packDir: {0} (resolved through Get-GateCorpusDir: corpus\, then the pre-corpus locations)" -f $resolvedPack))
+        }
+        catch {
+            $paths['packDir'] = $null
+            $how.Add(("packDir: NOT FOUND - {0}" -f ("$($_.Exception.Message)" -replace '\r?\n\s*', ' ')))
+        }
     }
 
     foreach ($pair in @(@('figureSheet', 'figure-sheet.txt'), @('deckPlan', 'deckplan.json'), @('unitExtract', 'unit_extract.md'), @('figuresJson', 'figures.json'), @('contract', 'contract.json'))) {
@@ -462,7 +498,10 @@ function New-AssessorSliceText {
 
     $o = New-Object System.Collections.Generic.List[string]
     $o.Add(("==== REVIEW PACK: {0}, sliced to the tasks Topic {1} prepares ====" -f $Doc.Name, $TopicNumber))
-    $o.Add(("==== SOURCE: {0} ({1} lines; {2} region(s) cut at {3}) ====" -f (Split-Path $Doc.Path -Leaf), $Regions.LineCount, $Regions.Regions.Count, $(if ($Regions.FromToc) { ("the {0} Contents headings" -f $Regions.TocEntries) } else { 'every Task/Observation line - no Contents block' })))
+    #  The banner states how many regions are WRITTEN below, against how many
+    #  the source holds. A banner that printed the source's count over a slice
+    #  holding fewer told the reviewer it had regions it did not have.
+    $o.Add(("==== SOURCE: {0} ({1} lines; {2} of {3} region(s) written here; regions cut at {4}) ====" -f (Split-Path $Doc.Path -Leaf), $Regions.LineCount, $ordered.Count, $Regions.Regions.Count, $(if ($Regions.FromToc) { ("the {0} Contents headings" -f $Regions.TocEntries) } else { 'every Task/Observation line - no Contents block' })))
     $o.Add(("==== This is the assessor guide for {0}, which you hold in full. Only the regions below are here: the benchmarks and checklists for your own topic's tasks. ====" -f $LearnerStem))
     $o.Add('==== Every other region belongs to another topic and is NOT here. Cross-topic mirroring is checked by the mirror gate over the whole spine, not by you. ====')
     foreach ($ms in $missing) { $o.Add(("==== NOT FOUND: no heading in this document matches {0}. The reference exists in the contract; the region does not. Report it. ====" -f $ms)) }
@@ -473,7 +512,13 @@ function New-AssessorSliceText {
         $o.Add('')
     }
     $lineTotal = 0; foreach ($r in $ordered) { $lineTotal += $r.Lines.Count }
-    return [pscustomobject]@{ Text = (Join-TextLines -Lines $o.ToArray()); Regions = @($ordered | ForEach-Object { [ordered]@{ heading = $_.Heading; lines = @(($_.Start + 1), ($_.End + 1)); refs = @($refsByStart[$_.Start]) } }); Missing = $missing.ToArray(); LineCount = $lineTotal }
+    return [pscustomobject]@{ Text = (Join-TextLines -Lines $o.ToArray()); Regions = @($ordered | ForEach-Object { [ordered]@{ heading = $_.Heading; lines = @(($_.Start + 1), ($_.End + 1)); refs = @($refsByStart[$_.Start]) } }); Missing = $missing.ToArray(); LineCount = $lineTotal; Written = $ordered.Count; SourceRegions = $Regions.Regions.Count }
+}
+
+function Get-SliceRegionBannerCount {
+    <# The number of region banners actually in a written slice - the count a reader would arrive at. #>
+    param([AllowEmptyString()][string] $Text)
+    return ([regex]::Matches("$Text", '(?m)^==== .+: source lines \d+-\d+ \(for [^\r\n]*\) ====\s*$')).Count
 }
 
 # ---------------------------------------------------------------------------
@@ -710,7 +755,8 @@ function Invoke-ReviewPack {
 
     foreach ($req in @('guideExtract', 'deckExtract', 'packDir', 'figureSheet', 'deckPlan', 'unitExtract')) {
         if (-not $p[$req] -or -not (Test-Path -LiteralPath $p[$req])) {
-            $result.Errors.Add(("required input '{0}' is missing. A pack cut without it would hand the reviewer less than the checklist requires and say nothing." -f $req))
+            $looked = @($in.How | Where-Object { $_ -like ($req + ':*') }) -join ' '
+            $result.Errors.Add(("required input '{0}' is missing ({1}). A pack cut without it would hand the reviewer less than the checklist requires and say nothing." -f $req, $looked))
         }
     }
     if ($result.Errors.Count -gt 0) { $result.ExitCode = 2; return $result }
@@ -780,7 +826,17 @@ function Invoke-ReviewPack {
             $result.Errors.Add('the default mode slices the assessor guides to each topic''s tasks, which needs contract.json referenceConvention (with <kind>Means naming the learner document) and questionMap. This build has ' + $(if ($kinds.Count -eq 0) { 'no usable referenceConvention' } else { 'a referenceConvention' }) + ' and ' + $(if ($hasMap) { 'a questionMap' } else { 'no questionMap' }) + '. Supply them, or pass -FullPack for a small unit and accept the size.')
             $result.ExitCode = 2; return $result
         }
-        foreach ($k in $kinds) { if (-not $k.DocStem) { $result.Notes.Add(("reference kind '{0}' ({1} N) maps to no learner document: {2}. Its references cannot be sliced and are reported as NOT FOUND in the banners." -f $k.Kind, $k.Prefix, $k.How)) } }
+        #  A kind that maps to no learner document is a FAIL, not a note: every
+        #  reference of that kind would be sliced to nothing and every topic
+        #  reviewer handed NOT FOUND banners for benchmarks that exist.
+        $unmappedKinds = @($kinds | Where-Object { -not $_.DocStem })
+        if ($unmappedKinds.Count -gt 0) {
+            $searched = @($learnerDocs | ForEach-Object { $_.Name }) -join ', '
+            foreach ($k in $unmappedKinds) {
+                $result.Errors.Add(("reference kind '{0}' ('{1} N') maps to no learner document: {2}. Learner documents searched: [{3}] (classified from {4}). Fix contract.json referenceConvention.{0}Means to name one of them, or pass -FullPack." -f $k.Kind, $k.Prefix, $k.How, $searched, $corpus.ClassifiedFrom))
+            }
+            $result.ExitCode = 2; return $result
+        }
         foreach ($t in $guide.Topics) {
             $pcs = @($t.SubSections)
             if (@($contractObj.PSObject.Properties.Name) -contains 'topics') {
@@ -820,7 +876,7 @@ function Invoke-ReviewPack {
         if (-not $FullPack) {
             Write-GateCheckSet -What 'reference kind(s)' -Count $kinds.Count -DerivedFrom 'contract.json referenceConvention'
             foreach ($k in $kinds) { Write-Host ("    {0}: '{1} N' -> {2} ({3})" -f $k.Kind, $k.Prefix, $(if ($k.DocStem) { $k.DocStem } else { 'UNMAPPED' }), $k.How) -ForegroundColor DarkGray }
-            foreach ($ad in $assessorDocs) { Write-Host ("    {0}: {1} region(s) cut at {2}" -f $ad.Name, $assessorRegions[$ad.Name].Regions.Count, $(if ($assessorRegions[$ad.Name].FromToc) { ("{0} Contents headings" -f $assessorRegions[$ad.Name].TocEntries) } else { 'every Task/Observation line (no Contents block)' })) -ForegroundColor DarkGray }
+            foreach ($ad in $assessorDocs) { Write-Host ("    {0}: {1} region(s) in the source, cut at {2}; the count written per topic is printed as each slice is written" -f $ad.Name, $assessorRegions[$ad.Name].Regions.Count, $(if ($assessorRegions[$ad.Name].FromToc) { ("{0} Contents headings" -f $assessorRegions[$ad.Name].TocEntries) } else { 'every Task/Observation line (no Contents block)' })) -ForegroundColor DarkGray }
         }
         Write-GateCheckSet -What 'allow-list entries' -Count ($mirrorAllow.Count + $leakAllow.Count) -DerivedFrom 'figures.json mirrorAllow and leakageAllow'
         Write-Host ("  back matter: {0}" -f $guide.BackReason) -ForegroundColor DarkGray
@@ -903,7 +959,15 @@ function Invoke-ReviewPack {
                 if (-not $learnerStem) { $result.Notes.Add(("{0}: assessor extract matches no learner extract by name, so no task can be assigned to it; it is sliced to nothing" -f $ad.Name)) }
                 $slice = New-AssessorSliceText -Doc $ad -Regions $assessorRegions[$ad.Name] -Wanted $wanted -TopicNumber $n -LearnerStem $(if ($learnerStem) { $learnerStem + '.txt' } else { '(no learner document matched by name)' })
                 Write-Utf8File -Path (Join-Path $dir ($ad.Name + '.txt')) -Content $slice.Text
-                $assessorManifest.Add([ordered]@{ doc = $ad.Name + '.txt'; learner = $learnerStem; regions = $slice.Regions; missing = $slice.Missing; lines = $slice.LineCount })
+                #  The count the banner prints, the count the manifest records and
+                #  the region banners actually in the file must be ONE number.
+                $bannersInFile = Get-SliceRegionBannerCount -Text $slice.Text
+                if ($bannersInFile -ne $slice.Written -or @($slice.Regions).Count -ne $slice.Written) {
+                    $result.Errors.Add(("Topic {0}: {1}: the slice banner says {2} region(s) written but the file carries {3} region banner(s) and the manifest would record {4}. The cutter's own count disagrees with what it wrote; nothing was cut." -f $n, $ad.Name, $slice.Written, $bannersInFile, @($slice.Regions).Count))
+                    $result.ExitCode = 2; return $result
+                }
+                if (-not $Quiet) { Write-Host ("    topic{0}: {1}: {2} of {3} region(s) written{4}" -f $n, $ad.Name, $slice.Written, $slice.SourceRegions, $(if (@($slice.Missing).Count) { (' - NOT FOUND: ' + ($slice.Missing -join ', ')) } else { '' })) -ForegroundColor DarkGray }
+                $assessorManifest.Add([ordered]@{ doc = $ad.Name + '.txt'; learner = $learnerStem; regionsWritten = $slice.Written; regionsInSource = $slice.SourceRegions; regions = $slice.Regions; missing = $slice.Missing; lines = $slice.LineCount })
                 foreach ($ms in $slice.Missing) { $result.Notes.Add(("Topic {0}: {1} has no heading for {2}; the reference is in the question map but the region was not found" -f $n, $ad.Name, $ms)) }
             }
         }
@@ -1209,6 +1273,59 @@ function Invoke-ReviewPackSelfTest {
         Assert-True ($r9.ExitCode -eq 2 -and @($r9.Errors | Where-Object { $_ -match 'no questionMap' -and $_ -match '-FullPack' }).Count -gt 0) 'a contract with no questionMap is REFUSED in the default mode and pointed at -FullPack'
         $r10 = Invoke-ReviewPack -BuildDir $b -OutDir (Join-Path $root 'out10') -Given @{ contract = $noMap } -PackInclude @('*.txt') -MaxTokens 180000 -FullPack -Quiet
         Assert-True ($r10.ExitCode -eq 0) 'and -FullPack cuts it anyway'
+
+        # --- a build whose pack text lives ONLY under corpus\ cuts without exit 2
+        $b2 = Join-Path $root 'build2'
+        New-Item -ItemType Directory -Path (Join-Path $b2 'corpus') -Force | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $b2 'cleanroom') -Force | Out-Null
+        foreach ($f in @(Get-ChildItem -LiteralPath (Join-Path $cr 'pack') -File)) { Copy-Item -LiteralPath $f.FullName -Destination (Join-Path $b2 ('corpus\' + $f.Name)) }
+        foreach ($f in @(Get-ChildItem -LiteralPath $cr -File)) { Copy-Item -LiteralPath $f.FullName -Destination (Join-Path $b2 ('cleanroom\' + $f.Name)) }
+        foreach ($leaf in @('deckplan.json', 'figure-sheet.txt', 'unit_extract.md', 'contract.json', 'figures.json')) { Copy-Item -LiteralPath (Join-Path $b $leaf) -Destination (Join-Path $b2 $leaf) }
+        Assert-True ((Test-Path -LiteralPath (Join-Path $b2 'corpus\UNIT_Knowledge.txt')) -and -not (Test-Path -LiteralPath (Join-Path $b2 'cleanroom\pack')) -and -not (Test-Path -LiteralPath (Join-Path $b2 'packtext'))) 'plant landed: build2 holds its pack text under corpus\ only - no cleanroom\pack, no packtext'
+        $o11 = Join-Path $root 'out11'
+        $r11 = Invoke-ReviewPack -BuildDir $b2 -OutDir $o11 -Given @{} -PackInclude @('*.txt') -MaxTokens 180000 -Quiet
+        Assert-True ($r11.ExitCode -eq 0 -and (Test-Path -LiteralPath (Join-Path $o11 'topic1\UNIT_Knowledge.txt'))) ("a build whose pack text is only under corpus\ cuts without exit 2 (exit {0}; {1})" -f $r11.ExitCode, ($r11.Errors -join ' | '))
+        Assert-True ("$((Get-GateJson -Path (Join-Path $o11 'manifest.json')).inputs.packDir)" -like '*corpus') 'and the manifest records corpus\ as the pack directory actually read'
+
+        # --- a given -PackDir that holds no extract is refused by name, never swapped for corpus\
+        $emptyPack = Join-Path $root 'emptypack'; New-Item -ItemType Directory -Path $emptyPack -Force | Out-Null
+        $r12 = Invoke-ReviewPack -BuildDir $b2 -OutDir (Join-Path $root 'out12') -Given @{ packDir = $emptyPack } -PackInclude @('*.txt') -MaxTokens 180000 -Quiet
+        Assert-True ($r12.ExitCode -eq 2 -and @($r12.Errors | Where-Object { $_ -match "required input 'packDir' is missing" -and $_ -match [regex]::Escape($emptyPack) -and $_ -match 'would have read' }).Count -eq 1) ("a given -PackDir with no .txt extract is REFUSED naming it, not silently replaced by corpus\ (exit {0})" -f $r12.ExitCode)
+
+        # --- a reference kind that maps to no learner document FAILS the cut by name
+        $badKind = Join-Path $root 'badkind.json'
+        $rc3 = [ordered]@{}
+        foreach ($k in $contract.referenceConvention.Keys) { $rc3[$k] = $contract.referenceConvention[$k] }
+        $rc3['practical'] = 'Practical Task {n}'
+        $rc3['practicalMeans'] = 'Task {n} in UNIT_Practical.docx'
+        $c3 = [ordered]@{ topics = $contract.topics; terminology = $contract.terminology; referenceConvention = $rc3; questionMap = $contract.questionMap }
+        Write-Utf8File -Path $badKind -Content (($c3 | ConvertTo-Json -Depth 6) + "`r`n")
+        Assert-True ((Get-GateFileText -Path $badKind).Contains('UNIT_Practical.docx')) 'plant landed: the contract names a kind whose document is not a learner extract'
+        $r13 = Invoke-ReviewPack -BuildDir $b -OutDir (Join-Path $root 'out13') -Given @{ contract = $badKind } -PackInclude @('*.txt') -MaxTokens 180000 -Quiet
+        Assert-True ($r13.ExitCode -eq 2 -and @($r13.Errors | Where-Object { $_ -match "reference kind 'practical'" -and $_ -match 'UNIT_Knowledge, UNIT_Workbook' }).Count -eq 1) ("a reference kind that maps to no learner document FAILS the cut naming the kind and the documents searched (exit {0}; {1})" -f $r13.ExitCode, ($r13.Errors -join ' | '))
+        Assert-True (-not (Test-Path -LiteralPath (Join-Path $root 'out13\topic1\guide.txt'))) 'and nothing was cut'
+
+        # --- the printed region count equals the regions written, in every slice
+        $mfA = Get-GateJson -Path (Join-Path $o1 'manifest.json')
+        $regionOk = $true; $regionChecked = 0; $regionWhy = New-Object System.Collections.Generic.List[string]
+        foreach ($tp in @($mfA.topics)) {
+            foreach ($sl in @($tp.assessorSlices)) {
+                $txt = Get-GateFileText -Path (Join-Path $o1 ("topic{0}\{1}" -f $tp.n, $sl.doc))
+                #  Anchored on the '; ' that precedes the count in the SOURCE
+                #  banner, not on a '(' - the '(' opens the line-count clause
+                #  before it, so a '\(' anchor matched nothing and this
+                #  assertion tested only the two counts it could still read.
+                $bm = [regex]::Match($txt, '; (\d+) of (\d+) region\(s\) written here')
+                $inFile = Get-SliceRegionBannerCount -Text $txt
+                $inManifest = if ($null -eq $sl.regions) { 0 } else { @($sl.regions).Count }
+                $regionChecked++
+                if (-not $bm.Success -or [int]$bm.Groups[1].Value -ne $inFile -or [int]$sl.regionsWritten -ne $inFile -or $inManifest -ne $inFile) { $regionOk = $false; $regionWhy.Add(("topic{0}\{1}: banner {2}, file {3}, manifest {4}/{5}" -f $tp.n, $sl.doc, $(if ($bm.Success) { $bm.Groups[1].Value } else { '?' }), $inFile, $sl.regionsWritten, $inManifest)) }
+            }
+        }
+        Assert-True ($regionOk -and $regionChecked -eq 4) ("every assessor slice's banner count equals the region banners in the file and the manifest's regionsWritten ({0} slices checked{1})" -f $regionChecked, $(if ($regionWhy.Count) { ': ' + ($regionWhy -join '; ') } else { '' }))
+        $agT1 = Get-GateFileText -Path (Join-Path $o1 'topic1\Assessor_Guide_UNIT_Knowledge.txt')
+        $agT1b = Get-GateFileText -Path (Join-Path $o1 'topic1\Assessor_Guide_UNIT_Workbook.txt')
+        Assert-True (($agT1 -match '; 1 of 4 region\(s\) written here') -and ($agT1b -match '; 2 of 6 region\(s\) written here')) 'the slice banners say 1 of 4 and 2 of 6 - the source count is no longer printed as the slice count'
     }
     finally {
         if ($root -and (Test-Path -LiteralPath $root) -and $root.Length -gt 12) { Remove-Item -LiteralPath $root -Recurse -Force -ErrorAction SilentlyContinue }

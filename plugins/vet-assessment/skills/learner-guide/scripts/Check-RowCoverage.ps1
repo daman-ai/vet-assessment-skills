@@ -87,9 +87,38 @@
     ceiling 0.25 and term share 0.6. Scoring calibration is the shape
     mirror's and is documented there.
 
+    KE IDS COME FROM THE CONTRACT, NOT FROM ONE BULLET SPELLING (P0-09). The
+    unit extract writes its Knowledge Evidence in more than one form: an
+    explicit "- **KE1** text / - KE2a text" form, and the plain nested-bullet
+    form training.gov.au publishes, with no ids at all. The first version of
+    this arm parsed only the explicit form, so on a build whose extract used
+    the plain form it evaluated 0 of 0 points and printed that every KE point
+    was covered. The ids are now DERIVED from contract.json keMap - the same
+    register Invoke-Render renders the mapping matrix from - and the extract
+    is parsed in whichever form it uses (positional ids KE1, KE1a, KE1b ...
+    when it carries none). A -Whole run REFUSES (exit 2) when the keMap is
+    absent or empty, when the extract is absent or yields no point, or when
+    the two disagree on the point set at the keMap's own granularity (a
+    parent named in the keMap counts once; a parent named only through its
+    sub-points counts each of them). A floor whose two inputs describe two
+    different units has checked nothing. The "fewer than four points" skip of
+    the frame-word ceiling is gone: a frame word is one that occurs in at
+    least two points AND in more than the ceiling share of them, which is the
+    same rule the ceiling always applied to four or more.
+
+    REPORT STAMP (P0-08). spineFingerprint (v2), generated (UTC 'o'), mode,
+    spineFiles and the arm roster are written into the report so
+    Test-GridDisposition can refuse a report from another spine, another mode
+    or an earlier run. An empty, whitespace-only or unparseable spine file is
+    a named finding, not a silent skip.
+
+    SELF-TEST:  powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Check-RowCoverage.ps1 -SelfTest
+
     PS 5.1. ASCII only in this file. Nothing here names a unit, a brand or a
     build path.
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
@@ -100,6 +129,10 @@ param(
     [string] $Cells,
     [switch] $Whole,
     [string] $ReportPath,
+    #  The path the runner expects this gate to produce; the report path when
+    #  no -ReportPath is given, a refusal when it names a different file.
+    [string] $Produces,
+    [switch] $SelfTest,
     [switch] $Quiet,
     [string] $UnitExtract,
     [string] $ContractPath,
@@ -150,50 +183,301 @@ function Get-RcList {
     return ,$out
 }
 
+function Get-RcKeNorm {
+    <# One spelling for a KE id on both sides: "KE 1a", "ke1a" and "KE1a" are the same point. #>
+    param([string] $Id)
+    return (("$Id" -replace '\s', '').ToUpperInvariant())
+}
+
 function Get-RcKePoints {
-    <#  Knowledge Evidence points and sub-points out of the unit extract's own
-        markdown: "- **KE1** text", "  - KE2a text", and nested "- chillers"
-        under a sub-point (id = parent/slug). Returns points plus the frame
-        words (the section's non-bullet lines).  #>
+    <#  Knowledge Evidence points out of the unit extract's own markdown, in
+        whichever of its two forms the section uses:
+
+          explicit    "- **KE1** text", "  - KE2a text", and a nested plain
+                      "- chillers" under either (id = owner/slug)
+          positional  plain nested bullets with no ids (the form the unit
+                      register publishes): top-level bullets are KE1, KE2 ...
+                      in order, their sub-bullets KE1a, KE1b ..., anything
+                      deeper owner/slug
+
+        Level 0 is a top-level point, 1 a sub-point, 2 a nested slug. Returns
+        the points, the frame words (the section's non-bullet lines) and the
+        form it read. The form is decided once for the whole section: any
+        explicit id anywhere in it makes the section explicit.  #>
     param([string] $Text)
     $points = New-Object System.Collections.Generic.List[object]
     $frame  = New-Object System.Collections.Generic.List[string]
-    if (-not $Text) { return [pscustomobject]@{ Points = $points.ToArray(); Frame = $frame.ToArray() } }
-    $lines = @($Text -split "\r?\n")
-    $inKe = $false; $lastId = ''; $lastSub = ''
-    foreach ($raw in $lines) {
+    if (-not $Text) { return [pscustomobject]@{ Points = $points.ToArray(); Frame = $frame.ToArray(); Form = 'none' } }
+    $section = New-Object System.Collections.Generic.List[string]
+    $inKe = $false
+    foreach ($raw in @($Text -split "\r?\n")) {
         $ln = "$raw".TrimEnd()
         if ($ln -match '^#+\s') {
             if ($ln -match '(?i)^#+\s*knowledge evidence') { $inKe = $true; continue }
             if ($inKe) { break }
             continue
         }
-        if (-not $inKe) { continue }
+        if ($inKe) { $section.Add($ln) }
+    }
+    $explicit = $false
+    foreach ($ln in $section) { if ($ln -match '^\s*-\s*\*\*KE\d+\*\*' -or $ln -match '^\s*-\s*KE\d+[a-z]+\s') { $explicit = $true; break } }
+    $form = if ($section.Count -eq 0) { 'none' } elseif ($explicit) { 'explicit' } else { 'positional' }
+    $lastId = ''; $lastSub = ''
+    $top = 0; $subN = 0; $topIndent = -1; $subIndent = -1
+    foreach ($ln in $section) {
         if (-not $ln.Trim()) { continue }
-        $m = [regex]::Match($ln, '^\s*-\s*\*\*(KE\d+)\*\*\s*(.*)$')
-        if ($m.Success) {
-            $lastId = $m.Groups[1].Value; $lastSub = ''
-            $points.Add([pscustomobject]@{ Id = $lastId; Parent = $lastId; Text = ($m.Groups[2].Value -replace '[*:]+$', '').Trim() })
+        if ($explicit) {
+            $m = [regex]::Match($ln, '^\s*-\s*\*\*(KE\d+)\*\*\s*(.*)$')
+            if ($m.Success) {
+                $lastId = $m.Groups[1].Value; $lastSub = ''
+                $points.Add([pscustomobject]@{ Id = $lastId; Parent = $lastId; Level = 0; Text = ($m.Groups[2].Value -replace '[*:]+$', '').Trim() })
+                continue
+            }
+            $m = [regex]::Match($ln, '^\s*-\s*(KE\d+[a-z]+)\s+(.*)$')
+            if ($m.Success) {
+                $lastSub = $m.Groups[1].Value
+                $parent = [regex]::Match($lastSub, '^KE\d+').Value
+                $points.Add([pscustomobject]@{ Id = $lastSub; Parent = $parent; Level = 1; Text = ($m.Groups[2].Value -replace '[*:]+$', '').Trim() })
+                continue
+            }
+            $m = [regex]::Match($ln, '^\s*-\s+(.*)$')
+            if ($m.Success -and $lastId) {
+                $t = ($m.Groups[1].Value -replace '[*:]+$', '').Trim()
+                $owner = if ($lastSub) { $lastSub } else { $lastId }
+                $parent = [regex]::Match($owner, '^KE\d+').Value
+                $points.Add([pscustomobject]@{ Id = ("{0}/{1}" -f $owner, ((ConvertTo-GateNormal $t) -replace ' ', '-')); Parent = $parent; Level = 2; Text = $t })
+                continue
+            }
+            $frame.Add($ln.Trim())
             continue
         }
-        $m = [regex]::Match($ln, '^\s*-\s*(KE\d+[a-z]+)\s+(.*)$')
+        # positional: indentation decides the level; the first bullet sets the top level
+        $m = [regex]::Match($ln, '^(\s*)-\s+(.*)$')
         if ($m.Success) {
-            $lastSub = $m.Groups[1].Value
-            $parent = [regex]::Match($lastSub, '^KE\d+').Value
-            $points.Add([pscustomobject]@{ Id = $lastSub; Parent = $parent; Text = ($m.Groups[2].Value -replace '[*:]+$', '').Trim() })
-            continue
-        }
-        $m = [regex]::Match($ln, '^\s*-\s+(.*)$')
-        if ($m.Success -and $lastId) {
-            $t = ($m.Groups[1].Value -replace '[*:]+$', '').Trim()
-            $owner = if ($lastSub) { $lastSub } else { $lastId }
-            $parent = [regex]::Match($owner, '^KE\d+').Value
-            $points.Add([pscustomobject]@{ Id = ("{0}/{1}" -f $owner, ((ConvertTo-GateNormal $t) -replace ' ', '-')); Parent = $parent; Text = $t })
+            $indent = $m.Groups[1].Value.Length
+            $t = ($m.Groups[2].Value -replace '[*:]+$', '').Trim()
+            if ($topIndent -lt 0) { $topIndent = $indent }
+            if ($indent -le $topIndent) {
+                $top++; $subN = 0; $lastId = "KE$top"; $lastSub = ''
+                $points.Add([pscustomobject]@{ Id = $lastId; Parent = $lastId; Level = 0; Text = $t })
+            }
+            elseif ($subIndent -lt 0 -or $indent -le $subIndent) {
+                if ($subIndent -lt 0) { $subIndent = $indent }
+                $subN++
+                $letter = if ($subN -le 26) { [string][char](96 + $subN) } else { 'z' + $subN }
+                $lastSub = "KE{0}{1}" -f $top, $letter
+                $points.Add([pscustomobject]@{ Id = $lastSub; Parent = $lastId; Level = 1; Text = $t })
+            }
+            else {
+                $owner = if ($lastSub) { $lastSub } else { $lastId }
+                $points.Add([pscustomobject]@{ Id = ("{0}/{1}" -f $owner, ((ConvertTo-GateNormal $t) -replace ' ', '-')); Parent = $lastId; Level = 2; Text = $t })
+            }
             continue
         }
         $frame.Add($ln.Trim())
     }
-    return [pscustomobject]@{ Points = $points.ToArray(); Frame = $frame.ToArray() }
+    return [pscustomobject]@{ Points = $points.ToArray(); Frame = $frame.ToArray(); Form = $form }
+}
+
+function Compare-RcKeSets {
+    <#  Does contract.json keMap name the same point set the extract yields, at
+        the keMap's OWN granularity? A parent named in the keMap counts once
+        and its sub-points are folded under it; a parent NOT named counts each
+        of its sub-points, every one of which must be named. Nested slugs are
+        never keMap ids. Returns Expected (the count the keMap should have),
+        Missing (extract points the keMap does not name) and Unknown (keMap
+        ids no extract point carries).  #>
+    param($Points, [hashtable] $KeIds)
+    $expected = 0
+    $missing = New-Object System.Collections.Generic.List[string]
+    $seen = @{}
+    $parents = @($Points | Where-Object { $_.Level -eq 0 })
+    foreach ($p in $parents) {
+        $pn = Get-RcKeNorm $p.Id
+        $subs = @($Points | Where-Object { $_.Level -eq 1 -and $_.Parent -eq $p.Id })
+        if ($KeIds.ContainsKey($pn)) {
+            #  the parent is named; a sub-point named beside it is a second,
+            #  finer entry for the same point and is counted as one
+            $expected++; $seen[$pn] = $true
+            foreach ($s in $subs) { $sn = Get-RcKeNorm $s.Id; if ($KeIds.ContainsKey($sn)) { $expected++; $seen[$sn] = $true } }
+            continue
+        }
+        if ($subs.Count -eq 0) { $expected++; $missing.Add($p.Id); continue }
+        foreach ($s in $subs) {
+            $expected++
+            $sn = Get-RcKeNorm $s.Id
+            if ($KeIds.ContainsKey($sn)) { $seen[$sn] = $true } else { $missing.Add($s.Id) }
+        }
+    }
+    $unknown = @($KeIds.Keys | Where-Object { -not $seen.ContainsKey($_) } | ForEach-Object { $KeIds[$_] } | Sort-Object)
+    return [pscustomobject]@{ Expected = $expected; Missing = $missing.ToArray(); Unknown = $unknown }
+}
+
+# ---------------------------------------------------------------------------
+# SELF-TEST. Synthetic build in the temp directory; every string invented.
+# Each plant is read back from the fixture before its verdict is trusted.
+# Ends SELF-TEST PASS (exit 0) or SELF-TEST FAIL (exit 4).
+# ---------------------------------------------------------------------------
+if ($SelfTest) {
+    Write-Host ''
+    Write-Host ("  {0} SELF-TEST - a clean result is not believed until the gate has failed on a planted defect" -f $GATE) -ForegroundColor Cyan
+    $script:RcSelfTestFailed = 0
+    $self = $MyInvocation.MyCommand.Path
+    $fx = Join-Path ([System.IO.Path]::GetTempPath()) ('rc-selftest-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    New-Item -ItemType Directory -Force -Path (Join-Path $fx 'spine') | Out-Null
+
+    function Test-RcSelf { param([bool] $Ok, [string] $What) if ($Ok) { Write-Host ("    ok   {0}" -f $What) -ForegroundColor Green } else { Write-Host ("    X    {0}" -f $What) -ForegroundColor Red; $script:RcSelfTestFailed++ } }
+    function Write-RcFixture { param([string] $Path, $Object) [System.IO.File]::WriteAllText($Path, ($Object | ConvertTo-Json -Depth 14), (New-Object System.Text.UTF8Encoding($true))) }
+    function Write-RcText { param([string] $Path, [string[]] $Lines) [System.IO.File]::WriteAllText($Path, ($Lines -join "`r`n"), (New-Object System.Text.UTF8Encoding($true))) }
+    function Invoke-RcSelf {
+        param([hashtable] $Arguments)
+        $text = ''; $rc = -1
+        try { $lines = @(& $self @Arguments *>&1 | ForEach-Object { "$_" }); $rc = $LASTEXITCODE; $text = ($lines -join "`n") }
+        catch { $text = "EXCEPTION: " + $_.Exception.Message; $rc = -1 }
+        return [pscustomobject]@{ Rc = $rc; Text = $text }
+    }
+    function Read-RcReport { param([string] $Path) if (Test-Path -LiteralPath $Path) { return (Get-GateJson -Path $Path) } return $null }
+
+    try {
+        Write-RcFixture -Path (Join-Path $fx 'withhold-register.json') -Object @{
+            subSections = @{ '1.1' = @{ subSection = '1.1'; refs = @('Task 1(a)'); tasks = @(
+                @{ ref = 'Task 1(a)'; id = 'TEST_Tool Task 1(a)'; document = 'TEST_Tool'; kind = 'labelled'
+                   headers = @('Widget', 'Purpose', 'Care'); assessedHeaders = @(1, 2)
+                   items = @('Widget A', 'Widget B', 'Widget C'); aliases = @{ 'Widget A' = @(); 'Widget B' = @(); 'Widget C' = @() }
+                   subjectClass = 'widget'; subjects = @(); unassessedSubjects = @('Widget D'); allowance = 1
+                   shape = @{ rows = 3; assessedColumns = 2; bulletsPerCell = @{ min = 1; max = 2 }; wordGuide = @{ min = 10; max = 20 }; benchmarkMinimum = 1 } } ); freeText = @() } }
+        }
+        Write-RcFixture -Path (Join-Path $fx 'assessor-cells.json') -Object @{
+            _WARNING = 'GATE-ONLY synthetic cells for the self-test'
+            wordPipeline = @{ stopwords = 176; stem = 'crude suffix strip: ing, ed, es, s'; stripLearnerWords = 'headers and items'; dfCeiling = 0.25 }
+            grids = @(@{ ref = 'Task 1(a)'; id = 'TEST_Tool Task 1(a)'; subSection = '1.1'; kind = 'labelled'; document = 'TEST_Tool'
+                         headers = @('Widget', 'Purpose', 'Care'); assessedHeaders = @(1, 2)
+                         rows = @(
+                            @{ item = 'Widget A'; assessed = $true; cells = @(
+                                @{ col = 1; header = 'Purpose'; state = 'answered'; bullets = @(@{ text = 'turns the main spindle'; words = @('turn', 'main', 'spindle') }) },
+                                @{ col = 2; header = 'Care'; state = 'answered'; bullets = @(@{ text = 'oil the bearing weekly'; words = @('oil', 'bear', 'weekly') }) }) },
+                            @{ item = 'Widget B'; assessed = $true; cells = @(
+                                @{ col = 1; header = 'Purpose'; state = 'answered'; bullets = @(@{ text = 'feeds the hopper evenly'; words = @('feed', 'hopper', 'evenly') }) },
+                                @{ col = 2; header = 'Care'; state = 'answered'; bullets = @(@{ text = 'clear the chute after every run'; words = @('clear', 'chute', 'run') }) }) },
+                            @{ item = 'Widget C'; assessed = $true; cells = @(
+                                @{ col = 1; header = 'Purpose'; state = 'answered'; bullets = @(@{ text = 'holds the jig square'; words = @('hold', 'jig', 'square') }) },
+                                @{ col = 2; header = 'Care'; state = 'answered'; bullets = @(@{ text = 'inspect the clamp face'; words = @('inspect', 'clamp', 'face') }) }) }
+                         ) })
+            freeText = @(); taskLevel = @()
+        }
+        $contractPath = Join-Path $fx 'contract.json'
+        $extractPath  = Join-Path $fx 'unit_extract.md'
+        $spinePath    = Join-Path $fx 'spine\t1_1.1.json'
+        $reportPath   = Join-Path $fx 'row-coverage-report.json'
+        function Set-RcContract { param($KeMap) Write-RcFixture -Path $contractPath -Object @{ unit = @{ code = 'TEST001' }; questionMap = @{ '1.1' = @('Task 1(a)') }; keMap = $KeMap } }
+        Set-RcContract -KeMap ([ordered]@{ _comment = 'synthetic'; KE1 = @{ assessedIn = 'Task 1'; taughtAt = '1.1' }; KE2 = @{ assessedIn = 'Task 1'; taughtAt = '1.1' }; KE3 = @{ assessedIn = 'Task 1'; taughtAt = '1.1' } })
+        Write-RcText -Path $extractPath -Lines @(
+            '# TEST001 - unit extract', '', '## Knowledge evidence (verbatim)', '',
+            'Demonstrated knowledge required to complete the tasks:', '',
+            '- **KE1** widget drive gearing', '- **KE2** hopper material rate:', '  - KE2a chute blockage', '- **KE3** belt tensioner', '',
+            '## Assessment conditions', '', 'None.')
+        #  two rows taught, Widget C never mentioned; KE1 and KE2 taught, KE3 (belt tensioner) never
+        Write-RcFixture -Path $spinePath -Object @{
+            ref = '1.1'; title = 'Widgets'
+            underpinningKnowledge = @(
+                'Widget A is the drive unit with the main gearing. Widget A needs watching in humid weather. Widget A is serviced by the fitter, not by you.',
+                'Widget B sets the rate at which material reaches the hopper. A chute blockage stops Widget B. Widget B is serviced by the fitter as well.')
+        }
+        $planted = Get-GateFileText -Path $spinePath
+        Test-RcSelf -Ok ($planted.IndexOf('Widget A is the drive unit', [System.StringComparison]::Ordinal) -ge 0 -and $planted -notmatch 'Widget C' -and $planted -notmatch 'tensioner') -What 'plant 1 landed: Widget C and the belt tensioner are never mentioned'
+
+        # ---- 1. -Whole BLOCKS on the untaught row and the uncovered KE point; the report is stamped; the roster prints
+        $r1 = Invoke-RcSelf -Arguments @{ BuildDir = $fx; Whole = $true; Quiet = $true }
+        $rep1 = Read-RcReport -Path $reportPath
+        Test-RcSelf -Ok ($r1.Rc -eq 1) -What ("-Whole exits 1 on an untaught row and an uncovered KE point (rc={0})" -f $r1.Rc)
+        $fpNow = Get-SpineFingerprint -BuildDir $fx -Quiet
+        $stamp = if ($null -ne $rep1) { [string](Get-GateProp -Object $rep1 -Names @('spineFingerprint') -Default '') } else { '' }
+        Test-RcSelf -Ok ($stamp -like 'v2:*' -and $stamp -eq $fpNow) -What ("report stamps spineFingerprint v2 equal to the current spine ({0})" -f $stamp)
+        $gen = if ($null -ne $rep1) { [string](Get-GateProp -Object $rep1 -Names @('generated') -Default '') } else { '' }
+        $genOk = $false
+        try { $dto = [System.DateTimeOffset]::Parse($gen, [System.Globalization.CultureInfo]::InvariantCulture); $genOk = ($gen -match 'Z$' -and ([System.DateTimeOffset]::UtcNow - $dto).TotalMinutes -lt 10) } catch { $genOk = $false }
+        Test-RcSelf -Ok $genOk -What ("report stamps generated as UTC round-trip time ({0})" -f $gen)
+        Test-RcSelf -Ok ($null -ne $rep1 -and [string](Get-GateProp -Object $rep1 -Names @('mode') -Default '') -eq 'whole' -and @(Get-GateProp -Object $rep1 -Names @('spineFiles') -Default @()) -contains 't1_1.1.json') -What 'report stamps mode whole and the spine file list'
+        Test-RcSelf -Ok ($r1.Text -match '(?m)^ARMS: .*row-floor\|true\|ran\|3\|1' -and $r1.Text -match 'ke-coverage\|true\|ran\|4\|1' -and $r1.Text -match 'spine-files\|true\|ran\|1\|0') -What 'the ARMS: roster prints row-floor (3 rows, 1 finding), ke-coverage (4 points, 1 finding) and spine-files ran'
+        $ke3 = @(); $ke1 = @()
+        if ($null -ne $rep1) { $ke3 = @($rep1.ke.points | Where-Object { $_.Id -eq 'KE3' }); $ke1 = @($rep1.ke.points | Where-Object { $_.Id -eq 'KE1' }) }
+        Test-RcSelf -Ok ($ke3.Count -eq 1 -and -not $ke3[0].Covered -and $ke1.Count -eq 1 -and $ke1[0].Covered -and $rep1.ke.keMap.count -eq 3 -and $rep1.ke.keMap.expected -eq 3 -and $rep1.ke.form -eq 'explicit') -What 'KE ids come from the keMap (3 = 3 expected, explicit extract): KE1 covered, KE3 uncovered with its missing terms'
+
+        # ---- 2. an EMPTY keMap is a refusal naming the input
+        Set-RcContract -KeMap ([ordered]@{ _comment = 'no points' })
+        $ct = Get-GateFileText -Path $contractPath
+        Test-RcSelf -Ok ($ct -match '"keMap"' -and $ct -notmatch '"KE\s?\d') -What 'plant 2 landed: contract.json keMap carries no KE key'
+        $r2 = Invoke-RcSelf -Arguments @{ BuildDir = $fx; Whole = $true; Quiet = $true }
+        Test-RcSelf -Ok ($r2.Rc -eq 2 -and $r2.Text -match 'contract\.json keMap') -What ("an empty keMap exits 2 naming contract.json keMap (rc={0})" -f $r2.Rc)
+
+        # ---- 3. a keMap that DISAGREES with the extract's point set is a refusal naming both counts
+        Set-RcContract -KeMap ([ordered]@{ KE1 = @{ taughtAt = '1.1' }; KE2 = @{ taughtAt = '1.1' } })
+        $r3 = Invoke-RcSelf -Arguments @{ BuildDir = $fx; Whole = $true; Quiet = $true }
+        Test-RcSelf -Ok ($r3.Rc -eq 2 -and $r3.Text -match 'contract\.json keMap' -and $r3.Text -match 'KE3' -and $r3.Text -match '\b2\b' -and $r3.Text -match '\b3\b') -What ("a keMap of 2 against an extract of 3 exits 2 naming keMap, both counts and the unnamed point (rc={0})" -f $r3.Rc)
+
+        # ---- 4. the POSITIONAL extract form (no ids) with 'KE 1a'-style keMap keys parses and agrees; fewer than 4 points still evaluate
+        Write-RcText -Path $extractPath -Lines @(
+            '# TEST001 - unit extract', '', '## Knowledge evidence', '',
+            'Demonstrated knowledge required to complete the tasks:', '',
+            '- widget families and their drive arrangements:', '  - main gearing of the drive unit', '  - hopper material rate and chute blockage', '- belt tensioner care.', '',
+            '## Assessment conditions', '', 'None.')
+        Set-RcContract -KeMap ([ordered]@{ 'KE 1a' = @{ taughtAt = '1.1' }; 'KE 1b' = @{ taughtAt = '1.1' }; 'KE 2' = @{ taughtAt = '1.1' } })
+        $et = Get-GateFileText -Path $extractPath
+        Test-RcSelf -Ok ($et -notmatch 'KE\d' -and $et -match 'belt tensioner care') -What 'plant 4 landed: the extract carries no KE id at all'
+        $r4 = Invoke-RcSelf -Arguments @{ BuildDir = $fx; Whole = $true; Quiet = $true }
+        $rep4 = Read-RcReport -Path $reportPath
+        $ids4 = @(); if ($null -ne $rep4) { $ids4 = @($rep4.ke.points | ForEach-Object { $_.Id }) }
+        Test-RcSelf -Ok ($r4.Rc -eq 1 -and $null -ne $rep4 -and $rep4.ke.form -eq 'positional' -and $rep4.ke.keMap.count -eq 3 -and $rep4.ke.keMap.expected -eq 3 -and $ids4.Count -eq 3 -and ($ids4 -contains 'KE1a') -and ($ids4 -contains 'KE1b') -and ($ids4 -contains 'KE2') -and ($ids4 -notcontains 'KE1')) -What ("positional form: KE1a, KE1b, KE2 evaluated (3 points, no <4 skip), the group header KE1 is not a point, keMap 3 = 3 (rc={0})" -f $r4.Rc)
+        $ke2 = @(); if ($null -ne $rep4) { $ke2 = @($rep4.ke.points | Where-Object { $_.Id -eq 'KE2' }) }
+        Test-RcSelf -Ok ($ke2.Count -eq 1 -and -not $ke2[0].Covered -and $r4.Text -match 'KE 2') -What 'the untaught positional point (KE 2, belt tensioner) is reported under the keMap''s own key'
+
+        # ---- 5. no unit extract is a refusal naming it
+        Move-Item -LiteralPath $extractPath -Destination ($extractPath + '.off') -Force
+        Test-RcSelf -Ok (-not (Test-Path -LiteralPath $extractPath)) -What 'plant 5 landed: unit_extract.md is absent'
+        $r5 = Invoke-RcSelf -Arguments @{ BuildDir = $fx; Whole = $true; Quiet = $true }
+        Test-RcSelf -Ok ($r5.Rc -eq 2 -and $r5.Text -match 'unit_extract\.md') -What ("-Whole with no unit extract exits 2 naming unit_extract.md (rc={0})" -f $r5.Rc)
+        Move-Item -LiteralPath ($extractPath + '.off') -Destination $extractPath -Force
+
+        # ---- 6. an empty spine file is a NAMED finding
+        $emptyPath = Join-Path $fx 'spine\t1_1.2.json'
+        [System.IO.File]::WriteAllText($emptyPath, "`r`n  ", (New-Object System.Text.UTF8Encoding($true)))
+        Test-RcSelf -Ok ((Test-Path -LiteralPath $emptyPath) -and -not (Get-GateFileText -Path $emptyPath).Trim()) -What 'plant 6 landed: t1_1.2.json exists and is whitespace-only'
+        $r6 = Invoke-RcSelf -Arguments @{ BuildDir = $fx; Whole = $true; Quiet = $true }
+        $rep6 = Read-RcReport -Path $reportPath
+        $emptyRep = if ($null -ne $rep6) { @(Get-GateProp -Object $rep6 -Names @('emptyFiles') -Default @()) } else { @() }
+        Test-RcSelf -Ok ($r6.Rc -eq 1 -and $r6.Text -match 't1_1\.2\.json' -and $r6.Text -match '(?i)empty' -and @($emptyRep | Where-Object { $_ -match 't1_1\.2\.json' }).Count -eq 1 -and $r6.Text -match 'spine-files\|true\|ran\|1\|1') -What ("an empty spine file is named on the console, listed in the report and counted by the spine-files arm (rc={0})" -f $r6.Rc)
+        Remove-Item -LiteralPath $emptyPath -Force
+
+        # ---- 7. file mode reports, stamps mode file, and exits 0
+        $r7 = Invoke-RcSelf -Arguments @{ BuildDir = $fx; SpineFile = $spinePath; Quiet = $true }
+        $rep7 = Read-RcReport -Path $reportPath
+        Test-RcSelf -Ok ($r7.Rc -eq 0 -and $null -ne $rep7 -and [string](Get-GateProp -Object $rep7 -Names @('mode') -Default '') -eq 'file' -and $r7.Text -match 'REPORT ONLY' -and $r7.Text -match '(?m)^ARMS: .*row-floor\|false\|ran\|') -What ("file mode exits 0, stamps mode file and prints its roster with row-floor advisory (rc={0})" -f $r7.Rc)
+
+        # ---- 8. -Produces beside a different -ReportPath is refused naming both
+        $r8 = Invoke-RcSelf -Arguments @{ BuildDir = $fx; Whole = $true; Produces = (Join-Path $fx 'produced.json'); ReportPath = (Join-Path $fx 'other.json'); Quiet = $true }
+        Test-RcSelf -Ok ($r8.Rc -eq 2 -and $r8.Text -match 'produced\.json' -and $r8.Text -match 'other\.json') -What ("-Produces beside a different -ReportPath is refused naming both (rc={0})" -f $r8.Rc)
+    }
+    finally {
+        try { Remove-Item -LiteralPath $fx -Recurse -Force -ErrorAction SilentlyContinue } catch { }
+    }
+
+    Write-Host ''
+    if ($script:RcSelfTestFailed -gt 0) {
+        Write-Host ("  SELF-TEST FAIL: {0} check(s) failed - no result from this gate may be believed until they pass" -f $script:RcSelfTestFailed) -ForegroundColor Red
+        exit 4
+    }
+    Write-Host '  SELF-TEST PASS: the gate refused every starved input by name, failed on every planted defect, stamped its report and printed its roster' -ForegroundColor Green
+    exit 0
+}
+
+try {
+
+if ($Produces) {
+    if (-not $ReportPath) { $ReportPath = $Produces }
+    elseif ([System.IO.Path]::GetFullPath($ReportPath).ToLowerInvariant() -ne [System.IO.Path]::GetFullPath($Produces).ToLowerInvariant()) {
+        Write-Host ("  X {0}: -Produces {1} names a different file from -ReportPath {2}. A runner that reads one path while the gate writes another is reading a stale report; pass one path." -f $GATE, $Produces, $ReportPath) -ForegroundColor Red
+        exit 2
+    }
 }
 
 try { $in = Get-SmInputs -BuildDir $BuildDir -SpineFile $SpineFile -SpineDir $SpineDir -Register $Register -Cells $Cells -Gate $GATE }
@@ -201,21 +485,34 @@ catch { Write-Host ("  X {0}" -f $_.Exception.Message) -ForegroundColor Red; exi
 
 $set = Get-SmGridSet -RegisterDoc $in.Register -CellsDoc $in.Cells -DfCeiling $DfCeiling -MinHitWords $MinHitWords
 $grids = @($set.Grids)
-if ($grids.Count -eq 0) {
-    Write-Host ("  X {0}: assessor-cells.json carries no grids - a floor with an empty check-set passes by having nothing to check." -f $GATE) -ForegroundColor Red
-    exit 2
-}
+#  mode: 'whole' only for a whole-spine -Whole run. -Whole over one -SpineFile
+#  still blocks, but its floor is not the whole-spine one, and the report says
+#  so, so Test-GridDisposition will not dispose a grid on it.
+$mode = if ($Whole -and -not $SpineFile) { 'whole' } else { 'file' }
+if ($Whole -and $SpineFile) { Write-Host ("  ! {0}: -Whole with -SpineFile blocks over ONE file; the report is stamped mode 'file' and cannot feed the disposition" -f $GATE) -ForegroundColor Yellow }
 $skip = Get-GateUnrenderedFields -BuildDir $BuildDir -ForSweep
 $skipTable = @{}
 foreach ($k in $skip.Keys) { $skipTable[$k] = $true }
 if (-not $ReportPath) { $ReportPath = Join-Path $BuildDir 'row-coverage-report.json' }
 $blanks = Get-GateBlankTokens -BuildDir $BuildDir
-$mode = if ($Whole) { 'whole' } else { 'file' }
 
 if (-not $Quiet) {
     Write-Host ''
     Write-Host ("ROW COVERAGE - is every assessed row taught?  ({0} mode)" -f $mode) -ForegroundColor Cyan
-    Write-GateCheckSet -What 'assessed grids' -Count $grids.Count -DerivedFrom ("{0} with cells from {1}" -f (Split-Path $in.RegisterPath -Leaf), (Split-Path $in.CellsPath -Leaf))
+}
+#  BLOCKING: a cells file with no grid is an empty check-set - a refusal
+#  (exit 2 through the catch at the foot of this file), never a pass.
+Write-GateCheckSet -What 'assessed grids' -Count $grids.Count -DerivedFrom ("{0} with cells from {1}" -f (Split-Path $in.RegisterPath -Leaf), (Split-Path $in.CellsPath -Leaf)) -Blocking -Input 'assessor-cells.json grids'
+
+#  Every arm, declared before any runs. The two floors and the KE arm BLOCK in
+#  -Whole and report in file mode; spine-files blocks in both; hollow
+#  relocation reports.
+Register-GateArm -Name 'spine-files' -Blocking
+Register-GateArm -Name 'row-floor' -Blocking:$Whole
+Register-GateArm -Name 'ke-coverage' -Blocking:$Whole
+Register-GateArm -Name 'hollow-relocation'
+
+if (-not $Quiet) {
     Write-Host ("  floors: {0} teaching sentence(s) per row per file (report), {1} anywhere in the spine (-Whole, block); hollow share {2:P0} of the word guide; KE frame ceiling {3:P0}" -f $MinTeachFile, $MinTeachWhole, $HollowShare, $KeFrameCeiling) -ForegroundColor DarkGray
     Write-Host ("  a teaching sentence is anchored to the row and answers none of its bullets - classified once, by the shape mirror's own code") -ForegroundColor DarkGray
     Write-Host ("  spine: {0} file(s)" -f $in.Files.Count) -ForegroundColor DarkGray
@@ -230,10 +527,24 @@ $fileReports = New-Object System.Collections.Generic.List[object]
 $underpinning = @{}   # sub-section -> HashSet[string] of content words in its underpinning knowledge
 $hollow = New-Object System.Collections.Generic.List[object]
 $fileReportRows = 0
+$emptyFiles = New-Object System.Collections.Generic.List[string]
+$filesRead = 0
+$hollowCellsExamined = 0
 
 foreach ($f in $in.Files) {
-    $json = Get-GateJson -Path $f.FullName
-    if ($null -eq $json) { continue }
+    #  A FILE THE FLOOR CANNOT READ IS A FINDING, NOT A SKIP. An empty,
+    #  whitespace-only or unparseable spine file used to fall through in
+    #  silence; every row it should have taught then read as taught elsewhere
+    #  or not at all, and nothing named the file.
+    $json = $null; $readError = ''
+    try { $json = Get-GateJson -Path $f.FullName } catch { $readError = $_.Exception.Message }
+    if ($null -eq $json) {
+        $why = if ($readError) { 'unparseable (' + $readError + ')' } else { 'empty or whitespace-only' }
+        $emptyFiles.Add(("{0}: {1}" -f $f.Name, $why))
+        Write-Host ("  X {0}: spine file {1} is {2} - a file the floor cannot read is a finding, not a skip" -f $GATE, $f.Name, $why) -ForegroundColor Red
+        continue
+    }
+    $filesRead++
     $sub = Get-SmFileSubSection -Json $json -RegisterDoc $in.Register
     $own = @($grids | Where-Object { $sub -and $_.SubSection -eq $sub })
 
@@ -308,6 +619,7 @@ foreach ($f in $in.Files) {
                     $txt = [string]$rowCells[$c]
                     if ($txt -match $WithheldRx) { continue }
                     if (-not (Test-GateCellFilled -Text $txt -BlankTokens $blanks)) { continue }
+                    $hollowCellsExamined++
                     $words = @((ConvertTo-GateNormal $txt) -split ' ' | Where-Object { $_ }).Count
                     if ($words -lt $need) {
                         $hdr = if ($c -lt $tHeads.Count) { [string]@($t.Headers)[$c] } else { "column $c" }
@@ -389,24 +701,84 @@ $contract = $null
 if ($ContractPath) { $contract = Get-GateJson -Path $ContractPath } else { $contract = Get-GateContract -BuildDir $BuildDir }
 $keMap = $null
 if ($null -ne $contract) { $keMap = Get-GateProp -Object $contract -Names @('keMap', 'knowledgeEvidenceMap') -Default $null }
-if (-not (Test-Path -LiteralPath $UnitExtract)) { $keMissingInput.Add(("unit extract not found at {0}" -f $UnitExtract)) }
-if ($null -eq $keMap) { $keMissingInput.Add('contract.json carries no keMap') }
+
+#  THE KE IDS ARE THE keMap's KEYS - the register Invoke-Render renders the
+#  mapping matrix from. Keys beginning '_' are commentary. Normalised once
+#  so "KE 1a" in the contract and KE1a from the extract are one point.
+$keIds = @{}            # normalised id -> the contract's own key
+$keIdOrder = New-Object System.Collections.Generic.List[string]
+if ($null -ne $keMap -and $keMap -isnot [string] -and $keMap -isnot [ValueType]) {
+    foreach ($kp in $keMap.PSObject.Properties) {
+        if ($kp.Name -like '_*') { continue }
+        $n = Get-RcKeNorm $kp.Name
+        if (-not $n) { continue }
+        if (-not $keIds.ContainsKey($n)) { $keIds[$n] = $kp.Name; $keIdOrder.Add($n) }
+    }
+}
+$keMapSource = if ($ContractPath) { (Split-Path $ContractPath -Leaf) + ' keMap' } else { 'contract.json keMap' }
+
+$ke = $null
+if (Test-Path -LiteralPath $UnitExtract) { $ke = Get-RcKePoints -Text (Get-GateFileText -Path $UnitExtract) }
+$points = @(); $keForm = 'none'
+if ($null -ne $ke) { $points = @($ke.Points); $keForm = [string]$ke.Form }
+
+Write-Host ''
+Write-Host ("  KE CONCEPT COVERAGE ({0})" -f $(if ($Whole) { 'block' } else { 'report - points assigned to the file(s) in hand' })) -ForegroundColor Cyan
+#  The three refusals of a -Whole run, each naming its input: no keMap ids, no
+#  extract points, or a keMap that describes a different point set from the
+#  extract. In file mode the same absences are printed and the arm reports.
+Write-GateCheckSet -What 'KE points' -Count $keIds.Count -DerivedFrom ("{0} keys (the register the mapping matrix is rendered from)" -f $keMapSource) -Blocking:$Whole -Input $keMapSource
+Write-GateCheckSet -What ("KE points parsed from the unit extract ({0} form)" -f $keForm) -Count $points.Count -DerivedFrom (Split-Path $UnitExtract -Leaf) -Blocking:$Whole -Input (Split-Path $UnitExtract -Leaf)
+if ($keIds.Count -eq 0) { $keMissingInput.Add(("{0} carries no KE point" -f $keMapSource)) }
+if ($points.Count -eq 0) { $keMissingInput.Add(("unit extract yields no KE point ({0})" -f $UnitExtract)) }
+
+$keAgree = $null
+if ($keMissingInput.Count -eq 0) {
+    $keAgree = Compare-RcKeSets -Points $points -KeIds $keIds
+    $disagree = ($keAgree.Expected -ne $keIds.Count -or @($keAgree.Missing).Count -gt 0 -or @($keAgree.Unknown).Count -gt 0)
+    $agreeLine = ("  keMap {0} point(s) against {1} expected from the extract's {2} point(s) at the keMap's granularity{3}{4}" -f $keIds.Count, $keAgree.Expected, $points.Count,
+        $(if (@($keAgree.Missing).Count) { '; not named in the keMap: ' + (@($keAgree.Missing) -join ', ') } else { '' }),
+        $(if (@($keAgree.Unknown).Count) { '; named in the keMap but not in the extract: ' + (@($keAgree.Unknown) -join ', ') } else { '' }))
+    if ($disagree) {
+        if ($Whole) {
+            throw (New-Object System.InvalidOperationException (("CHECK-SET DISAGREES: {0} lists {1} KE point(s) but the unit extract ({2} form, {3} point(s)) yields {4} at the keMap's own granularity.{5}{6} A floor whose two inputs describe two different units has checked nothing; fix the keMap or the extract. Exit 2." -f $keMapSource, $keIds.Count, $keForm, $points.Count, $keAgree.Expected,
+                $(if (@($keAgree.Missing).Count) { ' Not named in the keMap: ' + (@($keAgree.Missing) -join ', ') + '.' } else { '' }),
+                $(if (@($keAgree.Unknown).Count) { ' Named in the keMap but not in the extract: ' + (@($keAgree.Unknown) -join ', ') + '.' } else { '' }))))
+        }
+        Write-Host ("  !" + $agreeLine.Substring(2) + ' - the two disagree; the whole-spine run at Stage 3c refuses on this') -ForegroundColor Yellow
+    }
+    else { Write-Host $agreeLine -ForegroundColor DarkGray }
+}
 
 $fileSubs = @{}
 foreach ($fr in $fileReports) { if ($fr.SubSection) { $fileSubs[$fr.SubSection] = $true } }
 $keBelow = 0
+$keEvaluated = 0
 if ($keMissingInput.Count -eq 0) {
-    $ke = Get-RcKePoints -Text (Get-GateFileText -Path $UnitExtract)
-    $points = @($ke.Points)
     $frameWords = @{}
     foreach ($ln in $ke.Frame) { foreach ($w in (Get-SmWords $ln)) { $frameWords[$w] = $true } }
-    if ($points.Count -ge 4) {
-        $df = @{}
-        foreach ($p in $points) { foreach ($w in @(Get-SmWords $p.Text | Select-Object -Unique)) { if ($df.ContainsKey($w)) { $df[$w]++ } else { $df[$w] = 1 } } }
-        foreach ($w in @($df.Keys)) { if (($df[$w] / [double]$points.Count) -gt $KeFrameCeiling) { $frameWords[$w] = $true } }
-    }
+    #  A FRAME WORD OCCURS IN AT LEAST TWO POINTS AND IN MORE THAN THE CEILING
+    #  SHARE OF THEM. The "at least two" was implicit while the ceiling only
+    #  ran on four or more points (1 of 4 is under a quarter); stated, it lets
+    #  the ceiling run on any point count without stripping every word of a
+    #  three-point list. No skip on the count: the floor always runs.
+    $df = @{}
+    foreach ($p in $points) { foreach ($w in @(Get-SmWords $p.Text | Select-Object -Unique)) { if ($df.ContainsKey($w)) { $df[$w]++ } else { $df[$w] = 1 } } }
+    foreach ($w in @($df.Keys)) { if ($df[$w] -ge 2 -and ($df[$w] / [double]$points.Count) -gt $KeFrameCeiling) { $frameWords[$w] = $true } }
     foreach ($p in $points) {
-        $entry = Get-GateProp -Object $keMap -Names @($p.Parent) -Default $null
+        #  WHICH keMap ENTRY OWNS THIS POINT: its own id; the owner of a nested
+        #  slug; or its parent where the parent is named directly. A point
+        #  none of those resolves is a group header the keMap addresses
+        #  through its sub-points, and is not itself evaluated.
+        $keyNorm = ''
+        $cands = New-Object System.Collections.Generic.List[string]
+        $cands.Add((Get-RcKeNorm $p.Id))
+        if ($p.Id -match '^([^/]+)/') { $cands.Add((Get-RcKeNorm $Matches[1])) }
+        $cands.Add((Get-RcKeNorm $p.Parent))
+        foreach ($c in $cands) { if ($keIds.ContainsKey($c)) { $keyNorm = $c; break } }
+        if (-not $keyNorm) { continue }
+        $keKey = $keIds[$keyNorm]
+        $entry = $keMap.$keKey
         $assigned = @()
         if ($null -ne $entry) {
             $ta = if ($entry -is [string]) { $entry } else { [string](Get-GateProp -Object $entry -Names @('taughtAt', 'taught', 'subSection', 'subSections', 'preparedAt') -Default '') }
@@ -440,14 +812,15 @@ if ($keMissingInput.Count -eq 0) {
         if ($needTerms -lt 1 -and $terms.Count -gt 0) { $needTerms = 1 }
         $ok = ($assigned.Count -gt 0 -and $terms.Count -gt 0 -and $present -ge $needTerms)
         if (-not $ok) { $keBelow++ }
-        $keOut.Add([pscustomobject]@{ Id = $p.Id; Text = $p.Text; AssignedTo = $assigned; Terms = $terms; Present = $present; Need = $needTerms; Missing = $missing.ToArray(); Covered = $ok })
+        $keEvaluated++
+        $keOut.Add([pscustomobject]@{ Id = $p.Id; KeMapKey = $keKey; Text = $p.Text; AssignedTo = $assigned; Terms = $terms; Present = $present; Need = $needTerms; Missing = $missing.ToArray(); Covered = $ok })
     }
 }
 
-Write-Host ''
-Write-Host ("  KE CONCEPT COVERAGE ({0})" -f $(if ($Whole) { 'block' } else { 'report - points assigned to the file(s) in hand' })) -ForegroundColor Cyan
 if ($keMissingInput.Count -gt 0) {
     foreach ($m in $keMissingInput) {
+        #  In -Whole the blocking Write-GateCheckSet above has already thrown
+        #  on a zero count; this branch is file mode, where the arm reports.
         if ($Whole) { Write-Host ("  X {0} - the KE floor cannot run; a floor whose input is absent has checked nothing" -f $m) -ForegroundColor Red; $block++ }
         else { Write-Host ("  ! {0} - KE coverage not checked in file mode" -f $m) -ForegroundColor Yellow }
     }
@@ -459,7 +832,8 @@ else {
         $c = if ($Whole) { 'Red' } else { 'Yellow' }
         if ($Whole) { $block++ }
         $where = if (@($k.AssignedTo).Count) { ($k.AssignedTo -join ', ') } else { 'NOT ASSIGNED in keMap' }
-        Write-Host ("  {0} {1} -> {2}: {3} of {4} term(s) present, missing {5}   [{6}]" -f $(if ($Whole) { 'X' } else { '~' }), $k.Id, $where, $k.Present, @($k.Terms).Count, ($k.Missing -join ', '), $(if ($k.Text.Length -gt 70) { $k.Text.Substring(0, 70) + '...' } else { $k.Text })) -ForegroundColor $c
+        $shown = if ($k.KeMapKey -and $k.KeMapKey -ne $k.Id) { "{0} ({1})" -f $k.KeMapKey, $k.Id } else { $k.Id }
+        Write-Host ("  {0} {1} -> {2}: {3} of {4} term(s) present, missing {5}   [{6}]" -f $(if ($Whole) { 'X' } else { '~' }), $shown, $where, $k.Present, @($k.Terms).Count, ($k.Missing -join ', '), $(if ($k.Text.Length -gt 70) { $k.Text.Substring(0, 70) + '...' } else { $k.Text })) -ForegroundColor $c
     }
     foreach ($k in ($keOut | Where-Object { $_.Covered -and @($_.Missing).Count -gt 0 })) {
         Write-Host ("    ok {0} -> {1}: covered ({2} of {3}); term(s) not found: {4}" -f $k.Id, ($k.AssignedTo -join ', '), $k.Present, @($k.Terms).Count, ($k.Missing -join ', ')) -ForegroundColor DarkGray
@@ -482,31 +856,85 @@ else {
 # 5. Report and verdict
 # ---------------------------------------------------------------------------
 
+# ---- arms: what each examined and what it found; a blocking arm with an
+#      empty check-set is a refusal through Assert-GateArmsComplete
+Write-Host ''
+if ($filesRead -gt 0) { Complete-GateArm -Name 'spine-files' -State ran -Size $filesRead -Findings $emptyFiles.Count } else { Complete-GateArm -Name 'spine-files' -State empty }
+$rowsExamined = 0
+if ($Whole) { foreach ($g in $grids) { $rowsExamined += $g.ItemCount } }
+else { foreach ($fr in $fileReports) { foreach ($go in @($fr.Grids)) { $rowsExamined += @($go.Rows).Count } } }
+$rowFindings = if ($Whole) { $belowWhole.Count } else { $fileReportRows }
+if ($rowsExamined -gt 0) { Complete-GateArm -Name 'row-floor' -State ran -Size $rowsExamined -Findings $rowFindings } else { Complete-GateArm -Name 'row-floor' -State empty }
+if ($keEvaluated -gt 0) { Complete-GateArm -Name 'ke-coverage' -State ran -Size $keEvaluated -Findings $keBelow } else { Complete-GateArm -Name 'ke-coverage' -State empty }
+if ($hollowCellsExamined -gt 0) { Complete-GateArm -Name 'hollow-relocation' -State ran -Size $hollowCellsExamined -Findings $hollow.Count } else { Complete-GateArm -Name 'hollow-relocation' -State empty }
+$roster = Write-GateArmRoster
+Assert-GateArmsComplete
+
+#  THE STAMP - what Test-GridDisposition checks before it believes a number.
+$fingerprint = Get-SpineFingerprint -BuildDir $BuildDir -SpineDir $SpineDir -Quiet
 $report = [pscustomobject]@{
     gate = $GATE
-    generated = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ss')
-    buildDir = $BuildDir
+    generated = (Get-Date).ToUniversalTime().ToString('o')
+    spineFingerprint = $fingerprint
     mode = $mode
-    floors = [pscustomobject]@{ minTeachFile = $MinTeachFile; minTeachWhole = $MinTeachWhole; hollowShare = $HollowShare; keFrameCeiling = $KeFrameCeiling }
+    spineFiles = @($in.Files | ForEach-Object { $_.Name })
+    buildDir = $BuildDir
+    spineDir = $(if ($SpineDir) { $SpineDir } else { Join-Path $BuildDir 'spine' })
+    floors = [pscustomobject]@{ minTeachFile = $MinTeachFile; minTeachWhole = $MinTeachWhole; hollowShare = $HollowShare; keFrameCeiling = $KeFrameCeiling; keTermShare = $KeTermShare }
     calibration = [pscustomobject]@{ anchorWindow = $AnchorWindow; minHitWords = $MinHitWords; minHitShare = $MinHitShare; dfCeiling = $DfCeiling; aliasAmbientCeiling = $AliasAmbientCeiling }
+    emptyFiles = $emptyFiles.ToArray()
+    arms = @($roster)
     files = $fileReports.ToArray()
     grids = $gridSummaries.ToArray()
     belowWhole = $belowWhole.ToArray()
-    ke = [pscustomobject]@{ missingInput = $keMissingInput.ToArray(); points = $keOut.ToArray() }
+    ke = [pscustomobject]@{
+        form = $keForm
+        keMap = [pscustomobject]@{
+            source = $keMapSource; count = $keIds.Count
+            ids = @($keIdOrder | ForEach-Object { $keIds[$_] })
+            expected = $(if ($null -ne $keAgree) { $keAgree.Expected } else { 0 })
+            missing = @($(if ($null -ne $keAgree) { $keAgree.Missing } else { @() }))
+            unknown = @($(if ($null -ne $keAgree) { $keAgree.Unknown } else { @() }))
+        }
+        extractPoints = $points.Count
+        missingInput = $keMissingInput.ToArray()
+        points = $keOut.ToArray()
+    }
     hollow = $hollow.ToArray()
-    summary = [pscustomobject]@{ files = $in.Files.Count; rowsBelowFile = $fileReportRows; rowsBelowWhole = $belowWhole.Count; kePointsBelow = $keBelow; hollowCells = $hollow.Count; block = $block }
+    summary = [pscustomobject]@{ files = $in.Files.Count; filesRead = $filesRead; emptyFiles = $emptyFiles.Count; rowsBelowFile = $fileReportRows; rowsBelowWhole = $belowWhole.Count; kePointsEvaluated = $keEvaluated; kePointsBelow = $keBelow; hollowCells = $hollow.Count; block = $block }
 }
 Write-SmJson -Object $report -Path $ReportPath
 
 Write-Host ''
-if (-not $Quiet) { Write-Host ("  report written to {0}" -f $ReportPath) -ForegroundColor DarkGray }
+if (-not $Quiet) { Write-Host ("  report written to {0}  (stamped {1}, mode {2})" -f $ReportPath, $fingerprint, $mode) -ForegroundColor DarkGray }
+if ($emptyFiles.Count -gt 0) {
+    Write-Host ("  X {0} spine file(s) could not be read - a finding, not a skip: {1}" -f $emptyFiles.Count, ($emptyFiles.ToArray() -join '; ')) -ForegroundColor Red
+}
 if ($Whole) {
-    if ($block -eq 0) { Write-Host '  every assessed row is taught to the floor and every KE point is covered where the map says it is' -ForegroundColor Green; exit 0 }
-    Write-Host ("  {0} BLOCK finding(s): {1} row(s) under the whole-spine teaching floor, {2} KE point(s) uncovered{3}" -f $block, $belowWhole.Count, $keBelow, $(if ($keMissingInput.Count) { ', KE inputs missing' } else { '' })) -ForegroundColor Red
-    Write-Host '  Teach the row as mechanism - what happens and why - in sentences that name it. A sentence that' -ForegroundColor Yellow
-    Write-Host '  answers a model bullet does not count toward this floor, by design.' -ForegroundColor Yellow
+    if ($block -eq 0 -and $emptyFiles.Count -eq 0) { Write-Host '  every assessed row is taught to the floor and every KE point is covered where the map says it is' -ForegroundColor Green; exit 0 }
+    if ($block -gt 0) {
+        Write-Host ("  {0} BLOCK finding(s): {1} row(s) under the whole-spine teaching floor, {2} KE point(s) uncovered{3}" -f $block, $belowWhole.Count, $keBelow, $(if ($keMissingInput.Count) { ', KE inputs missing' } else { '' })) -ForegroundColor Red
+        Write-Host '  Teach the row as mechanism - what happens and why - in sentences that name it. A sentence that' -ForegroundColor Yellow
+        Write-Host '  answers a model bullet does not count toward this floor, by design.' -ForegroundColor Yellow
+    }
     exit 1
 }
 if ($fileReportRows -gt 0 -or $keBelow -gt 0) { Write-Host ("  REPORT ONLY: {0} row(s) under the per-file floor, {1} KE point(s) not yet covered here - the whole-spine run at Stage 3c decides" -f $fileReportRows, $keBelow) -ForegroundColor Yellow }
 else { Write-Host '  every own row reaches the per-file floor' -ForegroundColor Green }
+if ($emptyFiles.Count -gt 0) { exit 1 }
 exit 0
+
+}
+catch {
+    #  The typed refusals - an empty blocking check-set, a keMap that
+    #  disagrees with the extract, or a blocking arm that never finished - are
+    #  exit 2, with the roster printed so a runner can see which arm starved.
+    #  Anything else is a gate defect and is re-thrown as one.
+    $m = $_.Exception.Message
+    if ($m -match '^(CHECK-SET EMPTY|CHECK-SET DISAGREES|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0}: {1}" -f $GATE, $m) -ForegroundColor Red
+        try { [void](Write-GateArmRoster) } catch { }
+        exit 2
+    }
+    throw
+}

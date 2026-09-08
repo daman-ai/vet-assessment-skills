@@ -35,6 +35,25 @@
                     case, curly quotes, the dash family, the spellings of
                     "degrees C", runs of whitespace - is folded, because a
                     curly apostrophe is not a provenance defect.
+      RESOLVED-DERIVED
+                    the row says the figure was COMPUTED - a locator beginning
+                    DERIVED, or a derivedFrom list - and every input it names
+                    resolves in the corpus, directly or through another derived
+                    row whose own inputs resolve (the chain is run to a
+                    fixpoint). A computed teaching figure is not in any source
+                    BY CONSTRUCTION; what can be proved about it is that its
+                    inputs are real, and that is what this disposition says.
+                    An input that resolves nowhere is UNRESOLVED naming the
+                    FIRST input that did not, because the reader has to know
+                    WHICH link of the chain is missing.
+      UNLOCATED     the locator resolves to NOTHING to point at: no anchor it
+                    names is present in the document(s) it names, so "at the
+                    locator" degenerates to "anywhere in the document" and the
+                    locator half of the check never ran. Counted, non-zero
+                    exit, and cleared only by fixing the registry or by a
+                    provenanceAllow entry with a written reason. It is NOT
+                    silently passed as verbatim, which is what 59 of 258
+                    resolved rows on the reference build were.
       NEAR-MISS     the value is there in a different form, or in a different
                     place: same number with a different unit, the value inside
                     another sentence, the locator pointing at the wrong line
@@ -67,6 +86,15 @@
     no quantity in it at all is a paraphrase, and section 18's own rule
     applies: at least one distinctive content word present in the source,
     REPORTED rather than failed.
+
+    AND A COMPOSITE ROW IS SPLIT, ONE RECORD PER VALUE. Where the row's own
+    wording is not in the source and the row states MORE THAN ONE quantity,
+    each quantity is dispositioned on its own record. One row carrying "40 mm
+    and 77 minutes" cannot report one disposition for two figures, because the
+    row that does is the row where a fabricated figure hides behind a real one.
+    Money is a quantity here: a currency amount is decomposed and matched like
+    any other, and never falls through to the paraphrase arm, which is where
+    every dollar figure went before.
 
     AND NOTHING IS CALLED AN ABSENCE UNTIL THE WHOLE CORPUS HAS BEEN READ.
     Before a row can be UNRESOLVED, the same decomposition is run over every
@@ -159,17 +187,48 @@
     must NOT fire. A plant that silently failed to apply once passed a gate on
     this project and proved nothing.
 
+    ------------------------------------------------------------------------
+    THE THREE BANDS THIS GATE RUNS IN
+    ------------------------------------------------------------------------
+    -SeedOnly (Stage 2)  There is no spine yet. The REGISTRY rows are checked
+      against the corpus on their own, before a word is authored, because a
+      registry row whose source does not carry its value is a defect that gets
+      copied into every sub-section that reads the row. A missing registry is a
+      refusal naming the file - a seed run with nothing to check is not a pass.
+      A row whose locator begins DERIVED is dispositioned by its INPUTS, here
+      as everywhere else: RESOLVED-DERIVED when every one of them resolves,
+      UNRESOLVED naming the first that does not.
+
+    Stage 3c   the spine arms, as documented above.
+
+    -Stage 7c -DocText <guide extract>,<deck extract>  the RENDERED arm. Every
+      sentence in the delivered documents is swept for attribution exactly as
+      the spine is, because a claim can reach a page without ever having been a
+      spine cell. -Stage 7c with no extract is a refusal naming both extracts:
+      a rendered arm with no rendering is the empty check-set this gate set
+      exists to stop printing green over.
+
     PS 5.1. ASCII only in this file.
-    Exit 0 clean; 1 at least one UNRESOLVED row or sentence; 5 an L-class
-    mandate conflict with no UNRESOLVED; 2 a usage error; 4 the self-test
-    failed.
+    Exit 0 clean; 1 at least one UNRESOLVED row or sentence, or an UNLOCATED
+    row no provenanceAllow entry clears; 5 an L-class mandate conflict with
+    neither; 2 a usage error; 4 the self-test failed.
 #>
+
+# GATE: stages=2,3c,4,7c; requires=BuildDir; 2: SeedOnly; 7c: DocText
 
 [CmdletBinding()]
 param(
     [string] $BuildDir,
     [string] $SpineDir,
     [string] $CorpusDir,
+    #  Stage 2: the registry arms alone, against the corpus, with no spine.
+    [switch] $SeedOnly,
+    #  The band this run stands for (2, 3c, 4 or 7c). Recorded in the report;
+    #  an unknown value is a usage error, not a silently ignored argument.
+    [string] $Stage,
+    #  The rendered extracts (guide_gate.txt, deck_gate.txt). Required by
+    #  -Stage 7c and refused by name when it is passed without them.
+    [string[]] $DocText,
     #  Extra source text beyond the canonical corpus - extracted legislation, a
     #  manufacturer's manual, an appendix the pack references. Every .txt and
     #  .md beneath it is a source document, so a SOURCE-ABSENT row is fixed by
@@ -185,6 +244,77 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
 
 $GATE = 'Assert-Provenance'
+$script:Self = $PSCommandPath
+
+function Fail-Usage {
+    <# Exit 2: a usage error, an absent input, or an empty blocking check-set. #>
+    param([string] $Message)
+    Write-Host ("  X {0}: {1}" -f $GATE, $Message) -ForegroundColor Red
+    exit 2
+}
+
+function Stop-OnRefusal {
+    <# The library's typed refusals reach exit 2 through here. #>
+    param($Err)
+    $m = $Err.Exception.Message
+    if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE):') { Fail-Usage $m }
+    Fail-Usage ("the gate could not run - {0}" -f $m)
+}
+
+# REQUEST: Lib-GateCommon Set-GateArmState (see scratchpad\p0\REQUESTS\K.md)
+function Set-ProvArmState {
+    <# Record an arm DEFERRED: registered, not run, and not a pass. #>
+    param([Parameter(Mandatory)][string] $Name, [Parameter(Mandatory)][string] $Reason)
+    $arm = $null
+    foreach ($a in @(Get-GateArmRoster)) { if ($a.Name -eq $Name) { $arm = $a } }
+    if ($null -eq $arm) { throw ("Set-ProvArmState: arm '{0}' was never registered." -f $Name) }
+    if ($arm.State -ne 'not-run') { throw ("Set-ProvArmState: arm '{0}' already ended as '{1}'." -f $Name, $arm.State) }
+    if ("$Reason".Trim().Length -lt 20) { throw ("Set-ProvArmState: arm '{0}' needs a written reason." -f $Name) }
+    $arm.State = 'deferred'
+    $arm.Reason = "$Reason"
+    $arm.CompletedUtc = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
+}
+
+#  A locator that begins DERIVED says the figure was COMPUTED from other
+#  figures rather than read out of a source. Such a row is dispositioned on its
+#  INPUTS - see Resolve-ProvDerivedChains - and never on the computed value,
+#  which by construction no source carries.
+$script:DerivedLocatorRx = '^\s*DERIVED\b'
+
+#  THE DERIVATION GRAMMAR a locator is allowed to use, and the only part of a
+#  DERIVED locator this gate mines for inputs. The declared shape is the row's
+#  own derivedFrom list; these markers read the prose form the registry and the
+#  spine have written until now, so that a chain written in words is still
+#  checked rather than waved through.
+#    - everything after "inputs:" / "from these named inputs:" / "named inputs
+#      that resolve:" is the input list;
+#    - with no such marker, everything after "DERIVED from";
+#    - everything after "the value(s) this chain produces" is the OUTPUT of the
+#      chain and is NOT an input. Mining it would fail the row on the very
+#      figure it was computed to produce, which is the false finding this whole
+#      change exists to remove.
+$script:DerivedInputMarkerRx   = '(?i)\b(?:named\s+)?inputs?\b(?:\s+that\s+resolve)?\s*(?:are\s*)?[:,-]?\s*'
+$script:DerivedProducesMarkerRx = '(?i)\bthe\s+values?\s+th(?:is|e)\s+chain\s+produces\b'
+#  A conclusion clause states the ANSWER: "..., so the Friday between those two
+#  Mondays is 11 September 2026". Everything after it is output, like the
+#  produces marker, and mining it would fail the row on its own result.
+$script:DerivedConclusionRx = '(?i),\s*(?:so|which\s+(?:gives|makes|leaves|comes\s+to)|therefore)\b'
+$script:DerivedFromMarkerRx    = '(?i)^\s*DERIVED\b[\s,]*(?:from\b\s*)?'
+
+#  A number that follows one of these words is a REFERENCE - a line, a clause,
+#  a page - not a quantity the chain consumes. Without this the input harvester
+#  would ask the corpus to carry "line 201" as a figure.
+#  Matched against the text IMMEDIATELY BEFORE a candidate, so the rule reads
+#  in one direction and needs no lookbehind.
+$script:LocatorRefWordRx = '(?i)\b(?:line|lines|clause|clauses|page|pages|item|items|task|tasks|question|questions|appendix|section|sections|no\.?|number|paragraph|step|slide|row|table|figure)\s{1,3}$'
+
+#  A currency amount. Money is a quantity: without this shape a dollar figure
+#  carries no quantity at all, falls through to the paraphrase arm and can
+#  never reach UNRESOLVED however absent it is.
+#  Every comma inside the number must be FOLLOWED by digits, or "Freezer 2,
+#  SITXINV007" harvests the figure "2," and the gate asks the corpus to carry
+#  a comma.
+$script:MoneyRx = '\$\s?\d+(?:,\d+)*(?:\.\d{1,2})?'
 
 #  How far from the locator's own anchor the value may sit and still count as
 #  being AT the locator. Wider than a paragraph, narrower than a document: a
@@ -424,16 +554,47 @@ function Get-ProvVariantRegex {
 }
 
 function Get-ProvQuantity {
-    <# Every number-with-unit token in a string, plus bare temperatures. #>
+    <#  Every number-with-unit token in a string, every currency amount, plus
+        bare temperatures.
+
+        MONEY IS A QUANTITY. Until the currency shape was here, "$1,250.00"
+        decomposed to NOTHING: the row carried no quantity, so it fell through
+        to the paraphrase arm, which reports on content words and never blocks.
+        A costing figure could not reach UNRESOLVED however absent it was, and
+        a whole class of figure was checked by a rule written for prose. The
+        currency alternative comes FIRST so the amount is consumed with its
+        symbol rather than read as a bare number.  #>
     param([string] $Text)
     $t = ConvertTo-ProvFold $Text
-    $rx = '(?i)(?:minus\s+)?\d[\d,]*(?:\.\d+)?\s*(?:' + $script:DegRx + '|per\s*cent|%|' + ($script:UnitFamilies -join '|') + ')(?![a-z])'
+    $rx = '(?i)(?:' + $script:MoneyRx + '|(?:minus\s+)?\d+(?:,\d+)*(?:\.\d+)?\s*(?:' + $script:DegRx + '|per\s*cent|%|' + ($script:UnitFamilies -join '|') + '))(?![a-z])'
     $out = New-Object System.Collections.Generic.List[string]
     foreach ($m in [regex]::Matches($t, $rx)) {
         $v = ($m.Value -replace '\s+', ' ').Trim()
         if (-not $out.Contains($v)) { $out.Add($v) }
     }
     return $out.ToArray()
+}
+
+# REQUEST: Lib-GateCommon Get-GateValueBoundaryRegex (see scratchpad\p0\REQUESTS\P2.md - LANDED)
+function Get-ProvValueBoundaryRegex {
+    <#  A value regex that cannot land inside a longer number or word: 0.6 kg
+        must not resolve on 10.6 kg, and 7.5 L must not resolve on 17.5 L.
+
+        The boundary is the LIBRARY's - Get-GateValueBoundaryRegex -Raw, one
+        definition of a token boundary for every gate. The private wrap below
+        is the fallback for a library that predates it, and it is the same
+        expression; a boundary that two files define twice is a boundary two
+        gates can disagree about.
+
+        Used by the DERIVED-input arm only. The three general matching arms are
+        deliberately left as they are: widening or narrowing them would move
+        every disposition in the report, and that is not this change.  #>
+    param([string] $Pattern)
+    if (-not "$Pattern") { return $null }
+    if (Get-Command -Name 'Get-GateValueBoundaryRegex' -ErrorAction SilentlyContinue) {
+        return (Get-GateValueBoundaryRegex -Value ('(?:' + $Pattern + ')') -Raw)
+    }
+    return ('(?<![\d.\w])(?:' + $Pattern + ')(?![\d.\w])')
 }
 
 function Get-ProvDistinctWord {
@@ -550,9 +711,88 @@ function Get-ProvSpineCells {
     return $out.ToArray()
 }
 
+function Get-ProvRenderedCells {
+    <#  The RENDERED arm's cells: every substantive line of each extract, in the
+        same shape a spine cell has, so both arms sweep the delivered documents
+        with the machinery they already use. The channel is stamped
+        rendered:<artefact> from the extract's own name, so a finding says which
+        document it is in. A claim can reach a page without ever having been a
+        spine cell - through the renderer's own prose, a template block or a
+        hand edit - and nothing read the pages until this arm existed.  #>
+    param([string[]] $Paths)
+    $out = New-Object System.Collections.Generic.List[object]
+    foreach ($p in @($Paths)) {
+        if (-not "$p".Trim()) { continue }
+        $leaf = Split-Path $p -Leaf
+        $artefact = 'unknown'
+        if ($leaf -match '(?i)guide') { $artefact = 'guide' }
+        elseif ($leaf -match '(?i)deck|slide|ppt') { $artefact = 'deck' }
+        else { $artefact = ($leaf -replace '\.[A-Za-z0-9]+$', '') }
+        $text = Get-GateFileText -Path $p
+        $ln = 0
+        foreach ($line in @("$text" -split "`r?`n")) {
+            $ln++
+            $t = "$line".Trim()
+            if ($t.Length -lt 12) { continue }
+            $out.Add([pscustomobject]@{
+                File = $leaf; Path = ("line {0}" -f $ln); Channel = ('rendered:' + $artefact); Slot = ''
+                Text = $t; Fold = (ConvertTo-ProvFold $t).ToLowerInvariant()
+            })
+        }
+    }
+    return $out.ToArray()
+}
+
 # ===========================================================================
 # 3. Finding a value in a document
 # ===========================================================================
+
+#  The value cache: value + document -> that document's hits, cleared at the
+#  top of every run because two builds in one process can carry the same
+#  document name over different text. This gate is one of the slower ones and
+#  the same value is looked up over the same document again and again - once
+#  per row that names it, again per quantity inside it, again per derived input
+#  that consumes it - so the cache is free and the saving is not.
+$script:ValueCacheCap = 8
+
+function Find-ProvValueInDoc {
+    <#  ONE document, cached. Up to $ValueCacheCap hits of the STRONGEST arm
+        that matches; a caller wanting fewer takes the first N, which is the
+        same list the uncached code produced for that N.  #>
+    param([string] $Value, $Doc)
+    if ($null -eq $script:ValueCache) { $script:ValueCache = @{} }
+    #  [char]1 and not '|': a value or a document name may contain any
+    #  printable character, and a cache key that two different pairs can share
+    #  is a cache that answers the wrong question. (PS 5.1 has no `u{} escape.)
+    $key = "$Value" + ([string][char]1) + "$($Doc.Name)"
+    if ($script:ValueCache.ContainsKey($key)) { return $script:ValueCache[$key] }
+    $hits = New-Object System.Collections.Generic.List[object]
+    $arms = @(
+        @{ Arm = 'exact';   Rx = (Get-ProvExactRegex   -Value $Value) },
+        @{ Arm = 'loose';   Rx = (Get-ProvLooseRegex   -Value $Value) },
+        @{ Arm = 'variant'; Rx = (Get-ProvVariantRegex -Value $Value) }
+    )
+    foreach ($a in $arms) {
+        if (-not $a.Rx) { continue }
+        $m = [regex]::Match($Doc.Text, $a.Rx, 'IgnoreCase')
+        if (-not $m.Success) { continue }
+        $seenOffsets = New-Object 'System.Collections.Generic.HashSet[int]'
+        while ($m.Success -and $hits.Count -lt $script:ValueCacheCap) {
+            if ($seenOffsets.Add($m.Index)) {
+                $ln = Get-ProvLineAt -Doc $Doc -Offset $m.Index
+                $hits.Add([pscustomobject]@{
+                    Doc = $Doc.Name; Audience = $Doc.Audience; Arm = $a.Arm; Offset = $m.Index
+                    Line = $ln; Text = (Get-ProvSafeQuote -Doc $Doc -Line $ln); Matched = (Get-ProvSnippet $m.Value 80)
+                })
+            }
+            $m = $m.NextMatch()
+        }
+        break   # a document reports its STRONGEST arm, not all three
+    }
+    $out = $hits.ToArray()
+    $script:ValueCache[$key] = $out
+    return $out
+}
 
 function Find-ProvValue {
     <#  Three arms in order of strength, and the arm is REPORTED, because the
@@ -561,32 +801,321 @@ function Find-ProvValue {
     param([string] $Value, $Docs, [int] $Max = 6)
     $hits = New-Object System.Collections.Generic.List[object]
     if (-not "$Value".Trim()) { return $hits }
-    $arms = @(
-        @{ Arm = 'exact';   Rx = (Get-ProvExactRegex   -Value $Value) },
-        @{ Arm = 'loose';   Rx = (Get-ProvLooseRegex   -Value $Value) },
-        @{ Arm = 'variant'; Rx = (Get-ProvVariantRegex -Value $Value) }
-    )
     foreach ($d in @($Docs)) {
-        foreach ($a in $arms) {
-            if (-not $a.Rx) { continue }
-            $m = [regex]::Match($d.Text, $a.Rx, 'IgnoreCase')
-            if (-not $m.Success) { continue }
-            $seenOffsets = New-Object 'System.Collections.Generic.HashSet[int]'
-            while ($m.Success -and $hits.Count -lt $Max) {
-                if ($seenOffsets.Add($m.Index)) {
-                    $ln = Get-ProvLineAt -Doc $d -Offset $m.Index
-                    $hits.Add([pscustomobject]@{
-                        Doc = $d.Name; Audience = $d.Audience; Arm = $a.Arm; Offset = $m.Index
-                        Line = $ln; Text = (Get-ProvSafeQuote -Doc $d -Line $ln); Matched = (Get-ProvSnippet $m.Value 80)
-                    })
-                }
-                $m = $m.NextMatch()
-            }
-            break   # a document reports its STRONGEST arm, not all three
+        if ($null -eq $d) { continue }
+        foreach ($h in @(Find-ProvValueInDoc -Value $Value -Doc $d)) {
+            if ($hits.Count -ge $Max) { break }
+            $hits.Add($h)
         }
         if ($hits.Count -ge $Max) { break }
     }
     return $hits
+}
+
+# ===========================================================================
+# 3b. DERIVED rows - the chain, run to a fixpoint
+#
+#  A CALCULATED FIGURE IS NOT IN ANY SOURCE, AND THAT IS NOT A DEFECT. A guide
+#  that teaches ordering has to work an example: 5 cartons at $250.00 is
+#  $1,250.00, and no document in the pack carries $1,250.00 because the pack
+#  never did that sum. Until this section existed the gate had NO disposition
+#  for such a row, so every computed teaching figure came back as a fabricated
+#  one - a false finding against correct content, and a large share of the
+#  fifty blocking findings the reference build raised.
+#
+#  What CAN be proved about a derived figure is that its INPUTS are real. So
+#  the row is dispositioned on the inputs it names, and an input that is itself
+#  produced by another derived row resolves through that row - the chain is run
+#  to a fixpoint, so "the 72 portions derived above" is an input like any
+#  other, and only a chain that bottoms out in the corpus is RESOLVED-DERIVED.
+# ===========================================================================
+
+function Get-ProvRowKey {
+    param($Row)
+    return ("{0}|{1}|{2}" -f $Row.Register, $Row.File, $Row.Field)
+}
+
+function Test-ProvIsDerived {
+    <# Either shape says derived: the locator, or a derivedFrom list. #>
+    param($Row)
+    if ($null -eq $Row) { return $false }
+    if (@($Row.DerivedFrom | Where-Object { "$_".Trim() }).Count -gt 0) { return $true }
+    return ("$($Row.Locator)" -match $script:DerivedLocatorRx)
+}
+
+function ConvertTo-ProvValueKey {
+    <#  One value, one key - so that "1,800 gms" produced by one row and
+        "1800 g" consumed by another are the same figure. Unit families fold to
+        the family's first spelling; the number folds through [double] so
+        0.040 and 0.04 are one value.  #>
+    param([string] $Value)
+    $v = (ConvertTo-ProvFold $Value).ToLowerInvariant()
+    $v = $v -replace ',', ''
+    $v = ($v -replace '\s+', ' ').Trim()
+    if (-not $v) { return '' }
+    $m = [regex]::Match($v, '^(\$?)\s*(\d+(?:\.\d+)?)\s*([a-z]+)?$')
+    if ($m.Success) {
+        $num = $m.Groups[2].Value
+        $d = 0.0
+        if ([double]::TryParse($num, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref] $d)) {
+            $num = $d.ToString([System.Globalization.CultureInfo]::InvariantCulture)
+        }
+        $u = $m.Groups[3].Value
+        if ($u) {
+            #  -contains over the family's own spellings, not a regex built from
+            #  a domain string: the family IS the list, and comparing against
+            #  the list says so.
+            foreach ($f in $script:UnitFamilies) {
+                $forms = @($f -split '\|')
+                if ($forms -contains $u) { $u = $forms[0]; break }
+            }
+        }
+        return ($m.Groups[1].Value + $num + $u)
+    }
+    return ($v -replace '\s', '')
+}
+
+function Get-ProvDerivedSegment {
+    <#  The part of a DERIVED locator that names the INPUTS.
+
+        Everything after "the values this chain produces" is the chain's OUTPUT
+        and is cut away first. Mining the output as an input would fail the row
+        on the very figure it was computed to produce - the exact false finding
+        this change exists to remove.  #>
+    param([string] $Locator)
+    $t = ConvertTo-ProvFold $Locator
+    $cut = $t.Length
+    foreach ($rx in @($script:DerivedProducesMarkerRx, $script:DerivedConclusionRx)) {
+        $m = [regex]::Match($t, $rx)
+        if ($m.Success -and $m.Index -lt $cut) { $cut = $m.Index }
+    }
+    if ($cut -lt $t.Length) { $t = $t.Substring(0, $cut) }
+    $mi = [regex]::Match($t, $script:DerivedInputMarkerRx)
+    if ($mi.Success) { return $t.Substring($mi.Index + $mi.Length) }
+    $mf = [regex]::Match($t, $script:DerivedFromMarkerRx)
+    if ($mf.Success) { return $t.Substring($mf.Index + $mf.Length) }
+    return $t
+}
+
+function Get-ProvHarvestValues {
+    <#  Currency, then number-with-unit, then bare number - each consumed span
+        BLANKED before the next pass, so one amount cannot seed three
+        candidates ($250.00 must not also yield 250 and 00). A number that
+        follows "line", "clause" or "page" is a reference, not a quantity, and
+        is left alone. Returned in the order they are written.  #>
+    param([string] $Text, [switch] $NoBare)
+    $t = "$Text"
+    if (-not $t.Trim()) { return @() }
+    $chars = $t.ToCharArray()
+    $found = New-Object System.Collections.Generic.List[object]
+    $qtyRx = '(?i)(?:minus\s+)?\d+(?:,\d+)*(?:\.\d+)?\s*(?:' + $script:DegRx + '|per\s*cent|%|' + ($script:UnitFamilies -join '|') + ')(?![a-z])'
+    #  A BARE NUMBER IS AN INPUT ONLY WHERE A NOUN FOLLOWS IT - "5 cartons" is
+    #  a quantity in a unit this file does not know; "Freezer 2, SITXINV007"
+    #  and "7 September 2026" are not quantities at all. The lower-case noun is
+    #  what separates them: a month, a document code and a proper name are
+    #  capitalised, and a unit is not. Without this rule the harvester asked
+    #  the corpus to carry 814 and 2026 as figures.
+    $bareRx = '(?<![\w.,$])\d+(?:,\d+)*(?:\.\d+)?(?=\s+[a-z]{3,})'
+    #  A DATE AND A CLOCK TIME ARE QUANTITIES a chain consumes: "the purchasing
+    #  week commencing Monday 14 September 2026" and "the order cut-off of 2.00
+    #  pm" are inputs a source either carries or does not. Harvested WHOLE and
+    #  first, so the bare pass cannot reduce a date to the number 14.
+    $dateRx = '(?i)\b\d{1,2}\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4}\b'
+    $clockRx = '(?i)\b\d{1,2}[.:]\d{2}\s*(?:am|pm)\b'
+    $passes = New-Object System.Collections.Generic.List[object]
+    $passes.Add(@{ Rx = $dateRx; Bare = $false })
+    $passes.Add(@{ Rx = $clockRx; Bare = $false })
+    $passes.Add(@{ Rx = ('(?i)' + $script:MoneyRx); Bare = $false })
+    $passes.Add(@{ Rx = $qtyRx; Bare = $false })
+    if (-not $NoBare) { $passes.Add(@{ Rx = $bareRx; Bare = $true }) }
+    foreach ($p in $passes) {
+        $cur = (-join $chars)
+        foreach ($m in [regex]::Matches($cur, $p.Rx)) {
+            if ($p.Bare) {
+                $from = $m.Index - 24
+                if ($from -lt 0) { $from = 0 }
+                $before = $cur.Substring($from, $m.Index - $from)
+                if ($before -match $script:LocatorRefWordRx) { continue }
+            }
+            $v = ($m.Value -replace '\s+', ' ').Trim()
+            if (-not $v) { continue }
+            $found.Add([pscustomobject]@{ At = $m.Index; Value = $v })
+            for ($i = $m.Index; $i -lt ($m.Index + $m.Length); $i++) { $chars[$i] = ' ' }
+        }
+    }
+    $out = New-Object System.Collections.Generic.List[string]
+    foreach ($f in @($found | Sort-Object At)) {
+        if (-not $out.Contains($f.Value)) { $out.Add($f.Value) }
+    }
+    return $out.ToArray()
+}
+
+function Get-ProvDerivedInputs {
+    <#  The inputs a derived row names, and in which shape.
+
+        The DECLARED shape is derivedFrom and it wins outright: a list is a
+        thing a gate can check and a sentence is a thing a gate has to parse.
+        Then the values in the prose after the input marker. Then - for a chain
+        whose inputs are PLACES rather than amounts, "the unsalted butter line
+        printed in Appendix D" - the locator anchors that segment names, which
+        resolve through the same reader. A row that names none of the three
+        names nothing, and says so.
+
+        A CHAIN'S OWN OUTPUT IS NEVER ITS INPUT. An input that the row's own
+        value contains, or that the row declares as a value the chain produces,
+        is dropped here: "so the Friday between those two Mondays is 11
+        September 2026" states the answer, and asking the corpus to carry the
+        answer is the false finding this whole change removes.  #>
+    param($Row, $Patterns)
+    $listed = @(@($Row.DerivedFrom) | Where-Object { "$_".Trim() } | ForEach-Object { "$_".Trim() })
+    if ($listed.Count -gt 0) { return [pscustomobject]@{ Inputs = $listed; Kind = 'declared' } }
+
+    $seg = Get-ProvDerivedSegment -Locator $Row.Locator
+    $own = (ConvertTo-ProvFold $Row.Value).ToLowerInvariant()
+    $producedKeys = @{}
+    foreach ($p in @(Get-ProvDerivedProduces -Row $Row)) {
+        $k = ConvertTo-ProvValueKey $p
+        if ($k) { $producedKeys[$k] = $true }
+    }
+    $vals = New-Object System.Collections.Generic.List[string]
+    foreach ($v in @(Get-ProvHarvestValues -Text $seg)) {
+        #  AT A TOKEN BOUNDARY, never as a substring: the input 5 is inside the
+        #  computed value $1,250.00, and dropping it there would leave the
+        #  chain proved on half its inputs.
+        if ($own) {
+            $ownRx = Get-ProvValueBoundaryRegex -Pattern (Get-ProvExactRegex -Value $v)
+            if ($ownRx -and [regex]::IsMatch($own, $ownRx, 'IgnoreCase')) { continue }
+        }
+        $k = ConvertTo-ProvValueKey $v
+        if ($k -and $producedKeys.ContainsKey($k)) { continue }
+        $vals.Add($v)
+    }
+    if ($vals.Count -gt 0) { return [pscustomobject]@{ Inputs = $vals.ToArray(); Kind = 'values' } }
+
+    if ($null -ne $Patterns) {
+        $places = New-Object System.Collections.Generic.List[string]
+        foreach ($l in @(Get-ProvLocators -Text $seg -Patterns $Patterns)) {
+            if ($l.Kind -eq 'field') { continue }
+            if (-not $places.Contains("$($l.Text)")) { $places.Add("$($l.Text)") }
+        }
+        if ($places.Count -gt 0) { return [pscustomobject]@{ Inputs = $places.ToArray(); Kind = 'places' } }
+    }
+    return [pscustomobject]@{ Inputs = @(); Kind = 'none' }
+}
+
+function Get-ProvDerivedProduces {
+    <#  What the chain PRODUCES: the row's own value, plus every quantity the
+        locator names after the produces marker. These are what a later row's
+        "derived above" input resolves against.  #>
+    param($Row)
+    $out = New-Object System.Collections.Generic.List[string]
+    if ("$($Row.Value)".Trim()) { $out.Add("$($Row.Value)".Trim()) }
+    foreach ($q in @(Get-ProvQuantity -Text $Row.Value)) { if (-not $out.Contains($q)) { $out.Add($q) } }
+    $t = ConvertTo-ProvFold $Row.Locator
+    foreach ($rx in @($script:DerivedProducesMarkerRx, $script:DerivedConclusionRx)) {
+        $mp = [regex]::Match($t, $rx)
+        if (-not $mp.Success) { continue }
+        $tail = $t.Substring($mp.Index + $mp.Length)
+        foreach ($q in @(Get-ProvHarvestValues -Text $tail -NoBare)) { if (-not $out.Contains($q)) { $out.Add($q) } }
+    }
+    return $out.ToArray()
+}
+
+function Find-ProvDerivedInput {
+    <#  Does this input occur in the corpus, at a TOKEN BOUNDARY? 0.6 kg must
+        not resolve on 10.6 kg: an input that resolves on a digit substring is
+        a chain proved against a number that is not there.  #>
+    param([string] $Value, $Docs)
+    $out = New-Object System.Collections.Generic.List[object]
+    if (-not "$Value".Trim()) { return $out }
+    if ($null -eq $script:DerivedInputCache) { $script:DerivedInputCache = @{} }
+    if ($script:DerivedInputCache.ContainsKey("$Value")) { return $script:DerivedInputCache["$Value"] }
+    $arms = @(
+        @{ Arm = 'exact';   Rx = (Get-ProvValueBoundaryRegex -Pattern (Get-ProvExactRegex   -Value $Value)) },
+        @{ Arm = 'loose';   Rx = (Get-ProvValueBoundaryRegex -Pattern (Get-ProvLooseRegex   -Value $Value)) },
+        @{ Arm = 'variant'; Rx = (Get-ProvValueBoundaryRegex -Pattern (Get-ProvVariantRegex -Value $Value)) }
+    )
+    foreach ($d in @($Docs)) {
+        if ($null -eq $d) { continue }
+        foreach ($a in $arms) {
+            if (-not $a.Rx) { continue }
+            $m = [regex]::Match($d.Text, $a.Rx, 'IgnoreCase')
+            if (-not $m.Success) { continue }
+            $ln = Get-ProvLineAt -Doc $d -Offset $m.Index
+            $out.Add([pscustomobject]@{
+                Doc = $d.Name; Audience = $d.Audience; Arm = $a.Arm; Offset = $m.Index
+                Line = $ln; Text = (Get-ProvSafeQuote -Doc $d -Line $ln); Matched = (Get-ProvSnippet $m.Value 80)
+            })
+            break
+        }
+        if ($out.Count -gt 0) { break }
+    }
+    $script:DerivedInputCache["$Value"] = $out
+    return $out
+}
+
+function Resolve-ProvDerivedChains {
+    <#  Every derived row in the build, resolved together, because they refer
+        to one another. Pass 1 asks the corpus about every input; then the
+        fixpoint: a row whose inputs all resolve is SATISFIED and its produced
+        values join the resolvable set, which may satisfy the next row, until
+        nothing changes. A row that never satisfies names the FIRST input that
+        did not resolve - the reader has to know which link is missing, not
+        that some link is.  #>
+    param($Rows, $Ctx)
+    $map = @{}
+    $states = New-Object System.Collections.Generic.List[object]
+    foreach ($row in @($Rows)) {
+        if (-not (Test-ProvIsDerived -Row $row)) { continue }
+        $decl = Get-ProvDerivedInputs -Row $row -Patterns $Ctx.Patterns
+        $states.Add([pscustomobject]@{
+            Key       = (Get-ProvRowKey -Row $row)
+            Row       = $row
+            Inputs    = @($decl.Inputs)
+            InputKind = $decl.Kind
+            Produces  = @(Get-ProvDerivedProduces -Row $row)
+            Hits      = @{}
+            Via       = @{}
+            Missing   = @()
+            Satisfied = $false
+        })
+    }
+    if ($states.Count -eq 0) { return $map }
+
+    foreach ($s in $states) {
+        foreach ($in in @($s.Inputs)) {
+            $h = @(Find-ProvDerivedInput -Value $in -Docs $Ctx.Docs)
+            if ($h.Count -gt 0) { $s.Hits[$in] = $h[0]; $s.Via[$in] = ('the corpus: ' + $h[0].Doc + ' line ' + $h[0].Line) }
+        }
+    }
+
+    $produced = @{}
+    for ($pass = 0; $pass -le ($states.Count + 1); $pass++) {
+        $changed = $false
+        foreach ($s in $states) {
+            if ($s.Satisfied) { continue }
+            if (@($s.Inputs).Count -eq 0) { continue }
+            $missing = New-Object System.Collections.Generic.List[string]
+            foreach ($in in @($s.Inputs)) {
+                if ($s.Hits.ContainsKey($in)) { continue }
+                $k = ConvertTo-ProvValueKey $in
+                if ($k -and $produced.ContainsKey($k)) { $s.Via[$in] = ('another derived row: ' + $produced[$k]); continue }
+                $missing.Add($in)
+            }
+            $s.Missing = $missing.ToArray()
+            if ($missing.Count -eq 0) {
+                $s.Satisfied = $true
+                $changed = $true
+                foreach ($p in @($s.Produces)) {
+                    $pk = ConvertTo-ProvValueKey $p
+                    if ($pk -and -not $produced.ContainsKey($pk)) { $produced[$pk] = ("{0} ({1} {2})" -f $s.Row.Name, $s.Row.File, $s.Row.Field) }
+                }
+            }
+        }
+        if (-not $changed) { break }
+    }
+    foreach ($s in $states) { $map[$s.Key] = $s }
+    return $map
 }
 
 # ===========================================================================
@@ -823,6 +1352,14 @@ function Get-ProvLocatorPatterns {
     $pats.Add([pscustomobject]@{ Kind = 'standard';  Rx = '\bStandard\s+(\d+(?:\.\d+)*[A-Z]?)\b';                                From = 'shape' })
     $pats.Add([pscustomobject]@{ Kind = 'act';       Rx = '\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3}\s+Act\s+\d{4})\b';       From = 'shape' })
     $pats.Add([pscustomobject]@{ Kind = 'regs';      Rx = '\b([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,3}\s+Regulations?\s+\d{4})\b'; From = 'shape' })
+    #  "SITXINV007_UAT line 199" and "lines 606-608". A line number into an
+    #  EXTRACT is the most precise locator this toolchain writes and the gate
+    #  could not read one: the row got no region, "at the locator" became
+    #  "anywhere in this document", and the check silently degraded to a grep.
+    #  Twenty-one seed rows of the reference build are locators of exactly this
+    #  shape. Resolved from the document's own line table, not by searching for
+    #  the text "line 199" - see Find-ProvAnchorRegion.
+    $pats.Add([pscustomobject]@{ Kind = 'line';      Rx = '\blines?\s+(\d+)(?:\s*(?:-|to|and)\s*(\d+))?\b';                    From = 'shape' })
     $pats.Add([pscustomobject]@{ Kind = 'field';     Rx = '\b([a-z][a-z ]{2,28}?(?:block|line|column|field|row|section)s?)\b';   From = 'shape' })
     return $pats.ToArray()
 }
@@ -941,6 +1478,28 @@ function Find-ProvAnchorRegion {
         #  which is how this gate first came back with an exception instead of
         #  a report.
         if ($null -eq $l -or -not "$($l.Text)".Trim()) { continue }
+        #  A LINE NUMBER IS RESOLVED FROM THE LINE TABLE, not by looking for
+        #  the words "line 199" in the text - the document does not print its
+        #  own line numbers. A number past the end of THIS document resolves to
+        #  nothing here, which is exactly what it should say.
+        if ($l.Kind -eq 'line') {
+            $mm = [regex]::Match("$($l.Text)", '(?i)lines?\s+(\d+)(?:\s*(?:-|to|and)\s*(\d+))?')
+            if (-not $mm.Success) { continue }
+            $n1 = [int]$mm.Groups[1].Value
+            $n2 = $n1
+            if ($mm.Groups[2].Success) { $n2 = [int]$mm.Groups[2].Value }
+            if ($n1 -lt 1 -or $n1 -gt @($Doc.Lines).Count) { continue }
+            if ($n2 -lt $n1) { $n2 = $n1 }
+            if ($n2 -gt @($Doc.Lines).Count) { $n2 = @($Doc.Lines).Count }
+            $lineFrom = [int]$Doc.LineStarts[$n1 - 1]
+            $lineTo   = [int]$Doc.LineStarts[$n2 - 1] + "$($Doc.Lines[$n2 - 1])".Length
+            $from = $lineFrom - $script:AnchorBack
+            if ($from -lt 0) { $from = 0 }
+            $to = $lineTo + $script:AnchorFwd
+            if ($to -gt $Doc.Text.Length) { $to = $Doc.Text.Length }
+            $regions.Add([pscustomobject]@{ Kind = 'line'; Anchor = $l.Text; From = $from; To = $to; At = $lineFrom })
+            continue
+        }
         #  THE SAME PLACE, WRITTEN THREE WAYS, MOST SPECIFIC FIRST.
         #    "Workbook Task 5(b)"  - as the guide writes it
         #    "Task 5(b)"           - as the contract says the document writes it
@@ -992,6 +1551,39 @@ function Find-ProvAnchorRegion {
     return $regions.ToArray()
 }
 
+function Get-ProvPhraseAnchors {
+    <#  THE LOCATOR'S OWN WORDS, as a last-resort anchor.
+
+        Half the locators this toolchain writes name a place by its HEADING -
+        "SITXINV007 UAT, Detailed scenario, the six goods you must arrange" -
+        and no pattern shape matches a heading. Without this the row got no
+        region at all, "at the locator" became "anywhere in this document", and
+        the row was either passed on a grep or, once UNLOCATED existed, failed
+        on a locator that is perfectly good.
+
+        USED ONLY WHERE EVERY PATTERN ANCHOR FAILED IN THIS DOCUMENT, so it can
+        only ever NARROW a whole-document region and never widen a precise one.
+        The segment naming the document itself is dropped: a title matches the
+        title line, which is a place the value is not.  #>
+    param([string] $Locator, $Doc)
+    $out = New-Object System.Collections.Generic.List[object]
+    $t = ConvertTo-ProvFold $Locator
+    if (-not $t) { return $out.ToArray() }
+    $nameTokens = @{}
+    foreach ($nt in @($Doc.NameTokens)) { $nameTokens["$nt"] = $true }
+    foreach ($seg in @([regex]::Split($t, '[,;:]|\s+/\s+|\s+-\s+'))) {
+        $s = "$seg".Trim()
+        if ($s.Length -lt 8) { continue }
+        $words = @([regex]::Matches($s.ToLowerInvariant(), '[a-z]{3,}') | ForEach-Object { $_.Value })
+        if ($words.Count -lt 2) { continue }
+        $ownName = $true
+        foreach ($w in $words) { if (-not $nameTokens.ContainsKey($w)) { $ownName = $false } }
+        if ($ownName) { continue }
+        $out.Add([pscustomobject]@{ Kind = 'phrase'; Text = $s })
+    }
+    return $out.ToArray()
+}
+
 function Test-ProvInRegion {
     param([int] $Offset, $Regions)
     foreach ($r in @($Regions)) { if ($Offset -ge $r.From -and $Offset -le $r.To) { return $true } }
@@ -1016,13 +1608,25 @@ function Get-ProvRows {
     <#  Every provenance row this build carries, from BOTH registers: the
         figure registry, and each sub-section's own provenance block. They
         carry the same three fields and the auditor rebuilds both by hand.  #>
-    param([string] $ForBuildDir, [string] $ForSpineDir, [string] $ForRulesPath, $Classes)
+    param([string] $ForBuildDir, [string] $ForSpineDir, [string] $ForRulesPath, $Classes, [switch] $RegistryOnly, [switch] $RequireRegistry)
     $rows = New-Object System.Collections.Generic.List[object]
+    #  The spine files that carry no provenance block at all. Returned through
+    #  the script scope rather than by changing this function's return shape,
+    #  which three callers unpack as a bare array. Reported by name: a
+    #  sub-section that registers nothing is a sub-section nothing was proved
+    #  about, and a silent skip is how that stays invisible.
+    $script:ProvFilesWithoutProvenance = @()
+    $noProv = New-Object System.Collections.Generic.List[string]
 
     $registry = $null
     $regFile = $ForRulesPath
     if (-not $regFile) { $regFile = Join-Path $ForBuildDir 'figures.json' }
-    if (Test-Path -LiteralPath $regFile) { $registry = Get-GateJson -Path $regFile }
+    if (-not (Test-Path -LiteralPath $regFile)) {
+        if ($RequireRegistry) {
+            throw ("{0}: no figure registry at {1}. The seed arms ARE the registry rows read against the corpus; with no registry there is nothing to check, and a run with nothing to check is a refusal, not a pass. Write figures.json (New-WithholdRegister / the figure registry step) before Stage 2, or pass -RulesPath." -f $GATE, $regFile)
+        }
+    }
+    else { $registry = Get-GateJson -Path $regFile }
     if ($null -ne $registry) {
         $fi = 0
         foreach ($f in @($registry.figures)) {
@@ -1031,10 +1635,14 @@ function Get-ProvRows {
             $src  = "$(Get-GateProp -Object $f -Names @('source', 'provenance', 'locator') -Default '')"
             $name = "$(Get-GateProp -Object $f -Names @('name', 'figure', 'id') -Default ('figures[' + $fi + ']'))"
             $req  = @(Get-GateProp -Object $f -Names @('require', 'value', 'values') -Default @())
+            #  The declared derivation shape. A row that carries one is
+            #  dispositioned on its inputs whatever its locator says.
+            $dfrom = @(Get-GateProp -Object $f -Names @('derivedFrom', 'derivedfrom', 'inputs') -Default @())
             if ($req.Count -eq 0) {
                 $rows.Add([pscustomobject]@{
                     Register = 'figures.json'; File = (Split-Path $regFile -Leaf); Field = ("figures[{0}]" -f $fi)
                     Name = $name; Value = ''; Authority = $auth; Classes = (Get-ProvClassTokens -Authority $auth -Classes $Classes); Locator = $src
+                    DerivedFrom = $dfrom
                 })
             }
             else {
@@ -1043,6 +1651,7 @@ function Get-ProvRows {
                     $rows.Add([pscustomobject]@{
                         Register = 'figures.json'; File = (Split-Path $regFile -Leaf); Field = ("figures[{0}].require[{1}]" -f $fi, $vi)
                         Name = $name; Value = "$v"; Authority = $auth; Classes = (Get-ProvClassTokens -Authority $auth -Classes $Classes); Locator = $src
+                        DerivedFrom = $dfrom
                     })
                     $vi++
                 }
@@ -1051,10 +1660,12 @@ function Get-ProvRows {
         }
     }
 
+    if ($RegistryOnly) { return $rows.ToArray() }
+
     foreach ($sf in (Get-GateSpineFiles -BuildDir $ForBuildDir -SpineDir $ForSpineDir -Exclude @())) {
         $j = Get-GateJson -Path $sf.FullName
         if ($null -eq $j) { continue }
-        if (@($j.PSObject.Properties.Name) -notcontains 'provenance') { continue }
+        if (@($j.PSObject.Properties.Name) -notcontains 'provenance') { $noProv.Add($sf.Name); continue }
         $pi = 0
         foreach ($p in @($j.provenance)) {
             if ($null -eq $p -or $p -is [string]) { $pi++; continue }
@@ -1068,16 +1679,45 @@ function Get-ProvRows {
                 Authority = $auth
                 Classes   = (Get-ProvClassTokens -Authority $auth -Classes $Classes)
                 Locator   = "$(Get-GateProp -Object $p -Names @('source', 'locator', 'provenance') -Default '')"
+                DerivedFrom = @(Get-GateProp -Object $p -Names @('derivedFrom', 'derivedfrom', 'inputs') -Default @())
                 Mandatory = (Get-GateProp -Object $p -Names @('mandatory', 'isMandatory'))
             })
             $pi++
         }
     }
+    $script:ProvFilesWithoutProvenance = $noProv.ToArray()
     return $rows.ToArray()
 }
 
+function Test-ProvAllowEntry {
+    <#  A provenanceAllow entry, matched to a record. The keys a build may use
+        are the ones a human would write down: the value, the claim, the field,
+        'file|field', or the locator. Every entry carries a written reason -
+        Get-GateAllowList refuses one that does not, which is why the refusal
+        arrives as exit 2 and not as a cleared finding.  #>
+    param($Rec, $Allow)
+    if ($null -eq $Allow -or @($Allow.Keys).Count -eq 0) { return $null }
+    $keys = @(
+        "$($Rec.value)", "$($Rec.claim)", "$($Rec.field)", "$($Rec.locator)",
+        ("{0}|{1}" -f $Rec.file, $Rec.field), ("{0} {1}" -f $Rec.file, $Rec.field)
+    )
+    foreach ($k in $keys) {
+        if (-not "$k".Trim()) { continue }
+        foreach ($a in @($Allow.Keys)) {
+            if ("$a".Trim().ToLowerInvariant() -eq "$k".Trim().ToLowerInvariant()) {
+                return [pscustomobject]@{ Id = "$a"; Reason = "$($Allow[$a])" }
+            }
+        }
+    }
+    return $null
+}
+
 function Test-ProvRow {
-    param($Row, $Ctx)
+    <#  Returns ONE record, or - for a composite row - one record per value.
+        The caller unpacks with @(), because a row that states two figures and
+        reports one disposition is a row where a fabricated figure hides behind
+        a real one.  #>
+    param($Row, $Ctx, [switch] $NoSplit)
 
     $rec = [ordered]@{
         arm         = 'registry'
@@ -1091,6 +1731,15 @@ function Test-ProvRow {
         locator     = $Row.Locator
         namedSource = @()
         anchors     = @()
+        #  Did the locator resolve to a PLACE, or only to a document? A row
+        #  whose value is verbatim in the document its locator names, while
+        #  nothing the locator names is IN that document, has had half its
+        #  check skipped - see UNLOCATED.
+        anchored    = $false
+        derivedFrom = @(@($Row.DerivedFrom) | Where-Object { "$_".Trim() })
+        derivedInputs = @()
+        derivedMissing = @()
+        compositeOf = ''
         parts          = @(Get-ProvQuantity -Text $Row.Value)
         partsResolved  = @()
         partsMissing   = @()
@@ -1099,6 +1748,59 @@ function Test-ProvRow {
         note        = ''
         evidence    = @()
         blocking    = $false
+        allowedBy   = ''
+        allowReason = ''
+        locations   = @()
+        occurrences = 1
+    }
+
+    # -----------------------------------------------------------------------
+    #  DERIVED, BEFORE ANYTHING CAN CALL THIS ROW ABSENT. A computed figure is
+    #  in no source by construction; what is provable is that its inputs are.
+    # -----------------------------------------------------------------------
+    if (Test-ProvIsDerived -Row $Row) {
+        $key = Get-ProvRowKey -Row $Row
+        $st = $null
+        if ($null -ne $Ctx.Derived -and $Ctx.Derived.ContainsKey($key)) { $st = $Ctx.Derived[$key] }
+        if ($null -eq $st) {
+            #  Standalone: no precomputed chain map, so this row is its own
+            #  chain. It resolves against the corpus or it does not.
+            $solo = Resolve-ProvDerivedChains -Rows @($Row) -Ctx $Ctx
+            if ($solo.ContainsKey($key)) { $st = $solo[$key] }
+        }
+        $rec.kind = 'derived'
+        if ($null -ne $st) { $rec.derivedInputs = @($st.Inputs) }
+        if ($null -eq $st -or @($st.Inputs).Count -eq 0) {
+            $rec.disposition = 'UNRESOLVED'
+            $rec.kind = 'derived-no-inputs'
+            $rec.blocking = $true
+            $rec.note = ("the row says the figure is DERIVED and names no input this gate can resolve - no declared derivedFrom list, and no amount, date, time or measured quantity in the prose after the input marker: '{0}'. The fix is a registry edit, not a content edit: add derivedFrom listing the values the chain consumes. A derived figure whose inputs cannot be read is a figure with no provenance at all, and this gate will not pass one." -f (Get-ProvSnippet $Row.Locator 200))
+            return $rec
+        }
+        $rec.derivedMissing = @($st.Missing)
+        $ev = New-Object System.Collections.Generic.List[object]
+        foreach ($in in @($st.Inputs)) {
+            if ($st.Hits.ContainsKey($in) -and $ev.Count -lt $script:MaxEvidence) { $ev.Add($st.Hits[$in]) }
+        }
+        $rec.evidence = $ev.ToArray()
+        $chain = @()
+        foreach ($in in @($st.Inputs)) {
+            $via = 'NOT FOUND'
+            if ($st.Via.ContainsKey($in)) { $via = "$($st.Via[$in])" }
+            $chain += ("'{0}' <- {1}" -f $in, $via)
+        }
+        if ($st.Satisfied) {
+            $rec.disposition = 'RESOLVED-DERIVED'
+            $rec.kind = 'derived-inputs-resolve'
+            $rec.note = ("the figure is COMPUTED, so no source carries it. Every input the row names resolves{0}: {1}." -f $(switch ("$($st.InputKind)") { 'declared' { ' (from the row''s own derivedFrom list)' } 'values' { ' (values read from the locator''s input clause)' } 'places' { ' - the row names PLACES rather than amounts, and each named place is in the corpus; what the place SAYS is a reader''s call' } default { '' } }), ($chain -join '; '))
+        }
+        else {
+            $rec.disposition = 'UNRESOLVED'
+            $rec.kind = 'derived-input-absent'
+            $rec.blocking = $true
+            $rec.note = ("the figure is computed from {0} named input(s) and the FIRST one that resolves nowhere is '{1}'. A chain is only as real as its inputs: {2}. Fix the input or the chain - the computed value itself is not expected in any source." -f @($st.Inputs).Count, @($st.Missing)[0], ($chain -join '; '))
+        }
+        return $rec
     }
 
     if (@($Row.Classes).Count -eq 0) {
@@ -1128,8 +1830,17 @@ function Test-ProvRow {
     $atLocator = New-Object System.Collections.Generic.List[object]
     $anchored = $false
     $regionsBy = @{}
+    $phraseAnchored = @()
     foreach ($d in @($named.Docs)) {
         $regions = Find-ProvAnchorRegion -Doc $d -Locators $locs
+        if (@($regions).Count -eq 0) {
+            #  Last resort, and only here: the locator's own heading words.
+            $ph = @(Get-ProvPhraseAnchors -Locator $Row.Locator -Doc $d)
+            if ($ph.Count -gt 0) {
+                $regions = Find-ProvAnchorRegion -Doc $d -Locators $ph
+                foreach ($r in @($regions)) { if ($phraseAnchored -notcontains $r.Anchor) { $phraseAnchored += $r.Anchor } }
+            }
+        }
         $regionsBy[$d.Name] = $regions
         if (@($regions).Count -gt 0) { $anchored = $true }
         foreach ($h in @(Find-ProvValue -Value $Row.Value -Docs @($d) -Max $script:MaxEvidence)) {
@@ -1138,6 +1849,10 @@ function Test-ProvRow {
         }
     }
 
+    $rec.anchored = $anchored
+    if (@($phraseAnchored).Count -gt 0) {
+        $rec.anchors = @($rec.anchors) + @($phraseAnchored | ForEach-Object { 'phrase:' + (Get-ProvSnippet $_ 60) })
+    }
     $others = @($Ctx.Docs | Where-Object { @($rec.namedSource) -notcontains $_.Name })
     $hitsOther = @()
     if ($atLocator.Count -eq 0) { $hitsOther = @(Find-ProvValue -Value $Row.Value -Docs $others -Max $script:MaxEvidence) }
@@ -1191,18 +1906,53 @@ function Test-ProvRow {
         #  means by a verbatim quantity, and the sentence around them is a
         #  paraphrase, which section 18 says is tested by content word and
         #  REPORTED rather than failed.
+        #  ONE RECORD PER VALUE. A row that states more than one quantity and
+        #  whose own wording is in no source is SPLIT here and each quantity is
+        #  dispositioned on its own, because a single disposition over two
+        #  figures is how a fabricated figure rides in beside a real one: the
+        #  row reads NEAR-MISS, a reader sees "some of it resolved", and the
+        #  half that resolved nowhere is never looked at.
+        if (-not $NoSplit -and $rec.parts.Count -gt 1) {
+            $split = New-Object System.Collections.Generic.List[object]
+            $pi = 0
+            foreach ($q in @($rec.parts)) {
+                $sub = [pscustomobject]@{
+                    Register = $Row.Register; File = $Row.File
+                    Field = ("{0} value[{1}]" -f $Row.Field, $pi)
+                    Name = $Row.Name; Value = $q; Authority = $Row.Authority
+                    Classes = @($Row.Classes); Locator = $Row.Locator; DerivedFrom = @()
+                    Mandatory = $Row.Mandatory
+                }
+                foreach ($sr in @(Test-ProvRow -Row $sub -Ctx $Ctx -NoSplit)) {
+                    $sr.compositeOf = "$($Row.Value)"
+                    $sr.note = ("value {0} of {1} in a composite row ('{2}'), dispositioned on its own: {3}" -f ($pi + 1), $rec.parts.Count, (Get-ProvSnippet $Row.Value 90), $sr.note)
+                    $split.Add($sr)
+                }
+                $pi++
+            }
+            return $split.ToArray()
+        }
+
         $partHitsAt = New-Object System.Collections.Generic.List[object]
         $partHitsNamed = New-Object System.Collections.Generic.List[object]
         $resolvedParts = New-Object System.Collections.Generic.List[string]
         $missingParts = New-Object System.Collections.Generic.List[string]
+        #  PER PART, exact AND in region. Counting exact-at-locator HITS and
+        #  comparing the total to the number of parts let one part that occurs
+        #  three times stand in for two parts that occur nowhere, so a row
+        #  could be called verbatim on a quantity it does not carry.
+        $exactAtPart = @{}
         foreach ($q in @($rec.parts)) {
-            $hitAt = $false; $hitIn = $false
+            $hitIn = $false
             foreach ($d in @($named.Docs)) {
                 $reg = $regionsBy[$d.Name]
                 foreach ($h in @(Find-ProvValue -Value $q -Docs @($d) -Max 3)) {
                     $hitIn = $true
                     $partHitsNamed.Add($h)
-                    if (@($reg).Count -eq 0 -or (Test-ProvInRegion -Offset $h.Offset -Regions $reg)) { $hitAt = $true; $partHitsAt.Add($h) }
+                    if (@($reg).Count -eq 0 -or (Test-ProvInRegion -Offset $h.Offset -Regions $reg)) {
+                        $partHitsAt.Add($h)
+                        if ($h.Arm -eq 'exact') { $exactAtPart[$q] = $true }
+                    }
                 }
             }
             if ($hitIn) { $resolvedParts.Add($q) } else { $missingParts.Add($q) }
@@ -1210,7 +1960,9 @@ function Test-ProvRow {
         $rec.partsResolved = $resolvedParts.ToArray()
         $rec.partsMissing = $missingParts.ToArray()
 
-        $allPartsExactAt = ($rec.parts.Count -gt 0 -and $missingParts.Count -eq 0 -and @($partHitsAt | Where-Object { $_.Arm -eq 'exact' }).Count -ge $rec.parts.Count)
+        $everyPartExactAt = $true
+        foreach ($q in @($rec.parts)) { if (-not $exactAtPart.ContainsKey($q)) { $everyPartExactAt = $false } }
+        $allPartsExactAt = ($rec.parts.Count -gt 0 -and $missingParts.Count -eq 0 -and $everyPartExactAt)
 
         if ($allPartsExactAt) {
             $rec.disposition = 'RESOLVED'
@@ -1286,6 +2038,44 @@ function Test-ProvRow {
                 $rec.blocking = $true
                 $rec.note = ("neither this value{0} occurs in the named source [{1}] or anywhere else in {2} source document(s). The named source IS in the corpus, so this is an absence, not an uncheckable citation." -f $(if ($rec.parts.Count -gt 0) { ' nor ANY of the quantities inside it (' + (($rec.parts) -join ', ') + ')' } elseif ($words.Count -gt 0) { ' nor ANY of its distinctive content words (' + ((@($words) | Select-Object -First 6) -join ', ') + ')' } else { '' }), ($rec.namedSource -join ', '), @($Ctx.Docs).Count)
             }
+        }
+    }
+
+    # -----------------------------------------------------------------------
+    #  UNLOCATED. The three dispositions above that say "AT THE LOCATOR" are
+    #  entitled to say it only where the locator opened a region. Where it did
+    #  not - no anchor it names occurs in the document it names - "at the
+    #  locator" silently became "anywhere in this document", and the locator
+    #  half of the check never ran. On the reference build 59 of 258 resolved
+    #  rows were resolved that way and every one of them read as proof.
+    #
+    #  It is a finding, not a pass: counted, non-zero exit, and cleared only by
+    #  fixing the registry or by a provenanceAllow entry whose written reason
+    #  an auditor can read. UNRESOLVED, SOURCE-ABSENT, wrong-document, stale
+    #  locator and paraphrase are left alone - none of them rests on the
+    #  degenerate region.
+    # -----------------------------------------------------------------------
+    #  Nulls filtered before counting, both times: @($null).Count is 1 in 5.1,
+    #  and a count that answers YES for an absent property would make this
+    #  class fire on a row that never resolved a document at all.
+    $namedDocCount = 0
+    foreach ($d in @($named.Docs)) { if ($null -ne $d) { $namedDocCount++ } }
+    $anchorCount = 0
+    foreach ($a in @($rec.anchors)) { if ("$a".Trim()) { $anchorCount++ } }
+    if ((-not $rec.anchored) -and $namedDocCount -gt 0 -and
+        (@('verbatim-at-locator', 'quantities-verbatim-at-locator', 'not-verbatim') -contains $rec.kind)) {
+        $was = $rec.disposition
+        $wasKind = $rec.kind
+        $rec.disposition = 'UNLOCATED'
+        $rec.kind = 'locator-resolves-to-nothing'
+        $rec.blocking = $true
+        $rec.note = ("the locator names {0} but nothing it names as a PLACE occurs in the document(s) it names [{1}], so 'at the locator' degenerated to 'anywhere in the document' and only half this check ran. The value itself was {2}{3}. Fix the locator so it names an anchor the document carries, or record a provenanceAllow entry with a written reason." -f $(if ($anchorCount -gt 0) { 'anchor(s) ' + (($rec.anchors) -join ', ') } else { 'no anchor of any shape this build declares' }), ($rec.namedSource -join ', '), $(if ($wasKind -eq 'not-verbatim') { 'found but not verbatim' } else { 'found verbatim' }), $(if ($was -eq 'RESOLVED') { ' - it would have passed' } else { '' }))
+        $allow = Test-ProvAllowEntry -Rec $rec -Allow $Ctx.Allow
+        if ($null -ne $allow) {
+            $rec.blocking = $false
+            $rec.allowedBy = $allow.Id
+            $rec.allowReason = $allow.Reason
+            $rec.note = ("{0} ADJUDICATED by provenanceAllow entry '{1}': {2}" -f $rec.note, $allow.Id, $allow.Reason)
         }
     }
     return $rec
@@ -1400,7 +2190,13 @@ function Test-ProvVenueRow {
             $hasPhrase = $false
             foreach ($p in $script:VenuePhrases) { if ($c.Fold.Contains($p)) { $hasPhrase = $true; break } }
             if (-not $hasPhrase) { continue }
-            $hasVenue = ($Ctx.VenueTokens.Count -eq 0)
+            #  NOT `($Ctx.VenueTokens.Count -eq 0)`. A build whose contract
+            #  names no venue used to satisfy this test on every page: an empty
+            #  token list made hasVenue true everywhere, so the V-class arm
+            #  printed a clean line having compared nothing. The empty token
+            #  list is now a refusal upstream (the 'venue' check-set), and the
+            #  default here is false, so no route reaches a vacuous pass.
+            $hasVenue = $false
             foreach ($v in @($Ctx.VenueTokens)) { if ($c.Fold.Contains($v)) { $hasVenue = $true; break } }
             if ($hasPhrase -and $hasVenue) { $found = $true; if (-not $stmt) { $stmt = ('{0} {1}: {2}' -f $c.File, $c.Path, (Get-ProvSnippet $c.Text 200)) }; break }
         }
@@ -1516,10 +2312,14 @@ function Test-ProvAttribution {
     $named = Resolve-ProvNamedDocs -Locator $A.NounRaw -Docs $Ctx.Docs -Alias $Ctx.Alias -Patterns $Ctx.Patterns
     $rec.namedSource = @($named.Docs | ForEach-Object { $_.Name })
 
-    $locs = @(Get-ProvLocators -Text $A.Sentence -Patterns $Ctx.Patterns | Where-Object { $_.Kind -ne 'field' })
+    #  'line' is excluded here on purpose. A raw line number is a locator INTO
+    #  AN EXTRACT - a thing the registry writes and delivered prose does not -
+    #  and accepting one in a swept sentence would let "line 5" stand as a
+    #  reference a reader could follow. Arm 2 stays exactly as strict as it was.
+    $locs = @(Get-ProvLocators -Text $A.Sentence -Patterns $Ctx.Patterns | Where-Object { $_.Kind -ne 'field' -and $_.Kind -ne 'line' })
     $scope = 'sentence'
     if (@($locs).Count -eq 0) {
-        $locs = @(Get-ProvLocators -Text $A.Cell.Text -Patterns $Ctx.Patterns | Where-Object { $_.Kind -ne 'field' })
+        $locs = @(Get-ProvLocators -Text $A.Cell.Text -Patterns $Ctx.Patterns | Where-Object { $_.Kind -ne 'field' -and $_.Kind -ne 'line' })
         $scope = 'cell'
     }
     if (@($locs).Count -eq 0) { $scope = '' }
@@ -1619,24 +2419,126 @@ function Test-ProvAttribution {
 # 8. The run
 # ===========================================================================
 
+function Group-ProvRecords {
+    <#  Records sharing a disposition, a value and a locator are ONE finding
+        with its locations listed. The reference build printed the same
+        registered value against the same locator from nine sub-sections as
+        nine findings, and a reader who fixes the registry once still has eight
+        of them staring back. Nothing is dropped: every file and field is on
+        the record it was merged into.  #>
+    param($Records)
+    $order = New-Object System.Collections.Generic.List[string]
+    $byKey = @{}
+    $sep = [string][char]1
+    foreach ($r in @($Records)) {
+        if ($null -eq $r) { continue }
+        $key = "$($r.disposition)" + $sep + "$($r.kind)" + $sep +
+               (ConvertTo-ProvFold "$($r.value)").ToLowerInvariant() + $sep +
+               (ConvertTo-ProvFold "$($r.locator)").ToLowerInvariant()
+        $here = ("{0} {1}" -f $r.file, $r.field)
+        if (-not $byKey.ContainsKey($key)) {
+            $r.locations = @($here)
+            $r.occurrences = 1
+            $byKey[$key] = $r
+            $order.Add($key)
+            continue
+        }
+        $first = $byKey[$key]
+        $locs = @($first.locations)
+        if ($locs -notcontains $here) { $locs += $here }
+        $first.locations = $locs
+        $first.occurrences = [int]$first.occurrences + 1
+        if ($r.blocking) { $first.blocking = $true }
+        if ("$($r.claim)".Trim() -and "$($first.claim)" -ne "$($r.claim)" -and "$($first.claim)" -notmatch [regex]::Escape("$($r.claim)")) {
+            $first.claim = ("{0}; {1}" -f $first.claim, $r.claim)
+        }
+    }
+    $out = New-Object System.Collections.Generic.List[object]
+    foreach ($k in $order) { $out.Add($byKey[$k]) }
+    return $out.ToArray()
+}
+
+function New-ProvFindingRecord {
+    <#  A blocking finding in the toolchain's shape.
+
+        P1-14 lands New-GateFinding in Lib-GateCommon (Rule, File, Field,
+        Quote, re-found at the harvester's token boundary at write time). It is
+        used the moment it exists and its parameters accept this call; until
+        then the finding is written in today's shape. The check is on the
+        PARAMETERS and not only on the name, because a call that binds against
+        a different signature would stop the gate dead in the middle of a run
+        rather than fall back.  #>
+    param($Rec, [string] $Rule)
+    #  The quote is what the harvester actually READ. For a value row that is
+    #  the value; for a derived row with no value of its own it is the claim,
+    #  and last of all the locator - never empty, because a finding that cannot
+    #  say what it read cannot be tested.
+    $quote = ''
+    foreach ($e in @($Rec.evidence)) { if (-not $quote -and "$($e.Text)".Trim()) { $quote = "$($e.Text)" } }
+    foreach ($cand in @("$($Rec.value)", "$($Rec.claim)", "$($Rec.locator)")) {
+        if (-not $quote -and "$cand".Trim()) { $quote = (Get-ProvSnippet $cand 200) }
+    }
+    if (-not "$quote".Trim()) { $quote = '(the row carries no text)' }
+    $cmd = Get-Command -Name 'New-GateFinding' -ErrorAction SilentlyContinue
+    if ($null -ne $cmd) {
+        $want = @{ Rule = $Rule; File = "$($Rec.file)"; Field = "$($Rec.field)"; Quote = $quote
+                   Locator = (Get-ProvSnippet "$($Rec.locator)" 300); Detail = (Get-ProvSnippet "$($Rec.note)" 600) }
+        $names = @($cmd.Parameters.Keys)
+        $unknown = @(@($want.Keys) | Where-Object { $names -notcontains $_ })
+        $missingMandatory = New-Object System.Collections.Generic.List[string]
+        foreach ($p in @($cmd.Parameters.Values)) {
+            $mand = $false
+            foreach ($at in @($p.Attributes)) {
+                if ($at -is [System.Management.Automation.ParameterAttribute] -and $at.Mandatory) { $mand = $true }
+            }
+            if ($mand -and -not $want.ContainsKey($p.Name)) { $missingMandatory.Add($p.Name) }
+        }
+        if ($unknown.Count -eq 0 -and $missingMandatory.Count -eq 0) {
+            try { return (New-GateFinding @want) } catch { }
+        }
+    }
+    return [pscustomobject]@{
+        rule = $Rule; file = "$($Rec.file)"; field = "$($Rec.field)"; claim = "$($Rec.claim)"
+        value = "$($Rec.value)"; locator = "$($Rec.locator)"; disposition = "$($Rec.disposition)"
+        kind = "$($Rec.kind)"; quote = $quote; note = "$($Rec.note)"; locations = @($Rec.locations)
+    }
+}
+
+function Get-ProvAllowMap {
+    <#  provenanceAllow, read through Get-GateAllowList so an entry with no
+        written reason is REFUSED rather than honoured. An allow-list entry
+        that does not say why is a gate quietly switched off.  #>
+    param([string] $ForBuildDir, [string] $ForRulesPath)
+    $registry = $null
+    try { $registry = Get-GateRegistry -BuildDir $ForBuildDir -RulesPath $ForRulesPath } catch { $registry = $null }
+    if ($null -eq $registry) { return @{} }
+    return (Get-GateAllowList -Registry $registry -Key 'provenanceAllow' -IdField @('value', 'claim', 'field', 'locator', 'id', 'figure') -GateName $GATE)
+}
+
 function Invoke-Provenance {
-    param([string] $RunBuildDir, [string] $RunSpineDir, [string] $RunCorpusDir, [string] $RunPackDir, [string] $RunRulesPath, [switch] $RunQuiet)
+    param([string] $RunBuildDir, [string] $RunSpineDir, [string] $RunCorpusDir, [string] $RunPackDir, [string] $RunRulesPath, [string[]] $RunDocText, [string] $RunStage, [switch] $RunQuiet)
 
     #  Cleared per run. The caches key on a document NAME, and two builds in
     #  one process can carry the same document name over different text.
     $script:AnchorDocCache = @{}
     $script:RegionCache    = @{}
     $script:LabelForms     = @{}
+    $script:ValueCache     = @{}
+    $script:DerivedInputCache = @{}
 
     $contract = Get-GateContract -BuildDir $RunBuildDir
     $script:LabelForms = Get-ProvLabelForm -Contract $contract
     $classes  = Get-ProvAuthorityClasses -Contract $contract
+    $allow    = Get-ProvAllowMap -ForBuildDir $RunBuildDir -ForRulesPath $RunRulesPath
     $sources  = Get-ProvSources -ForBuildDir $RunBuildDir -ForCorpusDir $RunCorpusDir -ForPackDir $RunPackDir
     if (@($sources.Docs).Count -eq 0) {
         throw ("{0}: no source documents. Provenance cannot be proved against nothing." -f $GATE)
     }
-    $cells    = Get-ProvSpineCells -ForBuildDir $RunBuildDir -ForSpineDir $RunSpineDir
+    $spineCells = Get-ProvSpineCells -ForBuildDir $RunBuildDir -ForSpineDir $RunSpineDir
+    $renderedCells = @(Get-ProvRenderedCells -Paths $RunDocText)
+    $cells    = @($spineCells) + @($renderedCells)
     $rows     = Get-ProvRows -ForBuildDir $RunBuildDir -ForSpineDir $RunSpineDir -ForRulesPath $RunRulesPath -Classes $classes
+    $noProv   = @($script:ProvFilesWithoutProvenance)
     $patterns = Get-ProvLocatorPatterns -Contract $contract
     $alias    = Get-ProvAliasMap -Contract $contract -Docs $sources.Docs
     $nouns    = Get-ProvSourceNouns -Contract $contract -Docs $sources.Docs -Rows $rows -Alias $alias
@@ -1645,8 +2547,12 @@ function Invoke-Provenance {
 
     $ctx = [pscustomobject]@{
         Docs = $sources.Docs; Cells = $cells; Alias = $alias; Patterns = $patterns
-        Classes = $classes; VenueTokens = $venue
+        Classes = $classes; VenueTokens = $venue; Allow = $allow; Derived = $null
     }
+    #  Every derived row in the build resolved TOGETHER, before any row is
+    #  dispositioned: one row's output is the next row's input, and a chain is
+    #  only readable end to end.
+    $ctx.Derived = Resolve-ProvDerivedChains -Rows $rows -Ctx $ctx
 
     if (-not $RunQuiet) {
         Write-Host ''
@@ -1661,28 +2567,72 @@ function Invoke-Provenance {
         Write-Host ("  check-set: authority classes [{0}]; venue token(s) {1}; locator shape(s) {2}" -f ($classes -join ' '), @($venue).Count, @($patterns).Count) -ForegroundColor DarkGray
     }
 
+    # -----------------------------------------------------------------------
+    #  THE ARM ROSTER. Every arm ends ran / empty / declared-n-a; a blocking arm
+    #  whose check-set is empty is a refusal (exit 2), never a green line.
+    # -----------------------------------------------------------------------
+    $vRows = @(@($rows) | Where-Object { @($_.Classes) -contains 'V' -and "$($_.Value)".Trim() })
+    $lRows = @(@($rows) | Where-Object { @($_.Classes) -contains 'L' -and "$($_.Value)".Trim() })
+    Reset-GateArmRoster
+    Register-GateArm -Name 'registry'    -Blocking
+    Register-GateArm -Name 'attribution' -Blocking
+    Register-GateArm -Name 'spine-provenance'
+    #  The venue arm is blocking exactly when the registry carries a V-class row
+    #  to check. With none, it has no work and says so; with one, an empty venue
+    #  token list is a refusal instead of the vacuous pass it used to be.
+    Register-GateArm -Name 'venue' -Blocking:($vRows.Count -gt 0)
+    Register-GateArm -Name 'legal'
+    if ($RunStage -eq '7c') { Register-GateArm -Name 'rendered' -Blocking }
+
+    Write-GateCheckSet -What 'provenance row(s)' -Count @($rows).Count -Blocking `
+        -Input ('figures.json figures[] and every spine sub-section provenance[] block under ' + $(if ($RunSpineDir) { $RunSpineDir } else { Join-Path $RunBuildDir 'spine' })) `
+        -DerivedFrom 'both registers, enumerated - never a hand-listed subset'
+    Write-GateCheckSet -What 'cell(s) swept for an attributed sentence' -Count @($cells).Count -Blocking `
+        -Input ('the spine, and the rendered extracts when -Stage 7c passes them') `
+        -DerivedFrom ("{0} spine cell(s) + {1} rendered line(s)" -f @($spineCells).Count, @($renderedCells).Count)
+    if ($vRows.Count -gt 0) {
+        Write-GateCheckSet -What 'venue name token(s)' -Count @($venue).Count -Blocking `
+            -Input 'contract.json build.brand / build.tradingName / scenario.employer / scenario.venue' `
+            -DerivedFrom ("{0} V-class registry row(s) claim the figure is the venue's own procedure, and each one is proved by finding the venue's NAME beside the statement" -f $vRows.Count)
+    }
+    if ($RunStage -eq '7c') {
+        Write-GateCheckSet -What 'rendered line(s) from the delivered documents' -Count @($renderedCells).Count -Blocking `
+            -Input 'the extracts passed to -DocText (guide_gate.txt, deck_gate.txt)' `
+            -DerivedFrom 'every line of every extract with twelve or more characters'
+    }
+
     $records = New-Object System.Collections.Generic.List[object]
     $legal = New-Object System.Collections.Generic.List[object]
     $venueFindings = New-Object System.Collections.Generic.List[object]
 
+    $derivedRows = 0
     foreach ($row in @($rows)) {
-        $rec = Test-ProvRow -Row $row -Ctx $ctx
+        if (Test-ProvIsDerived -Row $row) { $derivedRows++ }
+        #  One row, one or more records: a composite row is one record per
+        #  value. Every record of the row carries the row's class arms.
+        $recs = @(Test-ProvRow -Row $row -Ctx $ctx)
+        $lg = $null
         if (@($row.Classes) -contains 'L' -and "$($row.Value)".Trim()) {
-            $lg = Test-ProvLegalRow -Row $row -Rec $rec -Ctx $ctx
-            $rec.legal = $lg
+            $lg = Test-ProvLegalRow -Row $row -Rec $recs[0] -Ctx $ctx
             if ($lg.conflict) {
-                $legal.Add([pscustomobject]@{ Row = $row; Rec = $rec; Legal = $lg })
+                $legal.Add([pscustomobject]@{ Row = $row; Rec = $recs[0]; Legal = $lg })
             }
         }
+        $vn = $null
         if (@($row.Classes) -contains 'V' -and "$($row.Value)".Trim()) {
             $v = Test-ProvVenueRow -Row $row -Ctx $ctx
             if ($null -ne $v) {
-                $rec.venue = [ordered]@{ onPage = $v.OnPage; statement = $v.Statement; filesWithoutStatement = @($v.Missing) }
+                $vn = [ordered]@{ onPage = $v.OnPage; statement = $v.Statement; filesWithoutStatement = @($v.Missing) }
                 if ($v.OnPage -and @($v.Missing).Count -gt 0) { $venueFindings.Add([pscustomobject]@{ Row = $row; Missing = @($v.Missing) }) }
             }
         }
-        $records.Add([pscustomobject]$rec)
+        foreach ($rec in $recs) {
+            if ($null -ne $lg) { $rec.legal = $lg }
+            if ($null -ne $vn) { $rec.venue = $vn }
+            $records.Add([pscustomobject]$rec)
+        }
     }
+    $grouped = @(Group-ProvRecords -Records $records.ToArray())
 
     $verbRx = '(?i)\b(?:' + ((@($verbs.Forms) | ForEach-Object { [regex]::Escape($_) }) -join '|') + ')\b'
     $attrs = Get-ProvAttributions -Cells $cells -Nouns $nouns -VerbRx $verbRx
@@ -1695,11 +2645,30 @@ function Invoke-Provenance {
         $attrRecords.Add([pscustomobject]$r)
     }
 
+    # ---- every declared arm ends
+    Complete-GateArm -Name 'registry' -State 'ran' -Size @($rows).Count -Findings @($grouped | Where-Object { $_.blocking }).Count
+    Complete-GateArm -Name 'attribution' -State 'ran' -Size @($cells).Count -Findings @($attrRecords | Where-Object { $_.disposition -eq 'UNRESOLVED' }).Count
+    if (@($spineCells).Count -gt 0) { Complete-GateArm -Name 'spine-provenance' -State 'ran' -Size (@($spineCells | ForEach-Object { $_.File } | Select-Object -Unique)).Count -Findings @($noProv).Count }
+    else { Complete-GateArm -Name 'spine-provenance' -State 'empty' -Size 0 }
+    #  .Count on the List itself, never @($list): wrapping a List of
+    #  PSCustomObjects in an array subexpression throws 'Argument types do not
+    #  match' in 5.1, which is a parse-clean way to stop a gate dead.
+    if ($vRows.Count -gt 0) { Complete-GateArm -Name 'venue' -State 'ran' -Size $vRows.Count -Findings $venueFindings.Count }
+    else { Complete-GateArm -Name 'venue' -State 'empty' -Size 0 }
+    if ($lRows.Count -gt 0) { Complete-GateArm -Name 'legal' -State 'ran' -Size $lRows.Count -Findings $legal.Count }
+    else { Complete-GateArm -Name 'legal' -State 'empty' -Size 0 }
+    if ($RunStage -eq '7c') { Complete-GateArm -Name 'rendered' -State 'ran' -Size @($renderedCells).Count -Findings @($attrRecords | Where-Object { $_.disposition -eq 'UNRESOLVED' -and "$($_.file)" -notmatch '\.json$' }).Count }
+
     return [pscustomobject]@{
-        Registry     = $records.ToArray()
+        Registry     = $grouped
         Attribution  = $attrRecords.ToArray()
         LegalConflict= $legal.ToArray()
         VenueFinding = $venueFindings.ToArray()
+        FilesWithoutProvenance = @($noProv)
+        DerivedRows  = $derivedRows
+        Records      = $records.Count
+        RenderedLines = @($renderedCells).Count
+        Stage        = $RunStage
         Rows         = @($rows).Count
         Sentences    = @($attrs).Count
         Docs         = @($sources.Docs | ForEach-Object { $_.Name })
@@ -1724,6 +2693,7 @@ function Write-ProvConsole {
 
     foreach ($grp in @(
         @{ Disp = 'UNRESOLVED';    Colour = 'Red';    Head = 'UNRESOLVED - the value is not in the source, and the source is in the corpus. BLOCKING.' },
+        @{ Disp = 'UNLOCATED';     Colour = 'Red';    Head = 'UNLOCATED - the locator resolves to no place in the document it names, so only half the check ran. BLOCKING unless a provenanceAllow entry with a written reason clears it.' },
         @{ Disp = 'NEAR-MISS';     Colour = 'Yellow'; Head = 'NEAR-MISS - reported for adjudication, never silently failed and never silently passed.' },
         @{ Disp = 'SOURCE-ABSENT'; Colour = 'Cyan';   Head = 'SOURCE-ABSENT - the named source is in no corpus document. Reported with the source name.' }
     )) {
@@ -1737,7 +2707,7 @@ function Write-ProvConsole {
                 Write-Host ("    ... and {0} more in the report" -f ($rows.Count - $n)) -ForegroundColor DarkGray
                 break
             }
-            Write-Host ("    [{0}] {1} {2}" -f (@($r.class) -join ''), $r.file, $r.field) -ForegroundColor $grp.Colour
+            Write-Host ("    [{0}] {1} {2}{3}" -f (@($r.class) -join ''), $r.file, $r.field, $(if ([int]$r.occurrences -gt 1) { ' (+' + ([int]$r.occurrences - 1) + ' more location(s): ' + ((@($r.locations) | Select-Object -Skip 1 | Select-Object -First 6) -join '; ') + ')' } else { '' })) -ForegroundColor $grp.Colour
             Write-Host ("      claim   : {0}" -f (Get-ProvSnippet $r.claim 160)) -ForegroundColor Gray
             if ("$($r.value)".Trim()) { Write-Host ("      value   : {0}" -f $r.value) -ForegroundColor Gray }
             Write-Host ("      locator : {0}" -f (Get-ProvSnippet $r.locator 160)) -ForegroundColor Gray
@@ -1771,6 +2741,30 @@ function Write-ProvConsole {
         if ($noCite.Count -gt $script:MaxConsole) { Write-Host ("    ... and {0} more in the report" -f ($noCite.Count - $script:MaxConsole)) -ForegroundColor DarkGray }
     }
 
+    $derived = @($Run.Registry | Where-Object { $_.disposition -eq 'RESOLVED-DERIVED' })
+    if ($derived.Count -gt 0) {
+        Write-Host ''
+        Write-Host ("  RESOLVED-DERIVED ({0}) - a COMPUTED figure, so no source carries it. Every input each chain names resolves, in the corpus or through another derived row. The chain is printed per row in the report." -f $derived.Count) -ForegroundColor Green
+        foreach ($r in @($derived | Select-Object -First $script:MaxConsole)) {
+            Write-Host ("    {0} {1}: '{2}' <- {3}" -f $r.file, $r.field, (Get-ProvSnippet $r.value 60), ((@($r.derivedInputs) | Select-Object -First 6) -join ', ')) -ForegroundColor DarkGray
+        }
+    }
+
+    $cleared = @($Run.Registry | Where-Object { "$($_.allowedBy)".Trim() })
+    if ($cleared.Count -gt 0) {
+        Write-Host ''
+        Write-Host ("  ADJUDICATED BY provenanceAllow ({0}) - counted, printed with the reason, and subtracted from the exit only. An allow entry is a claim a reader verifies, not a cleared row." -f $cleared.Count) -ForegroundColor Yellow
+        foreach ($r in @($cleared | Select-Object -First $script:MaxConsole)) {
+            Write-Host ("    {0} {1} [{2}]: {3}" -f $r.file, $r.field, $r.allowedBy, (Get-ProvSnippet $r.allowReason 160)) -ForegroundColor DarkGray
+        }
+    }
+
+    if (@($Run.FilesWithoutProvenance).Count -gt 0) {
+        Write-Host ''
+        Write-Host ("  SPINE FILE(S) WITH NO PROVENANCE BLOCK ({0}) - nothing in them was registered, so nothing in them was proved. Reported by name; a silent skip is how that stays invisible." -f @($Run.FilesWithoutProvenance).Count) -ForegroundColor Yellow
+        Write-Host ("    {0}" -f ((@($Run.FilesWithoutProvenance)) -join ', ')) -ForegroundColor DarkGray
+    }
+
     if (@($Run.VenueFinding).Count -gt 0) {
         Write-Host ''
         Write-Host ("  V-CLASS WITHOUT THE VENUE STATEMENT ({0}) - the figure is on the page and the page does not say it is the venue's own. Reported." -f @($Run.VenueFinding).Count) -ForegroundColor Yellow
@@ -1781,12 +2775,26 @@ function Write-ProvConsole {
 }
 
 function Write-ProvReport {
-    param($Run, [string] $Path)
+    #  $Arms defaults to an empty ARRAY, not to $null: @($null).Count is 1, and
+    #  a report carrying one null arm would read as a roster.
+    param($Run, [string] $Path, $Arms = @(), [string] $Mode = 'spine')
     $out = [ordered]@{
         gate = [ordered]@{
             script       = $GATE
+            mode         = $Mode
+            stage        = "$($Run.Stage)"
             ranAt        = (Get-Date -Format 'o')
             corpusDir    = "$($Run.CorpusDir)"
+            renderedLines = [int]$Run.RenderedLines
+            derivedRows  = [int]$Run.DerivedRows
+            derivedResolved = @($Run.Registry | Where-Object { $_.disposition -eq 'RESOLVED-DERIVED' }).Count
+            derivedUnresolved = @($Run.Registry | Where-Object { $_.kind -like 'derived-*' -and $_.disposition -eq 'UNRESOLVED' }).Count
+            unlocatedRows = @($Run.Registry | Where-Object { $_.disposition -eq 'UNLOCATED' }).Count
+            unlocatedAdjudicated = @($Run.Registry | Where-Object { $_.disposition -eq 'UNLOCATED' -and "$($_.allowedBy)".Trim() }).Count
+            compositeRecords = @($Run.Registry | Where-Object { "$($_.compositeOf)".Trim() }).Count
+            records      = [int]$Run.Records
+            groupedRecords = @($Run.Registry).Count
+            spineFilesWithoutProvenance = @($Run.FilesWithoutProvenance)
             sources      = @($Run.Docs)
             spineCells   = $Run.Cells
             rows         = $Run.Rows
@@ -1795,9 +2803,11 @@ function Write-ProvReport {
             verbList     = @($Run.Verbs.Stems)
             verbListFrom = $Run.Verbs.DerivedFrom
             classes      = @($Run.Classes)
-            dispositions = 'RESOLVED | NEAR-MISS | UNRESOLVED | SOURCE-ABSENT'
-            rule         = 'A NEAR-MISS is reported for adjudication, never silently failed and never silently passed: a near miss is usually a stale locator and a true absence is usually a fabricated figure. A line from an assessor-only document is recorded by document and line number and its text is withheld.'
+            dispositions = 'RESOLVED | RESOLVED-DERIVED | NEAR-MISS | UNLOCATED | UNRESOLVED | SOURCE-ABSENT'
+            rule         = 'A NEAR-MISS is reported for adjudication, never silently failed and never silently passed: a near miss is usually a stale locator and a true absence is usually a fabricated figure. A line from an assessor-only document is recorded by document and line number and its text is withheld. A DERIVED row is dispositioned on the inputs it names, never on the computed value, which by construction no source carries. A row whose locator resolves to no place in the document it names is UNLOCATED and blocks - it is not passed as verbatim. Records sharing a disposition, a value and a locator are one record with every location listed.'
         }
+        arms        = @($Arms)
+        findings    = @(@($Run.Registry) + @($Run.Attribution) | Where-Object { $_.blocking } | ForEach-Object { New-ProvFindingRecord -Rec $_ -Rule ('provenance:' + $_.kind) })
         registry    = @($Run.Registry)
         attribution = @($Run.Attribution)
         legalConflict = @($Run.LegalConflict | ForEach-Object {
@@ -1811,6 +2821,101 @@ function Write-ProvReport {
     }
     $json = $out | ConvertTo-Json -Depth 12
     [System.IO.File]::WriteAllText($Path, $json, (New-Object System.Text.UTF8Encoding($false)))
+}
+
+# ===========================================================================
+# 8b. The seed arms - Stage 2, registry against corpus, no spine
+# ===========================================================================
+
+function Invoke-ProvSeed {
+    <#  Stage 2. The registry rows are read against the corpus before a word is
+        authored. A missing registry THROWS by name - a seed run with nothing to
+        check is a refusal, not a pass - and a row whose locator begins DERIVED
+        is dispositioned on the inputs it names, exactly as at Stage 3c.  #>
+    param([string] $RunBuildDir, [string] $RunCorpusDir, [string] $RunPackDir, [string] $RunRulesPath, [switch] $RunQuiet)
+
+    $script:AnchorDocCache = @{}
+    $script:RegionCache    = @{}
+    $script:LabelForms     = @{}
+    $script:ValueCache     = @{}
+    $script:DerivedInputCache = @{}
+
+    $contract = Get-GateContract -BuildDir $RunBuildDir
+    $script:LabelForms = Get-ProvLabelForm -Contract $contract
+    $classes  = Get-ProvAuthorityClasses -Contract $contract
+    $allow    = Get-ProvAllowMap -ForBuildDir $RunBuildDir -ForRulesPath $RunRulesPath
+    $sources  = Get-ProvSources -ForBuildDir $RunBuildDir -ForCorpusDir $RunCorpusDir -ForPackDir $RunPackDir
+    if (@($sources.Docs).Count -eq 0) {
+        throw ("{0}: no source documents. Provenance cannot be proved against nothing." -f $GATE)
+    }
+    $rows = Get-ProvRows -ForBuildDir $RunBuildDir -ForSpineDir '' -ForRulesPath $RunRulesPath -Classes $classes -RegistryOnly -RequireRegistry
+    $patterns = Get-ProvLocatorPatterns -Contract $contract
+    $alias    = Get-ProvAliasMap -Contract $contract -Docs $sources.Docs
+    $venue    = Get-ProvVenueTokens -Contract $contract
+
+    $ctx = [pscustomobject]@{
+        Docs = $sources.Docs; Cells = @(); Alias = $alias; Patterns = $patterns
+        Classes = $classes; VenueTokens = $venue; Allow = $allow; Derived = $null
+    }
+    $ctx.Derived = Resolve-ProvDerivedChains -Rows $rows -Ctx $ctx
+
+    Reset-GateArmRoster
+    Register-GateArm -Name 'registry' -Blocking
+    Register-GateArm -Name 'attribution' -Blocking
+    Register-GateArm -Name 'venue' -Blocking
+
+    if (-not $RunQuiet) {
+        Write-Host ''
+        Write-Host 'PROVENANCE (SEED) - does every registry row resolve in the source it names, before anything is authored?' -ForegroundColor Cyan
+        Write-GateCheckSet -What 'source document(s)' -Count @($sources.Docs).Count -DerivedFrom 'the canonical corpus and unit_extract*.md'
+    }
+    Write-GateCheckSet -What 'registry row(s)' -Count @($rows).Count -Blocking `
+        -Input ($(if ($RunRulesPath) { $RunRulesPath } else { Join-Path $RunBuildDir 'figures.json' }) + ' figures[]') `
+        -DerivedFrom 'the figure registry, enumerated'
+
+    $records = New-Object System.Collections.Generic.List[object]
+    $legal = New-Object System.Collections.Generic.List[object]
+    $derivedRows = 0
+    foreach ($row in @($rows)) {
+        if (Test-ProvIsDerived -Row $row) { $derivedRows++ }
+        $recs = @(Test-ProvRow -Row $row -Ctx $ctx)
+        $lg = $null
+        if (@($row.Classes) -contains 'L' -and "$($row.Value)".Trim()) {
+            $lg = Test-ProvLegalRow -Row $row -Rec $recs[0] -Ctx $ctx
+            if ($lg.conflict) { $legal.Add([pscustomobject]@{ Row = $row; Rec = $recs[0]; Legal = $lg }) }
+        }
+        foreach ($rec in $recs) {
+            if ($null -ne $lg) { $rec.legal = $lg }
+            $records.Add([pscustomobject]$rec)
+        }
+    }
+    $grouped = @(Group-ProvRecords -Records $records.ToArray())
+
+    Complete-GateArm -Name 'registry' -State 'ran' -Size @($rows).Count -Findings @($grouped | Where-Object { $_.blocking }).Count
+    #  The two spine arms cannot run at Stage 2 and say so by name.
+    $why = 'there is no spine at Stage 2; the attributed-sentence sweep and the V-class page statement both read authored prose and run at Stage 3c'
+    Set-ProvArmState -Name 'attribution' -Reason $why
+    Set-ProvArmState -Name 'venue' -Reason $why
+
+    return [pscustomobject]@{
+        Registry     = $grouped
+        Attribution  = @()
+        LegalConflict= $legal.ToArray()
+        VenueFinding = @()
+        FilesWithoutProvenance = @()
+        DerivedRows  = $derivedRows
+        Records      = $records.Count
+        RenderedLines = 0
+        Stage        = '2'
+        Rows         = @($rows).Count
+        Sentences    = 0
+        Docs         = @($sources.Docs | ForEach-Object { $_.Name })
+        CorpusDir    = $sources.CorpusDir
+        Cells        = 0
+        Nouns        = 0
+        Verbs        = (Get-ProvReportingVerbs -Contract $contract)
+        Classes      = $classes
+    }
 }
 
 # ===========================================================================
@@ -1837,6 +2942,9 @@ function New-ProvFixture {
     foreach ($l in $filler) { $wb.Add($l) }
     $wb.Add('Task 4(b) Bench rest. The house rule for the bench rest is 25 minutes before the trays go to the chiller.')
     $wb.Add('Task 9(c) Packing. Each tray is filled to a depth of 40 mm before it goes to the blast chiller.')
+    #  The DERIVED plants read their inputs from here: 5 (of cartons) and
+    #  $250.00 are both in the corpus, and $18.00 is the money control.
+    $wb.Add('Task 12(a) Receiving. Each carton holds 5 trays and is invoiced at $250.00 per carton, with a delivery fee of $18.00 per drop.')
     $wb.Add('Recipe card 4001, storage block: chill the cooked product to 6 degrees C or below within 90 minutes.')
     [System.IO.File]::WriteAllText((Join-Path $root 'corpus\Fixture_Recipe_Workbook.txt'), ($wb -join "`r`n"), $enc)
 
@@ -1876,7 +2984,49 @@ function New-ProvFixture {
                         require = @('40 mm') },
             [ordered]@{ name = 'PLANT-MANDATE chill figure'; authority = 'L'
                         source = 'Model Practice Standard 9.9.9, Cooling of cooked food'
-                        require = @('6 degrees C or below within 90 minutes') }
+                        require = @('6 degrees C or below within 90 minutes') },
+            #  V-class, and the value appears on a page that does NOT say the
+            #  figure is the venue's own. The other page does, so the finding
+            #  has to name one file and not the other.
+            [ordered]@{ name = 'PLANT-VENUE tray depth'; authority = 'V'
+                        source = 'Fixture Recipe Workbook, Task 9(c)'
+                        require = @('40 mm') },
+            #  DERIVED, EVERY INPUT IN THE CORPUS. The computed value is in no
+            #  source and must NOT be called absent: the row is dispositioned
+            #  on '5' and '$250.00', both of which are at Task 12(a).
+            [ordered]@{ name = 'PLANT-DERIVED-OK carton total'; authority = 'P'
+                        source = 'DERIVED from 5 cartons at $250.00'
+                        require = @('$1,250.00') },
+            #  DERIVED with an input NOTHING carries. The row must name the
+            #  missing input, not the computed value.
+            [ordered]@{ name = 'PLANT-DERIVED-MISSING carton total'; authority = 'P'
+                        source = 'DERIVED from 5 cartons at $999.00'
+                        require = @('$4,995.00') },
+            #  DERIVED naming no input of any shape: not a pass, and the fix
+            #  it names is a registry edit.
+            [ordered]@{ name = 'PLANT-DERIVED-NO-INPUTS tray count'; authority = 'P'
+                        source = 'DERIVED from the batch size and the tray depth'
+                        require = @('3 trays') },
+            #  MONEY. Before the currency shape existed this value carried no
+            #  quantity at all, fell through to the paraphrase arm and could
+            #  not block however absent it was.
+            [ordered]@{ name = 'PLANT-MONEY absent fee'; authority = 'P'
+                        source = 'Fixture Recipe Workbook, Task 1(a)'
+                        require = @('$47.50') },
+            [ordered]@{ name = 'PLANT-MONEY present fee'; authority = 'P'
+                        source = 'Fixture Recipe Workbook, Task 12(a)'
+                        require = @('$18.00') },
+            #  COMPOSITE: one value at the locator, one value in no document.
+            #  It must split into TWO records so the bad half cannot hide.
+            [ordered]@{ name = 'PLANT-COMPOSITE depth and hold'; authority = 'P'
+                        source = 'Fixture Recipe Workbook, Task 9(c)'
+                        require = @('40 mm and 77 minutes') },
+            #  UNLOCATED: the document resolves, the value is verbatim in it,
+            #  and NOTHING the locator names as a place is in the document. It
+            #  passed as verbatim before this class existed.
+            [ordered]@{ name = 'PLANT-UNLOCATED bench rest'; authority = 'P'
+                        source = 'Fixture Recipe Workbook, the pickling schedule appendix'
+                        require = @('25 minutes') }
         )
     }
     [System.IO.File]::WriteAllText((Join-Path $root 'figures.json'), ($figures | ConvertTo-Json -Depth 8), $enc)
@@ -1891,6 +3041,35 @@ function New-ProvFixture {
         )
     }
     [System.IO.File]::WriteAllText((Join-Path $root 'spine\t1_1.1.json'), ($spine | ConvertTo-Json -Depth 8), $enc)
+
+    #  A second sub-section. It carries the V-class figure and does NOT say the
+    #  figure is the venue's own, and it DOES carry a provenance block - so the
+    #  venue finding must name this file, and the no-provenance report must name
+    #  the other one. Two plants that discriminate between two files.
+    $spine2 = [ordered]@{
+        ref = '1.2'; pc = '1.2'; topic = 1; title = 'Second fixture sub-section'
+        underpinningKnowledge = @(
+            'The tray depth used on this run is 40 mm from lip to base.',
+            'Check the depth with the gauge before the trays are loaded.'
+        )
+        provenance = @(
+            [ordered]@{ figure = 'bench rest'; value = '25 minutes'; class = 'P'
+                        source = 'Fixture Recipe Workbook, Task 4(b), the bench rest line' }
+        )
+    }
+    [System.IO.File]::WriteAllText((Join-Path $root 'spine\t1_1.2.json'), ($spine2 | ConvertTo-Json -Depth 8), $enc)
+
+    #  The rendered extracts the 7c arm reads. One line of each carries an
+    #  attribution that resolves, so the arm has real work and a control.
+    [System.IO.File]::WriteAllText((Join-Path $root 'guide_gate.txt'), (@(
+        'Fixture Learner Guide - rendered extract.',
+        'Workbook Task 9(c) states that each tray is filled to a depth of 40 mm before it goes to the blast chiller.',
+        'The house rule at the FixtureCo production kitchen is 25 minutes of bench rest, and that is our own procedure.'
+    ) -join "`r`n"), $enc)
+    [System.IO.File]::WriteAllText((Join-Path $root 'deck_gate.txt'), (@(
+        'Fixture delivery deck - rendered extract.',
+        'Slide 1. Workbook Task 1(a) lists the documents you read before the run starts.'
+    ) -join "`r`n"), $enc)
     return $root
 }
 
@@ -1959,6 +3138,34 @@ function Invoke-ProvSelfTest {
         }
         else { & $bad 'plant 5 did NOT land: the control value is not at its locator' }
 
+        # plant 6 - the DERIVED inputs. Both must be IN the corpus, at a token
+        #           boundary, or RESOLVED-DERIVED would prove nothing.
+        $in5 = @(Find-ProvDerivedInput -Value '5' -Docs $src.Docs)
+        $in250 = @(Find-ProvDerivedInput -Value '$250.00' -Docs $src.Docs)
+        if ($in5.Count -gt 0 -and $in250.Count -gt 0) { & $ok ("plant 6 landed: both derived inputs are in the corpus - '5' at {0} line {1}, '{2}' at {3} line {4}" -f $in5[0].Doc, $in5[0].Line, '$250.00', $in250[0].Doc, $in250[0].Line) }
+        else { & $bad ("plant 6 did NOT land: '5' found {0} time(s), '{1}' found {2} time(s)" -f $in5.Count, '$250.00', $in250.Count) }
+
+        # plant 7 - the values that must be ABSENT, or three findings are luck.
+        $stillThere = New-Object System.Collections.Generic.List[string]
+        foreach ($v in @('$999.00', '$47.50', '77 minutes')) {
+            if (@(Find-ProvValue -Value $v -Docs $src.Docs -Max 1).Count -gt 0) { $stillThere.Add($v) }
+        }
+        if ($stillThere.Count -eq 0) { & $ok "plant 7 landed: the three absent values occur in NO source document" }
+        else { & $bad ("plant 7 did NOT land: still present - {0}" -f (($stillThere.ToArray()) -join ', ')) }
+
+        # plant 8 - the currency shape itself. Money must decompose to a
+        #           quantity, or a money row can only ever be a paraphrase.
+        $moneyParts = @(Get-ProvQuantity -Text '$1,250.00 for 5 cartons')
+        if ($moneyParts -contains '$1,250.00') { & $ok ("plant 8 landed: money decomposes to a quantity ({0}) instead of to nothing" -f ($moneyParts -join ', ')) }
+        else { & $bad ("plant 8 did NOT land: the money value decomposed to [{0}]" -f ($moneyParts -join ', ')) }
+
+        # plant 9 - the UNLOCATED locator names a place the document does not
+        #           carry, while the VALUE is verbatim in it.
+        $noPlace = [regex]::IsMatch($wbDoc.Text, '(?i)pickling schedule')
+        $valThere = @(Find-ProvValue -Value '25 minutes' -Docs @($wbDoc) -Max 1)
+        if ((-not $noPlace) -and $valThere.Count -gt 0) { & $ok 'plant 9 landed: the workbook carries "25 minutes" verbatim and carries no "pickling schedule appendix", so the row can only be UNLOCATED - before this class existed it passed as verbatim' }
+        else { & $bad ("plant 9 did NOT land: the named place is present={0}, the value was found {1} time(s)" -f $noPlace, $valThere.Count) }
+
         # ---- now run the gate ----
         $run = Invoke-Provenance -RunBuildDir $fixture -RunSpineDir '' -RunCorpusDir '' -RunPackDir '' -RunRulesPath '' -RunQuiet
         Write-ProvConsole -Run $run
@@ -2014,9 +3221,128 @@ function Invoke-ProvSelfTest {
         elseif ($good[0].disposition -eq 'RESOLVED') { & $ok 'the correctly located attribution is RESOLVED' }
         else { & $bad ("the correctly located attribution came back {0}: {1}" -f $good[0].disposition, $good[0].note) }
 
+        # ---- MONEY REACHES THE QUANTITY ARM, AND NEVER THE PARAPHRASE ARM.
+        $m1 = & $get 'PLANT-MONEY absent fee'
+        if ($null -ne $m1 -and $m1.disposition -eq 'UNRESOLVED' -and $m1.kind -ne 'paraphrase' -and (@($m1.parts) -contains '$47.50')) {
+            & $ok 'gate fires on money: an absent currency value decomposes to a quantity and reaches UNRESOLVED - before the currency shape it carried no quantity, took the paraphrase arm and could not block'
+        }
+        else { & $bad ("the absent money row came back {0}/{1} with parts [{2}], wanted UNRESOLVED and a quantity" -f $(if ($null -eq $m1) { 'MISSING' } else { $m1.disposition }), $(if ($null -eq $m1) { '' } else { $m1.kind }), $(if ($null -eq $m1) { '' } else { (@($m1.parts) -join ', ') })) }
+
+        $m2 = & $get 'PLANT-MONEY present fee'
+        if ($null -ne $m2 -and $m2.disposition -eq 'RESOLVED' -and -not $m2.blocking) { & $ok 'the money CONTROL does not fire: a currency value at its locator is RESOLVED' }
+        else { & $bad ("the money control came back {0}, wanted RESOLVED" -f $(if ($null -eq $m2) { 'MISSING' } else { $m2.disposition })) }
+
+        # ---- COMPOSITE ROW: one record per value, and the bad half fails.
+        #  -match, not -eq: the good half shares a value, a locator and a
+        #  disposition with the V-class row, so grouping folds them into one
+        #  record carrying both claims - which is the grouping rule working.
+        $comp = @($reg | Where-Object { "$($_.claim)" -match 'PLANT-COMPOSITE' })
+        $compGood = @($comp | Where-Object { $_.value -eq '40 mm' })
+        $compBad  = @($comp | Where-Object { $_.value -eq '77 minutes' })
+        if ($comp.Count -eq 2 -and $compGood.Count -eq 1 -and $compBad.Count -eq 1 -and
+            $compGood[0].disposition -eq 'RESOLVED' -and -not $compGood[0].blocking -and
+            $compBad[0].disposition -eq 'UNRESOLVED' -and $compBad[0].blocking -and
+            "$($compBad[0].compositeOf)" -eq '40 mm and 77 minutes') {
+            & $ok 'gate splits a composite row: TWO records, 40 mm RESOLVED at the locator and 77 minutes UNRESOLVED and blocking - one row can no longer report one disposition for two figures'
+        }
+        else { & $bad ("the composite row produced {0} record(s): {1}" -f $comp.Count, ((@($comp) | ForEach-Object { "'" + $_.value + "'=" + $_.disposition }) -join ', ')) }
+
+        # ---- UNLOCATED: the locator resolves to no place, and it BLOCKS.
+        $ul = & $get 'PLANT-UNLOCATED bench rest'
+        if ($null -ne $ul -and $ul.disposition -eq 'UNLOCATED' -and $ul.kind -eq 'locator-resolves-to-nothing' -and $ul.blocking -and -not $ul.anchored) {
+            & $ok 'gate fires: a row whose locator resolves to no place in the document it names is UNLOCATED and blocking, not verbatim'
+        }
+        else { & $bad ("the unlocated row came back {0}/{1} (blocking={2}), wanted UNLOCATED/locator-resolves-to-nothing/blocking" -f $(if ($null -eq $ul) { 'MISSING' } else { $ul.disposition }), $(if ($null -eq $ul) { '' } else { $ul.kind }), $(if ($null -eq $ul) { '' } else { $ul.blocking })) }
+
+        $anch = & $get 'PLANT-OK bench rest'
+        if ($null -ne $anch -and $anch.anchored) { & $ok 'the CONTROL for UNLOCATED is anchored: the same value under a locator the document does carry stays RESOLVED' }
+        else { & $bad 'the anchored control lost its anchor, so the UNLOCATED plant proves nothing' }
+
+        # ---- NOTHING IS NOT RUN ANY MORE. The P0-15 deferral is gone.
+        $notRun = @(@($run.Registry) + @($run.Attribution) | Where-Object { "$($_.disposition)" -eq 'NOT RUN' -or "$($_.kind)" -eq 'derived-locator' })
+        if ($notRun.Count -eq 0) { & $ok 'no row is recorded NOT RUN for being DERIVED: every derived row now carries a real disposition' }
+        else { & $bad ("{0} row(s) are still NOT RUN: {1}" -f $notRun.Count, ((@($notRun) | ForEach-Object { $_.claim }) -join ', ')) }
+
         $blocking = @(@($run.Registry) + @($run.Attribution) | Where-Object { $_.blocking })
-        if ($blocking.Count -eq 2) { & $ok 'exactly two records block: the absent registry value and the unlocated attribution' }
-        else { & $bad ("{0} record(s) block, wanted 2: {1}" -f $blocking.Count, ((@($blocking) | ForEach-Object { $_.kind }) -join ', ')) }
+        $wantBlocking = @(
+            'PLANT-ABSENT hold time', 'PLANT-MONEY absent fee', 'PLANT-COMPOSITE depth and hold',
+            'PLANT-DERIVED-MISSING carton total', 'PLANT-DERIVED-NO-INPUTS tray count',
+            'PLANT-UNLOCATED bench rest'
+        )
+        $gotClaims = @(@($blocking) | ForEach-Object { "$($_.claim)" })
+        $missingBlock = @(@($wantBlocking) | Where-Object { $gotClaims -notcontains $_ })
+        #  Six registry plants plus the unlocated attribution: SEVEN, and the
+        #  set is asserted by name, not by count, so a plant that stopped
+        #  firing cannot be paid for by a new record that started.
+        if ($missingBlock.Count -eq 0 -and $blocking.Count -eq ($wantBlocking.Count + 1)) {
+            & $ok ('exactly the {0} planted defects block, by name, plus the unlocated attribution - and nothing else does' -f $wantBlocking.Count)
+        }
+        else { & $bad ("{0} record(s) block, wanted {1}; not firing: [{2}]; firing: [{3}]" -f $blocking.Count, ($wantBlocking.Count + 1), ($missingBlock -join ', '), (($gotClaims | Select-Object -Unique) -join ', ')) }
+
+        # ---- V-CLASS PLANT: the figure is on a page that does not say it is
+        #      the venue's own, and on another page that does. The finding must
+        #      name one file and not the other.
+        $vf = @($run.VenueFinding | Where-Object { $_.Row.Name -eq 'PLANT-VENUE tray depth' })
+        if ($vf.Count -ge 1) {
+            $miss = @($vf[0].Missing)
+            if (($miss -contains 't1_1.2.json') -and -not ($miss -contains 't1_1.1.json')) {
+                & $ok 'gate fires: the V-class figure is reported in t1_1.2.json, which does not say it is the venue''s own, and NOT in t1_1.1.json, which does'
+            }
+            else { & $bad ("the V-class finding named [{0}], wanted t1_1.2.json only" -f ($miss -join ', ')) }
+        }
+        else { & $bad 'the V-class row with no venue statement on its page did NOT fire' }
+
+        # ---- NO-PROVENANCE PLANT: one spine file registers nothing.
+        $np = @($run.FilesWithoutProvenance)
+        if (($np -contains 't1_1.1.json') -and -not ($np -contains 't1_1.2.json')) {
+            & $ok 'gate reports by name: t1_1.1.json carries no provenance block, and t1_1.2.json - which does - is not named'
+        }
+        else { & $bad ("the no-provenance report named [{0}], wanted t1_1.1.json only" -f ($np -join ', ')) }
+
+        # ---- DERIVED, RESOLVED ON ITS INPUTS. The computed value is in no
+        #      source; calling that a fabrication is the false finding this
+        #      disposition exists to remove.
+        $dv = & $get 'PLANT-DERIVED-OK carton total'
+        if ($null -ne $dv -and $dv.disposition -eq 'RESOLVED-DERIVED' -and -not $dv.blocking -and
+            (@($dv.derivedInputs) -contains '5') -and (@($dv.derivedInputs) -contains '$250.00')) {
+            & $ok ("the DERIVED row is RESOLVED-DERIVED naming its inputs [{0}] - its computed value '{1}' is in no source and is NOT called absent" -f (@($dv.derivedInputs) -join ', '), $dv.value)
+        }
+        else { & $bad ("the derived row came back {0} with inputs [{1}], wanted RESOLVED-DERIVED naming 5 and the price" -f $(if ($null -eq $dv) { 'MISSING' } else { $dv.disposition + '/' + $dv.kind }), $(if ($null -eq $dv) { '' } else { (@($dv.derivedInputs) -join ', ') })) }
+
+        $dvm = & $get 'PLANT-DERIVED-MISSING carton total'
+        if ($null -ne $dvm -and $dvm.disposition -eq 'UNRESOLVED' -and $dvm.kind -eq 'derived-input-absent' -and
+            (@($dvm.derivedMissing)[0] -eq '$999.00') -and $dvm.note -match '\$999\.00') {
+            & $ok 'the DERIVED row whose input is in no source is UNRESOLVED naming THAT input, not the computed value'
+        }
+        else { & $bad ("the derived-missing row came back {0}, missing [{1}]" -f $(if ($null -eq $dvm) { 'MISSING' } else { $dvm.disposition + '/' + $dvm.kind }), $(if ($null -eq $dvm) { '' } else { (@($dvm.derivedMissing) -join ', ') })) }
+
+        #  THE SAME ROW, WITH ITS PRICE TAKEN OUT OF THE CORPUS. Two rows that
+        #  differ in the registry prove the rule reads the registry; this proves
+        #  it reads the CORPUS, on one identical row against two corpora.
+        $noPrice = New-Object System.Collections.Generic.List[object]
+        foreach ($d in @($src.Docs)) {
+            $txt = $d.Text -replace '\$250\.00', 'the agreed rate'
+            $noPrice.Add((New-ProvDoc -Name $d.Name -Path $d.Path -Audience $d.Audience -Text $txt))
+        }
+        $stillPriced = @(Find-ProvValue -Value '$250.00' -Docs $noPrice.ToArray() -Max 1)
+        $rowA = [pscustomobject]@{ Register = 'figures.json'; File = 'figures.json'; Field = 'figures[99].require[0]'
+                                   Name = 'PLANT-DERIVED-OK carton total'; Value = '$1,250.00'; Authority = 'P'
+                                   Classes = @('P'); Locator = 'DERIVED from 5 cartons at $250.00'; DerivedFrom = @() }
+        $ctxA = [pscustomobject]@{ Docs = $noPrice.ToArray(); Cells = @(); Alias = @{}; Patterns = $pats; Classes = @('P'); VenueTokens = @(); Allow = @{}; Derived = $null }
+        $script:ValueCache = @{}; $script:DerivedInputCache = @{}
+        $ctxA.Derived = Resolve-ProvDerivedChains -Rows @($rowA) -Ctx $ctxA
+        $recA = @(Test-ProvRow -Row $rowA -Ctx $ctxA)[0]
+        $script:ValueCache = @{}; $script:DerivedInputCache = @{}
+        if ($stillPriced.Count -eq 0 -and $recA.disposition -eq 'UNRESOLVED' -and (@($recA.derivedMissing)[0] -eq '$250.00') -and $recA.note -match '\$250\.00') {
+            & $ok 'the SAME derived row against a corpus with the price removed is UNRESOLVED naming that price specifically - the disposition follows the corpus, not the wording'
+        }
+        else { & $bad ("the same row against the stripped corpus came back {0}, missing [{1}] (price still present: {2})" -f $recA.disposition, (@($recA.derivedMissing) -join ', '), $stillPriced.Count) }
+
+        $dvn = & $get 'PLANT-DERIVED-NO-INPUTS tray count'
+        if ($null -ne $dvn -and $dvn.disposition -eq 'UNRESOLVED' -and $dvn.kind -eq 'derived-no-inputs' -and $dvn.note -match 'derivedFrom') {
+            & $ok 'a DERIVED row naming no input of any shape is UNRESOLVED naming the registry fix - it is not passed, and it is not called a fabricated figure either'
+        }
+        else { & $bad ("the derived-no-inputs row came back {0}" -f $(if ($null -eq $dvn) { 'MISSING' } else { $dvn.disposition + '/' + $dvn.kind })) }
 
         # the report itself must be writable and re-readable
         $rp = Join-Path $fixture 'provenance-report.json'
@@ -2024,6 +3350,110 @@ function Invoke-ProvSelfTest {
         $back = Get-GateJson -Path $rp
         if ($null -ne $back -and @($back.registry).Count -eq @($run.Registry).Count) { & $ok 'the report writes and parses back with every registry record' }
         else { & $bad 'the report did not write, or did not parse back' }
+
+        #  EVERY BLOCKING RECORD REACHES findings[] IN THE ANCHORED SHAPE -
+        #  through Lib-GateCommon's New-GateFinding where it exists, and in
+        #  today's shape where it does not. A finding with no quote cannot be
+        #  re-found, and P1-14's anchor test would have nothing to test.
+        $fset = @($back.findings)
+        $fbad = @($fset | Where-Object { -not "$($_.Rule)".Trim() -or -not "$($_.File)".Trim() -or -not "$($_.Field)".Trim() -or -not "$($_.Quote)".Trim() })
+        if ($fset.Count -eq $blocking.Count -and $fbad.Count -eq 0) {
+            & $ok ("every one of the {0} blocking record(s) is written to findings[] with a Rule, a File, a Field and a non-empty Quote{1}" -f $fset.Count, $(if (Get-Command -Name 'New-GateFinding' -ErrorAction SilentlyContinue) { ' (through Lib-GateCommon New-GateFinding)' } else { ' (in this file''s fallback shape)' }))
+        }
+        else { & $bad ("findings[] carries {0} entr(ies) for {1} blocking record(s), {2} of them missing a required field" -f $fset.Count, $blocking.Count, $fbad.Count) }
+
+        # ===================================================================
+        #  The band arms, run as CHILD PROCESSES so the EXIT CODE is asserted.
+        # ===================================================================
+        function Invoke-ProvChild {
+            param([hashtable] $Params)
+            $op = Join-Path $fixture ('child_' + [Guid]::NewGuid().ToString('N').Substring(0, 8) + '.json')
+            $global:LASTEXITCODE = 0
+            $text = & $script:Self @Params -OutPath $op -Quiet *>&1 | Out-String -Width 4096
+            $code = $LASTEXITCODE
+            $body = $null
+            if (Test-Path -LiteralPath $op) { $body = Get-GateJson -Path $op }
+            return [pscustomobject]@{ Code = $code; Report = $body; Text = $text }
+        }
+
+        # -Stage 7c with NO extract: a rendered arm with no rendering.
+        $c7 = Invoke-ProvChild @{ BuildDir = $fixture; Stage = '7c' }
+        if (($c7.Code -eq 2) -and ($c7.Text -match 'guide_gate\.txt') -and ($c7.Text -match 'deck_gate\.txt')) {
+            & $ok '-Stage 7c with zero -DocText exits 2 naming guide_gate.txt and deck_gate.txt'
+        }
+        else { & $bad ("-Stage 7c with no extract exited {0} (wanted 2); extracts named: {1}" -f $c7.Code, (($c7.Text -match 'guide_gate\.txt') -and ($c7.Text -match 'deck_gate\.txt'))) }
+
+        # -Stage 7c WITH both extracts: the rendered arm runs over real lines.
+        $c7b = Invoke-ProvChild @{ BuildDir = $fixture; Stage = '7c'; DocText = @((Join-Path $fixture 'guide_gate.txt'), (Join-Path $fixture 'deck_gate.txt')) }
+        $rendArm = @(@($c7b.Report.arms) | Where-Object { $_.name -eq 'rendered' })
+        if (($rendArm.Count -eq 1) -and ($rendArm[0].state -eq 'ran') -and ($rendArm[0].size -ge 4) -and ($c7b.Text -match 'rendered\|true\|ran\|')) {
+            & $ok ("-Stage 7c with both extracts runs the rendered arm over {0} line(s) of the delivered documents" -f $rendArm[0].size)
+        }
+        else { & $bad ("the rendered arm did not run: {0}" -f $(if ($rendArm.Count -eq 1) { $rendArm[0].state + '/' + $rendArm[0].size } else { 'MISSING from the roster' })) }
+
+        # ---- THE SEED ARMS. Registry against corpus, no spine at all.
+        $seedDir = Join-Path $fixture 'seedcopy'
+        New-Item -ItemType Directory -Force -Path $seedDir | Out-Null
+        Copy-Item -LiteralPath (Join-Path $fixture 'contract.json') -Destination $seedDir
+        Copy-Item -LiteralPath (Join-Path $fixture 'figures.json') -Destination $seedDir
+        Copy-Item -LiteralPath (Join-Path $fixture 'corpus') -Destination $seedDir -Recurse
+        $cs = Invoke-ProvChild @{ BuildDir = $seedDir; SeedOnly = $true; Stage = '2' }
+        $seedRows = @(@($cs.Report.registry))
+        $seedNotRun = @($seedRows | Where-Object { $_.disposition -eq 'NOT RUN' })
+        $seedUnres  = @($seedRows | Where-Object { $_.disposition -eq 'UNRESOLVED' })
+        $seedDerived = @($seedRows | Where-Object { $_.disposition -eq 'RESOLVED-DERIVED' })
+        $seedUnloc  = @($seedRows | Where-Object { $_.disposition -eq 'UNLOCATED' })
+        $seedDeferred = ($cs.Text -match 'attribution\|true\|deferred') -and ($cs.Text -match 'venue\|true\|deferred')
+        if (($cs.Code -eq 1) -and ($seedNotRun.Count -eq 0) -and ($seedDerived.Count -eq 1) -and ($seedUnres.Count -eq 5) -and ($seedUnloc.Count -eq 1) -and $seedDeferred) {
+            & $ok 'seed arms: with no spine at all the registry is read against the corpus - exit 1, the derived row RESOLVED-DERIVED, five UNRESOLVED, one UNLOCATED, NOTHING recorded NOT RUN, and the two spine arms deferred by name'
+        }
+        else { & $bad ("seed arms: exit {0} (wanted 1); NOT RUN {1} (wanted 0); RESOLVED-DERIVED {2} (wanted 1); UNRESOLVED {3} (wanted 5); UNLOCATED {4} (wanted 1); spine arms deferred {5}" -f $cs.Code, $seedNotRun.Count, $seedDerived.Count, $seedUnres.Count, $seedUnloc.Count, $seedDeferred) }
+
+        # ===================================================================
+        #  THE ADJUDICATION CHANNEL. A build with ONE row - the unlocated one -
+        #  so the exit code is the row's and nothing else's.
+        # ===================================================================
+        $alwDir = Join-Path $fixture 'allowcopy'
+        New-Item -ItemType Directory -Force -Path $alwDir | Out-Null
+        Copy-Item -LiteralPath (Join-Path $fixture 'contract.json') -Destination $alwDir
+        Copy-Item -LiteralPath (Join-Path $fixture 'corpus') -Destination $alwDir -Recurse
+        $oneRow = [ordered]@{ name = 'PLANT-UNLOCATED bench rest'; authority = 'P'
+                              source = 'Fixture Recipe Workbook, the pickling schedule appendix'
+                              require = @('25 minutes') }
+        $encA = New-Object System.Text.UTF8Encoding($false)
+        $alwPath = Join-Path $alwDir 'figures.json'
+
+        [System.IO.File]::WriteAllText($alwPath, (([ordered]@{ figures = @($oneRow) }) | ConvertTo-Json -Depth 8), $encA)
+        $ca1 = Invoke-ProvChild @{ BuildDir = $alwDir; SeedOnly = $true; Stage = '2' }
+        if (($ca1.Code -eq 1) -and ($ca1.Text -match 'UNLOCATED')) { & $ok 'an UNLOCATED row on its own exits 1 and names the class - it never silently passes' }
+        else { & $bad ("the unlocated-only build exited {0} (wanted 1); UNLOCATED named: {1}" -f $ca1.Code, ($ca1.Text -match 'UNLOCATED')) }
+
+        [System.IO.File]::WriteAllText($alwPath, (([ordered]@{
+            figures = @($oneRow)
+            provenanceAllow = @([ordered]@{ value = '25 minutes'
+                                            reason = 'The workbook has no appendix headings in this extraction; the bench rest line was read by hand on 8 September 2026 and the figure is correct. Locator to be repointed at Task 4(b) in the next registry pass.' })
+        }) | ConvertTo-Json -Depth 8), $encA)
+        $ca2 = Invoke-ProvChild @{ BuildDir = $alwDir; SeedOnly = $true; Stage = '2' }
+        $ca2Rec = @(@($ca2.Report.registry) | Where-Object { $_.disposition -eq 'UNLOCATED' })
+        if (($ca2.Code -eq 0) -and ($ca2Rec.Count -eq 1) -and (-not $ca2Rec[0].blocking) -and ("$($ca2Rec[0].allowReason)" -match 'read by hand')) {
+            & $ok 'a provenanceAllow entry WITH a written reason clears the exit and keeps the row, its class and its reason in the report - adjudicated, not deleted'
+        }
+        else { & $bad ("the allowed build exited {0} (wanted 0); UNLOCATED records {1}; blocking {2}" -f $ca2.Code, $ca2Rec.Count, $(if ($ca2Rec.Count -gt 0) { $ca2Rec[0].blocking } else { 'n/a' })) }
+
+        [System.IO.File]::WriteAllText($alwPath, (([ordered]@{
+            figures = @($oneRow)
+            provenanceAllow = @([ordered]@{ value = '25 minutes' })
+        }) | ConvertTo-Json -Depth 8), $encA)
+        $ca3 = Invoke-ProvChild @{ BuildDir = $alwDir; SeedOnly = $true; Stage = '2' }
+        if (($ca3.Code -eq 2) -and ($ca3.Text -match 'provenanceAllow')) {
+            & $ok 'a provenanceAllow entry with NO written reason is REFUSED (exit 2) naming the list - an allow-list nobody can audit is a gate quietly switched off'
+        }
+        else { & $bad ("the reasonless allow entry exited {0} (wanted 2); provenanceAllow named: {1}" -f $ca3.Code, ($ca3.Text -match 'provenanceAllow')) }
+
+        Remove-Item -LiteralPath (Join-Path $seedDir 'figures.json') -Force
+        $cs2 = Invoke-ProvChild @{ BuildDir = $seedDir; SeedOnly = $true; Stage = '2' }
+        if (($cs2.Code -eq 2) -and ($cs2.Text -match 'figures\.json')) { & $ok 'seed arms with no registry: exit 2 naming figures.json - a run with nothing to check is a refusal, not a pass' }
+        else { & $bad ("a missing registry exited {0} (wanted 2); figures.json {1}" -f $cs2.Code, $(if ($cs2.Text -match 'figures\.json') { 'named' } else { 'NOT named' })) }
     }
     finally { Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction SilentlyContinue }
 
@@ -2050,22 +3480,76 @@ if (-not (Test-Path -LiteralPath $BuildDir)) {
     Write-Host ("  X {0}: -BuildDir does not exist: {1}" -f $GATE, $BuildDir) -ForegroundColor Red
     exit 2
 }
+if ($Stage -and $Stage -notin @('2', '3c', '4', '7c')) {
+    Fail-Usage ("-Stage '{0}' is not a band this gate runs at (2, 3c, 4 or 7c)." -f $Stage)
+}
 
-$run = Invoke-Provenance -RunBuildDir $BuildDir -RunSpineDir $SpineDir -RunCorpusDir $CorpusDir -RunPackDir $PackDir -RunRulesPath $RulesPath -RunQuiet:$Quiet
+#  THE RENDERED ARM REFUSES AN EMPTY RENDERING. -Stage 7c says the delivered
+#  documents are what is being judged; with no extract there is nothing to
+#  judge, and printing a green line over that is the exact failure the 7c band
+#  was found to have.
+$extracts = @(@($DocText) | Where-Object { "$_".Trim() })
+if ($Stage -eq '7c' -and $extracts.Count -eq 0) {
+    Fail-Usage 'the rendered arm was asked for (-Stage 7c) and no extract was passed. Pass -DocText <guide extract>,<deck extract> - guide_gate.txt and deck_gate.txt, the extracts Get-DocText writes from the delivered .docx and .pptx. A rendered arm with no rendering examines nothing, and an arm that examines nothing does not pass.'
+}
+foreach ($x in $extracts) {
+    if (-not (Test-Path -LiteralPath $x)) { Fail-Usage ("-DocText names an extract that is not there: {0}. The rendered arm reads guide_gate.txt and deck_gate.txt; an absent extract is refused by name rather than swept as an empty document." -f $x) }
+}
+
+if ($SeedOnly) {
+    try { $run = Invoke-ProvSeed -RunBuildDir $BuildDir -RunCorpusDir $CorpusDir -RunPackDir $PackDir -RunRulesPath $RulesPath -RunQuiet:$Quiet }
+    catch { Stop-OnRefusal $_ }
+    $seedRoster = @()
+    try { Assert-GateArmsComplete; $seedRoster = @(Write-GateArmRoster) } catch { Stop-OnRefusal $_ }
+    if (-not $Quiet) { Write-ProvConsole -Run $run }
+    if (-not $OutPath) { $OutPath = Join-Path $BuildDir 'provenance-seed-report.json' }
+    Write-ProvReport -Run $run -Path $OutPath -Arms $seedRoster -Mode 'seed'
+    $seedUnresolved = @($run.Registry | Where-Object { $_.disposition -eq 'UNRESOLVED' })
+    $seedUnlocated  = @($run.Registry | Where-Object { $_.disposition -eq 'UNLOCATED' -and $_.blocking })
+    Write-Host ''
+    Write-Host ("  {0} registry row(s) read against {1} source document(s) as {2} record(s); {3} DERIVED row(s), {4} of them RESOLVED-DERIVED; report written: {5}" -f $run.Rows, @($run.Docs).Count, @($run.Registry).Count, $run.DerivedRows, @($run.Registry | Where-Object { $_.disposition -eq 'RESOLVED-DERIVED' }).Count, $OutPath) -ForegroundColor DarkGray
+    if ($seedUnresolved.Count -gt 0 -or $seedUnlocated.Count -gt 0) {
+        if ($seedUnresolved.Count -gt 0) {
+            Write-Host ("  X {0} UNRESOLVED - a registered value its own named source does not carry, or a derived chain whose input resolves nowhere, found before a word was authored." -f $seedUnresolved.Count) -ForegroundColor Red
+        }
+        if ($seedUnlocated.Count -gt 0) {
+            Write-Host ("  X {0} UNLOCATED - the locator names no place the document it names carries, so the row was never checked AT a locator. Fix the registry, or record a provenanceAllow entry with a written reason." -f $seedUnlocated.Count) -ForegroundColor Red
+        }
+        exit 1
+    }
+    if (@($run.LegalConflict).Count -gt 0) {
+        Write-Host ("  X {0} L-class mandate conflict(s)." -f @($run.LegalConflict).Count) -ForegroundColor Red
+        exit 5
+    }
+    Write-Host '  every registry row resolves in the source it names' -ForegroundColor Green
+    exit 0
+}
+
+try { $run = Invoke-Provenance -RunBuildDir $BuildDir -RunSpineDir $SpineDir -RunCorpusDir $CorpusDir -RunPackDir $PackDir -RunRulesPath $RulesPath -RunDocText $extracts -RunStage $Stage -RunQuiet:$Quiet }
+catch { Stop-OnRefusal $_ }
+$roster = @()
+try { Assert-GateArmsComplete; $roster = @(Write-GateArmRoster) } catch { Stop-OnRefusal $_ }
 if (-not $Quiet) { Write-ProvConsole -Run $run }
 
 if (-not $OutPath) { $OutPath = Join-Path $BuildDir 'provenance-report.json' }
-Write-ProvReport -Run $run -Path $OutPath
+Write-ProvReport -Run $run -Path $OutPath -Arms $roster
 
 $unresolved = @(@($run.Registry) + @($run.Attribution) | Where-Object { $_.disposition -eq 'UNRESOLVED' })
+$unlocated  = @(@($run.Registry) | Where-Object { $_.disposition -eq 'UNLOCATED' -and $_.blocking })
 $nearMiss   = @(@($run.Registry) + @($run.Attribution) | Where-Object { $_.disposition -eq 'NEAR-MISS' })
 $absent     = @(@($run.Registry) + @($run.Attribution) | Where-Object { $_.disposition -eq 'SOURCE-ABSENT' })
+$derivedOk  = @(@($run.Registry) | Where-Object { $_.disposition -eq 'RESOLVED-DERIVED' })
 
 Write-Host ''
-Write-Host ("  {0} provenance row(s), {1} attributed sentence(s) swept; report written: {2}" -f $run.Rows, $run.Sentences, $OutPath) -ForegroundColor DarkGray
+Write-Host ("  {0} provenance row(s) as {1} record(s) ({2} DERIVED, {3} RESOLVED-DERIVED), {4} attributed sentence(s) swept over {5} spine cell(s) and {6} rendered line(s); report written: {7}" -f $run.Rows, @($run.Registry).Count, $run.DerivedRows, $derivedOk.Count, $run.Sentences, ($run.Cells - $run.RenderedLines), $run.RenderedLines, $OutPath) -ForegroundColor DarkGray
 
-if ($unresolved.Count -gt 0) {
-    Write-Host ("  X {0} UNRESOLVED - a registered value or an attributed quantity that its own named source does not carry." -f $unresolved.Count) -ForegroundColor Red
+if ($unresolved.Count -gt 0 -or $unlocated.Count -gt 0) {
+    if ($unresolved.Count -gt 0) {
+        Write-Host ("  X {0} UNRESOLVED - a registered value or an attributed quantity that its own named source does not carry, or a derived chain whose input resolves nowhere." -f $unresolved.Count) -ForegroundColor Red
+    }
+    if ($unlocated.Count -gt 0) {
+        Write-Host ("  X {0} UNLOCATED - the locator names no place the document it names carries, so 'at the locator' was never tested. Fix the locator, or record a provenanceAllow entry with a written reason." -f $unlocated.Count) -ForegroundColor Red
+    }
     Write-Host ("    {0} NEAR-MISS and {1} SOURCE-ABSENT are reported above for adjudication and do not block." -f $nearMiss.Count, $absent.Count) -ForegroundColor Yellow
     exit 1
 }

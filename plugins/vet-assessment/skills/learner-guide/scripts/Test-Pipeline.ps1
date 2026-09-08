@@ -16,6 +16,18 @@
     caller saw was whatever the LAST INNER GATE returned, so a run could print
     PIPELINE OK and leave a non-zero code, or print FAILED and leave zero.
 
+    PARTIALS ARE NAMED, NEVER DROPPED. Every documented invocation of this
+    script passes -SkipOffice, and the two Office checks simply vanished from
+    the tally: the banner said PIPELINE OK over a run that had not opened
+    either artefact. A check this run could not make is recorded by name and
+    the banner reads PIPELINE OK - PARTIAL, N checks not run. The same applies
+    to the docx-images handoff when the sibling skill is not installed.
+
+    AND THE STEPS THEMSELVES ARE RECONCILED. The fixture roster is derived from
+    this script's OWN AST (every Step call in the file) and compared against
+    the steps that actually ran, so a step lost to an exception in the step
+    before it is a named failure rather than a smaller denominator.
+
     ASCII only in this file.
 #>
 
@@ -35,17 +47,104 @@ if (-not $OutDir) {
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 
 $pass = 0; $fail = 0
+$script:PartialChecks = New-Object System.Collections.Generic.List[string]
+$script:ReportedItems = New-Object System.Collections.Generic.List[string]
+$script:StepsRun      = New-Object System.Collections.Generic.List[string]
+
 function Ok   ($m) { $script:pass++; Write-Host "  PASS  $m" -ForegroundColor Green }
 function Bad  ($m) { $script:fail++; Write-Host "  FAIL  $m" -ForegroundColor Red }
-function Step ($m) { Write-Host "`n$m" -ForegroundColor Cyan }
+#  A CHECK THIS RUN COULD NOT MAKE. Not a pass, not a silent nothing: a named
+#  entry that the banner counts and prints.
+function Skip ($m) { $script:PartialChecks.Add($m); Write-Host "  PARTIAL  $m" -ForegroundColor Yellow }
+#  A finding this harness surfaced that belongs to a file it does not own. It
+#  is printed at the end so a green banner cannot hide it.
+function Note ($m) { $script:ReportedItems.Add($m); Write-Host "  REPORTED  $m" -ForegroundColor Yellow }
+function Step ($m) { $script:StepsRun.Add($m); Write-Host "`n$m" -ForegroundColor Cyan }
+
+# ---------------------------------------------------------------------------
+# Derivations this harness makes from source, so nothing below is hand-listed.
+# ---------------------------------------------------------------------------
+
+function Get-PipelineAst {
+    param([Parameter(Mandatory)][string] $Path)
+    $errs = $null
+    $ast = [System.Management.Automation.Language.Parser]::ParseFile($Path, [ref]$null, [ref]$errs)
+    if ($null -eq $ast) { throw ("could not parse {0}" -f $Path) }
+    return $ast
+}
+
+function Get-PipelineCommandArg {
+    <#  Every FIRST string-literal argument of every call to -Command in -Path.
+        `& $partialRule 'rule' ...` and `Step '4. guide gate'` both land here,
+        which is what makes the deck rule set and the fixture roster derived
+        facts rather than two lists a maintainer has to keep in step.  #>
+    param(
+        [Parameter(Mandatory)][string] $Path,
+        [Parameter(Mandatory)][string] $Command
+    )
+    $out = New-Object System.Collections.Generic.List[string]
+    foreach ($c in (Get-PipelineAst -Path $Path).FindAll({ $args[0] -is [System.Management.Automation.Language.CommandAst] }, $true)) {
+        $e = @($c.CommandElements)
+        if ($e.Count -lt 2) { continue }
+        if ("$($e[0].Extent.Text)" -ne $Command) { continue }
+        if ($e[1] -isnot [System.Management.Automation.Language.StringConstantExpressionAst]) { continue }
+        $out.Add([string]$e[1].Value)
+    }
+    return $out.ToArray()
+}
+
+function Get-PipelineFunctionName {
+    <#  The TOP-LEVEL function names a file defines. Nested script blocks are
+        not searched, because a function defined inside another function is not
+        in the caller's scope and asserting on it would fail a correct load. #>
+    param([Parameter(Mandatory)][string] $Path)
+    return @((Get-PipelineAst -Path $Path).FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false) |
+             ForEach-Object { [string]$_.Name })
+}
+
+#  THE FIXTURE ROSTER, enumerated before anything runs, from this script's own
+#  AST. An exception inside step 5 used to take steps 6 and 7 with it and the
+#  banner reported a clean run over a smaller denominator; now the steps that
+#  never ran are named in the tally.
+$script:FixturePlan = @(Get-PipelineCommandArg -Path $PSCommandPath -Command 'Step')
+Write-Host ("fixtures enumerated from this script's own AST: {0} step(s)" -f $script:FixturePlan.Count) -ForegroundColor DarkGray
 
 try {
     Step '1. library resolves'
     . (Join-Path $PSScriptRoot 'Lib-Resolve.ps1')
-    foreach ($fn in 'Expand-Docx', 'Get-DocxPart', 'Get-XmlFragment', 'HCallout',
-                    'Test-Readability', 'Get-GuideProfile', 'GIconCallout',
-                    'Get-DeckProfile', 'New-DeckSlide', 'Test-GuideRules', 'Test-DeckRules') {
-        if (Get-Command $fn -ErrorAction SilentlyContinue) { Ok $fn } else { Bad "$fn not loaded" }
+    #  P0-14. THE EXPECTED SET IS DERIVED, NEVER TYPED. This step used to name
+    #  eleven functions by hand, so a library file that had been renamed - or a
+    #  whole library that Lib-Resolve stopped loading - passed here as long as
+    #  those eleven names still resolved, and the miss surfaced later as a
+    #  CommandNotFound at the first call site. The file list comes from
+    #  Lib-Resolve's OWN AST (every `File = '...'` entry in its two loading
+    #  loops) and each file's expected functions from its FunctionDefinitionAst.
+    $libFiles = New-Object System.Collections.Generic.List[object]
+    $seenLib = @{}
+    foreach ($h in (Get-PipelineAst -Path (Join-Path $PSScriptRoot 'Lib-Resolve.ps1')).FindAll(
+                    { $args[0] -is [System.Management.Automation.Language.HashtableAst] }, $true)) {
+        foreach ($kv in $h.KeyValuePairs) {
+            if ("$($kv.Item1.Extent.Text)".Trim("'", '"') -ne 'File') { continue }
+            $lf = "$($kv.Item2.Extent.Text)".Trim("'", '"')
+            if ($lf -notmatch '\.ps1$' -or $seenLib.ContainsKey($lf)) { continue }
+            $seenLib[$lf] = $true
+            $lp = ''
+            foreach ($d in @($script:GuideSharedLib, $PSScriptRoot)) {
+                if ($d -and (Test-Path -LiteralPath (Join-Path $d $lf))) { $lp = (Join-Path $d $lf); break }
+            }
+            $libFiles.Add([pscustomobject]@{ File = $lf; Path = $lp })
+        }
+    }
+    if ($libFiles.Count -eq 0) {
+        Bad 'Lib-Resolve.ps1 declares no library file this harness could derive - the expected function set came from nothing, so nothing below was checked'
+    }
+    foreach ($lib in $libFiles) {
+        if (-not $lib.Path) { Bad ("{0} is loaded by Lib-Resolve.ps1 and is on disk in neither {1} nor {2}" -f $lib.File, $script:GuideSharedLib, $PSScriptRoot); continue }
+        $fns = @(Get-PipelineFunctionName -Path $lib.Path)
+        if ($fns.Count -eq 0) { Bad ("{0} defines no top-level function - it is in the load order and provides nothing" -f $lib.File); continue }
+        $missingFn = @($fns | Where-Object { -not (Get-Command $_ -ErrorAction SilentlyContinue) })
+        if ($missingFn.Count -eq 0) { Ok ("{0}: all {1} function(s) it defines are loaded" -f $lib.File, $fns.Count) }
+        else { Bad ("{0}: {1} of {2} function(s) did not load: {3}" -f $lib.File, $missingFn.Count, $fns.Count, (($missingFn | Select-Object -First 6) -join ', ')) }
     }
 
     Step '2. templates are structurally sound'
@@ -95,6 +194,15 @@ try {
     $body += GHeading -Level 4 -Text 'What this means in practice' -Profile $P
     $body += '<w:p><w:r><w:t>The standard recipe is the recipe of record.</w:t></w:r></w:p>'
     $body += GIconCallout -Profile $P -Type remember      -Lines @('Report a problem with a recipe; do not correct it yourself.')
+    #  THE UNDERPINNING KNOWLEDGE BLOCK IS AN INPUT THIS FIXTURE OWES. The
+    #  per-sub-section word floor takes its denominator from the numbered
+    #  Heading3 set, so a sub-section heading with no 'Underpinning knowledge'
+    #  Heading4 under it is a named failure - the rule is right and the fixture
+    #  was rendering a sub-section the real renderer never produces
+    #  (Invoke-Render emits this block for every PC). Supplying it is what a
+    #  new refusal is resolved with; relaxing the floor would not be.
+    $body += GHeading -Level 4 -Text 'Underpinning knowledge' -Profile $P
+    $body += '<w:p><w:r><w:t>Yield is the number of portions one batch of the standard recipe makes.</w:t></w:r></w:p>'
     # X.1 Route A and X.2 Route B, at their declared placements
     $body += GImagePrompt -Kind Image -Figure '1.1.1' -Aspect '3:2 landscape' `
         -Prompt ('A photorealistic documentary photograph of a chocolatier reading a standard recipe card at a stainless steel bench in an independent South Australian patisserie, early morning before production. A woman in her thirties in clean pressed chef whites, sleeves down, hair covered, no jewellery, holds a printed recipe card while her other gloved hand rests on a digital scale. Trays of empty polycarbonate moulds and a slab of tempered dark couverture sit beside her. Shot at 35 mm, medium wide, chest height, shallow depth of field, cool even north light from a high window, face angled away from camera. No text, no numbers, no signage lettering, no logos, no bare hands on ready-to-eat food.') `
@@ -166,7 +274,7 @@ try {
         }
         else { Bad 'docx-images produced no manifest' }
     }
-    else { Write-Host '        docx-images not installed - handoff test skipped' -ForegroundColor DarkGray }
+    else { Skip ("the docx-images handoff (3 checks) - the sibling skill is not installed at {0}" -f $scan) }
 
     Step '5. build a deck'
     $deck = New-Deck -TemplatePath $pt
@@ -228,17 +336,67 @@ try {
 
     # Same rule as the guide gate: four blocking deck rules sat behind optional
     # parameters and reported green when nothing had been checked.
+    #  P0-17. ONE DISTINCT FAILURE PER DECK RULE, and the rule set is DERIVED
+    #  from Test-DeckRules' own `& $partialRule '<rule>' ...` calls. The typed
+    #  list this replaces (@('TemplatePath','Plan',...)) matched on substrings
+    #  and counted nothing: delete a partialRule from the gate and this harness
+    #  stayed green, because the four names it still looked for were still
+    #  somewhere in the joined failure text.
+    $deckRuleSet = @(Get-PipelineCommandArg -Path (Join-Path $PSScriptRoot 'Test-DeckRules.ps1') -Command '$partialRule')
     $drBare = Test-DeckRules -Path $deckPath -MinSlidesPerTopic 2
-    $expect = @('TemplatePath', 'Plan', 'NumberSlotByLayout', 'Rto', 'Cricos')
-    $missed = @($expect | Where-Object { ($drBare.Failures -join ' ') -notmatch $_ })
-    if (-not $drBare.Ok -and -not $missed.Count) {
-        Ok "the deck gate FAILS on every unsupplied input ($($expect.Count) of them)"
-    } else { Bad "the deck gate did not fail on: $($missed -join ', ') (Ok=$($drBare.Ok))" }
+    if ($deckRuleSet.Count -eq 0) {
+        Bad 'Test-DeckRules.ps1 declares no $partialRule call - the expected deck rule set derived nothing, so nothing below was checked'
+    }
+    else {
+        $missed = @($deckRuleSet | Where-Object { $r = $_; -not @($drBare.Failures | Where-Object { "$_".StartsWith($r) }).Count })
+        if (-not $drBare.Ok -and -not $missed.Count) {
+            Ok "the deck gate FAILS with one distinct failure per unsupplied input ($($deckRuleSet.Count), derived from Test-DeckRules' partialRule calls)"
+        } else { Bad "the deck gate did not fail on: $($missed -join ' | ') (Ok=$($drBare.Ok))" }
 
-    $drPartial = Test-DeckRules -Path $deckPath -MinSlidesPerTopic 2 -AllowPartial
-    if ($drPartial.Ok -and @($drPartial.Partial).Count -ge 4) {
-        Ok "-AllowPartial records all $(@($drPartial.Partial).Count) of them instead of hiding them"
-    } else { Bad "-AllowPartial recorded $(@($drPartial.Partial).Count) rule(s), Ok=$($drPartial.Ok)" }
+        $drPartial = Test-DeckRules -Path $deckPath -MinSlidesPerTopic 2 -AllowPartial
+        $partMissed = @($deckRuleSet | Where-Object { @($drPartial.Partial) -notcontains $_ })
+        if ($drPartial.Ok -and -not $partMissed.Count -and @($drPartial.Partial).Count -eq $deckRuleSet.Count) {
+            Ok "-AllowPartial records all $($deckRuleSet.Count) of them by name instead of hiding them"
+        } else { Bad "-AllowPartial recorded $(@($drPartial.Partial).Count) of $($deckRuleSet.Count) rule(s), Ok=$($drPartial.Ok), unrecorded: $($partMissed -join ' | ')" }
+
+        #  AND A DENOMINATOR THAT IS NOT THE LIST ITSELF. Deriving the expected
+        #  set from the gate's own partialRule calls catches a rule that was
+        #  renamed or reworded, but not one that was DELETED - delete the call
+        #  and the expectation goes with it, which is how the version this
+        #  replaces stayed green (its count test was '>= 4'). The arm roster is
+        #  the independent denominator: an arm that is blocking and ended
+        #  'empty' had an input nobody supplied, and the parameters its own
+        #  guard tests must be named by some rule that reported it. Delete a
+        #  partialRule and its arm's parameter is named by nothing.
+        $armGuards = @{}
+        foreach ($c in (Get-PipelineAst -Path (Join-Path $PSScriptRoot 'Test-DeckRules.ps1')).FindAll(
+                        { $args[0] -is [System.Management.Automation.Language.CommandAst] }, $true)) {
+            $cTxt = "$($c.Extent.Text)"
+            if ($cTxt -notmatch '^Complete-GateArm\b' -or $cTxt -notmatch "-State\s+'empty'") { continue }
+            if ($cTxt -notmatch "-Name\s+'([^']+)'") { continue }
+            $armName = $Matches[1]
+            $node = $c.Parent; $guard = ''
+            while ($null -ne $node) {
+                if ($node -is [System.Management.Automation.Language.IfStatementAst]) { $guard = "$($node.Clauses[0].Item1.Extent.Text)"; break }
+                $node = $node.Parent
+            }
+            $armGuards[$armName] = $guard
+        }
+        $bareEmpty = @($drBare.Arms | Where-Object { $_.Blocking -and "$($_.State)" -eq 'empty' })
+        if ($bareEmpty.Count -eq 0) { Bad 'the bare deck run left no blocking arm empty - the unsupplied-input path was not exercised' }
+        else {
+            $armUncovered = New-Object System.Collections.Generic.List[string]
+            foreach ($a in $bareEmpty) {
+                $an = "$($a.Name)"
+                if (-not $armGuards.ContainsKey($an)) { $armUncovered.Add(("{0} (no 'empty' completion found in the gate's AST to read a guard from)" -f $an)); continue }
+                $pnames = @([regex]::Matches($armGuards[$an], '\$([A-Za-z]\w*)') | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+                $named = @($pnames | Where-Object { $pn = $_; @($deckRuleSet | Where-Object { $_ -match ('(?i)-' + [regex]::Escape($pn) + '\b') }).Count })
+                if (-not $named.Count) { $armUncovered.Add(("{0} (guard tests {1}; no partial rule names any of them)" -f $an, ($pnames -join ', '))) }
+            }
+            if ($armUncovered.Count -eq 0) { Ok ("each of the {0} blocking arm(s) the bare run left empty is reported by a rule naming its own parameter" -f $bareEmpty.Count) }
+            else { Bad ("blocking arm(s) that ended empty and no partial rule reports: " + ($armUncovered -join '; ')) }
+        }
+    }
 
     Step '6a. figure registry gate is variant-aware and catches leakage'
     $fd = Join-Path $OutDir 'figreg'
@@ -269,12 +427,19 @@ try {
     & (Join-Path $PSScriptRoot 'Test-FigureConsistency.ps1') -BuildDir $fd -Quiet 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) { Ok 'clean sources pass the figure gate' }
     else { Bad 'clean sources failed the figure gate' }
-    # A missing registry must throw, never silently pass.
+    #  A missing registry must REFUSE, never silently pass. It used to throw;
+    #  it now exits 2 with a typed refusal, which is the landed convention (0
+    #  pass, 1 finding, 2 refused, 4 self-test failed). A refusal that does not
+    #  NAME the input it is missing is only half a refusal, so the assertion
+    #  covers the name as well as the code - and 2>&1 does not capture what a
+    #  gate writes through Write-Host, so the capture is *>&1.
     Remove-Item (Join-Path $fd 'figures.json') -Force
-    $threw = $false
-    try { & (Join-Path $PSScriptRoot 'Test-FigureConsistency.ps1') -BuildDir $fd -Quiet 2>&1 | Out-Null } catch { $threw = $true }
-    if ($threw) { Ok 'a build with no registry cannot gate its figures' }
-    else { Bad 'missing registry did not throw' }
+    $fcMiss = & (Join-Path $PSScriptRoot 'Test-FigureConsistency.ps1') -BuildDir $fd -Quiet *>&1 | ForEach-Object { "$_" }
+    $fcMissRc = $LASTEXITCODE
+    $fcMissTxt = ($fcMiss | Out-String -Width 4096)
+    $fcNamed = ($fcMissTxt -match 'figures\.json')
+    if ($fcMissRc -eq 2 -and $fcNamed) { Ok 'a build with no registry REFUSES (exit 2) and names figures.json - it cannot gate its figures' }
+    else { Bad "missing registry: exit $fcMissRc (expected 2), named figures.json: $fcNamed" }
 
     Step '6b. stage ledger catches a skipped, stale or unrecorded stage'
     . (Join-Path $PSScriptRoot 'Stage-Ledger.ps1')
@@ -283,7 +448,99 @@ try {
     Set-Content (Join-Path $ld 'spine\t1.json') -Encoding UTF8 -Value (@{
         visuals = @(@{ slot = '1.1.1'; kind = 'image'; caption = 'A caption'; alt = 'Alt text.' })
     } | ConvertTo-Json -Depth 8)
-    & (Join-Path $PSScriptRoot 'New-FigureSheet.ps1') -BuildDir $ld -Quiet
+
+    #  THE INPUTS THE LEDGER'S NEW RULES DECLARE. A pass on a stage whose table
+    #  row names a Script is DERIVED from that stage's own <stage>-results.json;
+    #  the ledger no longer takes a stage's word for its own result. The set of
+    #  stages that owe a results file is derived from the stage table's Script
+    #  column - hand-listing it here is how six blocking stages once reached
+    #  delivery gated by nobody. New-FigureSheet then cuts a sheet stamped from
+    #  3c-results.json, which is the BAND-VERDICT input the sheet rule reads.
+    #  EVERY RECORD GETS ITS OWN SPAN, and every results file is stamped BEFORE
+    #  the record that cites it. Records written in one loop with no
+    #  -Started/-Ended carry spanKnown = false and land in the same second, and
+    #  the integrity arm names them as a batch write - which is the defect that
+    #  rule exists to catch, so the fixture must not plant it by accident while
+    #  it is testing something else. Start-Sleep is not what separates them any
+    #  more; a declared span is.
+    $ldBase = (Get-Date).ToUniversalTime().AddHours(-6)
+    $script:LdSeq = 0
+
+    function New-LedgerBandResults {
+        <#  The <stage>-results.json a runner writes, for every stage whose
+            table row names a Script (or just -Stages of them). Evidence
+            predates the record that cites it, so each file is stamped two
+            minutes before the next record this fixture writes.  #>
+        param([Parameter(Mandatory)][string] $Dir, [string[]] $Stages)
+        $stamp = $ldBase.AddMinutes(10 * $script:LdSeq).AddMinutes(-2)
+        $fp = Get-SpineFingerprint -BuildDir $Dir -Quiet
+        $outDir = Join-Path $Dir 'out'
+        New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+        $arts = @()
+        foreach ($n in @('TEST001_Learner_Guide.docx', 'TEST001_Delivery_PowerPoint.pptx')) {
+            $ap = Join-Path $outDir $n
+            if (-not (Test-Path -LiteralPath $ap)) {
+                Set-Content -LiteralPath $ap -Encoding UTF8 -Value 'stand-in artefact for the ledger fixture'
+                (Get-Item -LiteralPath $ap).LastWriteTimeUtc = $stamp.AddMinutes(-3)
+            }
+            $arts += [pscustomobject]@{ path = ('out\' + $n)
+                                        sha256 = (Get-FileHash -LiteralPath $ap -Algorithm SHA256).Hash.ToLowerInvariant()
+                                        lastWriteUtc = (Get-Item -LiteralPath $ap).LastWriteTimeUtc.ToString('o') }
+        }
+        $set = @($script:LedgerStages | Where-Object { "$($_.Script)".Trim() } | ForEach-Object { $_.Key })
+        if ($Stages) { $set = @($set | Where-Object { $Stages -contains $_ }) }
+        foreach ($k in $set) {
+            $gates = @([pscustomobject]@{ name = 'Test-Spine'; verdict = 'pass'; exitCode = 0; seconds = 1
+                                          startedAt = $stamp.AddMinutes(-5).ToString('o'); ranAt = $stamp.ToString('o'); arms = @(); partial = @() })
+            #  The rule a -Partial record may name has to be a rule THIS FILE
+            #  says did not run: a partial entry naming nothing in the evidence
+            #  is refused, which is why the fixture records it here rather than
+            #  inventing it at the record.
+            if (@('4', '7c') -contains $k) {
+                $gates += [pscustomobject]@{ name = 'Test-GuideRules'; verdict = 'pass'; exitCode = 0; seconds = 2
+                                             startedAt = $stamp.AddMinutes(-5).ToString('o'); ranAt = $stamp.ToString('o'); arms = @()
+                                             partial = @('assessment cross-reference (-QuestionsInPack)') }
+            }
+            $body = [ordered]@{
+                stage = $k; afterArtwork = ($k -eq '7c')
+                startedAt = $stamp.AddMinutes(-5).ToString('o'); ranAt = $stamp.ToString('o')
+                spineFingerprint = $fp; partial = $false; wallClockSeconds = 300
+                artefacts = $arts; gates = $gates
+                failed = @(); defective = @(); verdict = 'PASS'; exitCode = 0
+            }
+            $rp = Join-Path $Dir ("{0}-results.json" -f $k)
+            Set-Content -LiteralPath $rp -Encoding UTF8 -Value ($body | ConvertTo-Json -Depth 100)
+            (Get-Item -LiteralPath $rp).LastWriteTimeUtc = $stamp
+        }
+        return $fp
+    }
+
+    function Add-LedgerFixtureRecord {
+        param(
+            [Parameter(Mandatory)][string] $Stage,
+            [Parameter(Mandatory)][string] $Name,
+            [string] $Status = 'pass',
+            [int] $Round = 0,
+            [string] $Note,
+            [string[]] $Partial,
+            [string] $Verdict
+        )
+        $st = $ldBase.AddMinutes(10 * $script:LdSeq); $script:LdSeq++
+        $a = @{ BuildDir = $ld; Stage = $Stage; Name = $Name; Status = $Status
+                Started = $st.ToString('o'); Ended = $st.AddMinutes(5).ToString('o') }
+        if ($Round)   { $a['Round']   = $Round }
+        if ($Note)    { $a['Note']    = $Note }
+        if ($Partial) { $a['Partial'] = $Partial }
+        if ($Verdict) { $a['Verdict'] = $Verdict }
+        Add-StageRecord @a
+    }
+
+    $ldFp = New-LedgerBandResults -Dir $ld
+    & (Join-Path $PSScriptRoot 'New-FigureSheet.ps1') -BuildDir $ld -Quiet | Out-Null
+    if ((Test-Path -LiteralPath (Join-Path $ld 'figure-sheet.txt')) -and
+        ((Get-Content -LiteralPath (Join-Path $ld 'figure-sheet.txt') -Raw) -match '(?im)^\s*BAND-VERDICT:\s*PASS')) {
+        Ok 'the band results the fixture supplies let New-FigureSheet cut a sheet stamped BAND-VERDICT: PASS'
+    } else { Bad 'the fixture did not produce a stamped figure sheet - every sheet assertion below would prove nothing' }
     New-StageLedger -BuildDir $ld -Unit 'TEST001' | Out-Null
 
     if ((Test-StageLedger -BuildDir $ld).Ok) { Bad 'empty ledger passed - a build with no review stages must fail' }
@@ -295,33 +552,50 @@ try {
     # 7d passed this test and delivered.
     $oldRequired = @('0','1','2','3','3b','4','4b','5','6','7b','8')
     foreach ($s in $oldRequired) {
-        Add-StageRecord -BuildDir $ld -Stage $s -Name "stage $s" -Status pass `
-                        -Verdict $(if ($s -eq '6') { 'Fully Compliant' } else { $null })
+        Add-LedgerFixtureRecord -Stage $s -Name "stage $s" -Verdict $(if ($s -eq '6') { 'Fully Compliant' } else { $null })
     }
     $miss = @($script:LedgerRequired | Where-Object { $oldRequired -notcontains $_ })
     $st = Test-StageLedger -BuildDir $ld
-    $unseen = @($miss | Where-Object { ($st.Problems -join ' ') -notmatch ("Stage {0} has no record" -f [regex]::Escape($_)) })
+    #  The ledger names the stage AND its title ("Stage 3c (spine gate band)
+    #  has no record"), so the anchor admits the title rather than assuming the
+    #  bare form - an assertion that stops matching its own gate's wording is a
+    #  green that proves nothing.
+    $unseen = @($miss | Where-Object { ($st.Problems -join ' ') -notmatch ("Stage {0} \([^)]*\) has no record" -f [regex]::Escape($_)) })
     if (-not $st.Ok -and -not $unseen.Count) { Ok "every blocking stage added since is enforced ($($miss -join ', '))" }
     else { Bad "these blocking stages are still unenforced: $($unseen -join ', ')" }
 
+    #  -InProgress EXCLUDES ONLY THE DELIVERY RECORD. A ledger holding every
+    #  required stage except 8 must read clean in progress and blocked at
+    #  delivery; a rule that excluded more would let a build deliver on a
+    #  half-recorded ledger, and one that excluded less would make -InProgress
+    #  useless. Both directions are asserted from the one fixture.
     Remove-Item (Join-Path $ld 'stage-ledger.json') -Force
     New-StageLedger -BuildDir $ld -Unit 'TEST001' | Out-Null
-    foreach ($s in $script:LedgerRequired) {
-        Add-StageRecord -BuildDir $ld -Stage $s -Name "stage $s" -Status pass `
-                        -Verdict $(if ($script:LedgerVerdict -contains $s) { 'Fully Compliant' } else { $null })
-        Start-Sleep -Milliseconds 12
+    foreach ($s in @($script:LedgerRequired | Where-Object { $_ -ne '8' })) {
+        Add-LedgerFixtureRecord -Stage $s -Name "stage $s" -Verdict $(if ($script:LedgerVerdict -contains $s) { 'Fully Compliant' } else { $null })
     }
+    $stIp = Test-StageLedger -BuildDir $ld -InProgress
+    $stAll = Test-StageLedger -BuildDir $ld
+    if ($stIp.Ok -and -not $stAll.Ok -and (($stAll.Problems -join ' ') -match 'Stage 8')) {
+        Ok '-InProgress excludes only the delivery record'
+    } else { Bad "-InProgress does not exclude exactly stage 8 (inProgress Ok=$($stIp.Ok): $($stIp.Problems -join '; ') / full Ok=$($stAll.Ok))" }
+
+    Add-LedgerFixtureRecord -Stage '8' -Name 'stage 8' -Verdict $(if ($script:LedgerVerdict -contains '8') { 'Fully Compliant' } else { $null })
     if ((Test-StageLedger -BuildDir $ld).Ok) { Ok 'complete ledger passes' }
     else { Bad "complete ledger failed: $((Test-StageLedger -BuildDir $ld).Problems -join '; ')" }
 
     # Placement is a mutation: what re-runs after it must postdate it.
-    Add-StageRecord -BuildDir $ld -Stage '7b' -Name 'place artwork' -Status pass -Round 2
+    Add-LedgerFixtureRecord -Stage '7b' -Name 'place artwork' -Round 2
     $st = Test-StageLedger -BuildDir $ld
     if (($st.Problems -join ' ') -match 'artwork was placed at') { Ok 'placement makes the post-placement re-gate stale' }
     else { Bad 'a re-placement did not invalidate the stages that follow it' }
-    Start-Sleep -Milliseconds 12
-    Add-StageRecord -BuildDir $ld -Stage '7c' -Name 'post-placement re-gate' -Status pass -Round 2
-    Add-StageRecord -BuildDir $ld -Stage '7d' -Name 'confirming read' -Status pass -Round 2 -Verdict 'Fully Compliant'
+    Add-LedgerFixtureRecord -Stage '7c' -Name 'post-placement re-gate' -Round 2
+    #  No -Round on the confirming read: a Stage 6/7d record carrying round > 0
+    #  is this ledger's trigger for REQUIRING a Stage 7 remediation record, and
+    #  this fixture is testing the placement staleness rule, not a remediation
+    #  cycle. The re-placement is still a round-2 event; the read of it is the
+    #  first read of that placement.
+    Add-LedgerFixtureRecord -Stage '7d' -Name 'confirming read' -Verdict 'Fully Compliant'
     if ((Test-StageLedger -BuildDir $ld).Ok) { Ok 'and re-running exactly those two clears it - the rule is satisfiable' }
     else { Bad "the placement staleness rule cannot be satisfied: $((Test-StageLedger -BuildDir $ld).Problems -join '; ')" }
 
@@ -332,31 +606,110 @@ try {
     } | ConvertTo-Json -Depth 8)
     if ((Test-StageLedger -BuildDir $ld).Problems -join ' ' -match 'figure sheet') { Ok 'a spine edit makes the figure sheet stale' }
     else { Bad 'the figure sheet was not checked against the spine it was cut from' }
-    & (Join-Path $PSScriptRoot 'New-FigureSheet.ps1') -BuildDir $ld -Quiet
+    #  A spine edit moves the fingerprint EVERY results file was written
+    #  against, so a build that edits its spine re-runs the band and re-records
+    #  the stages the band judges. The fixture does exactly that, and re-cuts
+    #  the sheet LAST - so the block that survives the re-run is attributable
+    #  to the stale sheet alone, and "regenerating it clears the block" is a
+    #  claim about the sheet rather than about having rebuilt everything.
+    #  Hand-stamping the sheet instead would put the sheet rule's own input
+    #  beyond the reach of the rule.
+    $ldFp = New-LedgerBandResults -Dir $ld
+    Remove-Item (Join-Path $ld 'stage-ledger.json') -Force
+    New-StageLedger -BuildDir $ld -Unit 'TEST001' | Out-Null
+    foreach ($s in $script:LedgerRequired) {
+        Add-LedgerFixtureRecord -Stage $s -Name "stage $s" -Verdict $(if ($script:LedgerVerdict -contains $s) { 'Fully Compliant' } else { $null })
+    }
+    $stSheet = Test-StageLedger -BuildDir $ld
+    if (-not $stSheet.Ok -and (($stSheet.Problems -join ' ') -match 'figure sheet')) {
+        Ok 'after the band re-runs, the stale sheet is the only thing still holding delivery'
+    } else { Bad "the stale figure sheet was not the residual block (Ok=$($stSheet.Ok)): $($stSheet.Problems -join '; ')" }
+    & (Join-Path $PSScriptRoot 'New-FigureSheet.ps1') -BuildDir $ld -Quiet | Out-Null
     if ((Test-StageLedger -BuildDir $ld).Ok) { Ok 'regenerating it clears the block' }
     else { Bad "regenerating the figure sheet did not clear it: $((Test-StageLedger -BuildDir $ld).Problems -join '; ')" }
 
     # A re-render after the audit must invalidate the audit, not inherit it.
-    Add-StageRecord -BuildDir $ld -Stage '7' -Name 'remediate + re-render' -Status pass -Round 3
+    Add-LedgerFixtureRecord -Stage '7' -Name 'remediate + re-render' -Round 3
     $st = Test-StageLedger -BuildDir $ld
+    #  The anchor names STAGE 6 and the reason. The ledger's wording for this
+    #  is "Stage 6 (...) ran at X and the artefacts were re-rendered at Y -
+    #  that verdict does not postdate the render", so an assertion that only
+    #  looked for the word 'stale' would go green on any other problem in the
+    #  list and red on the right one.
     if ($st.Ok) { Bad 'a re-render after Stage 6 did not make the audit stale' }
-    elseif (($st.Problems -join ' ') -match 'stale') { Ok 'a re-render makes the audit stale' }
-    else { Bad "re-render flagged, but not as stale: $($st.Problems -join '; ')" }
+    elseif (($st.Problems -join ' ') -match 'Stage 6 \([^)]*\)[^;]*(stale|does not postdate the render)') { Ok 'a re-render makes the Stage 6 audit stale' }
+    else { Bad "re-render flagged, but not as a stale Stage 6 audit: $($st.Problems -join '; ')" }
 
     # And an honest 'skipped' on a blocking stage still blocks.
-    Add-StageRecord -BuildDir $ld -Stage '5' -Name 'personas' -Status skipped -Round 3 -Note 'no time'
+    Add-LedgerFixtureRecord -Stage '5' -Name 'personas' -Status skipped -Round 3 -Note 'no time'
     if ((Test-StageLedger -BuildDir $ld).Problems -join ' ' -match 'SKIPPED') { Ok 'a skipped blocking stage blocks' }
     else { Bad 'a skipped blocking stage did not block' }
 
     # An 'n-a' with no written reason is a shrug, and a partial gate run with no
     # written reason is a check switched off where nobody would see it.
-    Add-StageRecord -BuildDir $ld -Stage '4c' -Name 'brand' -Status 'n-a'
-    Add-StageRecord -BuildDir $ld -Stage '4'  -Name 'render + gates' -Status pass -Partial @('assessment cross-reference (-QuestionsInPack)')
+    Add-LedgerFixtureRecord -Stage '4c' -Name 'brand' -Status 'n-a'
+    Add-LedgerFixtureRecord -Stage '4b' -Name 'readability' -Partial @('readability sample (-SampleSize)')
     $st = Test-StageLedger -BuildDir $ld
     if (($st.Problems -join ' ') -match "'n-a' with no note") { Ok "an 'n-a' with no reason blocks" }
     else { Bad "an 'n-a' with no reason was accepted" }
     if (($st.Problems -join ' ') -match 'checked nothing') { Ok 'a partial gate run with no reason blocks' }
     else { Bad 'a partial gate run with no reason was accepted' }
+
+    #  THE SAME OMISSION ON A SCRIPTED STAGE. Stage 4's record is written with
+    #  a note the ledger GENERATES from 4-results.json, and the written-reason
+    #  rule reads that generated note as the reason - so the same unexplained
+    #  partial does not block there. The harness says which of the two it
+    #  observed rather than quietly picking the stage that makes it green.
+    Add-LedgerFixtureRecord -Stage '4' -Name 'render + gates' -Partial @('assessment cross-reference (-QuestionsInPack)')
+    $st4 = Test-StageLedger -BuildDir $ld
+    if (($st4.Problems -join ' ') -match 'Stage 4 \([^)]*\) recorded \d+ gate rule') {
+        Ok 'an unexplained partial blocks on a scripted stage as well'
+    }
+    else {
+        Note ('Stage-Ledger: an unexplained -Partial on a SCRIPTED stage does not block - Add-StageRecord writes a generated note ("<stage>-results.json PASS: ...") and the written-reason rule reads that as the reason. The unscripted case above still blocks. Written up in scratchpad\p0\REQUESTS\L.md.')
+    }
+
+    Step '6b-i. every SKILL.md heading that says blocking is Blocking in the stage table'
+    #  P0-02. ONE-DIRECTIONAL, AND DELIBERATELY SO. The documentation is the
+    #  promise; the table is what the ledger enforces. A stage documented as
+    #  blocking whose table row says otherwise is a promise nothing keeps, and
+    #  three blocking stages once reached delivery recorded 'n-a'. The reverse
+    #  direction (a table row blocking with no heading saying so) is NOT
+    #  asserted here: Stage 4 is blocking and its heading does not say the word
+    #  yet, and that is a documentation change nobody has made.
+    $skillMd = Join-Path $SkillDir 'SKILL.md'
+    if (-not (Test-Path -LiteralPath $skillMd)) { Bad "no SKILL.md at $skillMd - the documented blocking set could not be read, so nothing was reconciled" }
+    else {
+        $blockingHeads = New-Object System.Collections.Generic.List[object]
+        foreach ($hLine in [System.IO.File]::ReadAllLines($skillMd)) {
+            if ($hLine -notmatch '^#{2,}\s+Stages?\s+(.+?)\s+-\s') { continue }
+            #  $Matches is clobbered by the very next -match, so the capture is
+            #  taken before the blocking test rather than after it.
+            $hKeys = $Matches[1]
+            if ($hLine -notmatch '(?i)blocking') { continue }
+            foreach ($k in ($hKeys -split '(?i)\s+and\s+|\s*,\s*')) {
+                if (-not "$k".Trim()) { continue }
+                $blockingHeads.Add([pscustomobject]@{ Key = "$k".Trim(); Line = $hLine.Trim() })
+            }
+        }
+        if ($blockingHeads.Count -eq 0) {
+            Bad 'no SKILL.md stage heading says "blocking" - the documented blocking set is empty, so this reconciliation checked nothing'
+        }
+        else {
+            $headProblems = New-Object System.Collections.Generic.List[string]
+            foreach ($bh in $blockingHeads) {
+                $key = $bh.Key
+                #  A renamed key resolves to its replacement rather than being
+                #  reported as unknown: 7b-ii is 7b skill-wide.
+                if ($script:LedgerRenamedKeys.ContainsKey($key)) { $key = $script:LedgerRenamedKeys[$key] }
+                $row = @($script:LedgerStages | Where-Object { $_.Key -ceq $key })
+                if ($row.Count -ne 1) { $headProblems.Add(("'{0}' says blocking and the stage table has no row for stage {1}" -f $bh.Line, $key)); continue }
+                if (-not $row[0].Blocking) { $headProblems.Add(("SKILL.md documents stage {0} as blocking and the stage table has Blocking = false for it" -f $key)) }
+            }
+            if ($headProblems.Count -eq 0) { Ok ("every SKILL.md heading that says blocking has Blocking = true in the stage table ({0} heading(s), {1} stage key(s))" -f $blockingHeads.Count, @($blockingHeads | ForEach-Object { $_.Key } | Sort-Object -Unique).Count) }
+            else { foreach ($hp in ($headProblems | Select-Object -First 8)) { Bad $hp } }
+        }
+    }
 
     Step '6c. withhold register derives the shape of a grid and never carries its answer'
     # A two-task synthetic pack: one labelled grid, one numbered grid, three
@@ -512,7 +865,26 @@ try {
     # words are hand-stemmed to the register's rule (ing / ed / es / s) so the
     # fixture's truth does not come from the gate's own tokeniser.
     $sd = Join-Path $OutDir 'shape'
-    New-Item -ItemType Directory -Force -Path (Join-Path $sd 'spine') | Out-Null
+    New-Item -ItemType Directory -Force -Path (Join-Path $sd 'spine'), (Join-Path $sd 'corpus') | Out-Null
+    #  The disposition gate reads THREE channels and refuses when one of them
+    #  left no report, so the fixture carries what the table-mirror channel
+    #  needs: the learner-facing corpus the grid is printed in, and the typed
+    #  grids.json Stage 1 writes beside it.
+    $sdTab = [char]9
+    Set-Content (Join-Path $sd 'corpus\TEST_Tool.txt') -Encoding UTF8 -Value ((@(
+        'Test Tool', 'Task 1 - Widgets', 'You keep the widgets. Answer the part below.',
+        '(a)  Complete the table below for each widget. Name at least two care steps.',
+        'Word guide: 10 to 20 words per cell', 'Student response - (a)',
+        ('Widget' + $sdTab + 'Purpose' + $sdTab + 'Care'),
+        ('Widget A' + $sdTab + 'Write here' + $sdTab + 'Write here'),
+        ('Widget B' + $sdTab + 'Write here' + $sdTab + 'Write here'),
+        ('Widget C' + $sdTab + 'Write here' + $sdTab + 'Write here'),
+        'End of tool') -join "`r`n"))
+    Set-Content (Join-Path $sd 'corpus\grids.json') -Encoding UTF8 -Value (@{
+        _purpose = 'Assessed response grids, typed. Labels only - no model cells.'
+        grids = @(@{ doc = 'TEST_Tool'; id = 'TEST_Tool Task 1(a)'; ref = 'Task 1(a)'
+                     labels = @('Widget A', 'Widget B', 'Widget C'); headers = @('Widget', 'Purpose', 'Care'); kind = 'labelled' })
+    } | ConvertTo-Json -Depth 8)
     Set-Content (Join-Path $sd 'contract.json') -Encoding UTF8 -Value (@{
         unit = @{ code = 'TEST001' }
         questionMap = @{ '1.1' = @('Task 1(a)') }
@@ -554,6 +926,7 @@ try {
     $shapeScript = Join-Path $PSScriptRoot 'Check-ShapeMirror.ps1'
     $covScript   = Join-Path $PSScriptRoot 'Check-RowCoverage.ps1'
     $dispScript  = Join-Path $PSScriptRoot 'Test-GridDisposition.ps1'
+    $mirrorScript = Join-Path $PSScriptRoot 'Check-FigureMirror.ps1'
     $spinePath   = Join-Path $sd 'spine\t1_1.1.json'
     function Get-PlantText ([string] $Path) {
         $j = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
@@ -606,7 +979,15 @@ try {
         underpinningKnowledge = @(
             'Widget A is the drive unit with the main gearing. Widget A needs watching in humid weather. Widget A is serviced by the fitter, not by you.',
             'Widget B sets the rate at which material reaches the hopper. A chute blockage stops Widget B. Widget B is serviced by the fitter as well.')
-    } | ConvertTo-Json -Depth 6)
+        #  A spine table that is not the assessed grid. The mirror gate's
+        #  spine-table arm BLOCKS on a whole-spine run with no table to sweep -
+        #  a check-set of nothing is a refusal, not a pass - and the
+        #  disposition below cannot read a channel that refused. It names no
+        #  row label, so the coverage counts above are unchanged by it.
+        workedExample = @{ table = @{ headers = @('Term', 'What it means')
+            rows = @(@('Tension', 'the force a drive belt is set to before a shift begins'),
+                     @('Shift', 'the working period a start-of-run check belongs to')) } }
+    } | ConvertTo-Json -Depth 8)
     $pt = Get-PlantText $spinePath
     if ($pt -match 'Widget A is the drive unit' -and $pt -notmatch 'Widget C') { Ok 'coverage plant (iii) landed: Widget C is never mentioned' } else { Bad 'coverage plant (iii) did not land' }
     $cvOut = & $covScript -BuildDir $sd -SpineFile $spinePath -Quiet *>&1 | ForEach-Object { "$_" }
@@ -632,21 +1013,32 @@ try {
     else { Bad "KE coverage: KE3 covered=$($ke3.Covered) KE1 covered=$($ke1.Covered)" }
 
     # (iv) one verdict per grid; not disposed while a row is untaught; cleared only through mirrorAllow with a reason
+    #  -NotBefore is the time the producers were started. The disposition gate
+    #  refuses without it, because a report left on disk by the previous round
+    #  is indistinguishable from one this run produced - and a disposition read
+    #  off a stale report is a verdict about a document nobody looked at. The
+    #  runner threads its own start time; a stand-alone caller states it.
+    #  BOTH producers re-run inside the round the disposition is read for. The
+    #  coverage report above was cut before -NotBefore, and a report older than
+    #  the round it is read in is exactly what the refusal exists to catch.
+    $dpNotBefore = (Get-Date).ToUniversalTime().AddSeconds(-2).ToString('o')
     & $shapeScript -BuildDir $sd -Quiet *>&1 | Out-Null
-    $dpOut = & $dispScript -BuildDir $sd -Quiet *>&1 | ForEach-Object { "$_" }
+    & $covScript   -BuildDir $sd -Whole -Quiet *>&1 | Out-Null
+    & $mirrorScript -BuildDir $sd *>&1 | Out-Null
+    $dpOut = & $dispScript -BuildDir $sd -NotBefore $dpNotBefore -Quiet *>&1 | ForEach-Object { "$_" }
     $dpRc = $LASTEXITCODE
     $dp = Get-Content -LiteralPath (Join-Path $sd 'grid-disposition.json') -Raw | ConvertFrom-Json
     if ($dpRc -eq 1 -and @($dp.grids).Count -eq 1 -and $dp.grids[0].verdict -eq 'NOT DISPOSED' -and $dp.grids[0].taught -eq 2 -and $dp.grids[0].answered -eq 0) { Ok 'disposition: exactly one verdict for the one grid, NOT DISPOSED (taught 2 of 3), exit 1' }
     else { Bad "disposition: rc=$dpRc, verdicts=$(@($dp.grids).Count), verdict=$($dp.grids[0].verdict), taught=$($dp.grids[0].taught)" }
     Set-Content (Join-Path $sd 'figures.json') -Encoding UTF8 -Value '{ "figures": [], "mirrorAllow": [ { "id": "TEST_Tool Task 1(a)", "reason": "synthetic Stage 3d clearance for the pipeline test: the third widget is taught in the practical session, not in the guide" } ] }'
-    & $dispScript -BuildDir $sd -Quiet *>&1 | Out-Null
+    & $dispScript -BuildDir $sd -NotBefore $dpNotBefore -Quiet *>&1 | Out-Null
     $dpRc2 = $LASTEXITCODE
     $dp2 = Get-Content -LiteralPath (Join-Path $sd 'grid-disposition.json') -Raw | ConvertFrom-Json
     if ($dpRc2 -eq 0 -and $dp2.grids[0].verdict -eq 'cleared' -and $dp2.grids[0].reason -match 'practical session') { Ok 'a written mirrorAllow reason clears the grid, and the reason travels into the disposition' }
     else { Bad "clearance: rc=$dpRc2, verdict=$($dp2.grids[0].verdict)" }
     Set-Content (Join-Path $sd 'figures.json') -Encoding UTF8 -Value '{ "figures": [], "mirrorAllow": [ { "id": "TEST_Tool Task 1(a)" } ] }'
     $threw = $false
-    try { & $dispScript -BuildDir $sd -Quiet *>&1 | Out-Null; if ($LASTEXITCODE -ne 0) { $threw = $true } } catch { $threw = $true }
+    try { & $dispScript -BuildDir $sd -NotBefore $dpNotBefore -Quiet *>&1 | Out-Null; if ($LASTEXITCODE -ne 0) { $threw = $true } } catch { $threw = $true }
     if ($threw) { Ok 'a mirrorAllow entry with no reason cannot clear anything' } else { Bad 'an allow-list entry with no reason cleared the grid' }
     Set-Content (Join-Path $sd 'figures.json') -Encoding UTF8 -Value $figClean
 
@@ -666,20 +1058,189 @@ try {
     & $covScript -BuildDir $sd -Whole -Quiet *>&1 | Out-Null
     $cvRc5 = $LASTEXITCODE
     $cvRep5 = Get-Content -LiteralPath (Join-Path $sd 'row-coverage-report.json') -Raw | ConvertFrom-Json
-    & $dispScript -BuildDir $sd -Quiet *>&1 | Out-Null
+    & $mirrorScript -BuildDir $sd *>&1 | Out-Null
+    & $dispScript -BuildDir $sd -NotBefore $dpNotBefore -Quiet *>&1 | Out-Null
     $dpRc5 = $LASTEXITCODE
     $dp5 = Get-Content -LiteralPath (Join-Path $sd 'grid-disposition.json') -Raw | ConvertFrom-Json
     if ($smRc5 -eq 0 -and $cvRc5 -eq 0 -and $dpRc5 -eq 0 -and $dp5.grids[0].verdict -eq 'disposed' -and $dp5.grids[0].taught -eq 3) { Ok 'with every row taught and none answered, the grid is DISPOSED and all three gates exit 0' }
     else { Bad "disposed path: shape rc=$smRc5, coverage rc=$cvRc5, disposition rc=$dpRc5, verdict=$($dp5.grids[0].verdict)" }
     if (@($cvRep5.hollow).Count -eq 2 -and $cvRep5.hollow[0].Row -eq 'Widget D') { Ok 'a relocated exemplar with two-word cells is REPORTED as hollow (does not block)' }
     else { Bad "hollow relocation: $(@($cvRep5.hollow).Count) cell(s) reported" }
+    #  A BLOCKING RULE WHOSE INPUT IS ABSENT REFUSES BY NAME. It used to exit 1
+    #  (a finding); the landed convention is 2 for a missing input, and what
+    #  matters either way is that the code is non-zero AND the missing file is
+    #  named, so nobody has to guess what to supply.
     Remove-Item -LiteralPath (Join-Path $sd 'unit_extract.md') -Force
-    & $covScript -BuildDir $sd -Whole -Quiet *>&1 | Out-Null
-    if ($LASTEXITCODE -eq 1) { Ok '-Whole with no unit extract BLOCKS and names the missing input - a floor with no input has checked nothing' }
-    else { Bad "-Whole passed with no unit extract (rc=$LASTEXITCODE)" }
+    $cvNoKe = & $covScript -BuildDir $sd -Whole -Quiet *>&1 | ForEach-Object { "$_" }
+    $cvNoKeRc = $LASTEXITCODE
+    $cvNoKeTxt = ($cvNoKe | Out-String -Width 4096)
+    if ($cvNoKeRc -eq 2 -and $cvNoKeTxt -match 'unit_extract') { Ok '-Whole with no unit extract REFUSES (exit 2) and names unit_extract.md - a floor with no input has checked nothing' }
+    else { Bad "-Whole with no unit extract: exit $cvNoKeRc (expected 2), named unit_extract: $($cvNoKeTxt -match 'unit_extract')" }
+
+    Step '6e. the renderer refuses a lookup miss instead of printing it as a fact'
+    #  P0-19. On one delivered guide all forty rows of the Question
+    #  cross-reference told the learner "your assessor completes this while you
+    #  work" - because a word-guide lookup missed and the observation sentence
+    #  was the else branch. Three behaviours are proved on a synthetic pack and
+    #  spine: the pack glob refusal, the located finding, and the element-wide
+    #  propagation of an observation reference that the miss used to stand in
+    #  for. Every string below is invented; nothing here names a real unit.
+    $rr  = Join-Path $OutDir 'render'
+    $rrb = Join-Path $rr 'build'
+    $rrp = Join-Path $rr 'pack'
+    New-Item -ItemType Directory -Force -Path (Join-Path $rrb 'spine'), (Join-Path $rrp 'content') | Out-Null
+    function RJ ([string] $Path, $Obj) { Set-Content -LiteralPath $Path -Encoding UTF8 -Value ($Obj | ConvertTo-Json -Depth 20) }
+    function RSub ([string] $Ref, [string] $Title, [string[]] $Refs) {
+        @{  ref = $Ref; title = $Title
+            whatThisMeans = @('The recipe of record is the written one.'); remember = 'Report a problem; do not correct it.'
+            underpinningKnowledge = @('Yield is what one batch makes.'); regulatoryBasis = @('The food standards code applies.')
+            howToDoIt = @(@{ step = 'Read the card'; detail = 'Check the yield before you scale.' })
+            caseStudy = @{ narrative = 'A batch was scaled from the wrong card.'; thinkItThrough = @('What would you check first?') }
+            commonErrors = @(@{ error = 'Reading only the ingredient list.'; why = 'It is the shortest part.'; consequence = 'The method is missed.' })
+            selfCheck = @{ questions = @('Where is the yield printed?') }
+            assessmentLink = @{ wording = 'This prepares you for the written task.'; refs = $Refs } }
+    }
+    function RContract ([string[]] $Refs11, [string[]] $Refs12) {
+        RJ (Join-Path $rrb 'contract.json') @{
+            unit = @{ code = 'TEST001'; title = 'Smoke unit'; release = 'Release 1' }
+            qualification = @{ code = 'TEST10001'; title = 'Certificate in Testing'; aqfLevel = '4' }
+            build = @{ brand = 'MVC'; variant = '' }
+            referenceConvention = @{ knowledge = 'Knowledge Task {n}'; observation = 'Observation {n}' }
+            topics = @(@{ n = 1; pcs = @('1.1', '1.2') })
+            keMap = @{ KE1 = @{ taughtAt = '1.1'; assessedIn = 'Knowledge Task 1' } }
+            questionMap = @{ '1.1' = $Refs11; '1.2' = $Refs12 }
+        }
+        RJ (Join-Path $rrb 'spine\t1_1.1.json') (RSub '1.1' 'Confirm requirements' $Refs11)
+        RJ (Join-Path $rrb 'spine\t1_1.2.json') (RSub '1.2' 'Scale the recipe'    $Refs12)
+    }
+    RJ (Join-Path $rrb 'spine\cover.json')     @{ title = 'Smoke unit' }
+    RJ (Join-Path $rrb 'spine\deckframe.json') @{ }
+    RJ (Join-Path $rrb 'spine\t1_topic.json') @{
+        n = 1; title = 'Standard recipes'; pcs = @('1.1', '1.2')
+        overview = @('This topic covers standard recipes.'); outcomes = @('Read a standard recipe card.')
+        keyTerms = @(@{ term = 'Yield'; plain = 'how much one batch makes' })
+        readBeforeYouStart = @('Locate the standard recipe card.'); furtherReading = @('The house recipe manual.')
+        summary = @('The recipe of record is the written one.'); industryInsight = 'Kitchens run on written recipes.'
+        reflection = 'When did you last read one right through?'; discussion = 'Who owns the recipe of record here?'
+        assessmentPrep = @('Re-read the yield section.')
+    }
+    RJ (Join-Path $rrb 'spine\front.json') @{
+        assessmentOverview = @{ intro = 'How you are assessed.'; referenceConvention = 'How items are named.'
+                                crossReferenceIntro = 'Every item, and where it is prepared for.'; pointer = 'Ask your trainer if an item is unclear.' }
+        mappingMatrix = @{ intro = 'Where each criterion is taught and assessed.'; note = 'Read it beside the unit.' }
+        sequenceMap = @{ intro = 'The order the activities run in.'; stages = @(); records = @('Your completed tasks.') }
+        assessmentRequirements = @{
+            intro = 'What the unit requires.'
+            part1 = @{ heading = 'Part 1 - Knowledge'; intro = 'What you must know.'; items = @(@{ ke = 'KE1'; text = 'The parts of a standard recipe.'; task = 'Knowledge Task 1' }) }
+            part2 = @{ heading = 'Part 2 - Performance'; intro = 'What you must do.'; items = @(@{ pe = 'PE1'; text = 'Scale a standard recipe.' }) }
+            whatTheAssessorLooksFor = @('Evidence you followed the written recipe.')
+            reasonableAdjustment = @('Ask about an adjustment before you start.') }
+        introduction = @{ whatThisUnitIsAbout = @('Standard recipes.'); whyItMatters = @('The same product every time.')
+                          howToUseThisGuide = @('Read a topic before the class.'); prerequisites = @('None.') }
+        workplace = @{ intro = @('A small production kitchen.'); peopleIntro = 'Who you work with.'
+                       people = @(@{ role = 'Chef'; does = 'Owns the recipe of record.' })
+                       theRun = @('One production run a day.'); destinations = @('The front counter.')
+                       documents = @('The standard recipe card.')
+                       carryThisIntoEveryScenario = @('Carry this into every scenario.', '- The written recipe wins.') }
+        declaration = @{ heading = 'Declaration'; lines = @('I declare this work is my own.'); controlNote = 'Keep this page with your submission.' }
+        appendices = @()
+    }
+    $rrTasks = Join-Path $rrp 'content\test_tasks_1_2.json'
+    RJ $rrTasks @{ items = @(@{ id = 'T1'; heading = 'Task 1'; wordGuide = '60 to 80 words' },
+                             @{ id = 'T2'; heading = 'Task 2'; wordGuide = '40 to 60 words' }) }
+    $renderScript = Join-Path $PSScriptRoot 'Invoke-Render.ps1'
+    #  The renderer REFUSES BY THROWING, and a throw unwinds past *>&1 - so the
+    #  refusal is caught here and read as text. A capture that let it unwind
+    #  would abort the harness and be reported as a crash rather than as the
+    #  refusal it is.
+    function RRender {
+        $t = ''
+        try { $t = ((& $renderScript -Worker -GuideOnly -BuildDir $rrb -PackDir $rrp *>&1 | ForEach-Object { "$_" }) | Out-String -Width 4096) }
+        catch { $t = [string]$_.Exception.Message }
+        return $t
+    }
+
+    # (i) a pack whose content files do not match the glob is a refusal that NAMES the glob
+    RContract @('Knowledge Task 1', 'Observation 3') @('Knowledge Task 2')
+    Rename-Item -LiteralPath $rrTasks -NewName 'batchA.json'
+    $rrGlobTxt = RRender
+    if ($rrGlobTxt -match '\*_tasks_\*\.json' -and $rrGlobTxt -match [regex]::Escape((Join-Path $rrp 'content'))) {
+        Ok 'a pack with zero matching task files makes the render throw, naming the glob and the content directory'
+    } else { Bad ("a pack with no matching task file did not name the glob: " + ($rrGlobTxt -replace '\s+', ' ').Substring(0, [Math]::Min(220, $rrGlobTxt.Length))) }
+    Rename-Item -LiteralPath (Join-Path $rrp 'content\batchA.json') -NewName 'test_tasks_1_2.json'
+
+    # (ii) a reference with no word guide, which is not an observation item, is a LOCATED FINDING
+    RContract @('Knowledge Task 1', 'Observation 3') @('Knowledge Task 2', 'Knowledge Task 9')
+    $rrMissTxt = RRender
+    if ($rrMissTxt -match 'Knowledge Task 9' -and $rrMissTxt -match '1\.2' -and $rrMissTxt -match '(?i)no word guide') {
+        Ok 'an unfound word guide is a finding naming the reference and its section, not the observation sentence'
+    } else { Bad ("an unfound word guide did not produce a located finding: " + ($rrMissTxt -replace '\s+', ' ')) }
+
+    # (iii) the observation reference propagates across its whole element
+    RContract @('Knowledge Task 1', 'Observation 3') @('Knowledge Task 2')
+    $rrOkTxt = RRender
+    $rrGuide = Join-Path $rrb 'out\TEST001_Learner_Guide.docx'
+    if (-not (Test-Path -LiteralPath $rrGuide)) { Bad ("the control render produced no guide: " + ($rrOkTxt -replace '\s+', ' ')) }
+    else {
+        $rrWd = Expand-Docx -Path $rrGuide
+        $rrXml = Get-DocxPart -WorkDir $rrWd -Part 'word/document.xml'
+        $rrRows = @()
+        foreach ($m in [regex]::Matches($rrXml, '(?s)<w:tr[ >].*?</w:tr>')) {
+            $rrRows += (((($m.Value -replace '<[^>]+>', ' ') -replace '\s+', ' ')).Trim())
+        }
+        Remove-Item -LiteralPath $rrWd -Recurse -Force -ErrorAction SilentlyContinue
+        #  1.2 declares no observation reference of its own. The mapping matrix
+        #  row for it must still carry the element's Observation 3, because an
+        #  observation checklist covers every criterion in its element - and
+        #  the cross-reference row for 1.2, which does NOT propagate, is the
+        #  control that says the propagation is what put it there.
+        #  The matrix row, not the self-check row: both open '1.2 Scale the
+        #  recipe', and matching on the opening alone made the count 2 and the
+        #  assertion red over a correct render.
+        $rrMatrix12 = @($rrRows | Where-Object { $_ -match '^1\.2 Scale the recipe Topic 1, section 1\.2' })
+        $rrXref12   = @($rrRows | Where-Object { $_ -match '^Knowledge Task 2 Topic 1 Section 1\.2' })
+        if ($rrMatrix12.Count -eq 1 -and $rrMatrix12[0] -match 'Observation 3') {
+            Ok 'the element-level observation reference propagates: the matrix row for 1.2 carries Observation 3 without 1.2 declaring it'
+        } else { Bad ("elementObs is empty - the matrix row for 1.2 is: " + ($rrMatrix12 -join ' | ')) }
+        if ($rrXref12.Count -eq 1 -and $rrXref12[0] -notmatch 'Observation') {
+            Ok 'and the cross-reference row for 1.2 does not - the propagation is element-wide, not a blanket'
+        } else { Bad ("cross-reference control for 1.2: " + ($rrXref12 -join ' | ')) }
+    }
+
+    Step '6f. every blocking gate can be proved to fail'
+    #  P0-17. Assert-GateFixtures -StaticOnly derives the gate set from
+    #  scripts\*.ps1, parses every one and answers six questions about it. The
+    #  rule this harness owns is NO-COVER: a BLOCKING gate with neither a
+    #  -SelfTest switch nor a seeded-defect recipe is a gate nothing anywhere
+    #  proves can fail. The allow-list for libraries and renderers is written
+    #  beside that rule in Assert-GateFixtures ($script:StaticCoverAllow), one
+    #  reason per entry, and never covers an Assert-/Check-/Test- name.
+    $fxDir = Join-Path $OutDir 'fixtures'
+    $fxOut = & (Join-Path $PSScriptRoot 'Assert-GateFixtures.ps1') -StaticOnly -SkillDir $SkillDir -ResultDir $fxDir -Quiet *>&1 | ForEach-Object { "$_" }
+    $fxRc = $LASTEXITCODE
+    $fxPath = Join-Path $fxDir 'gate-fixtures.static.json'
+    if (-not (Test-Path -LiteralPath $fxPath)) {
+        Bad ("Assert-GateFixtures -StaticOnly wrote no report at $fxPath (exit $fxRc) - nothing below was checked: " + (($fxOut | Select-Object -Last 3) -join ' '))
+    }
+    else {
+        $fx = Get-Content -LiteralPath $fxPath -Raw | ConvertFrom-Json
+        if ([int]$fx.gateSetSize -gt 0) { Ok ("the static arms examined {0} script(s) and {1} recipe(s)" -f $fx.gateSetSize, $fx.recipeCount) }
+        else { Bad 'the static arms derived an empty gate set - a run over no gate proves nothing' }
+        $noCover = @($fx.findings | Where-Object { $_.Kind -eq 'NO-COVER' })
+        if ($noCover.Count -eq 0) { Ok 'no blocking gate is left with neither a -SelfTest nor a seeded-defect recipe' }
+        else { Bad ("{0} blocking gate(s) can be proved to fail by nothing: {1}" -f $noCover.Count, ((@($noCover | ForEach-Object { $_.Gate }) | Select-Object -Unique) -join ', ')) }
+        #  The rest of the static findings are about `# GATE:` headers and
+        #  gates.md stage cells in files this harness does not own. They are
+        #  named here so a green banner cannot stand in for them.
+        $fxOther = @($fx.findings | Where-Object { $_.Blocking -and $_.Kind -ne 'NO-COVER' })
+        if ($fxOther.Count) {
+            Note ("Assert-GateFixtures -StaticOnly: {0} blocking finding(s) on gate headers and stage cells, owned by the gate files - {1}. Listed for their owners in scratchpad\p0\REQUESTS\H.md sections 4 and 5." -f `
+                  $fxOther.Count, ((@($fxOther | ForEach-Object { ('{0} {1}' -f $_.Kind, $_.Gate) }) | Select-Object -Unique) -join '; '))
+        }
+    }
 
     Step '7. Office opens both without repairing'
-    if ($SkipOffice) { Write-Host '        skipped' -ForegroundColor DarkGray }
+    if ($SkipOffice) { Skip '-SkipOffice: Word did not open the guide and PowerPoint did not open the deck (2 checks). Every documented invocation of this script passes it, and these two checks used to vanish from the tally under a green banner.' }
     else {
         $w = $null
         try {
@@ -708,12 +1269,35 @@ catch {
     Bad ("unhandled exception at line {0}: {1}" -f $_.InvocationInfo.ScriptLineNumber, $_.Exception.Message)
 }
 finally {
+    #  THE EXECUTED COUNT MUST EQUAL THE ENUMERATED FIXTURE COUNT. A step lost
+    #  to an exception in the step before it used to leave a smaller
+    #  denominator and a banner that read clean over the checks that never ran.
+    Write-Host ''
+    if (@($script:FixturePlan).Count -eq 0) {
+        Bad 'the fixture roster derived from this script AST is empty - nothing reconciles what ran against what was planned'
+    }
+    else {
+        $notRun = @($script:FixturePlan | Where-Object { $script:StepsRun -notcontains $_ })
+        if ($notRun.Count -eq 0) { Ok ("every enumerated fixture ran: {0} of {0} step(s)" -f @($script:FixturePlan).Count) }
+        else { Bad ("{0} of {1} enumerated fixture(s) never ran: {2}" -f $notRun.Count, @($script:FixturePlan).Count, (($notRun | Select-Object -First 6) -join '; ')) }
+    }
+
     Write-Host ''
     if ($KeepOutput) { Write-Host "output kept: $OutDir" -ForegroundColor DarkGray }
     else { Remove-Item -LiteralPath $OutDir -Recurse -Force -ErrorAction SilentlyContinue }
 
-    if ($fail -eq 0) { Write-Host "PIPELINE OK - $pass checks passed" -ForegroundColor Green }
-    else             { Write-Host "PIPELINE FAILED - $fail of $($pass + $fail) checks failed" -ForegroundColor Red }
+    if ($fail -gt 0) {
+        Write-Host "PIPELINE FAILED - $fail of $($pass + $fail) checks failed" -ForegroundColor Red
+    }
+    elseif (@($script:PartialChecks).Count -gt 0) {
+        Write-Host ("PIPELINE OK - PARTIAL, {0} checks not run ({1} passed)" -f @($script:PartialChecks).Count, $pass) -ForegroundColor Yellow
+        foreach ($p in $script:PartialChecks) { Write-Host ("  NOT RUN  {0}" -f $p) -ForegroundColor Yellow }
+    }
+    else { Write-Host "PIPELINE OK - $pass checks passed" -ForegroundColor Green }
+
+    #  Findings this harness surfaced in files it does not own. Printed after
+    #  the banner so a green line cannot stand in for them.
+    foreach ($r in $script:ReportedItems) { Write-Host ("  REPORTED  {0}" -f $r) -ForegroundColor Yellow }
     Write-Host ''
 }
 

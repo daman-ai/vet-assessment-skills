@@ -106,7 +106,16 @@
 
     PS 5.1. ASCII only in this file.
     Exit 0 clean, 1 blocking finding(s), 2 usage or input error, 4 self-test failed.
+
+    ARMS (Lib-GateCommon roster). spine-files, require-strings,
+    benchmark-entries and slide-notes are BLOCKING: each ends ran (size > 0),
+    empty (a refusal, exit 2, naming the input) or declared-n-a with a written
+    reason from contract.json gateArms. The check-set lines print on every run,
+    quiet or not - the band runs every member quiet, and a blocking check-set
+    computed only when the gate is talkative is one that never fires.
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
@@ -143,6 +152,9 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
 
 $GATE = 'Assert-DeckParity'
+#  This script's own path, for the self-test's child runs. $PSCommandPath is
+#  empty inside a function, so it is captured once here at script scope.
+$script:DpSelf = $PSCommandPath
 
 # ---------------------------------------------------------------------------
 # Small private helpers. Named Dp* so nothing here can collide with a shared
@@ -1132,6 +1144,41 @@ function Invoke-DpSelfTest {
         $c7 = Join-Path $root 'p7'
         New-DpFixture -Root $c7 | Out-Null
         Test-DpFires -Build $c7 -Rule 'DP-REQUIRE-PER-SURFACE' -What "BETA-VALUE declares surfaces:[guide] and is absent from the deck"
+
+        # ---- CASE 8 and 9: THE ARM ROSTER, proved through the EXIT CODE.
+        #      These run THIS script as a child, because what a runner reads is
+        #      the exit code, not a message inside a function: a starved
+        #      blocking arm must be exit 2 naming its input, and the clean
+        #      fixture must be exit 0 with every blocking arm 'ran'.
+        function Invoke-DpChild {
+            param([string] $Build, [int] $Expect, [string[]] $Names, [string] $What)
+            $out = ''
+            try { $out = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script:DpSelf -BuildDir $Build -Profile $prof -SkillDir $Skill -ReportPath (Join-Path $Build 'dp-report.json') 2>&1 | Out-String -Width 4096) }
+            catch { $out = "$($_.Exception.Message)" }
+            $code = $LASTEXITCODE
+            $missing = @($Names | Where-Object { $out.IndexOf($_, [System.StringComparison]::OrdinalIgnoreCase) -lt 0 })
+            if ($code -eq $Expect -and $missing.Count -eq 0) { Ok ("{0} -> exit {1}, naming {2}" -f $What, $code, (($Names | ForEach-Object { "'" + $_ + "'" }) -join ' and ')) }
+            else {
+                Bad ("{0} -> exit {1} (wanted {2}); not named: {3}" -f $What, $code, $Expect, $(if ($missing.Count) { ($missing -join ' | ') } else { 'nothing' }))
+                foreach ($ln in @(($out -split "`r?`n") | Where-Object { $_.Trim() } | Select-Object -Last 4)) { Write-Host ("      | {0}" -f $ln) -ForegroundColor DarkGray }
+            }
+        }
+
+        $c8 = Join-Path $root 'p8'
+        New-DpFixture -Root $c8 | Out-Null
+        #  Starve the require-strings arm: a registry that declares no required
+        #  string at all. The per-surface comparison then has nothing to look
+        #  for on either surface, which is what used to print a green line.
+        $reg8 = Get-GateJson -Path (Join-Path $c8 'figures.json')
+        $reg8.figures = @()
+        Write-DpJson -Object $reg8 -Path (Join-Path $c8 'figures.json')
+        $back8 = Get-GateFileText -Path (Join-Path $c8 'figures.json')
+        if ($back8 -match 'ALPHA-VALUE') { Bad 'plant 8 did not land: the fixture registry still carries a require string' }
+        else { Invoke-DpChild -Build $c8 -Expect 2 -Names @('CHECK-SET EMPTY', 'figures.json') -What 'a registry with no require string starves the require arm' }
+
+        $c9 = Join-Path $root 'p9'
+        New-DpFixture -Root $c9 | Out-Null
+        Invoke-DpChild -Build $c9 -Expect 0 -Names @('ARMS: ', 'require-strings|true|ran', 'benchmark-entries|true|ran', 'slide-notes|true|ran') -What 'the clean fixture passes with every blocking arm ran'
     }
     finally {
         if ((Test-Path -LiteralPath $root) -and $root.Length -gt 12) {
@@ -1179,12 +1226,78 @@ $st = $result.Stats
 $blocking = @($result.Findings)
 $reports  = @($result.Notes)
 
-if (-not $Quiet) {
-    Write-Host ''
-    Write-Host 'DECK PARITY - per-surface, benchmark-derived' -ForegroundColor Cyan
-    Write-GateCheckSet -What 'registry require string(s)' -Count $st.requireStrings -DerivedFrom (Split-Path -Leaf $result.Sources.registry)
-    Write-GateCheckSet -What 'benchmark-accepted instrument/term/item(s), per topic' -Count $st.benchmarkEntries -DerivedFrom (Split-Path -Leaf $result.Sources.register)
+# ---------------------------------------------------------------------------
+# The arm roster. Registered here, at the top level, because this is where the
+# gate decides PASS - and the refusals below are proved by the self-test
+# running THIS script as a child on a starved fixture, so what is proved is the
+# exit code the runner reads, not a message inside a function.
+# ---------------------------------------------------------------------------
+
+$dpNa = @{}
+try {
+    foreach ($arm in @('require-strings', 'benchmark-entries', 'slide-notes')) {
+        $r = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm $arm
+        if ($r) { $dpNa[$arm] = $r }
+    }
+}
+catch { Write-Host ("  X {0}: {1}" -f $GATE, $_.Exception.Message) -ForegroundColor Red; exit 2 }
+
+Reset-GateArmRoster
+Register-GateArm -Name 'spine-files' -Blocking
+Register-GateArm -Name 'require-strings' -Blocking:(-not $dpNa.ContainsKey('require-strings'))
+Register-GateArm -Name 'benchmark-entries' -Blocking:(-not $dpNa.ContainsKey('benchmark-entries'))
+Register-GateArm -Name 'slide-notes' -Blocking:(-not $dpNa.ContainsKey('slide-notes'))
+Register-GateArm -Name 'no-notes-exemptions'
+Register-GateArm -Name 'table-shape'
+Register-GateArm -Name 'count-claims'
+
+$dpRoster = @()
+try {
+    if (-not $Quiet) {
+        Write-Host ''
+        Write-Host 'DECK PARITY - per-surface, benchmark-derived' -ForegroundColor Cyan
+    }
+    Write-GateCheckSet -What 'spine file(s) read' -Count $st.spineFiles -DerivedFrom 'Get-GateSpineFiles over the build spine' -Blocking -Input ('the spine under {0}' -f $BuildDir)
+    Complete-GateArm -Name 'spine-files' -State 'ran' -Size $st.spineFiles
+
+    if ($dpNa.ContainsKey('require-strings')) { Complete-GateArm -Name 'require-strings' -State 'declared-n-a' -Reason $dpNa['require-strings'] }
+    else {
+        Write-GateCheckSet -What 'registry require string(s)' -Count $st.requireStrings -DerivedFrom (Split-Path -Leaf $result.Sources.registry) -Blocking -Input ('{0} figures[].require - not one required string could be read, so the per-surface parity arm has nothing to look for' -f $result.Sources.registry)
+        Complete-GateArm -Name 'require-strings' -State 'ran' -Size $st.requireStrings -Findings @($blocking | Where-Object { $_.Rule -like 'DP-REQUIRE*' }).Count
+    }
+
+    if ($dpNa.ContainsKey('benchmark-entries')) { Complete-GateArm -Name 'benchmark-entries' -State 'declared-n-a' -Reason $dpNa['benchmark-entries'] }
+    else {
+        Write-GateCheckSet -What 'benchmark-accepted instrument/term/item(s), per topic' -Count $st.benchmarkEntries -DerivedFrom (Split-Path -Leaf $result.Sources.register) -Blocking -Input ('{0} - not one benchmark-accepted entry could be derived, so the per-topic benchmark arm examined nothing' -f $result.Sources.register)
+        Complete-GateArm -Name 'benchmark-entries' -State 'ran' -Size $st.benchmarkEntries -Findings @($blocking | Where-Object { $_.Rule -like 'DP-BENCH*' }).Count
+    }
+
+    if ($dpNa.ContainsKey('slide-notes')) { Complete-GateArm -Name 'slide-notes' -State 'declared-n-a' -Reason $dpNa['slide-notes'] }
+    else {
+        Write-GateCheckSet -What 'slide(s) whose speaker notes are checked' -Count $st.slidesNotesChecked -DerivedFrom ('the spine slides, less the ' + $st.slidesNotesExempt + ' the profile declares exempt') -Blocking -Input ('the spine slides: ' + $st.slides + ' slide(s) found, ' + $st.slidesNotesExempt + ' exempt by the profile, leaving nothing to measure against the ' + $MinNotesWords + '-word notes floor')
+        Complete-GateArm -Name 'slide-notes' -State 'ran' -Size $st.slidesNotesChecked -Findings @($blocking | Where-Object { $_.Rule -like '*NOTES*' }).Count
+    }
+
     Write-GateCheckSet -What 'no-notes layout/kind exemption(s)' -Count $result.NoNotes.Set.Count -DerivedFrom ((Split-Path -Leaf $result.Sources.profile) + ' -> ' + (Split-Path -Leaf $result.NoNotes.DeckPath))
+    if ($result.NoNotes.Set.Count -gt 0) { Complete-GateArm -Name 'no-notes-exemptions' -State 'ran' -Size $result.NoNotes.Set.Count } else { Complete-GateArm -Name 'no-notes-exemptions' -State 'empty' }
+    if ($st.tableShapeCompared -gt 0) { Complete-GateArm -Name 'table-shape' -State 'ran' -Size $st.tableShapeCompared } else { Complete-GateArm -Name 'table-shape' -State 'empty' }
+    if ($st.countClaimsExamined -gt 0) { Complete-GateArm -Name 'count-claims' -State 'ran' -Size $st.countClaimsExamined -Findings $st.countClaimsBlocking } else { Complete-GateArm -Name 'count-claims' -State 'empty' }
+
+    Assert-GateArmsComplete
+    $dpRoster = Write-GateArmRoster
+}
+catch {
+    $msg = $_.Exception.Message
+    if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0} REFUSED - {1}" -f $GATE, $msg) -ForegroundColor Red
+        [void](Write-GateArmRoster)
+        exit 2
+    }
+    Write-Host ("  X {0}: {1}" -f $GATE, $msg) -ForegroundColor Red
+    exit 1
+}
+
+if (-not $Quiet) {
     Write-Host ("  sources: {0} spine file(s) ONLY - no .ps1, no report, no rendered extract is opened by this gate" -f $st.spineFiles) -ForegroundColor DarkGray
     Write-Host ("  surfaces: {0} guide-facing cell(s), {1} deck-facing cell(s), {2} slide(s)" -f $st.guideCells, $st.deckCells, $st.slides) -ForegroundColor DarkGray
     Write-Host ("  suppression: {0} require entry/entries narrow their surfaces by declaration; {1} benchmark entry/entries dropped as assessor-only; {2} on both surfaces already, {3} on neither in their topic (a coverage question, not a parity one - see Check-RowCoverage)" -f `
@@ -1218,6 +1331,7 @@ $report = [pscustomobject]@{
     thresholds = [pscustomobject]@{ minNotesWords = $MinNotesWords; minSharedHeadings = $MinSharedHeadings }
     noNotesList = [pscustomobject]@{ fromDeckProfile = $result.NoNotes.FromDeck; fromRtoPackReasons = $result.NoNotes.FromPack }
     stats     = $st
+    arms      = $dpRoster
     blocking  = $blocking
     report    = $reports
     verdict   = $(if ($blocking.Count) { 'FAIL' } else { 'PASS' })

@@ -43,8 +43,17 @@
 
     PS 5.1. ASCII only in this file.
     Exit 1 crossover found, 3 the build brand is absent, 4 the self-test failed,
-    2 a usage error.
+    2 a usage error or an empty check-set.
+
+    ARMS (Lib-GateCommon roster). identity-strings, palette-hexes and artefacts
+    are BLOCKING: each ends ran (size > 0), empty (a refusal, exit 2, naming
+    the input) or declared-n-a with a written reason from contract.json
+    gateArms. The check-set lines print on every run, quiet or not - a blocking
+    check-set computed only when the gate is talkative is one that never fires
+    in a band that runs every member quiet.
 #>
+
+# GATE: stages=4,7c; requires=Path,BuildDir
 
 [CmdletBinding()]
 param(
@@ -216,8 +225,56 @@ if (-not $Quiet) {
     Write-Host ''
     Write-Host 'CROSSOVER SWEEP - no other brand may appear anywhere' -ForegroundColor Cyan
     Write-Host ("  build brand: {0}{1}" -f $Brand, $(if ($Variant) { " / $Variant" } else { '' })) -ForegroundColor DarkGray
-    Write-GateCheckSet -What 'identity strings' -Count $forbidWords.Count -DerivedFrom ("{0} brand profile(s) in {1}, minus every string this brand carries" -f $profilesRead, (Split-Path $BrandingDir -Leaf))
-    Write-GateCheckSet -What 'palette hexes' -Count $forbidHex.Count -DerivedFrom 'the resolved role map the swap itself applies (only the roles that move)'
+}
+
+# ---------------------------------------------------------------------------
+# The arm roster. Registered before anything is swept, so an arm that never
+# completes is visible as not-run rather than absent. The two derived sets are
+# blocking SEPARATELY: the sweep this replaces carried three of nine hexes and
+# printed "no crossover" over 766 live occurrences, and a combined count would
+# let a full word list hide an empty hex list.
+# ---------------------------------------------------------------------------
+
+$ciNa = @{}
+try {
+    foreach ($arm in @('identity-strings', 'palette-hexes')) {
+        if ($BuildDir) {
+            $r = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm $arm
+            if ($r) { $ciNa[$arm] = $r }
+        }
+    }
+}
+catch { Write-Host ("  X {0}: {1}" -f $GATE, $_.Exception.Message) -ForegroundColor Red; exit 2 }
+
+Reset-GateArmRoster
+Register-GateArm -Name 'identity-strings' -Blocking:(-not $ciNa.ContainsKey('identity-strings'))
+Register-GateArm -Name 'palette-hexes' -Blocking:(-not $ciNa.ContainsKey('palette-hexes'))
+Register-GateArm -Name 'artefacts' -Blocking
+
+try {
+    if ($ciNa.ContainsKey('identity-strings')) { Complete-GateArm -Name 'identity-strings' -State 'declared-n-a' -Reason $ciNa['identity-strings'] }
+    else {
+        Write-GateCheckSet -What 'identity strings' -Count $forbidWords.Count -DerivedFrom ("{0} brand profile(s) in {1}, minus every string this brand carries" -f $profilesRead, (Split-Path $BrandingDir -Leaf)) -Blocking -Input ('the brand profiles under {0}: no OTHER brand''s identity string could be derived, so the word half of this sweep would examine nothing' -f $BrandingDir)
+        Complete-GateArm -Name 'identity-strings' -State 'ran' -Size $forbidWords.Count
+    }
+    if ($ciNa.ContainsKey('palette-hexes')) { Complete-GateArm -Name 'palette-hexes' -State 'declared-n-a' -Reason $ciNa['palette-hexes'] }
+    else {
+        Write-GateCheckSet -What 'palette hexes' -Count $forbidHex.Count -DerivedFrom 'the resolved role map the swap itself applies (only the roles that move)' -Blocking -Input 'the resolved palette role map: not one role moves, so the hex half of this sweep would examine nothing - this is the exact shape that printed "no crossover" over 766 live fills'
+        Complete-GateArm -Name 'palette-hexes' -State 'ran' -Size $forbidHex.Count
+    }
+}
+catch {
+    $msg = $_.Exception.Message
+    if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0} REFUSED - {1}" -f $GATE, $msg) -ForegroundColor Red
+        [void](Write-GateArmRoster)
+        exit 2
+    }
+    Write-Host ("  X {0}: {1}" -f $GATE, $msg) -ForegroundColor Red
+    exit 1
+}
+
+if (-not $Quiet) {
     foreach ($k in ($carve.Keys | Sort-Object)) {
         Write-Host ("  carve-out '{0}': {1}" -f $k, $carve[$k]) -ForegroundColor DarkGray
     }
@@ -225,6 +282,7 @@ if (-not $Quiet) {
 
 if ($tokens.Count -eq 0) {
     Write-Host ("  X {0}: the forbidden set is empty, so this sweep would pass by having nothing to check." -f $GATE) -ForegroundColor Red
+    [void](Write-GateArmRoster)
     exit 2
 }
 
@@ -394,15 +452,84 @@ if ($SelfTest -and @($Path | Where-Object { "$_".Trim() }).Count -eq 0) {
             else { Write-Host ("  X self-test: planted '{0}' and the scanner did NOT find it." -f $tok) -ForegroundColor Red; $stFail++ }
         }
     }
+    #  THE STARVED ARM, proved through the EXIT CODE a runner reads. A branding
+    #  directory holding only THIS brand's own profile derives no other brand's
+    #  identity strings, so the word half of the sweep has nothing to look for.
+    #  That is exit 2 naming the directory, never the green "no crossover" line
+    #  this gate's predecessor printed over 766 live fills.
+    $stRoot = Join-Path ([System.IO.Path]::GetTempPath()) ('ci-selftest-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    try {
+        New-Item -ItemType Directory -Force -Path $stRoot | Out-Null
+        $own = Get-ChildItem -LiteralPath $BrandingDir -Filter ('branding.' + $Brand + '.json') -File -ErrorAction SilentlyContinue
+        if (@($own).Count -eq 1) {
+            #  Copy THIS brand's profile and strip its variants: another
+            #  variant of the same brand is itself a crossover, so a profile
+            #  that keeps them still derives a non-empty word set and would
+            #  not starve the arm.
+            $stProf = Get-GateJson -Path $own[0].FullName
+            if (@($stProf.PSObject.Properties.Name) -contains 'variants') { $stProf.PSObject.Properties.Remove('variants') }
+            [System.IO.File]::WriteAllText((Join-Path $stRoot $own[0].Name), ($stProf | ConvertTo-Json -Depth 40), (New-Object System.Text.UTF8Encoding($true)))
+            $left = @(Get-ChildItem -LiteralPath $stRoot -Filter 'branding.*.json' -File)
+            $backProf = Get-GateJson -Path (Join-Path $stRoot $own[0].Name)
+            if ($left.Count -ne 1 -or (@($backProf.PSObject.Properties.Name) -contains 'variants')) { Write-Host '  X self-test: the starved branding fixture did not land.' -ForegroundColor Red; $stFail++ }
+            else {
+                $out = ''
+                try { $out = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath -Path (Join-Path $stRoot 'nothing.docx') -Brand $Brand -BrandingDir $stRoot -SkillDir $SkillDir 2>&1 | Out-String -Width 4096) }
+                catch { $out = "$($_.Exception.Message)" }
+                $code = $LASTEXITCODE
+                if ($code -eq 2 -and $out -match 'CHECK-SET EMPTY' -and $out.IndexOf($stRoot, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) {
+                    Write-Host '  self-test: a branding directory holding only this brand exits 2 naming the directory (the identity-strings arm is starved, not silent)' -ForegroundColor Green
+                }
+                else {
+                    Write-Host ("  X self-test: the starved identity-strings arm exited {0} (wanted 2 naming the branding directory)" -f $code) -ForegroundColor Red
+                    foreach ($ln in @(($out -split "`r?`n") | Where-Object { $_.Trim() } | Select-Object -Last 4)) { Write-Host ("      | {0}" -f $ln) -ForegroundColor DarkGray }
+                    $stFail++
+                }
+            }
+        }
+        else {
+            Write-Host ("  X self-test: no branding.{0}.json in {1}, so the starved-arm case could not be built - it proves nothing and is a failure, not a skip." -f $Brand, $BrandingDir) -ForegroundColor Red
+            $stFail++
+        }
+    }
+    finally { if ($stRoot -and (Test-Path -LiteralPath $stRoot)) { Remove-Item -LiteralPath $stRoot -Recurse -Force -ErrorAction SilentlyContinue } }
+
+    #  THE CLEAN CONTROL: the real branding directory yields both blocking
+    #  derived sets, and the roster says so.
+    $rosterLine = ''
+    foreach ($a in @(Get-GateArmRoster)) {
+        if ($a.Blocking -and $a.Name -ne 'artefacts' -and $a.State -ne 'ran') {
+            Write-Host ("  X self-test: blocking arm '{0}' ended '{1}' on the real branding set" -f $a.Name, $a.State) -ForegroundColor Red
+            $stFail++
+        }
+        $rosterLine += ('{0}={1}/{2} ' -f $a.Name, $a.State, $a.Size)
+    }
+    if ($stFail -eq 0) { Write-Host ("  self-test: both derived sets ran on the real branding directory - {0}" -f $rosterLine.Trim()) -ForegroundColor Green }
+
     Write-Host ''
-    if ($stFail -eq 0) { Write-Host ("SELF-TEST PASS - the crossover scanner fails on a verified plant ({0} token(s) in the check-set)" -f @($tokens).Count) -ForegroundColor Green; exit 0 }
+    if ($stFail -eq 0) { Write-Host ("SELF-TEST PASS - the crossover scanner fails on a verified plant and refuses a starved arm by name ({0} token(s) in the check-set)" -f @($tokens).Count) -ForegroundColor Green; exit 0 }
     Write-Host ("SELF-TEST FAILED - {0} check(s)" -f $stFail) -ForegroundColor Red
     exit 4
 }
 
-Write-Host ("  artefacts swept: {0} of {1} supplied" -f $artefactsScanned, @($Path).Count) -ForegroundColor DarkGray
+try {
+    Write-GateCheckSet -What 'delivered artefact(s) swept' -Count $artefactsScanned -DerivedFrom '-Path, every artefact the stage delivers, passed in ONE call' -Blocking -Input '-Path: not one supplied artefact could be opened and swept'
+    Complete-GateArm -Name 'artefacts' -State 'ran' -Size $artefactsScanned -Findings $totalHits
+    Assert-GateArmsComplete
+    [void](Write-GateArmRoster)
+}
+catch {
+    $msg = $_.Exception.Message
+    if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0} REFUSED - {1}" -f $GATE, $msg) -ForegroundColor Red
+        [void](Write-GateArmRoster)
+        exit 2
+    }
+    Write-Host ("  X {0}: {1}" -f $GATE, $msg) -ForegroundColor Red
+    exit 1
+}
 if ($artefactsScanned -ne @($Path).Count) {
-    Write-Host '  X not every supplied artefact was swept. A stage cannot pass on a partial sweep.' -ForegroundColor Red
+    Write-Host ("  X not every supplied artefact was swept ({0} of {1}). A stage cannot pass on a partial sweep." -f $artefactsScanned, @($Path).Count) -ForegroundColor Red
     exit 2
 }
 

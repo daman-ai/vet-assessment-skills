@@ -1,0 +1,125 @@
+﻿{
+    "_comment":  "REFUTED ROWS - Assert-GateHygiene reads this file and reclassifies the CONFIRMED findings named here to REPORT, printing each with its reason. It reclassifies NOTHING ELSE: every rule stays blocking, and a row that is not named here still fails the gate. This is the record of a DETECTOR defect, not an exemption from a rule - an independent audit re-read every CONFIRMED row this gate produced and refuted most of GH01, GH03, GH06 and GH07, and narrowing the blocking rule set to the rules that were right would have switched off live checks. Each entry below was read at its own line in its own file before it was written here. The list is meant to be SHORT-LIVED: when the detectors are fixed (P1-18) each entry stops matching and is printed as STALE, and a stale entry silences nothing so it does not block. Matching is on rule + file + (line OR the exact snippet the finding prints), so a line that drifts by an edit is still matched and no entry can widen to a second row.",
+    "_source":  "Assert-GateHygiene.ps1 over C:\\Users\\admis\\.claude\\skills\\learner-guide, 8 September 2026; verified against the source line by line.",
+    "entries":  [
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Assert-CorpusComplete.ps1",
+                        "line":  697,
+                        "snippet":  "@($DocumentExtension)",
+                        "reason":  "REFUTED at Assert-CorpusComplete.ps1:121 - -DocumentExtension carries a non-empty literal default (.docx .doc .pdf .pptx .ppt .xlsx .xls .rtf .odt), so the loop can never run zero times, and it builds the extension HashSet used to enumerate pack files rather than applying a blocking rule. GH01 must skip a parameter that has a DefaultValue."
+                    },
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Assert-FullRegateAfterMutation.ps1",
+                        "line":  695,
+                        "snippet":  "@($Guide, $Deck)",
+                        "reason":  "REFUTED at Assert-FullRegateAfterMutation.ps1:695-706 - the loop BUILDS the artefact input list; when both are absent the code falls back to enumerating the out directory and, if still empty, returns a Refused verdict naming the directory. Absence is already a refusal, which is exactly what GH01 asks for."
+                    },
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Assert-PackSelfConsistency.ps1",
+                        "line":  782,
+                        "snippet":  "@($ItemLabel)",
+                        "reason":  "REFUTED at Assert-PackSelfConsistency.ps1:781-795 - the loop sits inside a presence test whose else branch derives the label set from the contract referenceConvention and then from the documented default, so the check-set is never empty and no rule vanishes."
+                    },
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Assert-WithholdRegister.ps1",
+                        "line":  733,
+                        "snippet":  "@($DocText | Where-Object { $_ })",
+                        "reason":  "REFUTED - the loop APPENDS optional rendered-extract lines to a cells list already filled from every spine file above it, so the withheld-value sweep runs on the spine whether or not -DocText is passed. The rendered ARM is separately registered on the roster, which is where its absence is accounted for."
+                    },
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Test-Finding.ps1",
+                        "line":  333,
+                        "snippet":  "@($BuildDir, $corpusDirResolved)",
+                        "reason":  "REFUTED at Test-Finding.ps1:315-333 - $BuildDir here is a parameter of the FUNCTION Get-ArbiterSources, not a script parameter, and $corpusDirResolved is a local that throws naming the corpus when nothing resolves. The loop only adds optional unit_extract files to a source list already carrying the whole corpus."
+                    },
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Test-SpineRead.ps1",
+                        "line":  204,
+                        "snippet":  "@($RendererPath | Where-Object { $_ })",
+                        "reason":  "REFUTED - the loop is inside if ($RendererPath) / if ($DeckProfile), whose else branch assigns the default glob; the renderer set is then checked and throws when empty. An omitted parameter widens the read set, it does not empty it."
+                    },
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Test-SpineRead.ps1",
+                        "line":  275,
+                        "snippet":  "@($DeckProfile | Where-Object { $_ })",
+                        "reason":  "REFUTED - the loop is inside if ($RendererPath) / if ($DeckProfile), whose else branch assigns the default glob; the renderer set is then checked and throws when empty. An omitted parameter widens the read set, it does not empty it."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Assert-DeckParity.ps1",
+                        "line":  1203,
+                        "snippet":  "-not $BuildDir",
+                        "reason":  "REFUTED at Assert-DeckParity.ps1:1200-1209 - this exit 0 is inside if ($SelfTest) and is reached only after the self-test itself passed. A real run with no -BuildDir hits the refusal immediately below and exits 2. GH03 must skip switch-only clauses."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Assert-FigureCoverage.ps1",
+                        "line":  1171,
+                        "snippet":  "$undis.Count -eq 0",
+                        "reason":  "REFUTED at Assert-FigureCoverage.ps1:1171 - the line is verdict = $(if ($undis.Count -eq 0) { PASS } else { FAIL }), a verdict STRING written into the report object over an already-derived candidate set. It prints nothing and exits nothing. GH03 must skip verdict-string returns."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Assert-FullRegateAfterMutation.ps1",
+                        "line":  847,
+                        "snippet":  "$planned.Count -eq 0",
+                        "reason":  "REFUTED at Assert-FullRegateAfterMutation.ps1:847-849 - the zero-count branch ADDS a BLOCKING finding saying the reconciliation had nothing to check and cannot stand as one. It is the opposite of a pass on an empty collection."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Assert-IdentifierNamespace.ps1",
+                        "line":  1332,
+                        "snippet":  "-not $BuildDir",
+                        "reason":  "REFUTED at Assert-IdentifierNamespace.ps1:1328-1339 - the same self-test-only shape: exit 0 follows a passing Invoke-NsSelfTest inside if ($SelfTest), and an ordinary run with no -BuildDir refuses with exit 2 on the next statement."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Assert-SpecRenderable.ps1",
+                        "line":  927,
+                        "snippet":  "-not $BuildDir",
+                        "reason":  "REFUTED at Assert-SpecRenderable.ps1:923-934 - the same self-test-only shape: exit 0 inside if ($SelfTest) after the self-test passed, with the missing-BuildDir usage refusal exiting 2 below it."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Check-ShapeMirror.ps1",
+                        "line":  1215,
+                        "snippet":  "$blockTotal -eq 0 -and $emptyFiles.Count -eq 0",
+                        "reason":  "REFUTED at Check-ShapeMirror.ps1:1213-1219 - the pass additionally requires $emptyFiles.Count -eq 0, so every spine file was actually read, and unreadable files are printed as a finding on the line above. The pair count is declared as a Blocking check-set earlier, so zero pairs is a CHECK-SET EMPTY refusal, not this branch."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Run-SpineGates.ps1",
+                        "line":  1268,
+                        "snippet":  "$Result.Ok -and -not $present",
+                        "reason":  "REFUTED at Run-SpineGates.ps1:1268 - the branch RETURNS the string \"FAIL - exit 0 but no sheet at ...\". It declares a failure on absence; it prints no pass and exits nothing."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Test-Spine.ps1",
+                        "line":  802,
+                        "snippet":  "$bad.Count -eq 0",
+                        "reason":  "REFUTED at Test-Spine.ps1:801-802 - a verdict and exit code assigned inside the -SelfTest branch over the self-test cases it actually executed. Switch-only clause, and the count is over a set that ran."
+                    },
+                    {
+                        "rule":  "GH06",
+                        "file":  "scripts\\Assert-WithholdRegister.ps1",
+                        "line":  280,
+                        "snippet":  "$allow = [int](Get-GateProp -Object $t -Names @(\u0027allowance\u0027) -Default 0)",
+                        "reason":  "REFUTED at Assert-WithholdRegister.ps1:280 - the allowance is READ AT RUN TIME from the register JSON task object via Get-GateProp with a zero default. No exemption list is written in the script; the versioned data file is the register itself, which is where GH06 asks it to live."
+                    },
+                    {
+                        "rule":  "GH06",
+                        "file":  "scripts\\Check-ShapeMirror.ps1",
+                        "line":  375,
+                        "snippet":  "$allowance = [int](Get-GateProp -Object $task -Names @(\u0027allowance\u0027) -Default 0)",
+                        "reason":  "REFUTED at Check-ShapeMirror.ps1:375 - the same pattern: the allowance comes from the register task object at run time through Get-GateProp with a zero default. A data read is not a hard-coded allow-list."
+                    }
+                ]
+}

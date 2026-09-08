@@ -1,4 +1,4 @@
-{
+﻿{
   "_comment": "RTO PROFILE PACK - the worked example. Everything a build would otherwise hard-code that is a property of this RTO rather than of a unit. Assembled once at Stage S0-RTO, validated by scripts/Get-RtoProfile.ps1, cached, and read by every build for this RTO. Written against assets/rto-profile.schema.json, which is what validates it.",
 
   "_pointersNotCopies": "This file NAMES its sources and copies none of them. Identity strings and palette hexes come from the branding profile; page geometry, callouts and word floors from the guide profile; layouts, slot ordinals and deck rules from the deck profile. Copying any of them here would create a second source of truth free to drift from the map the brand swap actually applies.",
@@ -11,6 +11,8 @@
   "_brandingFileComment": "Resolved in the skill that owns the branding profiles - the assessment skill's assets directory, or this skill's own after the two merge. Get-RtoProfile reads identity and palette from it, and reads every OTHER branding.*.json beside it so the crossover sweep's forbidden set is derived from the same files rather than typed.",
 
   "templates": {
+    "brand": "MVC",
+    "_brandComment": "THE BRAND WHOSE APPROVED TEMPLATES THESE ARE - declared, never inferred from a filename. A build for another brand renders from these templates and then SWAPS (logo, palette, identity); a build for this brand still runs the palette step, as NORMALISATION, so the template's own legacy hexes and its docProps ancestry are moved without a build-local repaint script. The Stage 0 self-map rule fires only when this value differs from the target brand: on a same-brand build a role that maps to itself is the expected no-op, on a cross-brand build it is an unresolved property name.",
     "guide": "assets/templates/MVC_Learner_Guide_Template.docx",
     "deck": "assets/templates/MVC_Branded_PPT_Template.pptx",
     "geometryPatchScript": "scripts/Patch-GuideTemplateGeometry.ps1",

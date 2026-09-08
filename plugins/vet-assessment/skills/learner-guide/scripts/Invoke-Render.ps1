@@ -260,15 +260,32 @@ function Get-PackWordGuide {
     $out = @{}
     $contentDir = Join-Path $PackDir 'content'
     if (-not (Test-Path -LiteralPath $contentDir)) { throw "Invoke-Render: pack content directory missing: $contentDir" }
-    foreach ($f in @(Get-ChildItem -LiteralPath $contentDir -Filter '*_tasks_*.json' -File | Sort-Object Name)) {
+    #  A BLOCKING INPUT THAT IS ABSENT FAILS AND NAMES ITSELF. On one build the
+    #  glob matched nothing (the pack's files were batchA.json..batchF.json) and
+    #  the id pattern matched nothing (ids were 'Task 1', not 'T1'), the map came
+    #  back empty, and every row of the delivered cross-reference printed the
+    #  observation sentence as a fact about a written task. Zero is not a count
+    #  here; it is a missing input, and it throws exactly as a missing directory
+    #  does one line above.
+    $glob = '*_tasks_*.json'
+    $files = @(Get-ChildItem -LiteralPath $contentDir -Filter $glob -File | Sort-Object Name)
+    if ($files.Count -eq 0) {
+        throw ("Invoke-Render: no pack content file matches '{0}' under {1} - the word-guide map would be empty and the cross-reference would print another item's wording as fact. Pass -PackDir at the pack root, or -TaskFileMap." -f $glob, $contentDir)
+    }
+    $idsSeen = New-Object System.Collections.Generic.List[string]
+    foreach ($f in $files) {
         $prefix = ($f.BaseName -split '_tasks_')[0]
         $fam = Resolve-TaskFileFamily -Prefix $prefix -Labels $labels -Contract $Contract -TaskFileMap $TaskFileMap
         if (-not $labels.Contains($fam)) { continue }
         $tmpl = [string]$labels[$fam]
         $j = Read-JsonFile -Path $f.FullName
         foreach ($it in (AsArr $j.items)) {
+            if ($idsSeen.Count -lt 5) { $idsSeen.Add([string]$it.id) }
             if ([string]$it.id -match $TaskIdPattern) { $out[$tmpl.Replace('{n}', $Matches[1])] = [string](Get-Prop $it 'wordGuide') }
         }
+    }
+    if ($out.Count -eq 0) {
+        throw ("Invoke-Render: {0} content file(s) matched '{1}' under {2} but no item id matched the task id pattern '{3}' (ids seen: {4}). The word-guide map is empty; that is a missing input, not a count of zero." -f $files.Count, $glob, $contentDir, $TaskIdPattern, ($idsSeen -join ', '))
     }
     return [pscustomobject]@{ WordGuide = $out; Labels = $labels }
 }
@@ -358,11 +375,30 @@ function Resolve-RenderContext {
         if ((Test-Path -LiteralPath $cand) -and (Test-Path -LiteralPath (Join-Path $cand 'manifest.json'))) { $images = $cand; $notes.Add('ImageDir: build\images (a manifest is present)') }
     }
 
+    #  THE TEMPLATE BRAND IS A DECLARED FACT, NOT A FILE NAME. The pack states
+    #  whose approved templates it holds in templates.brand; the file name is
+    #  only where the pack happens to sit on disk. Renaming a pack must not
+    #  silently change which brand the renderer believes the templates carry,
+    #  and the brand functions now THROW naming templates.brand when it is
+    #  absent, which is the intended refusal rather than a guess.
     $tRto = $TemplateRto
     if (-not $tRto) {
         $packs = @(Get-ChildItem -LiteralPath (Join-Path $sd 'assets') -Filter 'rto-profile.*.json' -File | Where-Object { $_.Name -ne 'rto-profile.schema.json' })
-        if ($packs.Count -eq 1 -and $packs[0].Name -match '^rto-profile\.([^.]+)\.json$') { $tRto = $Matches[1].ToUpperInvariant(); $notes.Add("TemplateRto '$tRto' - the one RTO profile pack in assets") }
-        else { throw ("Invoke-Render: {0} RTO profile pack(s) in assets - pass -TemplateRto to say whose approved templates to render from." -f $packs.Count) }
+        if ($packs.Count -ne 1) { throw ("Invoke-Render: {0} RTO profile pack(s) in assets - pass -TemplateRto to say whose approved templates to render from." -f $packs.Count) }
+        $declared = ''
+        try {
+            $packJson = Get-Content -LiteralPath $packs[0].FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($null -ne $packJson -and (@($packJson.PSObject.Properties.Name) -contains 'templates')) {
+                $declared = "$(($packJson.templates).brand)".Trim()
+            }
+        }
+        catch { throw ("Invoke-Render: {0} could not be read as JSON to find templates.brand: {1}" -f $packs[0].Name, $_.Exception.Message) }
+        if ($declared) { $tRto = $declared.ToUpperInvariant(); $notes.Add(("TemplateRto '{0}' - declared by templates.brand in {1}" -f $tRto, $packs[0].Name)) }
+        elseif ($packs[0].Name -match '^rto-profile\.([^.]+)\.json$') {
+            $tRto = $Matches[1].ToUpperInvariant()
+            $notes.Add(("TemplateRto '{0}' - {1} declares no templates.brand, so the pack FILE NAME was read instead. Declare templates.brand: the brand functions refuse without it, and a renamed pack must not change what the templates are believed to carry." -f $tRto, $packs[0].Name))
+        }
+        else { throw ("Invoke-Render: {0} declares no templates.brand and its name does not carry a brand either - pass -TemplateRto, or declare templates.brand in the pack." -f $packs[0].Name) }
     }
 
     [pscustomobject]@{
@@ -570,9 +606,19 @@ function Invoke-GuideRender {
             }
         }
     }
+    #  THE OBSERVATION GRAMMAR IS DERIVED, NEVER A LITERAL. The label comes
+    #  from the contract's reference convention; the regex admits whatever the
+    #  pack writes after the number (', items 9 to 11', '(a)') because the old
+    #  '^<label> \d+$' anchor matched nothing in a pack whose observation
+    #  references are item-level, so the element-wide propagation below ran
+    #  silently on every element and no gate could see it. With no observation
+    #  family in the labels there is no regex at all - an anchored NOTE names
+    #  the convention, and nothing is propagated - never a typed 'Observation'.
     $obsLabel = ''
     foreach ($k in $pw.Labels.Keys) { if ($k -match '(?i)observ') { $obsLabel = ([string]$pw.Labels[$k] -replace '\s*\{n\}\s*$', '').Trim() } }
-    $obsRx = if ($obsLabel) { '^' + [regex]::Escape($obsLabel) + ' \d+$' } else { '^Observation \d+$' }
+    $obsRx = $null
+    if ($obsLabel) { $obsRx = '^' + [regex]::Escape($obsLabel) + '\s+\d+(?!\d)' }
+    else { Write-Host '  NOTE: contract.referenceConvention declares no observation family, so no observation reference is propagated across its element and no observation word guide is applied - declare the label if the pack has a checklist.' -ForegroundColor Yellow }
 
     $w = HSplitWidth -Cols 5 -Weights @(7, 36, 15, 11, 31)
     $rows = @()
@@ -584,7 +630,7 @@ function Invoke-GuideRender {
         $elementObs = @()
         foreach ($pc in (AsArr $t.pcs)) {
             foreach ($r in (AsArr $subs[$pc].assessmentLink.refs)) {
-                if (([string]$r) -match $obsRx) { $elementObs += [string]$r }
+                if ($obsRx -and (([string]$r) -match $obsRx)) { $elementObs += [string]$r }
             }
         }
         $elementObs = @($elementObs | Sort-Object -Unique)
@@ -821,15 +867,28 @@ function Invoke-GuideRender {
 
     $w = HSplitWidth -Cols 4 -Weights @(24, 14, 22, 40)
     $rows = @()
+    #  A LOOKUP MISS IS NEVER RENDERED AS A FACT. The observation sentence
+    #  ('your assessor completes this while you work') applies to an
+    #  observation item and to nothing else; a written task whose word guide the
+    #  pack does not carry is a located finding that fails the render, because
+    #  on one build all forty rows of the delivered cross-reference told the
+    #  learner the assessor would complete their written tasks.
+    $xrefMisses = New-Object System.Collections.Generic.List[string]
     foreach ($t in (AsArr $contract.topics)) {
         foreach ($pc in (AsArr $t.pcs)) {
             $s = $subs[$pc]
             foreach ($r in (AsArr $s.assessmentLink.refs)) {
                 $key = ([string]$r) -replace '\s*\([a-z]\)\s*$', ''
-                $wg  = if ($wordGuide.ContainsKey($key)) { $wordGuide[$key] } else { [string]$obsWordGuide }
+                $wg = ''
+                if ($wordGuide.ContainsKey($key)) { $wg = $wordGuide[$key] }
+                elseif ($obsRx -and (([string]$r) -match $obsRx)) { $wg = [string]$obsWordGuide }
+                else { $xrefMisses.Add(("'{0}' (Topic {1}, section {2}, looked up as '{3}')" -f $r, $t.n, $pc, $key)) }
                 $rows += ,@([string]$r, "Topic $($t.n)", "Section $pc", $wg)
             }
         }
+    }
+    if ($xrefMisses.Count -gt 0) {
+        throw ("Invoke-Render: {0} assessment reference(s) in the question cross-reference have no word guide in the pack's content files and are not observation items: {1}. The render stops rather than print another item's wording as fact. Fix the reference, the pack's content files, or the contract's reference convention." -f $xrefMisses.Count, (($xrefMisses | Select-Object -First 8) -join '; '))
     }
     Add (GTable -Headers @('Assessment item', 'Topic', 'Prepared in', 'Word guide the assessment sets') -Widths $w -Rows $rows -ShadeFirstCol -FontSize 18)
     Add (GIconCallout -Profile $GP -Type note -Lines @([string]$front.assessmentOverview.pointer))
@@ -929,12 +988,15 @@ function Invoke-GuideRender {
     # --------------------------------------------------------------- brand
     # Rendered from the TEMPLATE RTO's approved template and profile; the build
     # brand is swapped on the fresh render, before any artwork - see the header.
-    if ($Ctx.Brand -and $Ctx.Brand -ne $Ctx.TemplateRto) {
-        $br = Set-GuideBrand -Path $outFile -Brand $Ctx.Brand -Variant $Ctx.Variant -UnitCode $unit.Code
-        Write-Host ("brand: {0}/{1} - logo parts {2}, palette refs {3}, identity refs {4}" -f `
-            $br.Brand, $br.Variant, $br.Logo, $br.PaletteRefs, $br.IdentityRefs) -ForegroundColor Green
-    }
-    else { Write-Host ("brand: {0} is the template brand - no swap" -f $Ctx.TemplateRto) -ForegroundColor DarkGray }
+    #  ALWAYS. A same-brand build is a NORMALISATION, not a no-op: the approved
+    #  template carries its own legacy hexes and another institute's name in its
+    #  docProps, and skipping the step here is what bought a build-local repaint
+    #  script and a 4c round on every same-brand build.
+    $br = Set-GuideBrand -Path $outFile -Brand $Ctx.Brand -Variant $Ctx.Variant -UnitCode $unit.Code `
+                         -TemplateBrand $Ctx.TemplateRto
+    Write-Host ("brand: {0}/{1} ({2}) - palette refs {3}, {4} part(s) of {5} rewritten" -f `
+        $br.Brand, $br.Variant, $(if ($br.Normalised) { 'NORMALISATION' } else { 'swap' }), `
+        $br.PaletteRefs, $br.PartsRecolored, $br.PartsInspected) -ForegroundColor Green
 
     Write-Host "guide: $outFile  ($([math]::Round((Get-Item $outFile).Length / 1KB)) KB)" -ForegroundColor Green
     return $outFile
@@ -1206,12 +1268,15 @@ function Invoke-DeckRender {
     # another RTO's footer is the defect a trainer meets in week one. Set-DeckBrand
     # swaps the mark holding its aspect ratio, remaps the palette by role across
     # every part, swaps the identity, and gates the result byte-level.
-    if ($Ctx.Brand -and $Ctx.Brand -ne $Ctx.TemplateRto) {
-        $br = Set-DeckBrand -Path $deckPath -Brand $Ctx.Brand -Variant $Ctx.Variant -UnitCode ([string]$contract.unit.code)
-        Write-Host ("brand: {0}/{1} - logo redrawn on {2} part(s), {3} part(s) recoloured, {4} identity ref(s)" -f `
-            $br.Brand, $br.Variant, $br.LogoPartsResized, $br.PartsRecolored, $br.IdentityRefs) -ForegroundColor Green
-    }
-    else { Write-Host ("brand: {0} is the template brand - no swap" -f $Ctx.TemplateRto) -ForegroundColor DarkGray }
+    #  ALWAYS - see the guide-side note. The approved MVC deck template straight
+    #  off disk fails Check-Identity with 21 crossover hits, and passes after
+    #  this normalisation with no build-local script.
+    $br = Set-DeckBrand -Path $deckPath -Brand $Ctx.Brand -Variant $Ctx.Variant `
+                        -UnitCode ([string]$contract.unit.code) -TemplateBrand $Ctx.TemplateRto
+    Write-Host ("brand: {0}/{1} ({2}) - logo redrawn on {3} part(s), {4} of {5} part(s) recoloured, {6} palette ref(s), {7} docProps ancestry part(s), {8} identity ref(s)" -f `
+        $br.Brand, $br.Variant, $(if ($br.Normalised) { 'NORMALISATION' } else { 'swap' }), `
+        $br.LogoPartsResized, $br.PartsRecolored, $br.PartsInspected, $br.PaletteRefs, `
+        $br.DocPropsAncestry, $br.IdentityRefs) -ForegroundColor Green
 
     # The plan is what Test-DeckRules gates against; keep it where the gate runner looks.
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $Ctx.PlanPath) | Out-Null

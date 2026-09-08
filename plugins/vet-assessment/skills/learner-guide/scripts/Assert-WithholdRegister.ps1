@@ -84,14 +84,28 @@
     posed question. A plant that silently fails to apply makes a gate look
     proven when it is not.
 
+    THE RENDERED LINES CARRY THEIR ARTEFACT. Every line of an extract used to be
+    stamped with the single channel 'rendered', which no renderer reads, so it
+    was attributed to BOTH artefacts - and the one-artefact-only rule can never
+    fire on a channel attributed to both. A withheld row answered in the
+    delivered guide and nowhere else was therefore unreportable. Each extract is
+    now stamped rendered:guide or rendered:deck from its own name, and an
+    extract whose artefact cannot be read from its name is refused rather than
+    swept into a channel that claims nothing.
+
     PS 5.1. ASCII only in this file. Nothing here names a unit, a brand or a path.
     Exit 1 a blocking hit, 2 a usage error or a missing blocking input, 4 the
     self-test failed.
 #>
 
+# GATE: stages=3c,4,7c; requires=BuildDir; 7c: DocText
+
 [CmdletBinding()]
 param(
     [string] $BuildDir,
+    #  The band this run stands for (3c, 4 or 7c). At 7c the rendered arm is
+    #  required and an extract-less run is refused by name.
+    [string] $Stage,
     #  Written by New-WithholdRegister.ps1 at Stage 2. Agent-safe: labels and
     #  shape, no model cell.
     [string] $Register,
@@ -129,6 +143,7 @@ if (-not $script:WrScriptDir) { $script:WrScriptDir = Split-Path -Parent $MyInvo
 if (-not $SkillDir) { $SkillDir = Split-Path -Parent $script:WrScriptDir }
 
 $GATE = 'Assert-WithholdRegister'
+$script:WrSelf = $PSCommandPath
 
 function Write-WrLine {
     param([string] $Text, [string] $Colour = 'DarkGray')
@@ -498,6 +513,51 @@ function Get-WrRendererFields {
     return [pscustomobject]@{ Files = $files; Fields = $set }
 }
 
+function Get-WrRendererFieldsByFunction {
+    <#  The same AST read as Get-WrRendererFields, at FUNCTION scope. A function
+        whose NAME says which artefact it renders (Invoke-GuideRender,
+        Invoke-DeckRender, Add-SlideX) contributes the fields ITS BODY reads to
+        that artefact's set. Nothing is attributed by file, so one script that
+        renders both artefacts no longer makes every channel shared.
+
+        The classification is on the function name, which is the renderer's own
+        vocabulary, not a list of this build's channels: no spine field name is
+        typed here.  #>
+    param([string[]] $Patterns)
+
+    $files = New-Object System.Collections.Generic.List[string]
+    foreach ($p in @($Patterns | Where-Object { $_ })) {
+        foreach ($f in @(Get-ChildItem -Path $p -File -ErrorAction SilentlyContinue)) { $files.Add($f.FullName) }
+    }
+    $files = @($files | Sort-Object -Unique)
+    $guide = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $deck  = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::Ordinal)
+    $seen  = New-Object System.Collections.Generic.List[string]
+
+    foreach ($r in $files) {
+        $errs = $null; $toks = $null; $ast = $null
+        try { $ast = [System.Management.Automation.Language.Parser]::ParseFile($r, [ref]$toks, [ref]$errs) } catch { $ast = $null }
+        if ($null -eq $ast) { continue }
+        if ($errs -and $errs.Count -gt 0) { continue }
+        foreach ($f in $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $true)) {
+            $side = ''
+            if ($f.Name -match '(?i)guide|docx|word') { $side = 'guide' }
+            elseif ($f.Name -match '(?i)deck|slide|pptx|ppt') { $side = 'deck' }
+            if (-not $side) { continue }
+            $seen.Add(('{0} [{1}] in {2}' -f $f.Name, $side, (Split-Path $r -Leaf)))
+            #  Plain assignment, never $( if ... ): a subexpression ENUMERATES a
+            #  HashSet on the way out, so an empty set came back as $null and
+            #  the first .Add threw on a null-valued expression.
+            $target = $null
+            if ($side -eq 'guide') { $target = $guide } else { $target = $deck }
+            foreach ($m in $f.Body.FindAll({ param($n) $n -is [System.Management.Automation.Language.MemberExpressionAst] }, $true)) {
+                if ($m.Member -is [System.Management.Automation.Language.StringConstantExpressionAst]) { [void]$target.Add($m.Member.Value) }
+            }
+        }
+    }
+    return [pscustomobject]@{ Files = $files; Guide = $guide; Deck = $deck; Functions = @($seen.ToArray()) }
+}
+
 function Resolve-WrChannelArtefacts {
     <#  Channel -> guide | deck | both.
 
@@ -530,11 +590,26 @@ function Resolve-WrChannelArtefacts {
         }
     }
 
+    #  THE FUNCTION-SCOPE SPLIT. One renderer file renders BOTH artefacts -
+    #  Invoke-Render.ps1 carries Invoke-GuideRender and Invoke-DeckRender - so a
+    #  file-scope glob attributed every field either file mentions to both
+    #  sides, and 24 of 25 channels on the reference build came back 'both'. The
+    #  per-artefact FUNCTIONS are the real boundary: a field read inside a
+    #  guide-rendering function and nowhere else is guide-facing.
+    $fn = Get-WrRendererFieldsByFunction -Patterns (@($GuidePatterns) + @($DeckPatterns) + @((Join-Path $BuildDir 'Invoke-Render*.ps1'), (Join-Path $SkillDir 'scripts\Invoke-Render*.ps1')))
+
     $map = [ordered]@{}
     $how = [ordered]@{}
     foreach ($c in $Channels) {
         if ($declaredDeck -contains $c)  { $map[$c] = 'deck';  $how[$c] = 'contract'; continue }
         if ($declaredGuide -contains $c) { $map[$c] = 'guide'; $how[$c] = 'contract'; continue }
+        #  A rendered:<artefact> channel names its own artefact: the line came
+        #  out of that delivered document and out of no other.
+        if ($c -match '^rendered:(guide|deck)$') { $map[$c] = $Matches[1]; $how[$c] = 'the extract it was cut from'; continue }
+        $fnG = $fn.Guide.Contains($c)
+        $fnD = $fn.Deck.Contains($c)
+        if ($fnG -and -not $fnD) { $map[$c] = 'guide'; $how[$c] = 'renderer function'; continue }
+        if ($fnD -and -not $fnG) { $map[$c] = 'deck';  $how[$c] = 'renderer function'; continue }
         $inG = $g.Fields.Contains($c)
         $inD = $d.Fields.Contains($c)
         if ($inG -and -not $inD) { $map[$c] = 'guide'; $how[$c] = 'renderer' }
@@ -546,6 +621,8 @@ function Resolve-WrChannelArtefacts {
         Map = $map; How = $how
         GuideRenderers = $g.Files; DeckRenderers = $d.Files
         GuideFieldCount = $g.Fields.Count; DeckFieldCount = $d.Fields.Count
+        FunctionFiles = $fn.Files; FunctionGuideCount = $fn.Guide.Count; FunctionDeckCount = $fn.Deck.Count
+        FunctionsSeen = $fn.Functions
     }
 }
 
@@ -568,7 +645,10 @@ function Invoke-WrSweep {
         [string[]] $GuideRenderer,
         [string[]] $DeckRenderer,
         [string] $SkillDir,
-        [int] $MinBulletWords = 3
+        [int] $MinBulletWords = 3,
+        #  The band this run stands for. At 7c the rendered arm is a blocking
+        #  member of the roster rather than an optional extra.
+        [string] $Band
     )
 
     if (-not $Register)      { $Register      = Join-Path $BuildDir 'withhold-register.json' }
@@ -597,10 +677,20 @@ function Invoke-WrSweep {
         $pipelineNote = ("pipeline confirmed against the assessor cells' own declaration: {0}" -f $declaredStem)
     }
 
+    #  The arm roster. Every arm ends ran / empty / declared-n-a; a blocking arm
+    #  whose check-set is empty is a refusal (exit 2), never a pass.
+    Reset-GateArmRoster
+    Register-GateArm -Name 'withheld-rows' -Blocking
+    Register-GateArm -Name 'channel-attribution' -Blocking
+    Register-GateArm -Name 'spine-sweep' -Blocking
+    Register-GateArm -Name 'divergence'
+    if ($Band -eq '7c') { Register-GateArm -Name 'rendered' -Blocking }
+
     $withheld = Get-WrWithheldRows -RegJson $regJson -CellsJson $cellsJson -MinBulletWords $MinBulletWords
-    if (@($withheld.Rows).Count -eq 0) {
-        throw ("{0}: the register and assessor cells resolved NO withheld row. A sweep with an empty check-set passes by having nothing to check, which is the failure rule 1 of gates.md exists to stop." -f $GATE)
-    }
+    Write-GateCheckSet -What 'withheld row(s)' -Count @($withheld.Rows).Count -Blocking `
+        -Input ("{0} matched to the model rows in {1}" -f (Split-Path $Register -Leaf), (Split-Path $AssessorCells -Leaf)) `
+        -DerivedFrom ("the register's {0} assessed grid(s)" -f @($withheld.Grids).Count)
+    Complete-GateArm -Name 'withheld-rows' -State 'ran' -Size @($withheld.Rows).Count -Findings 0
 
     $contract = Get-GateContract -BuildDir $BuildDir
 
@@ -633,20 +723,46 @@ function Invoke-WrSweep {
     }
     $spineCells = $cells.Count
 
+    #  THE RENDERED LINES ARE STAMPED WITH THEIR ARTEFACT. 'rendered' alone is a
+    #  channel no renderer reads, so it was attributed to BOTH artefacts and the
+    #  one-artefact-only rule below could never fire on a delivered document.
+    #  The artefact is read off the extract's own name; an extract that names
+    #  neither is refused, because sweeping it into a both-artefact channel
+    #  would be a sweep that cannot report what it finds.
+    $renderedArtefacts = New-Object System.Collections.Generic.List[string]
     foreach ($d in @($DocText | Where-Object { $_ })) {
         if (-not (Test-Path -LiteralPath $d)) { throw ("{0}: -DocText does not exist: {1}" -f $GATE, $d) }
         $leaf = Split-Path $d -Leaf
+        $artefact = ''
+        if ($leaf -match '(?i)guide') { $artefact = 'guide' }
+        elseif ($leaf -match '(?i)deck|slide|ppt') { $artefact = 'deck' }
+        if (-not $artefact) {
+            throw ("{0}: -DocText extract '{1}' names neither artefact, so its lines could only be swept into a channel attributed to BOTH - and the rule that reports a row answered in one artefact and withheld in the other can never fire on such a channel. Name the extract for the artefact it was cut from (guide_gate.txt, deck_gate.txt)." -f $GATE, $leaf)
+        }
+        if (-not $renderedArtefacts.Contains($artefact)) { $renderedArtefacts.Add($artefact) }
+        $ch = 'rendered:' + $artefact
         $i = 0
         foreach ($line in ((Get-GateFileText -Path $d) -split "`r?`n")) {
             $i++
             if ("$line".Trim()) {
-                $cells.Add([pscustomobject]@{ File = $leaf; Path = ("line {0}" -f $i); Channel = 'rendered'; Slot = ''; Text = [string]$line })
+                $cells.Add([pscustomobject]@{ File = $leaf; Path = ("line {0}" -f $i); Channel = $ch; Slot = ''; Text = [string]$line })
             }
         }
     }
 
     $channels = @($cells | ForEach-Object { $_.Channel } | Sort-Object -Unique)
     $chan = Resolve-WrChannelArtefacts -Channels $channels -Contract $contract -BuildDir $BuildDir -SkillDir $SkillDir -GuidePatterns $GuideRenderer -DeckPatterns $DeckRenderer
+
+    #  THE ONE-ARTEFACT RULE NEEDS AT LEAST ONE CHANNEL THAT NAMES ONE ARTEFACT.
+    #  With every channel attributed to BOTH - which is what a file-scope
+    #  renderer glob produced for 24 of 25 channels - the build-wide rule below
+    #  is structurally unable to fire, and the gate would print a clean line
+    #  over a rule that never ran.
+    $attributed = @(@($channels) | Where-Object { "$($chan.Map[$_])" -eq 'guide' -or "$($chan.Map[$_])" -eq 'deck' })
+    Write-GateCheckSet -What 'channel(s) attributed to a single artefact' -Count $attributed.Count -Blocking `
+        -Input ("the per-artefact renderer functions in [{0}], contract.json spineContract.guideChannels / deckChannels, and the -DocText extract names" -f ((@($chan.FunctionFiles) | ForEach-Object { Split-Path $_ -Leaf }) -join ', ')) `
+        -DerivedFrom ("{0} channel(s) swept; {1} guide-side and {2} deck-side field name(s) read from the renderer functions" -f @($channels).Count, $chan.FunctionGuideCount, $chan.FunctionDeckCount)
+    Complete-GateArm -Name 'channel-attribution' -State 'ran' -Size $attributed.Count -Findings 0
 
     # --- posed-question exemption
     $posed = Resolve-WrPosedFields -BuildDir $BuildDir -SpineDir $SpineDir -Contract $contract
@@ -760,10 +876,23 @@ function Invoke-WrSweep {
         }
     }
 
+    Complete-GateArm -Name 'spine-sweep' -State 'ran' -Size $spineCells -Findings $blocking.Count
+    if ($divergent.Count -gt 0) { Complete-GateArm -Name 'divergence' -State 'ran' -Size $divergent.Count -Findings $divergent.Count }
+    else { Complete-GateArm -Name 'divergence' -State 'empty' -Size 0 }
+    if ($Band -eq '7c') {
+        Write-GateCheckSet -What 'rendered line(s) from the delivered documents' -Count ($cells.Count - $spineCells) -Blocking `
+            -Input 'the extracts passed to -DocText (guide_gate.txt, deck_gate.txt)' `
+            -DerivedFrom ("{0} extract(s), stamped rendered:{1}" -f @($DocText | Where-Object { $_ }).Count, ((@($renderedArtefacts.ToArray())) -join ' / rendered:'))
+        Complete-GateArm -Name 'rendered' -State 'ran' -Size ($cells.Count - $spineCells) -Findings @($blocking.ToArray() | Where-Object { "$($_.Channel)" -like 'rendered:*' }).Count
+    }
+
     return [pscustomobject]@{
         BuildDir = $BuildDir
         Register = $Register
         AssessorCells = $AssessorCells
+        Band = $Band
+        RenderedArtefacts = @($renderedArtefacts.ToArray())
+        AttributedChannels = $attributed
         PipelineNote = $pipelineNote
         SpineFiles = $spineFiles
         SpineCells = $spineCells
@@ -1092,6 +1221,72 @@ function Invoke-WrSelfTest {
         Record 'build-wide: a row answered in the guide only is named' ($gOnly.Count -ge 1) ("{0} row(s) answered in the guide alone" -f $gOnly.Count)
         Record 'build-wide: a row answered in the deck only is named' ($dOnly.Count -ge 1) ("{0} row(s) answered in the deck alone" -f $dOnly.Count)
 
+        #  ---- THE RENDERED ARM. Its first plant: a withheld row answered in
+        #       the DELIVERED GUIDE and in nothing else. Until the rendered
+        #       lines carried their artefact this could not be reported at all -
+        #       every rendered line sat in one channel called 'rendered', which
+        #       no renderer reads, so it was attributed to BOTH artefacts and
+        #       the one-artefact-only rule was structurally unable to fire.
+        $cleanRoot = Join-Path $root 'rendered'
+        New-WrFixture -Root $cleanRoot | Out-Null
+        $gx = Join-Path $cleanRoot 'guide_gate.txt'
+        $dx = Join-Path $cleanRoot 'deck_gate.txt'
+        $leakLine = 'Widget Alpha is fitted with a sprocket before service, and the flange is torqued to the plate.'
+        [System.IO.File]::WriteAllText($gx, (@(
+            'Rendered guide extract - fixture.',
+            'This sub-section explains why the fixture matters and what the worker does about it.',
+            $leakLine
+        ) -join "`r`n"), (New-Object System.Text.UTF8Encoding($true)))
+        [System.IO.File]::WriteAllText($dx, (@(
+            'Rendered deck extract - fixture.',
+            'Set every example on the ground the task does not assess.'
+        ) -join "`r`n"), (New-Object System.Text.UTF8Encoding($true)))
+
+        #  VERIFY THE PLANT LANDED in the channel the sweep reads: the line must
+        #  be in the guide extract and in NEITHER the deck extract nor the spine.
+        $gTxt = Get-GateFileText -Path $gx
+        $dTxt = Get-GateFileText -Path $dx
+        $spineTxt = Get-GateFileText -Path (Join-Path $cleanRoot 'spine\t1_1.1.json')
+        $landedG = ($gTxt.IndexOf($leakLine, [System.StringComparison]::Ordinal) -ge 0)
+        $landedElsewhere = ($dTxt.IndexOf('sprocket', [System.StringComparison]::OrdinalIgnoreCase) -ge 0) -or ($spineTxt.IndexOf('sprocket', [System.StringComparison]::OrdinalIgnoreCase) -ge 0)
+        Record 'plant landed: withheld bullet in the GUIDE extract only' ($landedG -and -not $landedElsewhere) `
+            ("in guide_gate.txt: {0}; anywhere else: {1}" -f $landedG, $landedElsewhere)
+
+        if ($landedG -and -not $landedElsewhere) {
+            $r2 = Invoke-WrSweep -BuildDir $cleanRoot -SkillDir $SkillDir -MinBulletWords $MinBulletWords -DocText @($gx, $dx) -Band '7c'
+            $rHit = @($r2.Blocking | Where-Object { $_.Channel -eq 'rendered:guide' })
+            Record 'gate fires on the RENDERED guide extract' ($rHit.Count -ge 1) `
+                ("{0} blocking hit(s) in channel rendered:guide{1}" -f $rHit.Count, $(if ($rHit.Count) { (" - {0} {1}, item '{2}', artefact {3}" -f $rHit[0].File, $rHit[0].Path, $rHit[0].Item, $rHit[0].Artefact) } else { ' - the rendered arm found nothing, so a leak in a delivered document would ship' }))
+            $rDiv = @($r2.Divergent | Where-Object { $_.AnsweredIn -eq 'guide' })
+            Record 'rule 1 fires on the rendered arm' ($rDiv.Count -ge 1) `
+                ("{0} row(s) answered in the guide alone - the rendered lines are stamped rendered:guide / rendered:deck, so a channel attributed to one artefact exists" -f $rDiv.Count)
+            $deckLines = @($r2.Channels | Where-Object { $_ -eq 'rendered:deck' })
+            Record 'both extracts are stamped with their artefact' ($deckLines.Count -eq 1 -and @($r2.RenderedArtefacts).Count -eq 2) `
+                ("channels carry {0}; artefacts {1}" -f (@($r2.Channels | Where-Object { $_ -like 'rendered:*' }) -join ', '), (@($r2.RenderedArtefacts) -join ', '))
+        }
+        else { Record 'gate fires on the RENDERED guide extract' $false 'the plant did not land, so nothing was proved' }
+
+        #  An extract that names neither artefact is refused, not swept into a
+        #  channel that can report nothing.
+        $ux = Join-Path $cleanRoot 'extract.txt'
+        [System.IO.File]::WriteAllText($ux, "Unnamed extract.`r`n$leakLine", (New-Object System.Text.UTF8Encoding($true)))
+        $refused = $false
+        $refusalText = ''
+        try { $null = Invoke-WrSweep -BuildDir $cleanRoot -SkillDir $SkillDir -MinBulletWords $MinBulletWords -DocText @($ux) -Band '7c' }
+        catch { $refused = $true; $refusalText = $_.Exception.Message }
+        Record 'an extract naming neither artefact is refused by name' ($refused -and $refusalText -match 'extract\.txt') `
+            ($(if ($refused) { 'refused: ' + $refusalText } else { 'the extract was swept into a channel attributed to both artefacts, where the one-artefact rule cannot fire' }))
+        Remove-Item -LiteralPath $ux -Force -ErrorAction SilentlyContinue
+
+        #  ---- -Stage 7c with NO extract. Run as its own script so the EXIT
+        #       CODE is asserted: a rendered arm with no rendering is a refusal.
+        $global:LASTEXITCODE = 0
+        $refText = & $script:WrSelf -BuildDir $cleanRoot -Stage '7c' -OutPath (Join-Path $cleanRoot 'child.json') -Quiet *>&1 | Out-String -Width 4096
+        $refCode = $LASTEXITCODE
+        Record '-Stage 7c with zero -DocText exits 2 naming the extracts' `
+            (($refCode -eq 2) -and ($refText -match 'guide_gate\.txt') -and ($refText -match 'deck_gate\.txt')) `
+            ("exit {0}; guide_gate.txt {1}; deck_gate.txt {2}" -f $refCode, $(if ($refText -match 'guide_gate\.txt') { 'named' } else { 'NOT named' }), $(if ($refText -match 'deck_gate\.txt') { 'named' } else { 'NOT named' }))
+
         $failures = @($records | Where-Object { -not $_.ok }).Count
         return [pscustomobject]@{ Failures = $failures; Records = $records.ToArray(); Fixture = $root }
     }
@@ -1122,6 +1317,15 @@ if ($SelfTest -and -not $BuildDir) {
 if (-not $BuildDir) { Stop-WrUsage '-BuildDir is required (or run with -SelfTest alone to prove the gate on a fixture).' }
 if (-not (Test-Path -LiteralPath $BuildDir)) { Stop-WrUsage ("build directory not found: {0}" -f $BuildDir) }
 if (-not $OutPath) { $OutPath = Join-Path $BuildDir 'withhold-enforcement.json' }
+if ($Stage -and $Stage -notin @('3c', '4', '7c')) { Stop-WrUsage ("-Stage '{0}' is not a band this gate runs at (3c, 4 or 7c)." -f $Stage) }
+
+#  THE RENDERED ARM REFUSES AN EMPTY RENDERING. A spine that is clean and a
+#  document that is not is still a build that ships the leak, and -Stage 7c
+#  says the documents are what is being judged.
+$wrExtracts = @(@($DocText) | Where-Object { "$_".Trim() })
+if ($Stage -eq '7c' -and $wrExtracts.Count -eq 0) {
+    Stop-WrUsage 'the rendered arm was asked for (-Stage 7c) and no extract was passed. Pass -DocText <guide extract>,<deck extract> - guide_gate.txt and deck_gate.txt, the extracts Get-DocText writes from the delivered .docx and .pptx. Sweeping the spine alone and calling it a 7c run is how a leak in a delivered document goes unreported.'
+}
 
 $selfTestFailures = 0
 $selfTestRecords = @()
@@ -1132,11 +1336,14 @@ if ($SelfTest) {
 }
 
 $result = $null
+$wrRoster = @()
 try {
     $result = Invoke-WrSweep -BuildDir $BuildDir -Register $Register -AssessorCells $AssessorCells `
-        -SpineDir $SpineDir -RulesPath $RulesPath -DocText $DocText `
+        -SpineDir $SpineDir -RulesPath $RulesPath -DocText $wrExtracts `
         -GuideRenderer $GuideRenderer -DeckRenderer $DeckRenderer -SkillDir $SkillDir `
-        -MinBulletWords $MinBulletWords
+        -MinBulletWords $MinBulletWords -Band $Stage
+    Assert-GateArmsComplete
+    $wrRoster = @(Write-GateArmRoster)
 }
 catch {
     Stop-WrUsage $_.Exception.Message
@@ -1241,6 +1448,11 @@ $out = [pscustomobject]@{
         exempt = $result.Exempt
         answeredInOneArtefactOnly = @($result.Divergent).Count
     }
+    stage = $Stage
+    arms = @($wrRoster)
+    renderedArtefacts = @($result.RenderedArtefacts)
+    channelsAttributedToOneArtefact = @($result.AttributedChannels)
+    rendererFunctionsRead = @($result.ChannelMap.FunctionsSeen)
     selfTest = [pscustomobject]@{ run = [bool]$SelfTest; failures = $selfTestFailures; checks = $selfTestRecords }
 }
 $json = $out | ConvertTo-Json -Depth 10

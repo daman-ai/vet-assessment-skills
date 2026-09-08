@@ -128,7 +128,30 @@
     anchoring and scoring rules; the coverage gate must classify a sentence
     with exactly the same code, or the floor and the ceiling could be
     satisfied by the same sentence.
+
+    REPORT STAMP (P0-08). The report carries spineFingerprint (v2, over the
+    spine directory it enumerated), generated (UTC, round-trip 'o'), mode
+    ('whole' for a directory run, 'file' for -SpineFile) and the file list it
+    read, so Test-GridDisposition can refuse a report from another spine,
+    another mode or an earlier run instead of disposing grids on it. Every
+    OWN grid is recorded in the report even when no row is answered, because
+    "examined and clean" and "never examined" used to look identical to the
+    disposition, which read both as zero.
+
+    ARMS (P0-09). full-rows and row-order BLOCK; partial-rows, bullet-order
+    and cross-grid report. spine-files BLOCKS: an empty, whitespace-only or
+    unparseable spine file is a named finding, never a silent skip. Every arm
+    is registered before it runs and completed after, and the roster is
+    printed as one ARMS: line and written to the report. A blocking arm whose
+    check-set is empty is a refusal (exit 2), never a pass.
+
+    SELF-TEST:  powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Check-ShapeMirror.ps1 -SelfTest
+    Builds a synthetic build in the temp directory, plants each defect this
+    file claims to catch, proves the plant landed, and exits 0 only when the
+    gate failed on every plant and passed the negative control.
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
@@ -139,6 +162,13 @@ param(
     [string] $Cells,
     [switch] $OwnOnly,
     [string] $ReportPath,
+    #  The path the RUNNER expects this gate to produce. Accepted so a runner
+    #  can thread one value to producer and consumer. With no -ReportPath it IS
+    #  the report path; given beside a different -ReportPath it is a refusal,
+    #  because a runner reading one file while the gate writes another is the
+    #  stale-report defect the stamp exists to catch.
+    [string] $Produces,
+    [switch] $SelfTest,
     [switch] $Quiet,
     #  Calibration - see the header before changing any of these.
     [int]    $AnchorWindow = 2,
@@ -754,25 +784,184 @@ if ($AsLibrary) { return }
 
 $GATE = 'Check-ShapeMirror'
 
+# ---------------------------------------------------------------------------
+# SELF-TEST. Synthetic build in the temp directory; every string invented.
+# The gate is invoked as a child of this process on each plant, the plant is
+# read back from the fixture before the verdict is trusted, and the run ends
+# SELF-TEST PASS (exit 0) or SELF-TEST FAIL (exit 4).
+# ---------------------------------------------------------------------------
+if ($SelfTest) {
+    Write-Host ''
+    Write-Host ("  {0} SELF-TEST - a clean result is not believed until the gate has failed on a planted defect" -f $GATE) -ForegroundColor Cyan
+    $script:SmSelfTestFailed = 0
+    $self = $MyInvocation.MyCommand.Path
+    $fx = Join-Path ([System.IO.Path]::GetTempPath()) ('sm-selftest-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    New-Item -ItemType Directory -Force -Path (Join-Path $fx 'spine') | Out-Null
+
+    function Test-SmSelf { param([bool] $Ok, [string] $What) if ($Ok) { Write-Host ("    ok   {0}" -f $What) -ForegroundColor Green } else { Write-Host ("    X    {0}" -f $What) -ForegroundColor Red; $script:SmSelfTestFailed++ } }
+    function Write-SmFixture { param([string] $Path, $Object) [System.IO.File]::WriteAllText($Path, ($Object | ConvertTo-Json -Depth 14), (New-Object System.Text.UTF8Encoding($true))) }
+    function Invoke-SmSelf {
+        param([hashtable] $Arguments)
+        $text = ''; $rc = -1
+        try { $lines = @(& $self @Arguments *>&1 | ForEach-Object { "$_" }); $rc = $LASTEXITCODE; $text = ($lines -join "`n") }
+        catch { $text = "EXCEPTION: " + $_.Exception.Message; $rc = -1 }
+        return [pscustomobject]@{ Rc = $rc; Text = $text }
+    }
+    function Read-SmReport { param([string] $Path) if (Test-Path -LiteralPath $Path) { return (Get-GateJson -Path $Path) } return $null }
+
+    try {
+        #  One labelled grid, 3 rows x 2 assessed columns, model bullets in a
+        #  GATE-ONLY cells file. Hand-stemmed to the register's rule so the
+        #  fixture's truth does not come from the gate's own tokeniser.
+        Write-SmFixture -Path (Join-Path $fx 'withhold-register.json') -Object @{
+            subSections = @{ '1.1' = @{ subSection = '1.1'; refs = @('Task 1(a)'); tasks = @(
+                @{ ref = 'Task 1(a)'; id = 'TEST_Tool Task 1(a)'; document = 'TEST_Tool'; kind = 'labelled'
+                   headers = @('Widget', 'Purpose', 'Care'); assessedHeaders = @(1, 2)
+                   items = @('Widget A', 'Widget B', 'Widget C'); aliases = @{ 'Widget A' = @(); 'Widget B' = @(); 'Widget C' = @() }
+                   subjectClass = 'widget'; subjects = @(); unassessedSubjects = @('Widget D'); allowance = 1
+                   shape = @{ rows = 3; assessedColumns = 2; bulletsPerCell = @{ min = 1; max = 2 }; wordGuide = @{ min = 10; max = 20 }; benchmarkMinimum = 1 } } ); freeText = @() } }
+        }
+        Write-SmFixture -Path (Join-Path $fx 'assessor-cells.json') -Object @{
+            _WARNING = 'GATE-ONLY synthetic cells for the self-test'
+            wordPipeline = @{ stopwords = 176; stem = 'crude suffix strip: ing, ed, es, s'; stripLearnerWords = 'headers and items'; dfCeiling = 0.25 }
+            grids = @(@{ ref = 'Task 1(a)'; id = 'TEST_Tool Task 1(a)'; subSection = '1.1'; kind = 'labelled'; document = 'TEST_Tool'
+                         headers = @('Widget', 'Purpose', 'Care'); assessedHeaders = @(1, 2)
+                         rows = @(
+                            @{ item = 'Widget A'; assessed = $true; cells = @(
+                                @{ col = 1; header = 'Purpose'; state = 'answered'; bullets = @(@{ text = 'turns the main spindle'; words = @('turn', 'main', 'spindle') }, @{ text = 'holds the spindle under tension'; words = @('hold', 'spindle', 'tension') }) },
+                                @{ col = 2; header = 'Care'; state = 'answered'; bullets = @(@{ text = 'oil the bearing weekly'; words = @('oil', 'bear', 'weekly') }, @{ text = 'check the belt for fraying'; words = @('check', 'belt', 'fray') }) }) },
+                            @{ item = 'Widget B'; assessed = $true; cells = @(
+                                @{ col = 1; header = 'Purpose'; state = 'answered'; bullets = @(@{ text = 'feeds the hopper evenly'; words = @('feed', 'hopper', 'evenly') }) },
+                                @{ col = 2; header = 'Care'; state = 'answered'; bullets = @(@{ text = 'clear the chute after every run'; words = @('clear', 'chute', 'run') }, @{ text = 'grease the pivot monthly'; words = @('grease', 'pivot', 'monthly') }) }) },
+                            @{ item = 'Widget C'; assessed = $true; cells = @(
+                                @{ col = 1; header = 'Purpose'; state = 'answered'; bullets = @(@{ text = 'holds the jig square'; words = @('hold', 'jig', 'square') }) },
+                                @{ col = 2; header = 'Care'; state = 'answered'; bullets = @(@{ text = 'inspect the clamp face'; words = @('inspect', 'clamp', 'face') }, @{ text = 'replace a worn pad at once'; words = @('replace', 'worn', 'pad') }) }) }
+                         ) })
+            freeText = @(); taskLevel = @()
+        }
+        $spinePath = Join-Path $fx 'spine\t1_1.1.json'
+        $reportPath = Join-Path $fx 'shape-mirror-report.json'
+
+        # ---- plant 1: prose answering all three rows in the task's order -> BLOCK, and the report is stamped
+        Write-SmFixture -Path $spinePath -Object @{
+            ref = '1.1'; title = 'Widgets'
+            underpinningKnowledge = @(
+                'Widget A turns the main spindle and holds the spindle under tension. Oil the bearing weekly and check the belt for fraying.',
+                'Widget B feeds the hopper evenly. Clear the chute after every run and grease the pivot monthly.',
+                'Widget C holds the jig square. Inspect the clamp face and replace a worn pad at once.')
+        }
+        $planted = Get-GateFileText -Path $spinePath
+        Test-SmSelf -Ok ($planted.IndexOf('Widget A turns the main spindle', [System.StringComparison]::Ordinal) -ge 0 -and $planted.IndexOf('Widget C holds the jig square', [System.StringComparison]::Ordinal) -ge 0) -What 'plant 1 landed: the spine file carries the three answered rows'
+        $r1 = Invoke-SmSelf -Arguments @{ BuildDir = $fx; Quiet = $true }
+        $rep1 = Read-SmReport -Path $reportPath
+        Test-SmSelf -Ok ($r1.Rc -eq 1) -What ("plant 1: prose answering every row in order exits 1 (rc={0})" -f $r1.Rc)
+        $fpNow = Get-SpineFingerprint -BuildDir $fx -Quiet
+        $stamp = if ($null -ne $rep1) { [string](Get-GateProp -Object $rep1 -Names @('spineFingerprint') -Default '') } else { '' }
+        Test-SmSelf -Ok ($stamp -like 'v2:*' -and $stamp -eq $fpNow) -What ("report stamps spineFingerprint v2 equal to the current spine ({0})" -f $stamp)
+        $gen = if ($null -ne $rep1) { [string](Get-GateProp -Object $rep1 -Names @('generated') -Default '') } else { '' }
+        $genOk = $false
+        try { $dto = [System.DateTimeOffset]::Parse($gen, [System.Globalization.CultureInfo]::InvariantCulture); $genOk = ($gen -match 'Z$' -and ([System.DateTimeOffset]::UtcNow - $dto).TotalMinutes -lt 10) } catch { $genOk = $false }
+        Test-SmSelf -Ok $genOk -What ("report stamps generated as UTC round-trip time ({0})" -f $gen)
+        Test-SmSelf -Ok ($null -ne $rep1 -and [string](Get-GateProp -Object $rep1 -Names @('mode') -Default '') -eq 'whole') -What 'report stamps mode whole for a directory run'
+        $files1 = if ($null -ne $rep1) { @(Get-GateProp -Object $rep1 -Names @('spineFiles') -Default @()) } else { @() }
+        Test-SmSelf -Ok ($files1 -contains 't1_1.1.json') -What 'report lists the spine files it read (spineFiles)'
+        Test-SmSelf -Ok ($r1.Text -match '(?m)^ARMS: .*full-rows\|true\|ran\|\d+\|1' -and $r1.Text -match 'row-order\|true\|ran\|') -What 'the ARMS: roster line prints with full-rows and row-order ran'
+        $armsRep = if ($null -ne $rep1) { @(Get-GateProp -Object $rep1 -Names @('arms') -Default @()) } else { @() }
+        Test-SmSelf -Ok (@($armsRep | Where-Object { $_.name -eq 'full-rows' -and $_.state -eq 'ran' -and $_.findings -eq 1 }).Count -eq 1) -What 'the roster is written to the report'
+        Test-SmSelf -Ok ($r1.Text -notmatch 'turns the main spindle' -and $r1.Text -notmatch 'grease the pivot monthly') -What 'no model bullet reaches the console'
+
+        # ---- plant 2: negative control - the same facts as mechanism, no row named -> exit 0, own grid still RECORDED as examined
+        Write-SmFixture -Path $spinePath -Object @{
+            ref = '1.1'; title = 'Widgets'
+            underpinningKnowledge = @(
+                'A spindle is held under tension so the belt cannot slip. Bearings are oiled weekly because a dry bearing seizes.',
+                'A hopper feeds evenly when its chute is cleared after every run. A jig stays square only while the clamp face is true, so inspect it and replace a worn pad at once.')
+        }
+        $planted = Get-GateFileText -Path $spinePath
+        Test-SmSelf -Ok ($planted.IndexOf('dry bearing seizes', [System.StringComparison]::Ordinal) -ge 0 -and $planted -notmatch 'Widget [ABC]') -What 'plant 2 landed: mechanism prose, no row named'
+        $r2 = Invoke-SmSelf -Arguments @{ BuildDir = $fx; Quiet = $true }
+        $rep2 = Read-SmReport -Path $reportPath
+        Test-SmSelf -Ok ($r2.Rc -eq 0) -What ("negative control: unanchored mechanism prose exits 0 (rc={0})" -f $r2.Rc)
+        $ownRec = @()
+        if ($null -ne $rep2) { foreach ($fr in @($rep2.files)) { foreach ($g in @($fr.Grids)) { if ($g.Own -and $g.Id -eq 'TEST_Tool Task 1(a)') { $ownRec += $g } } } }
+        Test-SmSelf -Ok ($ownRec.Count -eq 1 -and $ownRec[0].FullRows -eq 0 -and $ownRec[0].Examined) -What 'a clean own grid is still recorded in the report (FullRows 0, Examined) so the disposition can tell examined from absent'
+        Test-SmSelf -Ok ($r2.Text -match '(?m)^ARMS: .*full-rows\|true\|ran\|\d+\|0') -What 'the roster prints full-rows ran with 0 findings on the clean run'
+
+        # ---- plant 3: an empty spine file is a NAMED finding, not a silent skip
+        $emptyPath = Join-Path $fx 'spine\t1_1.2.json'
+        [System.IO.File]::WriteAllText($emptyPath, "   `r`n", (New-Object System.Text.UTF8Encoding($true)))
+        Test-SmSelf -Ok ((Test-Path -LiteralPath $emptyPath) -and -not (Get-GateFileText -Path $emptyPath).Trim()) -What 'plant 3 landed: t1_1.2.json exists and is whitespace-only'
+        $r3 = Invoke-SmSelf -Arguments @{ BuildDir = $fx; Quiet = $true }
+        $rep3 = Read-SmReport -Path $reportPath
+        $emptyRep = if ($null -ne $rep3) { @(Get-GateProp -Object $rep3 -Names @('emptyFiles') -Default @()) } else { @() }
+        Test-SmSelf -Ok ($r3.Rc -eq 1 -and $r3.Text -match 't1_1\.2\.json' -and $r3.Text -match '(?i)empty' -and @($emptyRep | Where-Object { $_ -match 't1_1\.2\.json' }).Count -eq 1) -What ("an empty spine file exits 1 naming the file, and the report lists it (rc={0})" -f $r3.Rc)
+        Test-SmSelf -Ok ($r3.Text -match '(?m)^ARMS: .*spine-files\|true\|ran\|1\|1') -What 'the spine-files arm records 1 file read and 1 finding'
+        Remove-Item -LiteralPath $emptyPath -Force
+
+        # ---- plant 4: -SpineFile stamps mode file
+        $r4 = Invoke-SmSelf -Arguments @{ BuildDir = $fx; SpineFile = $spinePath; Quiet = $true }
+        $rep4 = Read-SmReport -Path $reportPath
+        Test-SmSelf -Ok ($r4.Rc -eq 0 -and $null -ne $rep4 -and [string](Get-GateProp -Object $rep4 -Names @('mode') -Default '') -eq 'file') -What ("-SpineFile stamps mode file (rc={0})" -f $r4.Rc)
+
+        # ---- plant 5: -Produces threads the report path; a conflicting -ReportPath is refused naming both
+        $pPath = Join-Path $fx 'produced.json'
+        $r5 = Invoke-SmSelf -Arguments @{ BuildDir = $fx; Produces = $pPath; Quiet = $true }
+        Test-SmSelf -Ok ($r5.Rc -eq 0 -and (Test-Path -LiteralPath $pPath)) -What '-Produces alone is the report path'
+        $r6 = Invoke-SmSelf -Arguments @{ BuildDir = $fx; Produces = $pPath; ReportPath = (Join-Path $fx 'other.json'); Quiet = $true }
+        Test-SmSelf -Ok ($r6.Rc -eq 2 -and $r6.Text -match 'produced\.json' -and $r6.Text -match 'other\.json') -What ("-Produces beside a different -ReportPath is refused naming both (rc={0})" -f $r6.Rc)
+    }
+    finally {
+        try { Remove-Item -LiteralPath $fx -Recurse -Force -ErrorAction SilentlyContinue } catch { }
+    }
+
+    Write-Host ''
+    if ($script:SmSelfTestFailed -gt 0) {
+        Write-Host ("  SELF-TEST FAIL: {0} check(s) failed - no result from this gate may be believed until they pass" -f $script:SmSelfTestFailed) -ForegroundColor Red
+        exit 4
+    }
+    Write-Host '  SELF-TEST PASS: the gate failed on every planted defect, passed the negative control, stamped its report and printed its roster' -ForegroundColor Green
+    exit 0
+}
+
+try {
+
+$mode = if ($SpineFile) { 'file' } else { 'whole' }
+if ($Produces) {
+    if (-not $ReportPath) { $ReportPath = $Produces }
+    elseif ([System.IO.Path]::GetFullPath($ReportPath).ToLowerInvariant() -ne [System.IO.Path]::GetFullPath($Produces).ToLowerInvariant()) {
+        Write-Host ("  X {0}: -Produces {1} names a different file from -ReportPath {2}. A runner that reads one path while the gate writes another is reading a stale report; pass one path." -f $GATE, $Produces, $ReportPath) -ForegroundColor Red
+        exit 2
+    }
+}
+
 try { $in = Get-SmInputs -BuildDir $BuildDir -SpineFile $SpineFile -SpineDir $SpineDir -Register $Register -Cells $Cells -Gate $GATE }
 catch { Write-Host ("  X {0}" -f $_.Exception.Message) -ForegroundColor Red; exit 2 }
 
 $set = Get-SmGridSet -RegisterDoc $in.Register -CellsDoc $in.Cells -DfCeiling $DfCeiling -MinHitWords $MinHitWords
 $grids = @($set.Grids)
-if ($grids.Count -eq 0) {
-    Write-Host ("  X {0}: assessor-cells.json carries no grids - a sweep with an empty check-set passes by having nothing to check." -f $GATE) -ForegroundColor Red
-    exit 2
+$subCount = @($grids | ForEach-Object { $_.SubSection } | Where-Object { $_ } | Select-Object -Unique).Count
+if (-not $Quiet) {
+    Write-Host ''
+    Write-Host 'SHAPE MIRROR - prose written to the shape of the model answer' -ForegroundColor Cyan
 }
+#  BLOCKING: a cells file with no grid is an empty check-set, and an empty
+#  check-set is a refusal (exit 2 through the catch below), never a pass.
+Write-GateCheckSet -What 'assessed grids' -Count $grids.Count -DerivedFrom ("{0} ({1} sub-sections) with cells from {2} ({3} bullets)" -f (Split-Path $in.RegisterPath -Leaf), $subCount, (Split-Path $in.CellsPath -Leaf), $set.BulletCount) -Blocking -Input 'assessor-cells.json grids'
 $skip = Get-GateUnrenderedFields -BuildDir $BuildDir -ForSweep
 $skipTable = @{}
 foreach ($k in $skip.Keys) { $skipTable[$k] = $true }
 if (-not $ReportPath) { $ReportPath = Join-Path $BuildDir 'shape-mirror-report.json' }
 
-$subCount = @($grids | ForEach-Object { $_.SubSection } | Where-Object { $_ } | Select-Object -Unique).Count
+#  Every arm, declared before any of them runs. A blocking arm left not-run,
+#  or ended empty, cannot pass this gate.
+Register-GateArm -Name 'spine-files' -Blocking
+Register-GateArm -Name 'full-rows' -Blocking
+Register-GateArm -Name 'row-order' -Blocking
+Register-GateArm -Name 'partial-rows'
+Register-GateArm -Name 'bullet-order'
+Register-GateArm -Name 'cross-grid'
+
 if (-not $Quiet) {
-    Write-Host ''
-    Write-Host 'SHAPE MIRROR - prose written to the shape of the model answer' -ForegroundColor Cyan
-    Write-GateCheckSet -What 'assessed grids' -Count $grids.Count -DerivedFrom ("{0} ({1} sub-sections) with cells from {2} ({3} bullets)" -f (Split-Path $in.RegisterPath -Leaf), $subCount, (Split-Path $in.CellsPath -Leaf), $set.BulletCount)
     Write-Host ("  word pipeline declared by the cells file: stopwords={0} stem={1} learner-strip={2} dfCeiling={3}" -f $set.Declared.Stopwords, $set.Declared.Stem, $set.Declared.LearnerStrip, $(if ($null -eq $set.Declared.DfCeiling) { 'none' } else { $set.Declared.DfCeiling })) -ForegroundColor DarkGray
     foreach ($a in $set.Applied) { Write-Host ("  applied here: {0}" -f $a) -ForegroundColor DarkGray }
     Write-Host ("  DF ceiling {0}: {1} word(s) stripped{2}" -f $DfCeiling, @($set.CommonWords).Count, $(if (@($set.CommonWords).Count) { ' (' + (@($set.CommonWords) -join ', ') + ')' } else { '' })) -ForegroundColor DarkGray
@@ -783,16 +972,33 @@ if (-not $Quiet) {
 $blockTotal = 0; $reportTotal = 0
 $fileReports = New-Object System.Collections.Generic.List[object]
 $totalSentences = 0
+#  Arm bookkeeping: what each arm examined (its check-set) and what it found.
+$emptyFiles = New-Object System.Collections.Generic.List[string]
+$filesRead = 0; $pairsScanned = 0; $crossPairs = 0
+$fullRowsFindings = 0; $rowOrderFindings = 0; $partialFindings = 0; $bulletOrderFindings = 0; $crossFindings = 0
 
 foreach ($f in $in.Files) {
-    $json = Get-GateJson -Path $f.FullName
-    if ($null -eq $json) { continue }
+    #  A FILE THE SWEEP CANNOT READ IS A FINDING, NOT A SKIP. An empty,
+    #  whitespace-only or unparseable spine file used to fall through this
+    #  loop in silence, and a sub-section that had lost its content passed
+    #  the ceiling by having no prose to answer anything.
+    $json = $null; $readError = ''
+    try { $json = Get-GateJson -Path $f.FullName } catch { $readError = $_.Exception.Message }
+    if ($null -eq $json) {
+        $why = if ($readError) { 'unparseable (' + $readError + ')' } else { 'empty or whitespace-only' }
+        $emptyFiles.Add(("{0}: {1}" -f $f.Name, $why))
+        Write-Host ("  X {0}: spine file {1} is {2} - a file the sweep cannot read is a finding, not a skip" -f $GATE, $f.Name, $why) -ForegroundColor Red
+        continue
+    }
+    $filesRead++
     $sub = Get-SmFileSubSection -Json $json -RegisterDoc $in.Register
     $own = @($grids | Where-Object { $sub -and $_.SubSection -eq $sub })
     $ownKeys = @{}
     foreach ($g in $own) { $ownKeys[$g.Key] = $true }
     $toScan = if ($OwnOnly) { $own } else { $grids }
     if (@($toScan).Count -eq 0) { continue }
+    $pairsScanned += @($toScan).Count
+    $crossPairs += (@($toScan).Count - $own.Count)
 
     $sentences = Get-SmSentences -Json $json -File $f.Name -Skip $skipTable
     $totalSentences += $sentences.Count
@@ -807,7 +1013,21 @@ foreach ($f in $in.Files) {
         $rows = @(Get-SmMatrix -Grid $g -Scan $scan)
         $full = @($rows | Where-Object { $_.Full })
         $partial = @($rows | Where-Object { $_.Partial })
-        if ($full.Count -eq 0 -and $partial.Count -eq 0) { continue }
+        if ($full.Count -eq 0 -and $partial.Count -eq 0) {
+            #  A clean OWN grid is still RECORDED. Test-GridDisposition reads
+            #  this report by grid, and "examined, nothing answered" and "never
+            #  examined" used to be the same absence, read as zero. The record
+            #  carries the matrix and no arm, and counts toward no total.
+            if ($isOwn) {
+                $gridReports.Add([pscustomobject]@{
+                    SubSection = $g.SubSection; Ref = $g.Ref; Id = $g.Id; Kind = $g.Kind; Own = $true; Examined = $true
+                    Allowance = $g.Allowance; ItemCount = $g.ItemCount
+                    FullRows = 0; PartialRows = 0; Block = $false
+                    Arms = @(); Rows = $rows; Anchors = @()
+                })
+            }
+            continue
+        }
 
         $arms = New-Object System.Collections.Generic.List[string]
         $anchors = New-Object System.Collections.Generic.List[object]
@@ -889,8 +1109,16 @@ foreach ($f in $in.Files) {
         }
 
         if ($block) { $fileBlock++ } else { $fileReport++ }
+        #  per-arm findings, for the roster
+        if ($isOwn) {
+            if (@($arms | Where-Object { $_ -like 'FULL ROWS:*' }).Count -gt 0) { $fullRowsFindings++ }
+            if (@($arms | Where-Object { $_ -like 'ROW ORDER:*' }).Count -gt 0) { $rowOrderFindings++ }
+        }
+        else { $crossFindings++ }
+        if ($partial.Count -gt 0) { $partialFindings++ }
+        $bulletOrderFindings += @($arms | Where-Object { $_ -like 'BULLET ORDER*' }).Count
         $gridReports.Add([pscustomobject]@{
-            SubSection = $g.SubSection; Ref = $g.Ref; Id = $g.Id; Kind = $g.Kind; Own = $isOwn
+            SubSection = $g.SubSection; Ref = $g.Ref; Id = $g.Id; Kind = $g.Kind; Own = $isOwn; Examined = $true
             Allowance = $g.Allowance; ItemCount = $g.ItemCount
             FullRows = $full.Count; PartialRows = $partial.Count; Block = $block
             Arms = $arms.ToArray(); Rows = $rows; Anchors = $anchors.ToArray()
@@ -932,30 +1160,81 @@ foreach ($f in $in.Files) {
     }
 }
 
+# ---------------------------------------------------------------------------
+# Arms: every declared arm ends ran, empty or declared-n-a. The check-set of
+# the scoring arms is the (file, grid) pairs actually scored; a spine that
+# yields none is a refusal, never a pass.
+# ---------------------------------------------------------------------------
+Write-Host ''
+Write-GateCheckSet -What 'file x grid pairs scored' -Count $pairsScanned -DerivedFrom ("{0} spine file(s) read x {1} grid(s){2}" -f $filesRead, $grids.Count, $(if ($OwnOnly) { ' (own grids only)' } else { '' })) -Blocking -Input 'the spine files Get-GateSpineFiles enumerated'
+if ($filesRead -gt 0) { Complete-GateArm -Name 'spine-files' -State ran -Size $filesRead -Findings $emptyFiles.Count } else { Complete-GateArm -Name 'spine-files' -State empty }
+if ($pairsScanned -gt 0) {
+    Complete-GateArm -Name 'full-rows' -State ran -Size $pairsScanned -Findings $fullRowsFindings
+    Complete-GateArm -Name 'row-order' -State ran -Size $pairsScanned -Findings $rowOrderFindings
+    Complete-GateArm -Name 'partial-rows' -State ran -Size $pairsScanned -Findings $partialFindings
+    Complete-GateArm -Name 'bullet-order' -State ran -Size $pairsScanned -Findings $bulletOrderFindings
+}
+else {
+    foreach ($armName in @('full-rows', 'row-order', 'partial-rows', 'bullet-order')) { Complete-GateArm -Name $armName -State empty }
+}
+if ($crossPairs -gt 0) { Complete-GateArm -Name 'cross-grid' -State ran -Size $crossPairs -Findings $crossFindings } else { Complete-GateArm -Name 'cross-grid' -State empty }
+$roster = Write-GateArmRoster
+Assert-GateArmsComplete
+
+#  THE STAMP. Fingerprint of the spine directory this run enumerated, the
+#  UTC time it was generated, the mode and the file list - what
+#  Test-GridDisposition checks before it believes a single number in here.
+$fingerprint = Get-SpineFingerprint -BuildDir $BuildDir -SpineDir $SpineDir -Quiet
+#  'files' keeps its historical meaning for every reader of this report (the
+#  per-file grid matrices); the stamp's file list is 'spineFiles'.
 $report = [pscustomobject]@{
     gate = $GATE
-    generated = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ss')
+    generated = (Get-Date).ToUniversalTime().ToString('o')
+    spineFingerprint = $fingerprint
+    mode = $mode
+    spineFiles = @($in.Files | ForEach-Object { $_.Name })
     buildDir = $BuildDir
+    spineDir = $(if ($SpineDir) { $SpineDir } else { Join-Path $BuildDir 'spine' })
     register = $in.RegisterPath
     cells = $in.CellsPath
     calibration = [pscustomobject]@{ anchorWindow = $AnchorWindow; minHitWords = $MinHitWords; minHitShare = $MinHitShare; dfCeiling = $DfCeiling; aliasAmbientCeiling = $AliasAmbientCeiling; rowOrderCap = $RowOrderCap; bulletOrderMin = $BulletOrderMin; ownOnly = [bool]$OwnOnly }
     pipelineApplied = $set.Applied
     commonWordsStripped = $set.CommonWords
+    emptyFiles = $emptyFiles.ToArray()
+    arms = @($roster)
     files = $fileReports.ToArray()
-    summary = [pscustomobject]@{ files = $in.Files.Count; sentences = $totalSentences; blockGrids = $blockTotal; reportGrids = $reportTotal }
+    summary = [pscustomobject]@{ files = $in.Files.Count; filesRead = $filesRead; emptyFiles = $emptyFiles.Count; pairsScanned = $pairsScanned; sentences = $totalSentences; blockGrids = $blockTotal; reportGrids = $reportTotal }
 }
 Write-SmJson -Object $report -Path $ReportPath
 
 Write-Host ''
-if (-not $Quiet) { Write-Host ("  report written to {0}  ({1} sentences scored)" -f $ReportPath, $totalSentences) -ForegroundColor DarkGray }
-if ($blockTotal -eq 0) {
+if (-not $Quiet) { Write-Host ("  report written to {0}  ({1} sentences scored; stamped {2}, mode {3})" -f $ReportPath, $totalSentences, $fingerprint, $mode) -ForegroundColor DarkGray }
+if ($emptyFiles.Count -gt 0) {
+    Write-Host ("  X {0} spine file(s) could not be read - a finding, not a skip: {1}" -f $emptyFiles.Count, ($emptyFiles.ToArray() -join '; ')) -ForegroundColor Red
+}
+if ($blockTotal -eq 0 -and $emptyFiles.Count -eq 0) {
     if ($reportTotal -gt 0) { Write-Host ("  {0} grid(s) at REPORT level only - read at Stage 3d; no BLOCK arm fired" -f $reportTotal) -ForegroundColor Yellow }
     Write-Host '  no sub-section writes its own assessed grid into the prose beyond the allowance' -ForegroundColor Green
     exit 0
 }
-Write-Host ("  {0} sub-section/grid pair(s) BLOCK; {1} more at report level" -f $blockTotal, $reportTotal) -ForegroundColor Red
+if ($blockTotal -gt 0) { Write-Host ("  {0} sub-section/grid pair(s) BLOCK; {1} more at report level" -f $blockTotal, $reportTotal) -ForegroundColor Red }
 Write-Host '  This gate reports the anchor and does not decide. Rewrite the anchored sentences as mechanism' -ForegroundColor Yellow
 Write-Host '  (what happens and why) without naming the assessed row beside its answer, or set the example' -ForegroundColor Yellow
 Write-Host '  on an unassessed subject from the register. Clearance is a Stage 3d decision recorded in' -ForegroundColor Yellow
 Write-Host '  figures.json "mirrorAllow" with a written reason - never a change to this gate.' -ForegroundColor Yellow
 exit 1
+
+}
+catch {
+    #  The two typed refusals Lib-GateCommon throws - an empty blocking
+    #  check-set, or a blocking arm that never finished - are exit 2, and the
+    #  roster is printed so a runner can see which arm starved. Anything else
+    #  is a gate defect and is re-thrown as one.
+    $m = $_.Exception.Message
+    if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0}: {1}" -f $GATE, $m) -ForegroundColor Red
+        try { [void](Write-GateArmRoster) } catch { }
+        exit 2
+    }
+    throw
+}

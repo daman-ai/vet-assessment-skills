@@ -106,15 +106,35 @@
     the exact channel the gate scans, and fails if any planted defect is not
     caught or if the clean fixture fires.
 
+    THE SEED ARMS (-SeedOnly, Stage 2). The namespace assertion is worth most
+    BEFORE anything is authored, and at Stage 2 there is no spine to read. In
+    seed mode the guide's side of the intersection is the namespace the contract
+    DECLARES for it (identifierNamespace.guideOwns) and the pack's side is
+    identifierNamespace.packOwns plus every DEFINITION the withhold register
+    carries in a naming field - "Appendix A - Stock Control Procedure" defines
+    Appendix A. The definition regex is HEAD-ANCHORED, which is what keeps a
+    date out of the namespace: "Appendix D - Stock on Hand Report, Monday 14
+    September 2026" defines Appendix D and does not define Monday 14. Nothing on
+    the spine is read, nothing is resolved, and the two resolution arms are
+    recorded DEFERRED by name on the roster - never skipped-and-pass.
+
     PS 5.1. ASCII only in this file.
     Exit 0 clean, 1 blocking finding(s), 2 usage or input error, 4 self-test failed.
 #>
+
+# GATE: stages=2,3c,4; requires=BuildDir; 2: SeedOnly
 
 [CmdletBinding()]
 param(
     [string] $BuildDir,
     [string] $SpineDir,
     [string] $ContractPath,
+    #  Stage 2: run the seed arms only. No spine is read, and the resolution
+    #  arms are recorded deferred with the stage that owns them.
+    [switch] $SeedOnly,
+    #  The band this run stands for (2, 3c or 4). Recorded in the report; an
+    #  unknown value is a usage error rather than a silently ignored argument.
+    [string] $Stage,
     #  The withhold register - pack reference patterns, task and observation
     #  references and the pack's own document vocabulary.
     [string] $RegisterPath,
@@ -144,6 +164,40 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
 
 $GATE = 'Assert-IdentifierNamespace'
+$script:Self = $PSCommandPath
+
+function Fail-Usage {
+    <# Exit 2: a usage error, an absent input, or an empty blocking check-set. #>
+    param([string] $Message)
+    Write-Host ("  X {0}: {1}" -f $GATE, $Message) -ForegroundColor Red
+    exit 2
+}
+
+function Stop-OnRefusal {
+    <# The library's typed refusals reach exit 2 through here. #>
+    param($Err)
+    $m = $Err.Exception.Message
+    if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE):') { Fail-Usage $m }
+    Fail-Usage ("the gate could not run - {0}" -f $m)
+}
+
+# REQUEST: Lib-GateCommon Set-GateArmState (see scratchpad\p0\REQUESTS\K.md)
+function Set-NsArmState {
+    <#  Record an arm as DEFERRED: registered, not run, not a pass, with the
+        stage that owns it. Complete-GateArm knows ran / empty / declared-n-a
+        only; until the library grows this state the roster object is stamped
+        here, exactly as Assert-PackSelfConsistency stamps its count-vs-grid
+        arm.  #>
+    param([Parameter(Mandatory)][string] $Name, [Parameter(Mandatory)][string] $Reason)
+    $arm = $null
+    foreach ($a in @(Get-GateArmRoster)) { if ($a.Name -eq $Name) { $arm = $a } }
+    if ($null -eq $arm) { throw ("Set-NsArmState: arm '{0}' was never registered." -f $Name) }
+    if ($arm.State -ne 'not-run') { throw ("Set-NsArmState: arm '{0}' already ended as '{1}'." -f $Name, $arm.State) }
+    if ("$Reason".Trim().Length -lt 20) { throw ("Set-NsArmState: arm '{0}' needs a written reason." -f $Name) }
+    $arm.State = 'deferred'
+    $arm.Reason = "$Reason"
+    $arm.CompletedUtc = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
+}
 
 # ---------------------------------------------------------------------------
 # Private helpers, named Ns* so nothing here can shadow a shared one
@@ -314,17 +368,48 @@ function Get-NsPackSchemes {
             if ($s.Length -le $lab.Length) { continue }
             if ($s.Substring(0, $lab.Length) -ine $lab) { continue }
             $rest = $s.Substring($lab.Length).Trim()
-            if ($rest -match '^(\d+(?:\.\d+)*)') { Add-NsValue -Scheme $schemes[$k] -Value $Matches[1] -Where $rt.Where }
+            #  LETTER-CAPABLE. An ordinal is a number OR a single capital
+            #  letter: the pack numbers its tasks and letters its appendices,
+            #  and a digits-only ordinal made "Appendix A" a value no scheme
+            #  occupied, so no reference to it could ever resolve. -cmatch, and
+            #  the negative lookahead, so a lower-case word ("Task a learner
+            #  with the count") is not read as an ordinal.
+            if ($rest -cmatch '^(\d+(?:\.\d+)*|[A-Z](?![A-Za-z]))') { Add-NsValue -Scheme $schemes[$k] -Value $Matches[1] -Where $rt.Where }
             break
         }
     }
 
-    # ---- the pack's own document identifiers, from the register vocabulary
+    # ---- the pack's own document identifiers, from the register vocabulary.
+    #
+    #  TWO PASSES, AND ONLY THE FIRST MAY INVENT A SCHEME. A vocabulary entry
+    #  DEFINES an identifier when the identifier stands at the HEAD of it -
+    #  "Appendix A - Stock Control Procedure" or the bare "Appendix A". A loose
+    #  sweep for <Capitalised> <ordinal> anywhere in the string invented a
+    #  "Monday" scheme out of "Appendix D - Stock on Hand Report, Monday 14
+    #  September 2026", and a phantom scheme with a value set makes every real
+    #  reference sharing its label ambiguous. So the loose sweep still runs -
+    #  nothing is lost from "Fixture Order Form (Appendix A)" - but it may only
+    #  add a VALUE to a scheme a definition already created.
     $vocab = Get-GateProp -Object $Register -Names @('vocabulary')
-    foreach ($d in (Get-NsArray (Get-GateProp -Object $vocab -Names @('document')))) {
-        foreach ($m in [regex]::Matches("$d", '\b(?<lab>[A-Z][a-z]{2,})\s+(?<val>[A-Z]\b|\d+(?:\.\d+)*)')) {
-            $sc = & $add $m.Groups['lab'].Value 'withhold-register vocabulary.document'
-            Add-NsValue -Scheme $sc -Value $m.Groups['val'].Value -Where 'withhold-register vocabulary.document'
+    $vocabEntries = New-Object System.Collections.Generic.List[string]
+    if ($null -ne $vocab -and -not ($vocab -is [string])) {
+        foreach ($vp in @($vocab.PSObject.Properties.Name)) {
+            if ($vp -like '_*') { continue }
+            foreach ($v in (Get-NsArray $vocab.$vp)) { if ($v -is [string] -and "$v".Trim()) { $vocabEntries.Add("$v") } }
+        }
+    }
+    foreach ($d in $vocabEntries) {
+        $m = [regex]::Match($d, $script:NsDefinitionRx)
+        if (-not $m.Success) { $m = [regex]::Match($d, $script:NsDeclaredRx) }
+        if (-not $m.Success) { continue }
+        $sc = & $add $m.Groups['lab'].Value 'withhold-register vocabulary (head-anchored definition)'
+        Add-NsValue -Scheme $sc -Value $m.Groups['val'].Value -Where 'withhold-register vocabulary'
+    }
+    foreach ($d in $vocabEntries) {
+        foreach ($m in [regex]::Matches($d, '\b(?<lab>[A-Z][a-z]{2,})\s+(?<val>[A-Z]\b|\d+(?:\.\d+)*)')) {
+            $lk = $m.Groups['lab'].Value.ToLowerInvariant()
+            if (-not $schemes.ContainsKey($lk)) { continue }
+            Add-NsValue -Scheme $schemes[$lk] -Value $m.Groups['val'].Value -Where 'withhold-register vocabulary (mentioned)'
         }
     }
     #  Recipe codes are a bare-numeric namespace of their own. Kept for the
@@ -456,6 +541,158 @@ function Get-NsGuideDefinitions {
         $defs.Add([pscustomobject]@{ Label = $m.Groups['lab'].Value; Value = $m.Groups['val'].Value; Where = ("{0}:{1}" -f $c.File, $c.Path) })
     }
     return [pscustomobject]@{ Definitions = $defs.ToArray(); SkippedNotNamingField = $skipped }
+}
+
+# ---------------------------------------------------------------------------
+# THE SEED ARMS - Stage 2, before a spine exists
+# ---------------------------------------------------------------------------
+
+#  A DECLARED identifier is a label and an ordinal and nothing else: "Appendix
+#  A", "Guide Resource 1", "Task 13". Anchored at both ends, so a sentence that
+#  happens to start with a label is not a declaration.
+$script:NsDeclaredRx = '^\s*(?<lab>[A-Z][A-Za-z]{2,15}(?:\s+[A-Z][A-Za-z]{2,15})?)\s+(?<val>\d+(?:\.\d+)*|[A-Z](?![A-Za-z]))\s*$'
+
+function Get-NsDeclaredList {
+    <#  The identifiers one side of contract.identifierNamespace declares, as
+        Label/Value pairs. A string that is not shaped like a declared
+        identifier is COUNTED and reported, never silently dropped.  #>
+    param($Namespace, [Parameter(Mandatory)][string] $Key, [Parameter(Mandatory)][string] $Owner)
+    $out = New-Object System.Collections.Generic.List[object]
+    $unparsed = New-Object System.Collections.Generic.List[string]
+    foreach ($s in (Get-NsArray (Get-GateProp -Object $Namespace -Names @($Key)))) {
+        $t = ('' + $s).Trim()
+        if (-not $t) { continue }
+        $m = [regex]::Match($t, $script:NsDeclaredRx)
+        if (-not $m.Success) { $unparsed.Add($t); continue }
+        $out.Add([pscustomobject]@{ Label = $m.Groups['lab'].Value; Value = $m.Groups['val'].Value; Where = ("contract identifierNamespace.{0}" -f $Key); Owner = $Owner })
+    }
+    return [pscustomobject]@{ Identifiers = $out.ToArray(); Unparsed = $unparsed.ToArray() }
+}
+
+function Get-NsRegisterDefinitions {
+    <#  Every DEFINITION the withhold register carries: "Appendix A - Stock
+        Control Procedure, document SCP-04" defines Appendix A. Two narrowings,
+        both of them about WHERE the rule looks and neither about what it will
+        accept:
+
+          NAMING FIELDS ONLY  the register's vocabulary lists and its
+                              documents block - the fields whose job is to name
+                              the pack's own things. The subSections carry the
+                              pack's withheld prose, and a bullet with the shape
+                              of a definition there is a signpost, not a
+                              definition (the same false-collision the spine
+                              walk narrows for).
+          HEAD-ANCHORED       $script:NsDefinitionRx matches at the head of the
+                              string only, which is what keeps a date out of the
+                              namespace: "Appendix D - Stock on Hand Report,
+                              Monday 14 September 2026" defines Appendix D, and
+                              defines no Monday 14.  #>
+    param($Register)
+    $out = New-Object System.Collections.Generic.List[object]
+    $strings = New-Object System.Collections.Generic.List[object]
+
+    $vocab = Get-GateProp -Object $Register -Names @('vocabulary')
+    if ($null -ne $vocab -and -not ($vocab -is [string])) {
+        foreach ($p in @($vocab.PSObject.Properties.Name)) {
+            if ($p -like '_*') { continue }
+            foreach ($v in (Get-NsArray $vocab.$p)) {
+                if ($v -is [string]) { $strings.Add([pscustomobject]@{ Text = $v; Where = ("withhold-register vocabulary.{0}" -f $p) }) }
+            }
+        }
+    }
+    $docs = Get-GateProp -Object $Register -Names @('documents')
+    if ($null -ne $docs -and -not ($docs -is [string])) {
+        foreach ($d in @($docs.PSObject.Properties.Name)) {
+            if ($d -like '_*') { continue }
+            $node = $docs.$d
+            $strings.Add([pscustomobject]@{ Text = $d; Where = 'withhold-register documents key' })
+            foreach ($f in @('title', 'name', 'label')) {
+                $t = '' + (Get-GateProp -Object $node -Names @($f) -Default '')
+                if ($t) { $strings.Add([pscustomobject]@{ Text = $t; Where = ("withhold-register documents.{0}.{1}" -f $d, $f) }) }
+            }
+        }
+    }
+
+    foreach ($s in $strings) {
+        $m = [regex]::Match(('' + $s.Text), $script:NsDefinitionRx)
+        if (-not $m.Success) { continue }
+        $out.Add([pscustomobject]@{ Label = $m.Groups['lab'].Value; Value = $m.Groups['val'].Value; Where = $s.Where; Owner = 'pack' })
+    }
+    return [pscustomobject]@{ Definitions = $out.ToArray(); Scanned = $strings.Count }
+}
+
+function Invoke-NsSeedNamespace {
+    <#  The Stage 2 arms. NS-COLLISION over the namespace the contract declares
+        for the guide and the namespace the pack owns - the contract's own
+        packOwns list plus every definition in the register. No spine is read.  #>
+    param([Parameter(Mandatory)][string] $Build, [string] $Contract, [string] $Register)
+
+    $findings = New-Object System.Collections.Generic.List[object]
+
+    if (-not $Register) { $Register = Join-Path $Build 'withhold-register.json' }
+    $contractDoc = if ($Contract) { Get-GateJson -Path $Contract } else { Get-GateContract -BuildDir $Build }
+    if ($null -eq $contractDoc) {
+        throw ("$GATE`: no contract at {0}. The namespace the guide may use and the namespace the pack owns are both DECLARED there; with no contract the seed arms would have to type both, which is the drift this gate exists to end." -f (Join-Path $Build 'contract.json'))
+    }
+    $registerDoc = Get-GateJson -Path $Register
+
+    $ns = Get-GateProp -Object $contractDoc -Names @('identifierNamespace')
+    $guide = Get-NsDeclaredList -Namespace $ns -Key 'guideOwns' -Owner 'guide'
+    $packD = Get-NsDeclaredList -Namespace $ns -Key 'packOwns'  -Owner 'pack'
+    $regD  = Get-NsRegisterDefinitions -Register $registerDoc
+
+    #  The pack's seed schemes: label -> the values it occupies, from both
+    #  sources, with where each value was found.
+    $packSchemes = @{}
+    foreach ($p in (@($packD.Identifiers) + @($regD.Definitions))) {
+        $k = $p.Label.ToLowerInvariant()
+        if (-not $packSchemes.ContainsKey($k)) { $packSchemes[$k] = New-NsScheme -Label $p.Label -Owner 'pack' -Source $p.Where }
+        if (-not $packSchemes[$k].Sources.Contains($p.Where)) { $packSchemes[$k].Sources.Add($p.Where) }
+        Add-NsValue -Scheme $packSchemes[$k] -Value $p.Value -Where $p.Where
+    }
+    $guideSchemes = @{}
+    foreach ($g in @($guide.Identifiers)) {
+        $k = $g.Label.ToLowerInvariant()
+        if (-not $guideSchemes.ContainsKey($k)) { $guideSchemes[$k] = New-NsScheme -Label $g.Label -Owner 'guide' -Source $g.Where }
+        Add-NsValue -Scheme $guideSchemes[$k] -Value $g.Value -Where $g.Where
+    }
+
+    $seen = @{}
+    foreach ($g in @($guide.Identifiers)) {
+        $k = $g.Label.ToLowerInvariant()
+        if (-not $packSchemes.ContainsKey($k)) { continue }
+        if (-not $packSchemes[$k].Values.Contains($g.Value)) { continue }
+        $key = "{0}|{1}" -f $k, $g.Value
+        if ($seen.ContainsKey($key)) { continue }
+        $seen[$key] = $true
+        $findings.Add([pscustomobject]@{
+            Rule = 'NS-COLLISION'; Level = 'BLOCK'; Label = $g.Label; Value = $g.Value
+            Detail = ("the contract declares '{0} {1}' as the GUIDE's own ({2}), and the source pack already owns '{3} {1}' ({4}). Two documents in one learner's hands would number the same thing twice. Fix the convention in contract.json identifierNamespace before anything is authored - one guide's appendix letters collided across 151 references and the renumbering that followed left a stale reference behind." -f `
+                $g.Label, $g.Value, $g.Where, $packSchemes[$k].Label, $packSchemes[$k].Anchors[$g.Value])
+        })
+    }
+
+    return [pscustomobject]@{
+        Findings     = $findings.ToArray()
+        PackSchemes  = $packSchemes
+        GuideSchemes = $guideSchemes
+        HasNamespaceKey = ($null -ne $ns)
+        Stats = [pscustomobject]@{
+            mode = 'seed'
+            packDeclared = @($packD.Identifiers).Count
+            packDeclaredUnparsed = @($packD.Unparsed).Count
+            registerDefinitions = @($regD.Definitions).Count
+            registerStringsScanned = $regD.Scanned
+            guideDeclared = @($guide.Identifiers).Count
+            guideDeclaredUnparsed = @($guide.Unparsed).Count
+            packSchemes = $packSchemes.Count
+            guideSchemes = $guideSchemes.Count
+            packValues = (((@($packSchemes.Keys) | ForEach-Object { $packSchemes[$_].Values.Count }) | Measure-Object -Sum).Sum)
+            collisions = $findings.Count
+            unparsedGuide = @($guide.Unparsed)
+            unparsedPack = @($packD.Unparsed)
+        }
+    }
 }
 
 # ---------------------------------------------------------------------------
@@ -602,7 +839,14 @@ function Invoke-IdentifierNamespace {
         #  shorter one that sits inside it.
         $taken = New-Object System.Collections.Generic.List[object]
         foreach ($L in $ordered) {
-            $rx = '(?<!\w)' + [regex]::Escape($L.Label) + '\s+(?<val>\d+(?:\.\d+)*)'
+            #  LETTER-CAPABLE, for the same reason the scheme builder is: the
+            #  pack letters its appendices, and a digits-only resolver walked
+            #  past every "Appendix A" reference in both directions - it could
+            #  neither resolve one nor report one as dangling. The letter
+            #  alternative is case-SENSITIVE inside a case-insensitive regex
+            #  ((?-i:...)) and may not be followed by a letter, so "Task and
+            #  the answer" is not a reference to Task A.
+            $rx = '(?<!\w)' + [regex]::Escape($L.Label) + '\s+(?<val>\d+(?:\.\d+)*|(?-i:[A-Z])(?![A-Za-z]))'
             foreach ($m in [regex]::Matches($text, $rx, 'IgnoreCase')) {
                 $overlap = $false
                 foreach ($t in $taken) { if ($m.Index -lt ($t.S + $t.L) -and ($m.Index + $m.Length) -gt $t.S) { $overlap = $true; break } }
@@ -784,12 +1028,18 @@ function Invoke-IdentifierNamespace {
 # ---------------------------------------------------------------------------
 
 function New-NsFixture {
-    param([Parameter(Mandatory)][string] $Root)
+    <#  -CollideSeed  the contract hands the GUIDE the pack's own appendix
+                      letters, which is the Stage 2 defect.
+        -NoNamespace  no identifierNamespace block at all - the seed check-set
+                      has no input and the gate must refuse naming the key.
+        -NoConvention no referenceConvention and no referencePattern anywhere:
+                      zero pack schemes, which the spine path must refuse.  #>
+    param([Parameter(Mandatory)][string] $Root, [switch] $CollideSeed, [switch] $NoNamespace, [switch] $NoConvention)
 
     New-Item -ItemType Directory -Path $Root -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $Root 'spine') -Force | Out-Null
 
-    Write-NsJson -Path (Join-Path $Root 'contract.json') -Object ([ordered]@{
+    $contract = [ordered]@{
         build = [ordered]@{ brand = '' }
         topics = @([ordered]@{ n = 1; pcs = @('1.1') })
         referenceConvention = [ordered]@{
@@ -801,15 +1051,42 @@ function New-NsFixture {
             '1.1' = @('Knowledge Task 4(a)', 'Workbook Task 1(a)', 'Observation 1')
         }
         visuals = [ordered]@{ perSubSection = 1 }
-    })
-
-    Write-NsJson -Path (Join-Path $Root 'withhold-register.json') -Object ([ordered]@{
-        documents = [ordered]@{
-            FixtureWorkbook = [ordered]@{ audience = 'learner'; referencePattern = 'Workbook Task {n}({part})' }
-            FixtureKnowledge = [ordered]@{ audience = 'learner'; referencePattern = 'Knowledge Task {n}({part})' }
+    }
+    if ($NoConvention) {
+        $contract.Remove('referenceConvention')
+        $contract.Remove('questionMap')
+    }
+    if (-not $NoNamespace) {
+        $guideOwns = @('Guide Resource 1', 'Guide Resource 2', 'Guide Resource 3')
+        if ($CollideSeed) { $guideOwns = @('Appendix A', 'Appendix B', 'Appendix C', 'Appendix D', 'Appendix E', 'Appendix F', 'Appendix G') }
+        $contract['identifierNamespace'] = [ordered]@{
+            packOwns  = @('Appendix A', 'Appendix B', 'Task 1', 'Task 4', 'Observation 1')
+            guideOwns = $guideOwns
+            rule      = 'The guide never writes a bare pack identifier of its own.'
         }
+    }
+    Write-NsJson -Path (Join-Path $Root 'contract.json') -Object $contract
+
+    $regDocs = [ordered]@{
+        FixtureWorkbook = [ordered]@{ audience = 'learner'; referencePattern = 'Workbook Task {n}({part})' }
+        FixtureKnowledge = [ordered]@{ audience = 'learner'; referencePattern = 'Knowledge Task {n}({part})' }
+    }
+    $vocabDocs = @(
+        'Appendix A - Fixture Stock Control Procedure, document SCP-04',
+        'Appendix D - Fixture Stock on Hand Report, Monday 14 September 2026',
+        'Fixture Order Form (Appendix A)'
+    )
+    if ($NoConvention) {
+        $regDocs = [ordered]@{ FixtureWorkbook = [ordered]@{ audience = 'learner' } }
+        $vocabDocs = @()
+    }
+    Write-NsJson -Path (Join-Path $Root 'withhold-register.json') -Object ([ordered]@{
+        documents = $regDocs
         vocabulary = [ordered]@{
-            document = @('Fixture Order Form (Appendix A)')
+            #  Two head-anchored DEFINITIONS and one MENTION. The second
+            #  definition carries a date in its tail: "Monday 14" must not
+            #  become a pack scheme.
+            document = $vocabDocs
             equipment = @()
             recipe = @('2091 Fixture item')
         }
@@ -845,6 +1122,23 @@ function Invoke-NsSelfTest {
 
     $cap = Get-NsCaptionPrefix -Given $ConfigGiven -Skill $Skill
     $root = Join-Path ([System.IO.Path]::GetTempPath()) ('ns-selftest-' + [Guid]::NewGuid().ToString('N').Substring(0, 12))
+
+    function Invoke-NsChild {
+        <#  Run the gate as its own script so the EXIT CODE is what is asserted.
+            Hashtable splat, never an array: array elements bind by position.
+            *>&1 because a refusal (exit 2) writes no report and speaks through
+            Write-Host, and the ARMS line does too. -Width 4096 because the
+            host otherwise wraps, and an assertion that turns on the terminal
+            width is not an assertion.  #>
+        param([hashtable] $Params)
+        $rp = Join-Path $root ('report_' + [Guid]::NewGuid().ToString('N').Substring(0, 8) + '.json')
+        $global:LASTEXITCODE = 0
+        $text = & $script:Self @Params -ReportPath $rp -Quiet *>&1 | Out-String -Width 4096
+        $code = $LASTEXITCODE
+        $body = $null
+        if (Test-Path -LiteralPath $rp) { $body = Get-GateJson -Path $rp }
+        return [pscustomobject]@{ Code = $code; Report = $body; Text = $text }
+    }
 
     function Test-NsPlantLanded {
         param([string] $Path, [scriptblock] $Probe, [string] $What)
@@ -944,6 +1238,76 @@ function Invoke-NsSelfTest {
         New-NsFixture -Root $c5 | Out-Null
         Test-NsFires -Build $c5 -Rule 'NS-BARE-REFERENCE' -What "every reference in the clean fixture is qualified"
         Test-NsFires -Build $c5 -Rule 'NS-XREF-DANGLING' -What "every qualified reference in the clean fixture resolves"
+
+        # ---- CASE 6: THE DATE CONTROL. The register's second vocabulary line
+        #      carries "Monday 14 September 2026" in its tail. Head-anchoring is
+        #      what keeps that out of the namespace; a loose sweep made a
+        #      "Monday" scheme with a value set, and a phantom scheme makes
+        #      every real reference sharing its label ambiguous.
+        $c6 = Join-Path $root 'p6'
+        New-NsFixture -Root $c6 | Out-Null
+        $r6 = $null
+        try { $r6 = Invoke-IdentifierNamespace -Build $c6 -CaptionPrefix $cap.Prefix -CaptionFrom $cap.Path } catch { Bad ("date control: the gate threw - {0}" -f $_.Exception.Message) }
+        if ($null -ne $r6) {
+            $hasMonday = @($r6.PackSchemes.Keys | Where-Object { $_ -eq 'monday' }).Count
+            $hasAppendix = 0
+            if ($r6.PackSchemes.ContainsKey('appendix')) { $hasAppendix = $r6.PackSchemes['appendix'].Values.Count }
+            if ($hasMonday -eq 0 -and $hasAppendix -ge 2) { Ok ("date control: 'Appendix D - ... Monday 14 September 2026' defines Appendix D and no Monday - the Appendix scheme holds {0} value(s) and there is no Monday scheme" -f $hasAppendix) }
+            else { Bad ("date control: Monday scheme(s) {0}, Appendix values {1} - a date in a definition's tail was mined as an identifier" -f $hasMonday, $hasAppendix) }
+        }
+
+        # ---- CASE 7: THE SEED ARMS (Stage 2, no spine). A contract that hands
+        #      the guide the pack's own appendix letters is the defect this
+        #      gate exists to catch BEFORE anything is authored. Run as a child
+        #      process so the EXIT CODE is asserted, not just the finding list.
+        $c7 = Join-Path $root 'p7'
+        New-NsFixture -Root $c7 -CollideSeed | Out-Null
+        Remove-Item -LiteralPath (Join-Path $c7 'spine') -Recurse -Force -ErrorAction SilentlyContinue
+        $x7 = Invoke-NsChild @{ BuildDir = $c7; SeedOnly = $true; Stage = '2' }
+        #  Asserted on the REPORT, which is written whether or not -Quiet is on.
+        $hits7 = @(@($x7.Report.blocking) | Where-Object { $_.Rule -eq 'NS-COLLISION' -and $_.Label -eq 'Appendix' })
+        $named7 = ($hits7.Count -ge 1)
+        if (($x7.Code -eq 1) -and $named7) { Ok ("seed: a contract giving the guide Appendix A to G against a pack that owns Appendix exits 1 naming NS-COLLISION (there is no spine at all)") }
+        else { Bad ("seed collision: exit {0} (expected 1), NS-COLLISION named: {1}" -f $x7.Code, $named7) }
+
+        # ---- CASE 8: the seed control - the same fixture with the guide's own
+        #      'Guide Resource N' back matter passes, and the two resolution
+        #      arms are on the roster as DEFERRED, never skipped-and-pass.
+        $c8 = Join-Path $root 'p8'
+        New-NsFixture -Root $c8 | Out-Null
+        Remove-Item -LiteralPath (Join-Path $c8 'spine') -Recurse -Force -ErrorAction SilentlyContinue
+        $x8 = Invoke-NsChild @{ BuildDir = $c8; SeedOnly = $true; Stage = '2' }
+        $def8 = ($x8.Text -match 'xref-resolution\|true\|deferred') -and ($x8.Text -match 'bare-reference\|true\|deferred')
+        if (($x8.Code -eq 0) -and $def8) { Ok 'seed control: no collision, exit 0, and the roster records xref-resolution and bare-reference as deferred to Stage 3c/4' }
+        else { Bad ("seed control: exit {0} (expected 0); roster deferral {1}" -f $x8.Code, $(if ($def8) { 'present' } else { 'MISSING - the resolution arms were skipped, not deferred' })) }
+
+        # ---- CASE 9: no identifierNamespace block at all. The seed check-set
+        #      has no input, and an absent input is a refusal naming the key.
+        $c9 = Join-Path $root 'p9'
+        New-NsFixture -Root $c9 -NoNamespace | Out-Null
+        Remove-Item -LiteralPath (Join-Path $c9 'spine') -Recurse -Force -ErrorAction SilentlyContinue
+        $x9 = Invoke-NsChild @{ BuildDir = $c9; SeedOnly = $true; Stage = '2' }
+        if (($x9.Code -eq 2) -and ($x9.Text -match 'identifierNamespace')) { Ok 'zero namespace input: exit 2 naming contract.json identifierNamespace' }
+        else { Bad ("zero namespace input: exit {0} (expected 2); the refusal {1} name the contract key" -f $x9.Code, $(if ($x9.Text -match 'identifierNamespace') { 'did' } else { 'did NOT' })) }
+
+        # ---- CASE 10: zero pack schemes on the spine path. A contract with no
+        #      referenceConvention and a register with no referencePattern
+        #      leaves nothing to intersect the guide against, and the gate used
+        #      to print "no namespace collision" over exactly that.
+        $c10 = Join-Path $root 'p10'
+        New-NsFixture -Root $c10 -NoConvention | Out-Null
+        $x10 = Invoke-NsChild @{ BuildDir = $c10 }
+        if (($x10.Code -eq 2) -and ($x10.Text -match 'CHECK-SET EMPTY') -and ($x10.Text -match 'referenceConvention')) { Ok 'zero pack schemes: exit 2 CHECK-SET EMPTY naming contract.json referenceConvention' }
+        else { Bad ("zero pack schemes: exit {0} (expected 2); CHECK-SET EMPTY {1}; referenceConvention {2}" -f $x10.Code, $(if ($x10.Text -match 'CHECK-SET EMPTY') { 'printed' } else { 'NOT printed' }), $(if ($x10.Text -match 'referenceConvention') { 'named' } else { 'NOT named' })) }
+
+        # ---- CASE 11: the clean fixture through the child, so the roster and
+        #      the exit code of the full spine path are asserted too.
+        $c11 = Join-Path $root 'p11'
+        New-NsFixture -Root $c11 | Out-Null
+        $x11 = Invoke-NsChild @{ BuildDir = $c11 }
+        $armsOk = ($x11.Text -match 'ARMS: ') -and ($x11.Text -match 'pack-namespace\|true\|ran\|') -and ($x11.Text -match 'xref-resolution\|true\|ran\|')
+        if (($x11.Code -eq 0) -and $armsOk) { Ok 'spine control: exit 0 with every one of the four blocking arms complete on the ARMS line' }
+        else { Bad ("spine control: exit {0} (expected 0); ARMS line {1}" -f $x11.Code, $(if ($armsOk) { 'complete' } else { 'MISSING or incomplete' })) }
     }
     finally {
         if ((Test-Path -LiteralPath $root) -and $root.Length -gt 12) {
@@ -976,6 +1340,110 @@ if (-not (Test-Path -LiteralPath $BuildDir)) {
     Write-Host ("  X {0}: -BuildDir not found: {1}" -f $GATE, $BuildDir) -ForegroundColor Red
     exit 2
 }
+if ($Stage -and $Stage -notin @('2', '3c', '4')) {
+    Fail-Usage ("-Stage '{0}' is not a band this gate runs at (2, 3c or 4)." -f $Stage)
+}
+
+# ---------------------------------------------------------------------------
+#  The arm roster (Lib-GateCommon). Every arm ends ran / empty / declared-n-a,
+#  or - for the two resolution arms in seed mode - DEFERRED with the band that
+#  owns them. A blocking arm with an empty check-set is a refusal, exit 2.
+# ---------------------------------------------------------------------------
+Reset-GateArmRoster
+Register-GateArm -Name 'pack-namespace'  -Blocking
+Register-GateArm -Name 'guide-namespace' -Blocking
+Register-GateArm -Name 'xref-resolution' -Blocking
+Register-GateArm -Name 'bare-reference'  -Blocking
+
+if ($SeedOnly) {
+    #  ---- STAGE 2. No spine exists yet; the declared namespaces are the whole
+    #       check-set, and the two resolution arms are deferred by name.
+    if (-not $Quiet) {
+        Write-Host ''
+        Write-Host 'IDENTIFIER NAMESPACE (SEED) - does the namespace the contract gives the guide collide with the pack the register describes?' -ForegroundColor Cyan
+    }
+    try { $seed = Invoke-NsSeedNamespace -Build $BuildDir -Contract $ContractPath -Register $RegisterPath }
+    catch { Write-Host ("  X {0}: {1}" -f $GATE, $_.Exception.Message) -ForegroundColor Red; exit 2 }
+
+    $sst = $seed.Stats
+    if (-not $seed.HasNamespaceKey) {
+        Fail-Usage ("contract.json has no identifierNamespace block. At Stage 2 that block IS the check-set: identifierNamespace.packOwns says what the source pack numbers and letters, identifierNamespace.guideOwns says what the guide may number for itself, and with neither declared this gate would have nothing to intersect and would print a green line over an unanswered question. Declare the block, or run the gate at Stage 3c over a spine.")
+    }
+    try {
+        Write-GateCheckSet -What 'pack identifier scheme(s)' -Count $sst.packSchemes -Blocking `
+            -Input 'contract.json identifierNamespace.packOwns + the definitions in withhold-register.json (vocabulary lists and documents block)' `
+            -DerivedFrom ("{0} declared pack identifier(s) and {1} register definition(s) over {2} naming string(s)" -f $sst.packDeclared, $sst.registerDefinitions, $sst.registerStringsScanned)
+    } catch { Stop-OnRefusal $_ }
+    Complete-GateArm -Name 'pack-namespace' -State 'ran' -Size $sst.packSchemes -Findings 0
+
+    try {
+        Write-GateCheckSet -What 'guide identifier(s) the contract declares' -Count $sst.guideDeclared -Blocking `
+            -Input 'contract.json identifierNamespace.guideOwns' `
+            -DerivedFrom ("identifierNamespace.guideOwns, {0} entry/entries of which {1} were not shaped like an identifier" -f ($sst.guideDeclared + $sst.guideDeclaredUnparsed), $sst.guideDeclaredUnparsed)
+    } catch { Stop-OnRefusal $_ }
+    Complete-GateArm -Name 'guide-namespace' -State 'ran' -Size $sst.guideDeclared -Findings $sst.collisions
+
+    $deferReason = 'the resolution arms read the spine, which does not exist at Stage 2; they run at Stage 3c and Stage 4 over the authored spine and are recorded here so their absence is a named deferral, not a pass'
+    Set-NsArmState -Name 'xref-resolution' -Reason $deferReason
+    Set-NsArmState -Name 'bare-reference'  -Reason $deferReason
+
+    $seedRoster = @()
+    try { Assert-GateArmsComplete; $seedRoster = @(Write-GateArmRoster) } catch { Stop-OnRefusal $_ }
+
+    $seedBlocking = @($seed.Findings)
+    if (-not $Quiet) {
+        foreach ($k in (@($seed.PackSchemes.Keys) | Sort-Object)) {
+            $s = $seed.PackSchemes[$k]
+            Write-Host ("    pack  {0,-18} {1,4} value(s)   from {2}" -f $s.Label, $s.Values.Count, ($s.Sources -join ' + ')) -ForegroundColor DarkGray
+        }
+        foreach ($k in (@($seed.GuideSchemes.Keys) | Sort-Object)) {
+            $s = $seed.GuideSchemes[$k]
+            Write-Host ("    guide {0,-18} {1,4} value(s)" -f $s.Label, $s.Values.Count) -ForegroundColor DarkGray
+        }
+        foreach ($u in @($sst.unparsedPack))  { Write-Host ("  ! identifierNamespace.packOwns entry not shaped like an identifier, so it is in no scheme: {0}" -f $u) -ForegroundColor Yellow }
+        foreach ($u in @($sst.unparsedGuide)) { Write-Host ("  ! identifierNamespace.guideOwns entry not shaped like an identifier, so it is in no scheme: {0}" -f $u) -ForegroundColor Yellow }
+        Write-Host ''
+        if ($seedBlocking.Count -eq 0) { Write-Host '  no collision between the namespace the contract gives the guide and the namespace the pack owns' -ForegroundColor Green }
+        foreach ($f in $seedBlocking) { Write-Host ("  X NS-COLLISION: {0}" -f $f.Detail) -ForegroundColor Red }
+    }
+
+    $seedReportPath = $ReportPath
+    if (-not $seedReportPath) { $seedReportPath = Join-Path $BuildDir 'identifier-namespace-seed-report.json' }
+    $seedPackOut = New-Object System.Collections.Generic.List[object]
+    foreach ($k in (@($seed.PackSchemes.Keys) | Sort-Object)) {
+        $s = $seed.PackSchemes[$k]
+        $seedPackOut.Add([pscustomobject]@{ label = $s.Label; owner = 'pack'; values = @($s.Values | Sort-Object); sources = @($s.Sources) })
+    }
+    $seedGuideOut = New-Object System.Collections.Generic.List[object]
+    foreach ($k in (@($seed.GuideSchemes.Keys) | Sort-Object)) {
+        $s = $seed.GuideSchemes[$k]
+        $seedGuideOut.Add([pscustomobject]@{ label = $s.Label; owner = 'guide'; values = @($s.Values | Sort-Object) })
+    }
+    Write-NsJson -Path $seedReportPath -Object ([pscustomobject]@{
+        gate      = $GATE
+        mode      = 'seed'
+        stage     = $Stage
+        generated = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ss')
+        buildDir  = $BuildDir
+        packSchemes  = $seedPackOut.ToArray()
+        guideSchemes = $seedGuideOut.ToArray()
+        stats     = $sst
+        blocking  = $seedBlocking
+        arms      = $seedRoster
+        verdict   = $(if ($seedBlocking.Count) { 'FAIL' } else { 'PASS' })
+    })
+    if (-not $Quiet) { Write-Host ("  report written to {0}" -f $seedReportPath) -ForegroundColor DarkGray }
+    if ($seedBlocking.Count) {
+        if (-not $Quiet) { Write-Host ("FAIL - {0} NS-COLLISION finding(s) between the declared namespaces" -f $seedBlocking.Count) -ForegroundColor Red }
+        exit 1
+    }
+    if (-not $Quiet) { Write-Host 'PASS' -ForegroundColor Green }
+    exit 0
+}
+
+if ($Stage -eq '2') {
+    Fail-Usage 'at Stage 2 there is no spine to read, so this gate runs its seed arms: pass -SeedOnly with -Stage 2. Without it the gate would have to enumerate a spine directory that the build has not written yet, and an empty enumeration is not a pass.'
+}
 
 $cap = Get-NsCaptionPrefix -Given $ImagesConfig -Skill $SkillDir
 try {
@@ -992,8 +1460,49 @@ $reports  = @($result.Notes)
 if (-not $Quiet) {
     Write-Host ''
     Write-Host 'IDENTIFIER NAMESPACE - does anything the guide invents collide with the pack?' -ForegroundColor Cyan
-    Write-GateCheckSet -What 'pack identifier scheme(s)' -Count $st.packSchemes -DerivedFrom 'contract referenceConvention + withhold-register documents/refs + assessor-cells grid refs + register vocabulary'
-    Write-GateCheckSet -What 'guide identifier scheme(s)' -Count $st.guideSchemes -DerivedFrom ("the declared caption prefix '{0}', contract topics, and definition-shaped strings on the spine" -f $st.captionPrefix)
+}
+
+# ---------------------------------------------------------------------------
+#  The check-sets, and the arms they belong to. Blocking and OUTSIDE the -Quiet
+#  guard: a gate that derived no pack scheme at all - a contract with no
+#  referenceConvention and a register with no referencePattern - has nothing to
+#  intersect the guide against, and used to print "no namespace collision" over
+#  that. An absent input is a refusal (exit 2), never a pass.
+# ---------------------------------------------------------------------------
+try {
+    Write-GateCheckSet -What 'pack identifier scheme(s)' -Count $st.packSchemes -Blocking `
+        -Input 'contract.json referenceConvention (and withhold-register.json documents[].referencePattern / vocabulary)' `
+        -DerivedFrom 'contract referenceConvention + withhold-register documents/refs + assessor-cells grid refs + register vocabulary'
+} catch { Stop-OnRefusal $_ }
+Complete-GateArm -Name 'pack-namespace' -State 'ran' -Size $st.packSchemes -Findings 0
+
+$guideNa = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm 'guide-namespace'
+try {
+    Write-GateCheckSet -What 'identifier(s) the guide defines for itself' -Count $st.guideDefinitions -Blocking:(-not $guideNa) `
+        -Input ("the declared caption prefix '{0}' over the spine's visual slots, contract topics, and definition-shaped strings in a naming field on the spine" -f $st.captionPrefix) `
+        -DerivedFrom ("{0} guide scheme(s); {1} definition-shaped string(s) outside a naming field were not counted" -f $st.guideSchemes, $st.definitionShapedNotInNamingField)
+} catch { Stop-OnRefusal $_ }
+if ($guideNa -and $st.guideDefinitions -eq 0) { Complete-GateArm -Name 'guide-namespace' -State 'declared-n-a' -Reason $guideNa }
+else { Complete-GateArm -Name 'guide-namespace' -State 'ran' -Size $st.guideDefinitions -Findings @($blocking | Where-Object { $_.Rule -eq 'NS-COLLISION' }).Count }
+
+try {
+    Write-GateCheckSet -What 'cross-reference(s) resolved against the two namespaces' -Count $st.crossReferences -Blocking `
+        -Input ("the {0} spine cell(s) under {1}" -f $st.cells, $(if ($SpineDir) { $SpineDir } else { Join-Path $BuildDir 'spine' })) `
+        -DerivedFrom 'one anchored regex per declared label, longest label first'
+} catch { Stop-OnRefusal $_ }
+Complete-GateArm -Name 'xref-resolution' -State 'ran' -Size $st.crossReferences -Findings @($blocking | Where-Object { $_.Rule -like 'NS-XREF-*' }).Count
+
+try {
+    Write-GateCheckSet -What 'spine cell(s) swept for an unqualified bare reference' -Count $st.cells -Blocking `
+        -Input ("the spine under {0}" -f $(if ($SpineDir) { $SpineDir } else { Join-Path $BuildDir 'spine' })) `
+        -DerivedFrom ("{0} ambiguous bare label(s) derived from the pack's own label set" -f $st.ambiguousBareLabels)
+} catch { Stop-OnRefusal $_ }
+Complete-GateArm -Name 'bare-reference' -State 'ran' -Size $st.cells -Findings @($blocking | Where-Object { $_.Rule -eq 'NS-BARE-REFERENCE' }).Count
+
+$roster = @()
+try { Assert-GateArmsComplete; $roster = @(Write-GateArmRoster) } catch { Stop-OnRefusal $_ }
+
+if (-not $Quiet) {
     foreach ($k in ($result.PackSchemes.Keys | Sort-Object)) {
         $s = $result.PackSchemes[$k]
         Write-Host ("    pack  {0,-18} {1,4} value(s)   from {2}" -f $s.Label, $s.Values.Count, ($s.Sources -join ' + ')) -ForegroundColor DarkGray
@@ -1042,6 +1551,9 @@ foreach ($k in ($result.Ambiguous.Keys | Sort-Object)) {
 
 $report = [pscustomobject]@{
     gate      = $GATE
+    mode      = 'spine'
+    stage     = $Stage
+    arms      = $roster
     generated = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ss')
     buildDir  = $BuildDir
     spineFingerprint = (Get-SpineFingerprint -BuildDir $BuildDir -SpineDir $SpineDir)

@@ -83,12 +83,44 @@
     Runs on the SPINE, because that is where the text is authored and where any
     fix has to land, and over rendered text extracts of both artefacts as well.
 
-    PS 5.1. ASCII only in this file. Exit 1 on a blocking hit, 2 on a usage error.
+    THE SPINE INCLUDES ITS FRONT MATTER (P0-11). Get-GateSpineFiles excludes
+    front.json, cover.json and deckframe.json by default, and that default was
+    left in place here for a year: deckframe.json's frame slides - the deck's
+    opening, section and closing furniture, authored by the same hand as every
+    other slide - have never been swept by any text gate, and neither had
+    front.json. Both are swept now. cover.json is the ONE exclusion, because
+    Assert-PromptLint owns the cover, and the exclusion is printed beside the
+    check-set so a reader can see what this gate chose not to sweep without
+    opening it.
+
+    A SPINE FILE THE SWEEP CANNOT READ IS A FINDING, NOT A SKIP. An empty,
+    whitespace-only or unparseable file used to fall through the loop in
+    silence, and a file that had lost its content swept clean by having no
+    text in it.
+
+    ARMS (P0-09). spine-channels and blocking-runs BLOCK; marking-vocabulary,
+    reported-runs and rendered-extracts report. Every arm is registered before
+    it runs and completed before the verdict, the roster is printed as one
+    ARMS: line, and a blocking arm whose check-set is empty is a refusal
+    (exit 2), never a pass.
+
+    SELF-TEST:  powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Check-FigureLeakage.ps1 -SelfTest
+
+    PS 5.1. ASCII only in this file. Exit 1 on a blocking hit, 2 on a refusal.
 #>
+
+#  4 and 7c are named because Run-Gates PLANS this gate in both bands (the
+#  'leakage' entry, once before artwork and once after). A header that said 3c
+#  alone claimed the rendered sweep ran nowhere, and no rule checked that
+#  direction, so the two could disagree in silence.
+# GATE: stages=3c,4,7c; requires=BuildDir,ExcludeText; 7c: DocText
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)][string] $BuildDir,
+    #  NOT [Parameter(Mandatory)]. A mandatory parameter PROMPTS, and a gate
+    #  that prompts inside a runner's job hangs instead of failing; an absent
+    #  input is a refusal that names itself (exit 2), below.
+    [string] $BuildDir,
     [string] $CorpusDir,
     [string] $SpineDir,
     [string] $RulesPath,
@@ -116,6 +148,7 @@ param(
     #  the 25 lines that fitted on the console. A finding cannot be closed
     #  against a list nobody has.
     [string] $ReportPath,
+    [switch] $SelfTest,
     [switch] $Quiet
 )
 
@@ -124,6 +157,178 @@ $ErrorActionPreference = 'Stop'
 
 $GATE = 'Check-FigureLeakage'
 
+#  cover.json and ONLY cover.json. Named once, printed with the check-set,
+#  and passed to the enumerator, so the exclusion is one fact in one place.
+$script:FlExclude = @('cover.json')
+
+# ---------------------------------------------------------------------------
+# SELF-TEST. Synthetic build in the temp directory; every string invented.
+# The gate is invoked as a child of this process on each plant, the plant is
+# read back from the fixture before the verdict is trusted, and the run ends
+# SELF-TEST PASS (exit 0) or SELF-TEST FAIL (exit 4).
+# ---------------------------------------------------------------------------
+if ($SelfTest) {
+    Write-Host ''
+    Write-Host ("  {0} SELF-TEST - a clean result is not believed until the gate has failed on a planted defect" -f $GATE) -ForegroundColor Cyan
+    $script:FlSelfTestFailed = 0
+    $self = $MyInvocation.MyCommand.Path
+    $fx = Join-Path ([System.IO.Path]::GetTempPath()) ('fl-selftest-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+    New-Item -ItemType Directory -Force -Path (Join-Path $fx 'spine'), (Join-Path $fx 'corpus') | Out-Null
+
+    function Test-FlSelf { param([bool] $Ok, [string] $What) if ($Ok) { Write-Host ("    ok   {0}" -f $What) -ForegroundColor Green } else { Write-Host ("    X    {0}" -f $What) -ForegroundColor Red; $script:FlSelfTestFailed++ } }
+    function Write-FlFixture { param([string] $Path, $Object) [System.IO.File]::WriteAllText($Path, ($Object | ConvertTo-Json -Depth 14), (New-Object System.Text.UTF8Encoding($true))) }
+    function Write-FlText { param([string] $Path, [string] $Text) [System.IO.File]::WriteAllText($Path, $Text, (New-Object System.Text.UTF8Encoding($true))) }
+    function Invoke-FlSelf {
+        param([hashtable] $Arguments)
+        $text = ''; $rc = -1
+        try { $lines = @(& $self @Arguments *>&1 | ForEach-Object { "$_" }); $rc = $LASTEXITCODE; $text = ($lines -join "`n") }
+        catch { $text = "EXCEPTION: " + $_.Exception.Message; $rc = -1 }
+        return [pscustomobject]@{ Rc = $rc; Text = $text }
+    }
+
+    #  One assessor-only run of more than 15 words, one that the unit also
+    #  carries (class U, never leakage), and one repeated structural label.
+    $LEAK  = 'A satisfactory answer covers the spindle tension check, the bearing oil interval and the belt fray inspection in that order.'
+    $UNITQ = 'The candidate must demonstrate the safe assembly of the guard, the interlock and the emergency stop before any production run.'
+    $CLEAN = 'A dry bearing seizes because the oil film that carries the load has been squeezed out of the running clearance entirely.'
+
+    $spineDir  = Join-Path $fx 'spine'
+    $subPath   = Join-Path $spineDir 't1_1.1.json'
+    $frontPath = Join-Path $spineDir 'front.json'
+    $coverPath = Join-Path $spineDir 'cover.json'
+    $deckPath  = Join-Path $spineDir 'deckframe.json'
+    $assessorTxt = Join-Path $fx 'corpus\Assessor_Guide_TEST.txt'
+
+    function Reset-FlSpine {
+        <# A spine whose every string is the guide teaching mechanism: the negative control, rebuilt before each plant. #>
+        Write-FlFixture -Path $subPath   -Object @{ ref = '1.1'; title = 'Widgets'; underpinningKnowledge = @($CLEAN) }
+        Write-FlFixture -Path $frontPath -Object @{ title = 'Learner Guide'; blurb = 'This guide prepares you for the assessment tasks in the workbook.' }
+        Write-FlFixture -Path $coverPath -Object @{ title = 'Learner Guide'; subtitle = 'Widgets and their care' }
+        Write-FlFixture -Path $deckPath  -Object @{ frames = @(@{ id = 'opening'; heading = 'Welcome'; body = 'We will work through the mechanism first and the practice afterwards.' }) }
+    }
+
+    try {
+        #  The corpus: one learner-facing document, one assessor guide whose
+        #  structural label repeats, so the marking vocabulary is DERIVED.
+        Write-FlText -Path (Join-Path $fx 'corpus\Learner_Workbook_TEST.txt') -Text @"
+Task 1(a)
+Complete the table below in your own words.
+Widget
+Purpose
+Care
+Write here.
+A dry bearing seizes because the oil film that carries the load has been squeezed out of the running clearance entirely.
+"@
+        Write-FlText -Path $assessorTxt -Text @"
+Assessor benchmark
+$LEAK
+Assessor benchmark
+$UNITQ
+Mark NS when the response omits the interval
+Mark NS when the response omits the interval
+"@
+        Write-FlText -Path (Join-Path $fx 'unit_extract.md') -Text @"
+# Performance Evidence
+
+$UNITQ
+"@
+        $unit = Join-Path $fx 'unit_extract.md'
+        Reset-FlSpine
+
+        # ---- plant 1: THE ASSESSOR LITERAL IN deckframe.json. Front matter was
+        #      excluded by the enumerator's default, so this cell was swept by
+        #      nobody; cover.json is the one file that stays out.
+        $deck = @{ frames = @(@{ id = 'opening'; heading = 'Welcome'; body = 'We will work through the mechanism first and the practice afterwards.' },
+                              @{ id = 'closing'; heading = 'Before you finish'; notes = $LEAK }) }
+        Write-FlFixture -Path $deckPath -Object $deck
+        Test-FlSelf -Ok ((Get-GateFileText -Path $deckPath).IndexOf('belt fray inspection', [System.StringComparison]::Ordinal) -ge 0 -and (Get-GateFileText -Path $subPath) -notmatch 'belt fray') -What 'plant 1 landed: the assessor literal sits in deckframe.json and nowhere else on the spine'
+        $r1 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @($unit); Quiet = $true }
+        Test-FlSelf -Ok ($r1.Rc -eq 1 -and $r1.Text -match 'deckframe\.json' -and $r1.Text -match 'belt fray inspection') -What ("an assessor literal planted in deckframe.json is reported, naming the file and the run (rc={0})" -f $r1.Rc)
+        Test-FlSelf -Ok ($r1.Text -match '(?m)^ARMS: .*spine-channels\|true\|ran\|\d+\|0' -and $r1.Text -match 'blocking-runs\|true\|ran\|\d+\|1') -What 'the roster prints spine-channels and blocking-runs ran, with the one blocking finding'
+        Test-FlSelf -Ok ($r1.Text -match 'excluded 1: cover\.json') -What 'the check-set line prints cover.json as the ONE excluded spine file'
+        Reset-FlSpine
+
+        # ---- plant 2: the same literal in front.json is swept too
+        Write-FlFixture -Path $frontPath -Object @{ title = 'Learner Guide'; blurb = $LEAK }
+        $r2 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @($unit); Quiet = $true }
+        Test-FlSelf -Ok ($r2.Rc -eq 1 -and $r2.Text -match 'front\.json') -What ("front.json is swept: the same literal there is reported naming the file (rc={0})" -f $r2.Rc)
+        Reset-FlSpine
+
+        # ---- plant 3: cover.json is the ONE exclusion - PromptLint owns it
+        Write-FlFixture -Path $coverPath -Object @{ title = 'Learner Guide'; subtitle = $LEAK }
+        Test-FlSelf -Ok ((Get-GateFileText -Path $coverPath).IndexOf('belt fray inspection', [System.StringComparison]::Ordinal) -ge 0) -What 'plant 3 landed: the literal is in cover.json'
+        $r3 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @($unit); Quiet = $true }
+        Test-FlSelf -Ok ($r3.Rc -eq 0 -and $r3.Text -notmatch 'cover\.json\]') -What ("cover.json is not swept - it is Assert-PromptLint's file (rc={0})" -f $r3.Rc)
+        Reset-FlSpine
+
+        # ---- plant 4: negative control - mechanism prose the learner document also carries
+        $r4 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @($unit); Quiet = $true }
+        Test-FlSelf -Ok ($r4.Rc -eq 0 -and $r4.Text -match 'no channel carries assessor-only wording') -What ("negative control: a spine of mechanism prose exits 0 (rc={0})" -f $r4.Rc)
+        Test-FlSelf -Ok ($r4.Text -match '(?m)^ARMS: .*blocking-runs\|true\|ran\|\d+\|0' -and $r4.Text -match 'marking-vocabulary\|false\|ran\|') -What 'on the clean run every registered arm ends ran, the blocking one with 0 findings'
+
+        # ---- plant 5: the UNIT's own wording is class U, never leakage
+        Write-FlFixture -Path $subPath -Object @{ ref = '1.1'; title = 'Widgets'; underpinningKnowledge = @($CLEAN, $UNITQ) }
+        Test-FlSelf -Ok ((Get-GateFileText -Path $subPath).IndexOf('emergency stop before any production run', [System.StringComparison]::Ordinal) -ge 0) -What 'plant 5 landed: the spine quotes the unit, and the assessor guide quotes it too'
+        $r5 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @($unit); Quiet = $true }
+        Test-FlSelf -Ok ($r5.Rc -eq 0) -What ("a run the UNIT also carries is a quotation, not a leak (rc={0})" -f $r5.Rc)
+        Reset-FlSpine
+
+        # ---- plant 6: a derived marking phrase in a learner channel
+        Write-FlFixture -Path $subPath -Object @{ ref = '1.1'; title = 'Widgets'; underpinningKnowledge = @($CLEAN); activity = 'Assessor benchmark for this task' }
+        $r6 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @($unit); Quiet = $true }
+        Test-FlSelf -Ok ($r6.Rc -eq 1 -and $r6.Text -match '(?i)assessor benchmark' -and $r6.Text -match 't1_1\.1\.json') -What ("a marking phrase derived from the assessor guide's own repeated labels is reported naming the file (rc={0})" -f $r6.Rc)
+        Reset-FlSpine
+
+        # ---- plant 7: an empty spine file is a NAMED finding, not a silent skip
+        $emptyPath = Join-Path $spineDir 't1_1.2.json'
+        [System.IO.File]::WriteAllText($emptyPath, "   `r`n", (New-Object System.Text.UTF8Encoding($true)))
+        Test-FlSelf -Ok ((Test-Path -LiteralPath $emptyPath) -and -not (Get-GateFileText -Path $emptyPath).Trim()) -What 'plant 7 landed: t1_1.2.json exists and is whitespace-only'
+        $r7 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @($unit); Quiet = $true }
+        Test-FlSelf -Ok ($r7.Rc -eq 1 -and $r7.Text -match 't1_1\.2\.json' -and $r7.Text -match '(?i)empty') -What ("an unreadable spine file exits 1 naming the file (rc={0})" -f $r7.Rc)
+        Remove-Item -LiteralPath $emptyPath -Force
+
+        # ---- plant 8: -ExcludeText naming a file that is not there is a refusal
+        $r8 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @((Join-Path $fx 'no_such_unit.md')); Quiet = $true }
+        Test-FlSelf -Ok ($r8.Rc -eq 2 -and $r8.Text -match 'no_such_unit\.md') -What ("-ExcludeText naming a missing file is a refusal by name (rc={0})" -f $r8.Rc)
+
+        # ---- plant 9: a corpus with no assessor guide is an empty check-set
+        $stash = Join-Path $fx 'Assessor_Guide_TEST.stash'
+        Move-Item -LiteralPath $assessorTxt -Destination $stash -Force
+        Test-FlSelf -Ok (-not (Test-Path -LiteralPath $assessorTxt)) -What 'plant 9 landed: the corpus holds no assessor-only document'
+        $r9 = Invoke-FlSelf -Arguments @{ BuildDir = $fx; ExcludeText = @($unit); Quiet = $true }
+        Test-FlSelf -Ok ($r9.Rc -eq 2 -and $r9.Text -match 'CHECK-SET EMPTY' -and $r9.Text -match '(?i)assessor-only documents') -What ("a corpus with no assessor guide is a refusal naming the input, never a green sweep (rc={0})" -f $r9.Rc)
+        Move-Item -LiteralPath $stash -Destination $assessorTxt -Force
+    }
+    finally {
+        try { Remove-Item -LiteralPath $fx -Recurse -Force -ErrorAction SilentlyContinue } catch { }
+    }
+
+    Write-Host ''
+    if ($script:FlSelfTestFailed -gt 0) {
+        Write-Host ("  SELF-TEST FAIL: {0} check(s) failed - no result from this gate may be believed until they pass" -f $script:FlSelfTestFailed) -ForegroundColor Red
+        exit 4
+    }
+    Write-Host '  SELF-TEST PASS: the gate reported the literal planted in deckframe.json and in front.json, left cover.json to PromptLint, refused an empty check-set by name and passed the negative control' -ForegroundColor Green
+    exit 0
+}
+
+try {
+
+# ---------------------------------------------------------------------------
+# 0. Arms, declared before any of them runs
+# ---------------------------------------------------------------------------
+
+if (-not $BuildDir) {
+    Write-Host ("  X {0}: -BuildDir is required - it is where the corpus, the spine and the registry are found." -f $GATE) -ForegroundColor Red
+    exit 2
+}
+
+Register-GateArm -Name 'spine-channels' -Blocking
+Register-GateArm -Name 'blocking-runs' -Blocking
+Register-GateArm -Name 'marking-vocabulary'
+Register-GateArm -Name 'reported-runs'
+Register-GateArm -Name 'rendered-extracts'
+
 # ---------------------------------------------------------------------------
 # 1. The corpus, split by audience, plus the legitimately shared text
 # ---------------------------------------------------------------------------
@@ -131,12 +336,20 @@ $GATE = 'Check-FigureLeakage'
 $corpusDirResolved = Get-GateCorpusDir -BuildDir $BuildDir -CorpusDir $CorpusDir
 $corpus = Get-GateCorpusDocs -CorpusDir $corpusDirResolved -BuildDir $BuildDir
 
-if (@($corpus.Assessor).Count -eq 0) {
-    throw "$GATE`: the corpus at $corpusDirResolved contains no assessor-only document. Stage 1 extracts EVERY pack document - learner-facing and assessor-only - exactly once. A leakage sweep with no assessor guide to sweep against passes by having nothing to check, and that is precisely how a benchmark leak survived to the last audit round."
-}
-if (@($corpus.Learner).Count -eq 0) {
-    throw "$GATE`: the corpus contains no learner-facing document, so every assessor phrase would look unique and the whole pack would report as leakage."
-}
+#  BOTH SIDES OF THE COMPARISON ARE BLOCKING CHECK-SETS. With no assessor
+#  guide the sweep passes by having nothing to check - precisely how a
+#  benchmark leak survived to the last audit round; with no learner-facing
+#  document every assessor phrase looks unique and the whole pack reports as
+#  leakage. Either way the refusal names the corpus, and the runner sees
+#  exit 2 rather than a green line or a stack trace.
+$assessorCount = [int](@($corpus.Assessor).Count)
+$learnerCount  = [int](@($corpus.Learner).Count)
+Write-GateCheckSet -What 'assessor-only documents' -Count $assessorCount `
+    -DerivedFrom ("the Stage 1 corpus at {0}, classified from the {1}" -f (Split-Path $corpusDirResolved -Leaf), $corpus.ClassifiedFrom) `
+    -Blocking -Input ("assessor-only documents in {0} (Stage 1 extracts EVERY pack document, learner-facing and assessor-only, exactly once)" -f $corpusDirResolved)
+Write-GateCheckSet -What 'learner-facing documents' -Count $learnerCount `
+    -DerivedFrom ("the Stage 1 corpus at {0}, classified from the {1}" -f (Split-Path $corpusDirResolved -Leaf), $corpus.ClassifiedFrom) `
+    -Blocking -Input ("learner-facing documents in {0}" -f $corpusDirResolved)
 
 $assessorAll = ''
 foreach ($d in $corpus.Assessor) { $assessorAll += ' ' + $d.Text }
@@ -155,7 +368,11 @@ if ($excludeFiles.Count -eq 0) {
 }
 $excludeAll = ''
 foreach ($x in $excludeFiles) {
-    if (-not (Test-Path -LiteralPath $x)) { throw "$GATE`: -ExcludeText does not exist: $x" }
+    if (-not (Test-Path -LiteralPath $x)) {
+        Write-Host ("  X {0}: -ExcludeText names a file that does not exist: {1}. The unit corpus is an input, not an option; without it every unit line the guide teaches is misreported as assessor-only." -f $GATE, $x) -ForegroundColor Red
+        try { [void](Write-GateArmRoster) } catch { }
+        exit 2
+    }
     $excludeAll += ' ' + (Get-GateFileText -Path $x)
 }
 $unitLoaded = ($excludeAll.Trim().Length -gt 0)
@@ -200,14 +417,16 @@ if (-not $Quiet) {
         (Split-Path $corpusDirResolved -Leaf), @($corpus.Learner).Count, @($corpus.Assessor).Count, $corpus.ClassifiedFrom) -ForegroundColor DarkGray
     Write-Host ("  learner-facing text: {0:N0} chars   assessor text: {1:N0} chars" -f $learnerAll.Length, $assessorAll.Length) -ForegroundColor DarkGray
     Write-Host ("  unit extract / shared text: {0}" -f $unitLine) -ForegroundColor $(if ($unitLoaded) { 'DarkGray' } else { 'Yellow' })
-    Write-GateCheckSet -What ("blocking {0}-word phrases" -f $BlockShingle) -Count $blockSet.Count -DerivedFrom 'the WHOLE assessor text, minus every learner-facing document and every excluded source'
-    Write-GateCheckSet -What ("reported {0}-word phrases" -f $Shingle) -Count $reportSet.Count -DerivedFrom 'the whole assessor text, minus every learner-facing document and every excluded source'
 }
-
-if ($blockSet.Count -eq 0) {
-    Write-Host ("  X {0}: the blocking check-set is empty. A sweep with nothing in it passes by having nothing to check." -f $GATE) -ForegroundColor Red
-    exit 2
-}
+#  BLOCKING, AND OUTSIDE THE -Quiet GUARD. An empty blocking check-set is a
+#  sweep with nothing in it, which passes by having nothing to check; the
+#  typed refusal reaches exit 2 through the catch at the end of this file.
+#  Printing it only when the console is verbose made the blocking rule an
+#  effect of a display switch.
+Write-GateCheckSet -What ("blocking {0}-word phrases" -f $BlockShingle) -Count $blockSet.Count `
+    -DerivedFrom 'the WHOLE assessor text, minus every learner-facing document and every excluded source' `
+    -Blocking -Input ("runs of {0} words in the assessor-only documents of {1}" -f $BlockShingle, $corpusDirResolved)
+Write-GateCheckSet -What ("reported {0}-word phrases" -f $Shingle) -Count $reportSet.Count -DerivedFrom 'the whole assessor text, minus every learner-facing document and every excluded source'
 
 # ---------------------------------------------------------------------------
 # 2. Assessor-only marking vocabulary, derived from the assessor guides' own
@@ -247,8 +466,8 @@ foreach ($doc in $corpus.Assessor) {
 $vocab = @{}
 foreach ($k in $vocabCount.Keys) { if ($vocabCount[$k] -ge $MinVocabRepeats) { $vocab[$k] = $vocabText[$k] } }
 $vocabKeys = @($vocab.Keys)
+Write-GateCheckSet -What 'assessor-only marking phrases' -Count $vocab.Count -DerivedFrom ("the assessor guides' own repeated structural labels ({0}+ occurrences), absent from every learner-facing document" -f $MinVocabRepeats)
 if (-not $Quiet) {
-    Write-GateCheckSet -What 'assessor-only marking phrases' -Count $vocab.Count -DerivedFrom ("the assessor guides' own repeated structural labels ({0}+ occurrences), absent from every learner-facing document" -f $MinVocabRepeats)
     foreach ($k in ($vocabKeys | Sort-Object)) { Write-Host ("    marking phrase: {0}" -f $vocab[$k]) -ForegroundColor DarkGray }
 }
 
@@ -268,17 +487,38 @@ $skip = @{}
 foreach ($k in (Get-GateUnrenderedFields -BuildDir $BuildDir -ForSweep).Keys) { $skip[$k] = $true }
 
 $cells = New-Object System.Collections.Generic.List[object]
+$emptyFiles = New-Object System.Collections.Generic.List[string]
 $figs = 0
-foreach ($f in (Get-GateSpineFiles -BuildDir $BuildDir -SpineDir $SpineDir)) {
-    $j = Get-GateJson -Path $f.FullName
-    if ($null -eq $j) { continue }
+#  -IncludeFrontMatter with an explicit -Exclude: front.json and
+#  deckframe.json's frame slides ARE authored text and are swept; cover.json
+#  is Assert-PromptLint's and is the one exclusion (P0-11).
+$spineFiles = @(Get-GateSpineFiles -BuildDir $BuildDir -SpineDir $SpineDir -IncludeFrontMatter -Exclude $script:FlExclude)
+$filesRead = 0
+foreach ($f in $spineFiles) {
+    $j = $null; $readError = ''
+    try { $j = Get-GateJson -Path $f.FullName } catch { $readError = $_.Exception.Message }
+    if ($null -eq $j) {
+        $why = if ($readError) { 'unparseable (' + $readError + ')' } else { 'empty or whitespace-only' }
+        $emptyFiles.Add(("{0}: {1}" -f $f.Name, $why))
+        Write-Host ("  X {0}: spine file {1} is {2} - a file the sweep cannot read is a finding, not a skip" -f $GATE, $f.Name, $why) -ForegroundColor Red
+        continue
+    }
+    $filesRead++
     if (@($j.PSObject.Properties.Name) -contains 'visuals') { $figs += @(@($j.visuals) | Where-Object { $null -ne $_ -and @($_.PSObject.Properties.Name) -contains 'spec' -and $null -ne $_.spec }).Count }
     foreach ($c in (Get-GateSpineCells -Node $j -File $f.Name -Path '' -Channel '' -Slot '' -Skip $skip)) { $cells.Add($c) }
 }
 $spineCells = $cells.Count
+Write-GateCheckSet -What 'spine strings' -Count $spineCells `
+    -DerivedFrom ("{0} of {1} spine file(s), front matter included" -f $filesRead, $spineFiles.Count) `
+    -Blocking -Input 'the spine files Get-GateSpineFiles enumerated' -Excluded $script:FlExclude
 
-foreach ($d in @($DocText | Where-Object { $_ })) {
-    if (-not (Test-Path -LiteralPath $d)) { throw "$GATE`: -DocText does not exist: $d" }
+$renderedIn = @($DocText | Where-Object { $_ })
+foreach ($d in $renderedIn) {
+    if (-not (Test-Path -LiteralPath $d)) {
+        Write-Host ("  X {0}: -DocText names a rendered extract that does not exist: {1}. A rendered arm handed a path it cannot read did not run." -f $GATE, $d) -ForegroundColor Red
+        try { [void](Write-GateArmRoster) } catch { }
+        exit 2
+    }
     $leaf = Split-Path $d -Leaf
     $i = 0
     foreach ($line in ((Get-GateFileText -Path $d) -split "`r?`n")) {
@@ -405,6 +645,27 @@ foreach ($h in $vocabHits) {
     if ($why) { $cleared.Add([pscustomobject]@{ Hit = $h; Why = $why; By = $by }) } else { $live.Add($h) }
 }
 
+# ---------------------------------------------------------------------------
+# Arms: every declared arm ends ran, empty or declared-n-a. The blocking arms
+# examined the spine strings and the assessor's own blocking runs; a spine
+# that yields neither is a refusal, never a pass.
+# ---------------------------------------------------------------------------
+Complete-GateArm -Name 'spine-channels' -State ran -Size $spineCells -Findings $emptyFiles.Count
+Complete-GateArm -Name 'blocking-runs' -State ran -Size $blockSet.Count -Findings $live.Count
+#  TEMPORARIES, DELIBERATELY. `@(...)` in a named-parameter argument position
+#  is read as a splat and throws "Argument types do not match" - a PS 5.1 trap
+#  that parses clean and fails only at run time. Every count below is computed
+#  into a variable first.
+$vocabFindings = [int]$vocabHits.Count
+$renderedCells = [int]($cells.Count - $spineCells)
+$renderedFindings = [int](@($live | Where-Object { $_.Cell.Channel -eq 'rendered' }).Count)
+if ($vocab.Count -gt 0) { Complete-GateArm -Name 'marking-vocabulary' -State ran -Size $vocab.Count -Findings $vocabFindings } else { Complete-GateArm -Name 'marking-vocabulary' -State empty }
+Complete-GateArm -Name 'reported-runs' -State ran -Size $reportSet.Count -Findings $reported.Count
+if ($renderedIn.Count -gt 0) { Complete-GateArm -Name 'rendered-extracts' -State ran -Size $renderedCells -Findings $renderedFindings }
+else { Complete-GateArm -Name 'rendered-extracts' -State empty }
+$roster = Write-GateArmRoster
+Assert-GateArmsComplete
+
 if ($ReportPath) {
     $sb = New-Object System.Text.StringBuilder
     [void]$sb.AppendLine("ASSESSOR-ONLY LEAKAGE SWEEP - complete hit list")
@@ -412,6 +673,8 @@ if ($ReportPath) {
     [void]$sb.AppendLine(("unit extract / shared text: {0}" -f $unitLine))
     [void]$sb.AppendLine(("blocking {0}-word phrases: {1}   reported {2}-word phrases: {3}   marking phrases: {4}" -f $BlockShingle, $blockSet.Count, $Shingle, $reportSet.Count, $vocab.Count))
     [void]$sb.AppendLine(("channels swept: {0}" -f ($channels -join ', ')))
+    [void]$sb.AppendLine(("spine files swept: {0} of {1} read (front matter in; excluded {2}){3}" -f $filesRead, $spineFiles.Count, ($script:FlExclude -join ', '), $(if ($emptyFiles.Count -gt 0) { '; unreadable: ' + ($emptyFiles.ToArray() -join '; ') } else { '' })))
+    [void]$sb.AppendLine(("arms: {0}" -f (@($roster | ForEach-Object { '{0}={1}/{2}' -f $_.name, $_.state, $_.findings }) -join ' ')))
     [void]$sb.AppendLine('')
     [void]$sb.AppendLine('BLOCKING')
     foreach ($h in $live) { [void]$sb.AppendLine(("  [{0}] {1}  slot={2}  channel={3}`n    cell:  {4}`n    match: {5}" -f $h.Cell.File, $h.Cell.Path, $h.Cell.Slot, $h.Cell.Channel, $h.Cell.Text, $h.Phrase)) }
@@ -448,11 +711,16 @@ if (-not $unitLoaded) {
     Write-Host '    beside the build or pass -ExcludeText before acting on any hit above.' -ForegroundColor Yellow
 }
 
-if ($live.Count -eq 0) {
+if ($emptyFiles.Count -gt 0) {
+    Write-Host ("  X {0} spine file(s) could not be read - a finding, not a skip: {1}" -f $emptyFiles.Count, ($emptyFiles.ToArray() -join '; ')) -ForegroundColor Red
+}
+
+if ($live.Count -eq 0 -and $emptyFiles.Count -eq 0) {
     if ($cleared.Count -gt 0) { Write-Host ("  no channel carries assessor-only wording beyond the {0} allow-listed entr(ies) above" -f $cleared.Count) -ForegroundColor Green }
     else { Write-Host '  no channel carries assessor-only wording' -ForegroundColor Green }
     exit 0
 }
+if ($live.Count -eq 0) { exit 1 }
 
 Write-Host ("  X {0} cell(s) carry assessor-only content" -f $live.Count) -ForegroundColor Red
 foreach ($h in $live) {
@@ -466,3 +734,18 @@ Write-Host '  Fix on the spine, then re-run: every channel of both artefacts mus
 Write-Host '  the finding named. A phrase legitimately shared is cleared in figures.json "leakageAllow"' -ForegroundColor Yellow
 Write-Host '  on its anchor or its phrase, with a written reason, never by narrowing this gate.' -ForegroundColor Yellow
 exit 1
+
+}
+catch {
+    #  The typed refusals Lib-GateCommon throws - an empty blocking check-set,
+    #  or a blocking arm that never finished - are exit 2, with the roster
+    #  printed so a runner can see which arm starved. Anything else is a gate
+    #  defect and is re-thrown as one.
+    $m = $_.Exception.Message
+    if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0}: {1}" -f $GATE, $m) -ForegroundColor Red
+        try { [void](Write-GateArmRoster) } catch { }
+        exit 2
+    }
+    throw
+}

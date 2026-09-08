@@ -49,7 +49,11 @@ $script:MARGIN_L  = 502920
 
 # Every shape this build ADDS carries this name prefix, so Get-SlideShape can
 # keep it out of the template's text-shape ordinal sequence. See Get-SlideShape.
-$script:LG_SHAPE_PREFIX = 'LG '
+# DECLARED ONCE in Lib-GateCommon (Get-GateShapePrefix) and read here: the gates
+# count placed pictures by the same string, and a second copy had already
+# drifted into a deck alt-text check that examined zero drawings.
+if (-not (Get-Command Get-GateShapePrefix -ErrorAction SilentlyContinue)) { . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1') }
+$script:LG_SHAPE_PREFIX = Get-GateShapePrefix
 
 if (-not $script:Utf8NoBom) { $script:Utf8NoBom = New-Object System.Text.UTF8Encoding($false) }
 

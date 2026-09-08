@@ -194,8 +194,15 @@ function Get-RunnerPlanMember {
     #  so a gate whose output path is decided by the RUNNER is still linked
     #  exactly rather than by resemblance.
     $argReport = @{}
-    foreach ($m in [regex]::Matches($fn.Extent.Text, "\`$(\w+)\['(ReportPath|OutPath|ResultPath)'\]\s*=\s*\(?Join-Path\s+\`$In\.BuildDir\s+'([^']+)'")) {
+    foreach ($m in [regex]::Matches($fn.Extent.Text, "\`$(\w+)\['(ReportPath|OutPath|ResultPath)'\]\s*=\s*\(?Join-Path\s+\`$\w+(?:\.\w+)?\s+'([^']+)'")) {
         $argReport[$m.Groups[1].Value] = $m.Groups[3].Value
+    }
+    #  $In.<Key> -> the file the RUNNER's own input map puts in that key, in
+    #  either form the runner writes it: '$x = Join-Path $BuildDir ...' or a
+    #  'Key = (Join-Path $BuildDir ...)' entry inside the input hashtable.
+    $inMap = @{}
+    foreach ($m in [regex]::Matches($ast.Extent.Text, "\`$?(\w+)\s*=\s*\(?Join-Path\s+\`$BuildDir\s+'([^']+)'")) {
+        $inMap[$m.Groups[1].Value.ToLowerInvariant()] = $m.Groups[2].Value
     }
     #  -Produces $In.<Var>, and $<var> = Join-Path $BuildDir '<file>' in the
     #  runner's own body: the file the runner declares that gate must write.
@@ -205,7 +212,11 @@ function Get-RunnerPlanMember {
     }
 
     foreach ($c in $fn.FindAll({ param($n) $n -is [System.Management.Automation.Language.CommandAst] }, $true)) {
-        if ($c.GetCommandName() -ne 'Entry') { continue }
+        #  The plan builder's entry function was renamed New-GateEntry when the
+        #  plan gained phases (P0-08); an older copy of the runner calls it
+        #  Entry. Both are read, because a reader that silently found nothing
+        #  would shrink this gate's check-set to the documents alone.
+        if (@('New-GateEntry', 'Entry') -notcontains $c.GetCommandName()) { continue }
         $el = @($c.CommandElements)
         $name = ''; $title = ''; $script = ''; $argVar = ''; $prodVar = ''
         for ($i = 0; $i -lt $el.Count; $i++) {
@@ -225,6 +236,7 @@ function Get-RunnerPlanMember {
                     $script = $lit
                 }
                 'GateArgs' { if ($next -is [System.Management.Automation.Language.VariableExpressionAst]) { $argVar = $next.VariablePath.UserPath } }
+                'Want'     { if ($next -is [System.Management.Automation.Language.VariableExpressionAst]) { $argVar = $next.VariablePath.UserPath } }
                 'Produces' { if ($next) { $pm = [regex]::Match($next.Extent.Text, '\$In\.(\w+)'); if ($pm.Success) { $prodVar = $pm.Groups[1].Value } } }
             }
         }
@@ -235,6 +247,12 @@ function Get-RunnerPlanMember {
         $ev = New-Object System.Collections.Generic.List[string]
         if ($argVar -and $argReport.ContainsKey($argVar)) { $ev.Add($argReport[$argVar]) }
         if ($prodVar -and $produced.ContainsKey($prodVar.ToLowerInvariant())) { $ev.Add($produced[$prodVar.ToLowerInvariant()]) }
+        if ($prodVar -and $inMap.ContainsKey($prodVar.ToLowerInvariant())) { $ev.Add($inMap[$prodVar.ToLowerInvariant()]) }
+        #  A report path written straight into the entry - '-Produces (Join-Path
+        #  $build ''x.json'')' - is the runner naming the file too.
+        foreach ($jm in [regex]::Matches($c.Extent.Text, "Join-Path\s+\`$\w+(?:\.\w+)?\s+'([^']+\.(?:json|txt))'")) {
+            if (-not $ev.Contains($jm.Groups[1].Value)) { $ev.Add($jm.Groups[1].Value) }
+        }
         $out.Add([pscustomobject]@{ Gate = $gateName; RunnerName = $name; Title = $title; Evidence = $ev.ToArray() })
     }
 
@@ -502,6 +520,12 @@ function Get-ResultIndex {
     $files = New-Object System.Collections.Generic.List[string]
     if ($ResultsFile) { $files.Add($ResultsFile) }
     else { $files.Add((Join-Path $BuildDir '7c-results.json')) }
+    #  The Stage 4 file is READ, not trusted: a run that records
+    #  afterArtwork=false gated a document with no artwork in it, so its
+    #  entries can never satisfy a 7c member - but they must be visible, or a
+    #  build whose only evidence is a Stage 4 run reads as "no result at all"
+    #  and the reader cannot tell the two apart.
+    $files.Add((Join-Path $BuildDir '4-results.json'))
     $files.Add((Join-Path $BuildDir '3c-results.json'))
 
     foreach ($p in $files.ToArray()) {
@@ -511,6 +535,8 @@ function Get-ResultIndex {
         $fi = Get-Item -LiteralPath $p
         $fileRan = ConvertTo-Utc (Get-GateProp -Object $j -Names @('ranAt', 'ranAtUtc', 'utc'))
         if ($null -eq $fileRan -or $fileRan -gt $fi.LastWriteTimeUtc) { $fileRan = $fi.LastWriteTimeUtc }
+        $afterArt = Get-GateProp -Object $j -Names @('afterArtwork')
+        $beforeArt = ($null -ne $afterArt -and -not [bool]$afterArt)
         foreach ($g in (AsArray $j.gates)) {
             $name = [string](Get-GateProp -Object $g -Names @('name'))
             $scriptPath = [string](Get-GateProp -Object $g -Names @('script'))
@@ -525,6 +551,7 @@ function Get-ResultIndex {
                 ExitCode = (Get-GateProp -Object $g -Names @('exitCode'))
                 Refused = (Get-GateProp -Object $g -Names @('refused'))
                 From = $fi.Name
+                BeforeArtwork = $beforeArt
             })
         }
     }
@@ -553,6 +580,7 @@ function Resolve-GateEvidence {
             Route = ("per-gate entry in " + $e.From); Ran = $e.Ran
             Detail = ("verdict {0}, exit {1}{2}" -f $(if ($e.Verdict) { $e.Verdict } else { '(none)' }), $e.ExitCode, $(if ($e.Refused -eq $true) { ', REFUSED' } else { '' }))
             Refused = ($e.Refused -eq $true)
+            BeforeArtwork = ($e.BeforeArtwork -eq $true)
         })
     }
 
@@ -560,7 +588,7 @@ function Resolve-GateEvidence {
         $p = Join-Path $BuildDir $rel
         if (-not (Test-Path -LiteralPath $p)) { continue }
         $fi = Get-Item -LiteralPath $p
-        $found.Add([pscustomobject]@{ Route = ("its own report file " + $rel); Ran = $fi.LastWriteTimeUtc; Detail = ("{0} bytes" -f $fi.Length); Refused = $false })
+        $found.Add([pscustomobject]@{ Route = ("its own report file " + $rel); Ran = $fi.LastWriteTimeUtc; Detail = ("{0} bytes" -f $fi.Length); Refused = $false; BeforeArtwork = $false })
     }
 
     return @($found.ToArray() | Sort-Object Ran -Descending)
@@ -618,9 +646,19 @@ function Measure-Caption {
         $text = [System.Net.WebUtility]::HtmlDecode($text)
         $m = [regex]::Match($text, $capRx)
         if (-not $m.Success) { continue }
-        $style = [regex]::Match($p, '<w:pStyle w:val="([^"]*)"').Groups[1].Value
+        #  ONE PREDICATE, DECLARED ONCE (P0-10). The style discriminator is
+        #  Lib-GateCommon's Test-GateCaptionParagraph, so this reconciliation
+        #  and Check-Figures cannot disagree about what a caption paragraph
+        #  is - and a pStyle written with two spaces, which the private regex
+        #  here used to miss, is a caption to both of them.
+        #
+        #  The helper's PREFIX arm is switched off with -CaptionPrefix '': the
+        #  number pattern above has already established that this paragraph
+        #  opens with the caption word, so the only question left is whether
+        #  it is FORMATTED as a caption. Leaving the prefix arm on would count
+        #  every in-prose cross-reference as a caption.
         $isCap = $false
-        if ($style -and $style -match $Rule.StyleRx) { $isCap = $true; $byStyle++ }
+        if (Test-GateCaptionParagraph -ParagraphXml $p -CaptionPrefix '' -CaptionStyleRx $Rule.StyleRx) { $isCap = $true; $byStyle++ }
         elseif ($p -match '<w:jc w:val="center"\s*/>') { $isCap = $true; $byCentre++ }
         elseif ($p -match '<w:i\s*/>' -and $text.Trim().StartsWith($Rule.Prefix)) { $isCap = $true; $byItalic++ }
         if (-not $isCap) { $rejected++; continue }
@@ -685,6 +723,7 @@ function Invoke-FullRegate {
         if (-not $m.Implemented) { $status = 'not-implemented' }
         elseif ($null -eq $best) { $status = 'no-result' }
         elseif ($best.Refused) { $status = 'refused' }
+        elseif ($best.BeforeArtwork) { $status = 'before-artwork' }
         elseif ($best.Ran -le $mut.Bar) { $status = 'stale' }
         else { $status = 'ok' }
 
@@ -715,19 +754,85 @@ function Invoke-FullRegate {
                     Detail = ("{0}'s own result records it as refused ({1}). A refused gate is a failure, never a skip." -f $m.Gate, $best.Route)
                 })
             }
+            'before-artwork' {
+                $blocking.Add([pscustomobject]@{
+                    Arm = 'H'; What = ('a gate whose only result is from a run BEFORE artwork: ' + $m.Gate)
+                    Detail = ("{0}'s newest result is {1}, and that file records afterArtwork = false. A Stage 4 run gated a document in which every figure was still a prompt block; it cannot stand as the 7c evidence for a placed document. Re-run Run-Gates.ps1 -AfterArtwork, which writes 7c-results.json." -f $m.Gate, $best.Route)
+                })
+            }
             'not-implemented' {
                 $notes.Add(("SPECIFIED BUT NOT IMPLEMENTED at 7c: {0} - named by {1}. Nothing on disk can run it, so nothing gated this at 7c. gates.md is the register of that gap; this gate's PASS is not a claim that it ran." -f $m.Gate, ((AsArray $m.Sources) -join '; ')))
             }
             default {
                 if ($null -ne $mut.InputNewest -and $best.Ran -le $mut.InputNewest) {
-                    $warnings.Add([pscustomobject]@{
+                    #  PROMOTED FROM A WARNING (P0-16). A gate that ran before
+                    #  its own input read something the document no longer
+                    #  renders, and a warning under a green line is how three
+                    #  spine files came to be rewritten eleven minutes after
+                    #  the band that judged them with nothing blocking.
+                    $blocking.Add([pscustomobject]@{
                         Arm = 'I'; What = ('a gate older than its own inputs: ' + $m.Gate)
-                        Detail = ("{0} ran {1}, after the last mutation of the page but before {2} changed at {3}. That is Assert-Staleness's finding at Stage 8, not this one's, and it is reported here because a gate that ran before its input read something the document no longer renders." -f `
+                        Detail = ("{0} ran {1}, after the last mutation of the page but before {2} changed at {3}. Nothing may change after the gate that judges it: re-run the gate over the inputs on disk now." -f `
                                     $m.Gate, (Format-Utc $best.Ran), $mut.InputNewestBy, (Format-Utc $mut.InputNewest))
                     })
                 }
             }
         }
+    }
+
+    # ---- ARM K: each delivered artefact against the results file that judges
+    #      it. The per-gate arms above date the gates against the page; this
+    #      dates the PAGE against the file that records the verdict, so a byte
+    #      rewritten after the run is caught by its hash and not only by its
+    #      clock. On the build these rules come from the deck was rewritten 92
+    #      seconds after the last gate and nothing said so.
+    $judge = $null
+    foreach ($leaf in @($(if ($ResultsFile) { $ResultsFile } else { Join-Path $BuildDir '7c-results.json' }), (Join-Path $BuildDir '4-results.json'))) {
+        if (-not (Test-Path -LiteralPath $leaf)) { continue }
+        $jj = Get-GateJson -Path $leaf
+        if ($null -eq $jj) { continue }
+        $jStart = ConvertTo-Utc (Get-GateProp -Object $jj -Names @('startedAt'))
+        $jRan = ConvertTo-Utc (Get-GateProp -Object $jj -Names @('ranAt', 'ranAtUtc', 'utc'))
+        $bar2 = $(if ($null -ne $jStart) { $jStart } else { $jRan })
+        if ($null -eq $bar2) { continue }
+        $judge = [pscustomobject]@{ Leaf = (Split-Path $leaf -Leaf); Json = $jj; Bar = $bar2; BarName = $(if ($null -ne $jStart) { 'startedAt' } else { 'ranAt' }) }
+        break
+    }
+    if ($null -ne $judge) {
+        foreach ($ap in $arts.ToArray()) {
+            if (-not (Test-Path -LiteralPath $ap)) { continue }
+            $afi = Get-Item -LiteralPath $ap
+            if ($afi.LastWriteTimeUtc -gt $judge.Bar) {
+                $blocking.Add([pscustomobject]@{
+                    Arm = 'K'; What = ('a delivered artefact newer than the file that judges it: ' + $afi.Name)
+                    Detail = ("{0} was written {1}, AFTER {2} {3} {4}. The verdicts in that file are about bytes that no longer exist; re-run the gates over what is on disk now." -f `
+                                $afi.Name, (Format-Utc $afi.LastWriteTimeUtc), $judge.Leaf, $judge.BarName, (Format-Utc $judge.Bar))
+                })
+                continue
+            }
+            $rec = @((AsArray $judge.Json.artefacts) | Where-Object { $_ -and ([string]$_.path -ieq $afi.FullName) })
+            if ($rec.Count -eq 1 -and [string]$rec[0].sha256) {
+                $nowSha = ''
+                try {
+                    $sha = [System.Security.Cryptography.SHA256]::Create()
+                    try {
+                        $fs = [System.IO.File]::Open($afi.FullName, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
+                        try { $nowSha = [BitConverter]::ToString($sha.ComputeHash($fs)).Replace('-', '').ToLowerInvariant() } finally { $fs.Dispose() }
+                    }
+                    finally { $sha.Dispose() }
+                }
+                catch { $nowSha = '' }
+                if ($nowSha -and $nowSha -ne ([string]$rec[0].sha256).ToLowerInvariant()) {
+                    $blocking.Add([pscustomobject]@{
+                        Arm = 'K'; What = ('a delivered artefact whose bytes changed since it was judged: ' + $afi.Name)
+                        Detail = ("{0} now hashes {1} and {2} recorded {3}. The bytes changed without the clock saying so; re-run the gates." -f $afi.Name, $nowSha, $judge.Leaf, ([string]$rec[0].sha256).ToLowerInvariant())
+                    })
+                }
+            }
+        }
+    }
+    else {
+        $notes.Add('no results file carries a startedAt or ranAt this gate can date the artefacts against, so arm K reported nothing. The per-gate arms above still hold.')
     }
 
     # ---- caption-to-slot reconciliation
@@ -847,7 +952,13 @@ function New-MinimalPackage {
 }
 
 function New-CaptionParagraph {
-    param([string] $Text, [switch] $Styled)
+    param([string] $Text, [switch] $Styled, [switch] $OddSpaced)
+    if ($OddSpaced) {
+        #  The same caption, written the way Word writes it after an edit:
+        #  two spaces before w:val. A private regex anchored on one space
+        #  misses it and the duplicate goes uncounted.
+        return '<w:p><w:pPr><w:pStyle  w:val="Caption" /></w:pPr><w:r><w:t>' + $Text + '</w:t></w:r></w:p>'
+    }
     if ($Styled) {
         return '<w:p><w:pPr><w:pStyle w:val="Caption"/></w:pPr><w:r><w:t>' + $Text + '</w:t></w:r></w:p>'
     }
@@ -888,9 +999,11 @@ function New-RegateFixture {
     #  style scoping exists for: matched by the number pattern, rejected by the
     #  paragraph test. Without it the self-test would only prove the easy half.
     $prose = New-CaptionParagraph -Text ($Rule.Prefix + ' ' + $slot + ' is discussed in the paragraph above')
+    $oddCaption = New-CaptionParagraph -Text ($Rule.Prefix + ' ' + $slot + ' - the same caption, oddly spaced') -OddSpaced
     $body = $caption + $prose
     if ($Case -eq 'caption-missing') { $body = $prose }
     if ($Case -eq 'caption-duplicate') { $body = $caption + $caption + $prose }
+    if ($Case -eq 'caption-duplicate-oddspace') { $body = $caption + $oddCaption + $prose }
     $docXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="x"><w:body>' + $body + '</w:body></w:document>'
 
     $guide = Join-Path $out 'FIXTURE_Learner_Guide.docx'
@@ -910,8 +1023,16 @@ function New-RegateFixture {
         $ran = $(if ($m.Gate -eq $staleGate) { $tStale } else { $tGate })
         $gates.Add([ordered]@{ name = $m.Gate; script = ($m.Gate + '.ps1'); exitCode = 0; verdict = 'PASS'; ranAt = $ran.ToString('o') })
     }
-    $results = [ordered]@{ ranAt = $tGate.ToString('o'); buildDir = $build; gates = $gates.ToArray() }
-    [System.IO.File]::WriteAllText((Join-Path $build '7c-results.json'), ($results | ConvertTo-Json -Depth 6), $utf8)
+    $results = [ordered]@{
+        ranAt = $tGate.ToString('o'); startedAt = $tGate.AddMinutes(-2).ToString('o'); buildDir = $build
+        afterArtwork = $(if ($Case -eq 'before-artwork') { $false } else { $true })
+        gates = $gates.ToArray()
+    }
+    #  'before-artwork': the ONLY results file is the Stage 4 one, and it says
+    #  so. Every member's evidence is then a run that gated a document with no
+    #  artwork in it.
+    $resultsLeaf = $(if ($Case -eq 'before-artwork') { '4-results.json' } else { '7c-results.json' })
+    [System.IO.File]::WriteAllText((Join-Path $build $resultsLeaf), ($results | ConvertTo-Json -Depth 6), $utf8)
 
     # --- a ledger whose newest mutation is the placement
     $ledger = [ordered]@{
@@ -929,10 +1050,14 @@ function New-RegateFixture {
     (Get-Item -LiteralPath $deck).LastWriteTimeUtc = $t0
     (Get-Item -LiteralPath (Join-Path $spine 't1_1.1.json')).LastWriteTimeUtc = $t0.AddMinutes(-30)
     (Get-Item -LiteralPath (Join-Path $build 'figures.json')).LastWriteTimeUtc = $t0.AddMinutes(-30)
-    (Get-Item -LiteralPath (Join-Path $build '7c-results.json')).LastWriteTimeUtc = $tGate.AddMinutes(1)
+    (Get-Item -LiteralPath (Join-Path $build $resultsLeaf)).LastWriteTimeUtc = $tGate.AddMinutes(1)
+    #  PLANT: the page rewritten after the file that judges it (arm K).
+    if ($Case -eq 'artefact-newer') { (Get-Item -LiteralPath $guide).LastWriteTimeUtc = $tGate.AddMinutes(5) }
+    #  PLANT: an input rewritten after the gates read it (arm I).
+    if ($Case -eq 'input-newer') { (Get-Item -LiteralPath (Join-Path $build 'figures.json')).LastWriteTimeUtc = $tGate.AddMinutes(5) }
 
     return [pscustomobject]@{
-        BuildDir = $build; Guide = $guide; Deck = $deck; Slot = $slot
+        BuildDir = $build; Guide = $guide; Deck = $deck; Slot = $slot; ResultsLeaf = $resultsLeaf
         T0 = $t0; TGate = $tGate; TStale = $tStale; SkipGate = $skipGate; StaleGate = $staleGate
     }
 }
@@ -967,7 +1092,7 @@ function Invoke-SelfTest {
         Write-Host '  case: every gate ran after the last mutation, one caption per planned slot' -ForegroundColor DarkGray
         $fx = New-RegateFixture -Root $root -Case 'clean' -GateSet $set -Rule $rule
         Check -What 'plant landed: every implemented member has a result newer than the artefact' `
-              -Ok ((Get-GateJson -Path (Join-Path $fx.BuildDir '7c-results.json')).gates.Count -eq @($set | Where-Object { $_.Implemented }).Count)
+              -Ok ((Get-GateJson -Path (Join-Path $fx.BuildDir $fx.ResultsLeaf)).gates.Count -eq @($set | Where-Object { $_.Implemented }).Count)
         $r = Invoke-FullRegate -BuildDir $fx.BuildDir -SkillDir $SkillDir -ScriptsDir $ScriptsDir -Guide $fx.Guide -Deck $fx.Deck
         Check -What 'the clean build passes' -Ok (-not $r.Refused -and @($r.Blocking).Count -eq 0) `
               -Detail (@($r.Blocking | ForEach-Object { $_.What }) -join '; ')
@@ -1017,6 +1142,60 @@ function Invoke-SelfTest {
         $r = Invoke-FullRegate -BuildDir $fx.BuildDir -SkillDir $SkillDir -ScriptsDir $ScriptsDir -Guide $fx.Guide -Deck $fx.Deck
         Check -What 'the gate FAILS - counted per number, with no de-duplication' `
               -Ok (@($r.Blocking | Where-Object { $_.Arm -eq 'J' -and $_.What -match 'more than one caption' }).Count -eq 1)
+
+        # ---- 6. the caption predicate is Lib-GateCommon's, not a private regex
+        Write-Host '  case: the duplicate caption is written with an oddly spaced pStyle' -ForegroundColor DarkGray
+        $fx = New-RegateFixture -Root $root -Case 'caption-duplicate-oddspace' -GateSet $set -Rule $rule
+        $parts = Get-DocumentPart -Path $fx.Guide -Match '(?i)^word/document\.xml$'
+        Check -What 'plant landed: the second caption carries a two-space pStyle a single-space regex cannot match' `
+              -Ok (([regex]::Matches($parts['word/document.xml'], '<w:pStyle  w:val="Caption"')).Count -eq 1 -and ([regex]::Matches($parts['word/document.xml'], '<w:pStyle w:val="Caption"')).Count -eq 1)
+        $r = Invoke-FullRegate -BuildDir $fx.BuildDir -SkillDir $SkillDir -ScriptsDir $ScriptsDir -Guide $fx.Guide -Deck $fx.Deck
+        Check -What 'the gate FAILS - the shared predicate Test-GateCaptionParagraph sees both captions' `
+              -Ok (@($r.Blocking | Where-Object { $_.Arm -eq 'J' -and $_.What -match 'more than one caption' }).Count -eq 1) `
+              -Detail (@($r.Blocking | ForEach-Object { $_.What }) -join '; ')
+        Check -What 'and both were matched by STYLE, through the shared helper' -Ok ($r.Captions.ByStyle -eq 2)
+        Check -What 'CONTROL: the shared helper rejects the in-prose reference when the prefix arm is off' `
+              -Ok ((Test-GateCaptionParagraph -ParagraphXml (New-CaptionParagraph -Text ($rule.Prefix + ' ' + $fx.Slot + ' is discussed above')) -CaptionPrefix '' -CaptionStyleRx $rule.StyleRx) -eq $false)
+
+        # ---- 7. the only evidence is a Stage 4 run
+        Write-Host '  case: the only results file records afterArtwork = false' -ForegroundColor DarkGray
+        $fx = New-RegateFixture -Root $root -Case 'before-artwork' -GateSet $set -Rule $rule
+        Check -What 'plant landed: 4-results.json exists, 7c-results.json does not, and it says afterArtwork false' `
+              -Ok ((Test-Path -LiteralPath (Join-Path $fx.BuildDir '4-results.json')) -and (-not (Test-Path -LiteralPath (Join-Path $fx.BuildDir '7c-results.json'))) -and ((Get-GateJson -Path (Join-Path $fx.BuildDir '4-results.json')).afterArtwork -eq $false))
+        $r = Invoke-FullRegate -BuildDir $fx.BuildDir -SkillDir $SkillDir -ScriptsDir $ScriptsDir -Guide $fx.Guide -Deck $fx.Deck
+        Check -What 'the gate FAILS on arm H, naming a gate whose only result is from before artwork' `
+              -Ok (@($r.Blocking | Where-Object { $_.Arm -eq 'H' -and $_.What -match 'BEFORE artwork' }).Count -ge 1) `
+              -Detail (@($r.Blocking | ForEach-Object { $_.What }) -join '; ')
+        Check -What 'and the finding names the file that says so' `
+              -Ok (@($r.Blocking | Where-Object { $_.Detail -match '4-results\.json' }).Count -ge 1)
+
+        # ---- 8. the page rewritten after the file that judges it
+        Write-Host '  case: the guide is rewritten AFTER the results file that judges it' -ForegroundColor DarkGray
+        $fx = New-RegateFixture -Root $root -Case 'artefact-newer' -GateSet $set -Rule $rule
+        Check -What 'plant landed: the guide is newer than the results file''s startedAt' `
+              -Ok ((Get-Item -LiteralPath $fx.Guide).LastWriteTimeUtc -gt (ConvertTo-Utc (Get-GateJson -Path (Join-Path $fx.BuildDir '7c-results.json')).startedAt))
+        $r = Invoke-FullRegate -BuildDir $fx.BuildDir -SkillDir $SkillDir -ScriptsDir $ScriptsDir -Guide $fx.Guide -Deck $fx.Deck
+        $kHit = @($r.Blocking | Where-Object { $_.Arm -eq 'K' })
+        Check -What 'the gate FAILS on arm K, naming the artefact and the file that judges it' `
+              -Ok ($kHit.Count -ge 1 -and $kHit[0].Detail -match '7c-results\.json' -and $kHit[0].What -match 'Learner_Guide') `
+              -Detail (@($r.Blocking | ForEach-Object { $_.What }) -join '; ')
+        Check -What 'and it names BOTH times' -Ok ($kHit.Count -ge 1 -and $kHit[0].Detail -match 'Z.*Z')
+
+        # ---- 9. an input rewritten after the gates read it
+        Write-Host '  case: figures.json is rewritten after every gate ran' -ForegroundColor DarkGray
+        $fx = New-RegateFixture -Root $root -Case 'input-newer' -GateSet $set -Rule $rule
+        Check -What 'plant landed: figures.json is newer than the gate run' `
+              -Ok ((Get-Item -LiteralPath (Join-Path $fx.BuildDir 'figures.json')).LastWriteTimeUtc -gt $fx.TGate)
+        $r = Invoke-FullRegate -BuildDir $fx.BuildDir -SkillDir $SkillDir -ScriptsDir $ScriptsDir -Guide $fx.Guide -Deck $fx.Deck
+        Check -What 'the gate FAILS on arm I - a gate older than its own inputs is BLOCKING, not a warning' `
+              -Ok (@($r.Blocking | Where-Object { $_.Arm -eq 'I' }).Count -ge 1) `
+              -Detail (@($r.Warnings | ForEach-Object { $_.What }) -join '; ')
+        Check -What 'and nothing about it was left in the warnings' -Ok (@($r.Warnings | Where-Object { $_.Arm -eq 'I' }).Count -eq 0)
+
+        # ---- 10. the runner plan is still readable after the runner changed
+        Check -What 'the 7c set still names members the RUNNER PLAN supplied, not the documents alone' `
+              -Ok (@($set | Where-Object { $_.InRunnerPlan }).Count -ge 5) `
+              -Detail ("in-plan members: " + (@($set | Where-Object { $_.InRunnerPlan } | ForEach-Object { $_.Gate }) -join ', '))
 
         Write-Host ''
         Write-Host ("  {0} check(s), {1} failure(s)" -f $script:sfChecks, $script:sfFail) -ForegroundColor $(if ($script:sfFail) { 'Red' } else { 'Green' })

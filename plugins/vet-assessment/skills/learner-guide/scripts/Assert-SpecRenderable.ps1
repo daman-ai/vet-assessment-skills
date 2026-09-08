@@ -92,7 +92,16 @@
 
     PS 5.1. ASCII only in this file.
     Exit 0 clean, 1 blocking finding(s), 2 usage or input error, 4 self-test failed.
+
+    ARMS (Lib-GateCommon roster). spine-files, renderer-layouts and
+    visual-specs are BLOCKING: each ends ran (size > 0), empty (a refusal, exit
+    2, naming the input) or declared-n-a with a written reason from
+    contract.json gateArms. A spine whose visuals are all generated images
+    leaves no drawable spec, and this gate then measured nothing and printed a
+    green line; that case is now a refusal naming the spine.
 #>
+
+# GATE: stages=3c; requires=BuildDir
 
 [CmdletBinding()]
 param(
@@ -132,6 +141,9 @@ $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1')
 
 $GATE = 'Assert-SpecRenderable'
+#  This script's own path, for the self-test's child runs ($PSCommandPath is
+#  empty inside a function, so it is captured once here at script scope).
+$script:SrSelf = $PSCommandPath
 
 # ---------------------------------------------------------------------------
 # Private helpers, named Sr* so nothing here can shadow a shared one
@@ -852,6 +864,45 @@ function Invoke-SrSelfTest {
         }
         Write-SrJson -Object $j -Path $p
         Test-SrFires -Build $c7 -Rule 'SR-BRANCH-CAPABILITY' -What 'the same branch carried by a table layout, which the config declares as branch-capable'
+
+        # ---- CASE 8 and 9: THE ARM ROSTER, proved through the EXIT CODE.
+        #      Run as a child, because what a runner reads is the exit code and
+        #      not a message inside a function.
+        function Invoke-SrChild {
+            param([string] $Build, [int] $Expect, [string[]] $Names, [string] $What)
+            $out = ''
+            try { $out = (& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script:SrSelf -BuildDir $Build -Profile $prof -SkillDir $Skill -ImagesConfig $cfg -ReportPath (Join-Path $Build 'sr-report.json') 2>&1 | Out-String -Width 4096) }
+            catch { $out = "$($_.Exception.Message)" }
+            $code = $LASTEXITCODE
+            $missing = @($Names | Where-Object { $out.IndexOf($_, [System.StringComparison]::OrdinalIgnoreCase) -lt 0 })
+            if ($code -eq $Expect -and $missing.Count -eq 0) { Ok ("{0} -> exit {1}, naming {2}" -f $What, $code, (($Names | ForEach-Object { "'" + $_ + "'" }) -join ' and ')) }
+            else {
+                Bad ("{0} -> exit {1} (wanted {2}); not named: {3}" -f $What, $code, $Expect, $(if ($missing.Count) { ($missing -join ' | ') } else { 'nothing' }))
+                foreach ($ln in @(($out -split "`r?`n") | Where-Object { $_.Trim() } | Select-Object -Last 4)) { Write-Host ("      | {0}" -f $ln) -ForegroundColor DarkGray }
+            }
+        }
+
+        #  Starve the visual-specs arm: every visual on the spine is a
+        #  generated image, so no drawable spec is left to measure. This is
+        #  exactly the shape that made the gate print a green line over an
+        #  examined set of zero.
+        $c8 = Join-Path $root 'p8'
+        New-SrFixture -Root $c8 | Out-Null
+        $p8 = Join-Path $c8 'spine\t1_1.1.json'
+        $j8 = Get-GateJson -Path $p8
+        $j8.visuals[0].kind = 'image'
+        $j8.visuals[0].PSObject.Properties.Remove('spec')
+        Write-SrJson -Object $j8 -Path $p8
+        if (Test-SrPlantLanded -Path $p8 -What 'every spine visual is a generated image, so no drawable spec remains' -Probe {
+                param($d)
+                @($d.visuals | Where-Object { "$($_.kind)" -notmatch '(?i)image' }).Count -eq 0
+            }) {
+            Invoke-SrChild -Build $c8 -Expect 2 -Names @('CHECK-SET EMPTY', 'the spine visuals') -What 'a spine with no drawable spec starves the visual-specs arm'
+        } else { Bad 'plant 8 did not land' }
+
+        $c9 = Join-Path $root 'p9'
+        New-SrFixture -Root $c9 | Out-Null
+        Invoke-SrChild -Build $c9 -Expect 0 -Names @('ARMS: ', 'visual-specs|true|ran', 'renderer-layouts|true|ran') -What 'the clean fixture passes with every blocking arm ran'
     }
     finally {
         if ((Test-Path -LiteralPath $root) -and $root.Length -gt 12) {
@@ -902,11 +953,67 @@ $st = $result.Stats
 $blocking = @($result.Findings)
 $reports  = @($result.Notes)
 
+# ---------------------------------------------------------------------------
+# The arm roster. Registered at the top level, where PASS is decided. The
+# check-set lines print on every run, quiet or not: the band runs every member
+# quiet, and a blocking check-set computed only when the gate is talkative is
+# one that never fires where it matters.
+# ---------------------------------------------------------------------------
+
+$srNa = @{}
+try {
+    foreach ($arm in @('visual-specs', 'renderer-layouts')) {
+        $r = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm $arm
+        if ($r) { $srNa[$arm] = $r }
+    }
+}
+catch { Write-Host ("  X {0}: {1}" -f $GATE, $_.Exception.Message) -ForegroundColor Red; exit 2 }
+
+Reset-GateArmRoster
+Register-GateArm -Name 'spine-files' -Blocking
+Register-GateArm -Name 'renderer-layouts' -Blocking:(-not $srNa.ContainsKey('renderer-layouts'))
+Register-GateArm -Name 'visual-specs' -Blocking:(-not $srNa.ContainsKey('visual-specs'))
+Register-GateArm -Name 'slot-cross-references'
+
+$srRoster = @()
+try {
+    if (-not $Quiet) {
+        Write-Host ''
+        Write-Host 'SPEC RENDERABILITY - can every planned visual actually be drawn?' -ForegroundColor Cyan
+    }
+    Write-GateCheckSet -What 'spine file(s) read' -Count $st.spineFiles -DerivedFrom 'the build spine' -Blocking -Input ('the spine under {0}' -f $BuildDir)
+    Complete-GateArm -Name 'spine-files' -State 'ran' -Size $st.spineFiles
+
+    if ($srNa.ContainsKey('renderer-layouts')) { Complete-GateArm -Name 'renderer-layouts' -State 'declared-n-a' -Reason $srNa['renderer-layouts'] }
+    else {
+        Write-GateCheckSet -What 'declared renderer layout(s)' -Count $caps.Renderers.Count -DerivedFrom ((Split-Path -Leaf $caps.ConfigPath) + ' diagram.renderer') -Blocking -Input ([string]$caps.ConfigPath + ' diagram.renderer - not one layout is declared, so every spec would be measured against a renderer set of nothing')
+        Complete-GateArm -Name 'renderer-layouts' -State 'ran' -Size $caps.Renderers.Count
+    }
+
+    if ($srNa.ContainsKey('visual-specs')) { Complete-GateArm -Name 'visual-specs' -State 'declared-n-a' -Reason $srNa['visual-specs'] }
+    else {
+        Write-GateCheckSet -What 'visual spec(s) on the spine' -Count $st.specsChecked -DerivedFrom ("{0} spine file(s)" -f $st.spineFiles) -Blocking -Input ('the spine visuals: ' + $st.visuals + ' visual(s) found, ' + $st.imageVisualsSkipped + ' of them generated images whose prompts belong to Assert-PromptLint, leaving no drawable spec to measure')
+        Complete-GateArm -Name 'visual-specs' -State 'ran' -Size $st.specsChecked -Findings $blocking.Count
+    }
+
+    if ($st.figureCrossReferences -gt 0) { Complete-GateArm -Name 'slot-cross-references' -State 'ran' -Size $st.figureCrossReferences }
+    else { Complete-GateArm -Name 'slot-cross-references' -State 'empty' }
+
+    Assert-GateArmsComplete
+    $srRoster = Write-GateArmRoster
+}
+catch {
+    $msg = $_.Exception.Message
+    if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+        Write-Host ("  X {0} REFUSED - {1}" -f $GATE, $msg) -ForegroundColor Red
+        [void](Write-GateArmRoster)
+        exit 2
+    }
+    Write-Host ("  X {0}: {1}" -f $GATE, $msg) -ForegroundColor Red
+    exit 1
+}
+
 if (-not $Quiet) {
-    Write-Host ''
-    Write-Host 'SPEC RENDERABILITY - can every planned visual actually be drawn?' -ForegroundColor Cyan
-    Write-GateCheckSet -What 'visual spec(s) on the spine' -Count $st.specsChecked -DerivedFrom ("{0} spine file(s)" -f $st.spineFiles)
-    Write-GateCheckSet -What 'declared renderer layout(s)' -Count $caps.Renderers.Count -DerivedFrom ((Split-Path -Leaf $caps.ConfigPath) + ' diagram.renderer')
     Write-Host ("  caps READ: box cap {0} (diagram.maxNodes); placement cap {1:N1} cm and diagram width fraction {2:N2} (placement); font {3:N1} pt at line spacing {4:N2} giving {5:N2} cm a line - all from {6}" -f `
         $caps.MaxNodes, $caps.MaxHeightCm, $caps.DiagramWidthFraction, $caps.FontPt, $caps.LineSpacing, $caps.LineCm, (Split-Path -Leaf $caps.ConfigPath)) -ForegroundColor DarkGray
     Write-Host ("  geometry READ: column {0:N2} cm tall x {1:N2} cm wide, arithmetic over the page geometry in {2} (via {3})" -f `
@@ -944,6 +1051,7 @@ $report = [pscustomobject]@{
         renderers = $caps.Renderers; tableLayouts = $caps.TableLayouts
     }
     estimators = [pscustomobject]@{ cellPaddingCm = $CellPaddingCm; nodeGapCm = $NodeGapCm; avgCharEmShare = $AvgCharEmShare; nodeHeightCmOverride = $NodeHeightCm }
+    arms      = $srRoster
     stats     = $st
     blocking  = $blocking
     report    = $reports

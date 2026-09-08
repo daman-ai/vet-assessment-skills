@@ -45,7 +45,12 @@ PROOF: `Test-Pipeline.ps1 -SkipOffice`
 
 `$script:LedgerRequired` gained `3c 3d 4c 6b 7b-i 7b 7c 7d`; `LedgerOrder`,
 `LedgerBlocking` and a new `LedgerVerdict` set updated with it. `n-a` now costs a
-written note. SKILL.md Stage 8 rewritten to match what the script enforces, and
+written note. **Superseded 8 September 2026:** there is now ONE ordered stage
+table, `$script:LedgerStages`, and every one of those list names is a DERIVED
+VIEW of it, so five hand-listed arrays became one source. Stage 7 became
+CONDITIONAL rather than absent from the required set, and `7b-ii` was renamed to
+`7b` - `Add-StageRecord -Stage '7b-ii'` is refused naming `7b`, and nothing is
+normalised. SKILL.md Stage 8 rewritten to match what the script enforces, and
 tells the reader to take the list from the script rather than a copy.
 gates.md section 10 lists the required set, says the script is the only copy,
 and records why a transcribed list is how six stages came to be enforced by
@@ -116,6 +121,18 @@ before placement. visuals.md section 9 gained a matching ownership block.
 - `Lib-GateCommon.ps1` - `Get-SpineFingerprint`, one implementation.
 - `Stage-Ledger.ps1` - `Test-FigureSheetCurrent`, called by `Test-StageLedger`:
   missing sheet, missing stamp or a moved spine BLOCKS delivery.
+- Updated 8 September 2026: the sheet is now proved by THREE things, not one.
+  It must carry `BAND-VERDICT: PASS` - the 3c band's own stamp - so a sheet cut
+  by the direct `New-FigureSheet.ps1` command from a failed spine, or forced
+  with `-Force` (which stamps `BAND-VERDICT FAIL`), can never reach delivery.
+  Its `SPINE-FINGERPRINT` stamp is compared through
+  `Test-GateFingerprintVersion`, which distinguishes "the fingerprint format
+  changed, re-cut" from "the spine moved", and it accepts the `v2:<32 hex>`
+  stamps `Get-SpineFingerprint` now returns. An EMPTY expected fingerprint is a
+  problem, never a match. And a Stage 5, 6 or 7d record written while the
+  rendered extract's `FIGURES:` stamp still shows unresolved artwork prompt
+  blocks must NAME the sheet it was read with (`-FigureSheet`); the sheet it
+  names is checked then and there.
 - gates.md: section 10 carries the fingerprint row, section 31 the rule that the
   sheet travels with every review pack, and the 3d and 7 gate-table rows name
   `New-FigureSheet.ps1`.
@@ -200,38 +217,73 @@ script lands so the "being implemented" markings can be removed.
 
 ## What the tree does NOT contain, so nobody reads a DONE above as "the gate exists"
 
+Re-derived from `Get-ChildItem scripts\` on 8 September 2026. Every name in the
+previous version of this list that has since landed has been removed from it;
+what remains is what is genuinely absent, in the fixed marker form the
+documents now use - `**Status: NOT YET IMPLEMENTED** - performed today by:
+<what exists>`.
+
 Not yet implemented (specified in gates.md, no file, no function):
 Assert-RendererContract, Get-RendererContract, New-SpineWriter,
-Resolve-Palette, Assert-DownstreamPalette, Assert-GateFixtures,
-Assert-GateHygiene, Assert-LongStageOutputContract, Assert-CorpusComplete,
-Assert-PackSelfConsistency, Assert-Provenance, Assert-WithholdRegister
-(enforcement arm), Assert-IdentifierNamespace, Assert-SpecRenderable,
-Run-SpineGates, Run-Gates, Assert-ChannelDisposition (and the Get-DocText
-stamp), Assert-EnumerateBeforeFix, Assert-FullRegateAfterMutation (whole-set
-assertion), Assert-Staleness, Assert-GridDisposition, Assert-FigureCoverage,
-Assert-SpineCounts, Assert-Terminology, Assert-DeckParity,
-Assert-CitationConsistency, Assert-ScenarioClock, the Test-Readability spine
-wrapper, Check-ShapeMirror, Check-RowCoverage.
+Resolve-Palette (as a script; `Get-BrandPalettePairs` in Set-ResourceBrand.ps1
+is the substance), Assert-DownstreamPalette, Assert-LongStageOutputContract,
+Assert-ChannelDisposition, the Test-Readability spine wrapper, the write-time
+exact arm of Assert-SpecRenderable, and the heading test in Check-FigureMirror
+(gates.md 15b(c)).
 
-Being implemented by sibling builds (not on disk at reconciliation):
-Assert-PromptLint.ps1, Probe-GenerationEndpoints.ps1, New-WithholdRegister.ps1,
-Test-Finding.ps1.
+Specified names now implemented INSIDE another script, so they are marked
+rather than deleted: Assert-Staleness and Assert-LedgerIntegrity are the
+delivery-staleness and span/same-second rules inside `Test-StageLedger` in
+Stage-Ledger.ps1.
+
+Landed since the 3 September reconciliation, so no longer on the absent list:
+Assert-CitationConsistency, Assert-CorpusComplete, Assert-DeckParity,
+Assert-EnumerateBeforeFix, Assert-FigureCoverage, Assert-FullRegateAfterMutation,
+Assert-GateFixtures, Assert-GateHygiene, Assert-GateVisualCount,
+Assert-IdentifierNamespace, Assert-PackSelfConsistency, Assert-PromptLint,
+Assert-Provenance, Assert-RenderDelta, Assert-ScenarioClock,
+Assert-SpecRenderable (whole-spine arm), Assert-SpineCounts, Assert-Terminology,
+Assert-WithholdRegister, Check-RowCoverage, Check-ShapeMirror, Finish-Documents,
+Get-ClaimsDigest, Invoke-Stage0, Lib-RtoProfile, Merge-AuditFindings,
+New-ReviewPack, New-WithholdRegister, Probe-GenerationEndpoints, Run-Gates,
+Run-SpineGates, Test-Finding, Test-GridDisposition (which is what
+`Assert-GridDisposition` names), Test-Spine, Test-SubSection - and the
+Get-DocText FIGURES / CHANNELS / SOURCE stamp.
 
 Design names that resolve to an existing script (no file of the design name):
 Assert-BrandCrossover -> Check-Identity.ps1; Assert-AssessorLeakage ->
-Check-FigureLeakage.ps1; Assert-RtoProfile -> function in Get-RtoProfile.ps1;
+Check-FigureLeakage.ps1; Assert-RtoProfile -> function in Lib-RtoProfile.ps1,
+with Get-RtoProfile.ps1 the CLI wrapper; Assert-GridDisposition ->
+Test-GridDisposition.ps1; Assert-FindingProvenance -> Test-Finding.ps1;
 the write-time arm of Assert-RendererContract -> Test-SpineRead.ps1; the
 placement arm of Assert-FullRegateAfterMutation -> Check-Figures.ps1.
 
-## scripts\ as of 3 September 2026
+## scripts\ as of 8 September 2026 (56 files)
 
-Build-Guide.ps1, Check-FigureLeakage.ps1, Check-FigureMirror.ps1,
-Check-Figures.ps1, Check-Identity.ps1, Get-DocText.ps1, Get-RtoProfile.ps1,
-Lib-GateCommon.ps1, Lib-Resolve.ps1, New-FigureSheet.ps1,
-Patch-GuideTemplateGeometry.ps1, Pptx-Blocks.ps1, Set-ResourceBrand.ps1,
-Stage-Ledger.ps1, Test-DeckRules.ps1, Test-FigureConsistency.ps1,
-Test-GuideRules.ps1, Test-Pipeline.ps1, Test-SpineRead.ps1, Xml-Scan.ps1.
+Assert-CitationConsistency.ps1, Assert-CorpusComplete.ps1,
+Assert-DeckParity.ps1, Assert-EnumerateBeforeFix.ps1,
+Assert-FigureCoverage.ps1, Assert-FullRegateAfterMutation.ps1,
+Assert-GateFixtures.ps1, Assert-GateHygiene.ps1, Assert-GateVisualCount.ps1,
+Assert-IdentifierNamespace.ps1, Assert-PackSelfConsistency.ps1,
+Assert-PromptLint.ps1, Assert-Provenance.ps1, Assert-RenderDelta.ps1,
+Assert-ScenarioClock.ps1, Assert-SpecRenderable.ps1, Assert-SpineCounts.ps1,
+Assert-Terminology.ps1, Assert-WithholdRegister.ps1, Build-Guide.ps1,
+Check-FigureLeakage.ps1, Check-FigureMirror.ps1, Check-Figures.ps1,
+Check-Identity.ps1, Check-RowCoverage.ps1, Check-ShapeMirror.ps1,
+Finish-Documents.ps1, Get-ClaimsDigest.ps1, Get-DocText.ps1,
+Get-RtoProfile.ps1, Invoke-Render.ps1, Invoke-Stage0.ps1, Lib-GateCommon.ps1,
+Lib-Resolve.ps1, Lib-RtoProfile.ps1, Merge-AuditFindings.ps1,
+New-FigureSheet.ps1, New-ReviewPack.ps1, New-WithholdRegister.ps1,
+Patch-GuideTemplateGeometry.ps1, Pptx-Blocks.ps1,
+Probe-GenerationEndpoints.ps1, Run-Gates.ps1, Run-SpineGates.ps1,
+Set-ResourceBrand.ps1, Stage-Ledger.ps1, Test-DeckRules.ps1,
+Test-FigureConsistency.ps1, Test-Finding.ps1, Test-GridDisposition.ps1,
+Test-GuideRules.ps1, Test-Pipeline.ps1, Test-Spine.ps1, Test-SpineRead.ps1,
+Test-SubSection.ps1, Xml-Scan.ps1.
 
-Status at the last save: scripts complete and proven (47/47 in
-`Test-Pipeline.ps1 -SkipOffice`, re-run 3 September); SKILL.md complete;
-gates.md and visuals.md honest; audit-checklist.md pending on one medium.
+Status at the last save: SKILL.md, gates.md and visuals.md brought back to
+what the tree contains on 8 September 2026 - every gate name, script path,
+parameter and stage key re-checked against `scripts\`; the `7b-ii` stage key
+renamed to `7b` everywhere in the documents; transcribed stage and member lists
+replaced with pointers at the file that owns the fact. audit-checklist.md still
+pending on one medium.

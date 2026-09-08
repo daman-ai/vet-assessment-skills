@@ -109,15 +109,36 @@
     PS 5.1. ASCII only in this file. Nothing here names a unit, a brand, an RTO
     or a build path.
 
+    THE STAGE DECIDES WHAT THE COUNT-VS-GRID ARM MAY DO. grids.json is written
+    at Stage 2 by New-WithholdRegister. At -Stage 1 the arm is recorded
+    DEFERRED on the roster with that reason - never SKIPPED-and-pass, which is
+    what this gate used to print. At -Stage 2 an absent grids.json is a
+    failure naming it (exit 1): the arm was promised and cannot run. With no
+    -Stage the arm runs when the file is there and is recorded deferred when
+    it is not. Every other arm is on the same roster (Lib-GateCommon): a
+    blocking arm whose check-set is empty - a corpus with one document, so no
+    family has two documents to compare - is a refusal (exit 2) naming the
+    corpus, and an assessor-only document that pairs with no learner-facing
+    tool is a refusal naming the document, because nothing in it was compared
+    with anything. Either can be declared not applicable in contract.json
+    gateArms.Assert-PackSelfConsistency.<arm> with a written reason.
+
     Exit 0 no hazard, or every hazard dispositioned; 1 at least one hazard has
-    no written disposition; 2 a usage error; 4 the self-test failed.
+    no written disposition (or, at -Stage 2, grids.json is absent); 2 a usage
+    error or an empty blocking check-set; 4 the self-test failed.
 #>
+
+# GATE: stages=1,2; requires=BuildDir
 
 [CmdletBinding()]
 param(
     #  The build directory. The corpus, the contract and the hazard file are
     #  found under it.
     [string] $BuildDir,
+    #  The pipeline stage this run stands for: 1 (before grids.json exists;
+    #  the count-vs-grid arm is deferred by name) or 2 (grids.json must exist).
+    #  Left empty, the arm runs when the file is there.
+    [string] $Stage,
     #  Override the canonical corpus directory. Resolved by Lib-GateCommon
     #  otherwise, so this gate reads the extraction every later gate reads.
     [string] $CorpusDir,
@@ -379,11 +400,13 @@ if ($SelfTest) {
         param([hashtable] $Params)
         $r = Join-Path $tmp ('result_' + [Guid]::NewGuid().ToString('N').Substring(0, 8) + '.json')
         $global:LASTEXITCODE = 0
-        & $script:Self @Params -ResultPath $r -Quiet | Out-Null
+        #  *>&1: a refusal (exit 2) writes no result file and the ARMS roster
+        #  line goes through Write-Host, so the console is asserted on too.
+        $text = & $script:Self @Params -ResultPath $r -Quiet *>&1 | Out-String -Width 8192
         $code = $LASTEXITCODE
         $body = $null
         if (Test-Path -LiteralPath $r) { $body = Get-GateJson -Path $r }
-        return [pscustomobject]@{ Code = $code; Result = $body }
+        return [pscustomobject]@{ Code = $code; Result = $body; Text = $text }
     }
     function Get-HazardsOfType {
         param($Res, [string] $Type)
@@ -448,21 +471,31 @@ if ($SelfTest) {
         return $l.ToArray()
     }
     function Write-Fixture {
-        param([string] $LearnerFlavour = 'clean', [string] $AssessorFlavour = 'clean', [int] $GridRows = 3)
+        #  -NoGrids: no grids.json (a Stage 1 corpus). -LearnerOnly: the one-
+        #  document corpus. -Orphan: an extra assessor document whose name
+        #  contains no learner tool's name.
+        param([string] $LearnerFlavour = 'clean', [string] $AssessorFlavour = 'clean', [int] $GridRows = 3, [switch] $NoGrids, [switch] $LearnerOnly, [switch] $Orphan)
         if (Test-Path -LiteralPath $fxCorpus) { Remove-Item -LiteralPath $fxCorpus -Recurse -Force }
         New-Item -ItemType Directory -Force -Path $fxCorpus | Out-Null
         $enc = New-Object System.Text.UTF8Encoding($true)
         [System.IO.File]::WriteAllText((Join-Path $fxCorpus 'Alpha_Tool.txt'), (((Get-FixtureBody -Flavour $LearnerFlavour) -join "`r`n") + "`r`n"), $enc)
-        [System.IO.File]::WriteAllText((Join-Path $fxCorpus 'Assessor_Guide_Alpha_Tool.txt'), (((Get-FixtureBody -Flavour $AssessorFlavour) -join "`r`n") + "`r`n"), $enc)
-        $labels = @()
-        for ($i = 1; $i -le $GridRows; $i++) { $labels += ('Delivery check row {0}' -f $i) }
-        $grids = [ordered]@{
-            _purpose = 'fixture response grids'
-            grids = @(
-                [ordered]@{ doc = 'Alpha_Tool'; ref = 'Alpha Task 1(a)'; labels = $labels; headers = @('What you check', 'Why') }
-            )
+        if (-not $LearnerOnly) {
+            [System.IO.File]::WriteAllText((Join-Path $fxCorpus 'Assessor_Guide_Alpha_Tool.txt'), (((Get-FixtureBody -Flavour $AssessorFlavour) -join "`r`n") + "`r`n"), $enc)
         }
-        [System.IO.File]::WriteAllText((Join-Path $fxCorpus 'grids.json'), (([pscustomobject]$grids | ConvertTo-Json -Depth 8)), $enc)
+        if ($Orphan) {
+            [System.IO.File]::WriteAllText((Join-Path $fxCorpus 'Assessor_Guide_Zeta.txt'), (((Get-FixtureBody -Flavour 'clean') -join "`r`n") + "`r`n"), $enc)
+        }
+        if (-not $NoGrids) {
+            $labels = @()
+            for ($i = 1; $i -le $GridRows; $i++) { $labels += ('Delivery check row {0}' -f $i) }
+            $grids = [ordered]@{
+                _purpose = 'fixture response grids'
+                grids = @(
+                    [ordered]@{ doc = 'Alpha_Tool'; ref = 'Alpha Task 1(a)'; labels = $labels; headers = @('What you check', 'Why') }
+                )
+            }
+            [System.IO.File]::WriteAllText((Join-Path $fxCorpus 'grids.json'), (([pscustomobject]$grids | ConvertTo-Json -Depth 8)), $enc)
+        }
         if (Test-Path -LiteralPath (Join-Path $fxBuild 'pack-hazards.json')) { Remove-Item -LiteralPath (Join-Path $fxBuild 'pack-hazards.json') -Force }
     }
     function Test-PlantLanded {
@@ -592,7 +625,56 @@ if ($SelfTest) {
         $leaked = @(@(Get-GateProp -Object $c.Result -Names @('hazards') -Default @()) | ForEach-Object { @($_.locations) } | Where-Object { $null -ne $_ -and $_.audience -eq 'assessor' -and ("$($_.quote)").Trim() })
         Record 'assessor text never echoed' ($leaked.Count -eq 0) ('{0} assessor-only location(s) carry a quote' -f $leaked.Count)
 
-        # (j) the control again, after every plant
+        # (j) the Stage-2 control: grids present, the arm RUNS and is on the roster as ran
+        Write-Fixture
+        $c = Invoke-Child ($base + @{ Stage = '2' })
+        Record 'stage 2 with grids runs the arm' (($c.Code -eq 0) -and ($c.Text -match 'count-vs-grid\|true\|ran\|1\|')) ('exit {0}; roster {1}' -f $c.Code, $(if ($c.Text -match 'count-vs-grid\|true\|ran\|1\|') { 'shows count-vs-grid ran over 1 grid' } else { 'does NOT show the arm as ran' }))
+
+        # (k) a no-grids corpus at -Stage 1: the arm is DEFERRED by name on the
+        #     roster, never SKIPPED-and-pass, and the gate passes.
+        Write-Fixture -NoGrids
+        if (Test-Path -LiteralPath (Join-Path $fxCorpus 'grids.json')) { Record 'stage 1 defers count-vs-grid' $false 'the plant did not land: grids.json is still there' }
+        else {
+            $c = Invoke-Child ($base + @{ Stage = '1' })
+            $deferred = @(@($c.Result.roster) | Where-Object { $_.name -eq 'count-vs-grid' -and $_.state -eq 'deferred' -and $_.reason -match 'Stage 2' })
+            Record 'stage 1 defers count-vs-grid' (($c.Code -eq 0) -and ($deferred.Count -eq 1) -and ($c.Text -match 'count-vs-grid\|true\|deferred\|0\|0')) ('no grids.json; exit {0}; roster {1}; ARMS line {2}' -f $c.Code, $(if ($deferred.Count) { 'records deferred with reason: ' + $deferred[0].reason } else { 'does NOT record deferred' }), $(if ($c.Text -match 'count-vs-grid\|true\|deferred') { 'carries deferred' } else { 'MISSING deferred' }))
+        }
+
+        # (l) the same corpus at -Stage 2: the promised input is absent - exit 1 naming grids.json
+        Write-Fixture -NoGrids
+        $c = Invoke-Child ($base + @{ Stage = '2' })
+        $named = @(@($c.Result.stageFailures) | Where-Object { $_ -match 'grids\.json' })
+        Record 'stage 2 without grids fails by name' (($c.Code -eq 1) -and ($named.Count -ge 1) -and ($c.Text -match 'count-vs-grid\|true\|absent\|0\|0')) ('no grids.json at -Stage 2; exit {0}; {1}' -f $c.Code, $(if ($named.Count) { $named[0] } else { 'grids.json was NOT named' }))
+
+        # (m) the same corpus with no -Stage: a named deferral, and the current pass is preserved
+        Write-Fixture -NoGrids
+        $c = Invoke-Child $base
+        Record 'no stage, no grids: named deferral' (($c.Code -eq 0) -and ($c.Text -match 'count-vs-grid\|true\|deferred\|0\|0')) ('exit {0}; roster {1}' -f $c.Code, $(if ($c.Text -match 'count-vs-grid\|true\|deferred') { 'records deferred' } else { 'does NOT record deferred' }))
+
+        # (n) a one-document corpus: no family has two documents, the family
+        #     arms have an empty check-set, and empty is a refusal naming the corpus
+        Write-Fixture -LearnerOnly
+        $docs = @(Get-ChildItem -LiteralPath $fxCorpus -Filter '*.txt' -File).Count
+        if ($docs -ne 1) { Record 'one-document corpus refuses' $false ('the plant did not land: {0} document(s)' -f $docs) }
+        else {
+            $c = Invoke-Child $base
+            Record 'one-document corpus refuses' (($c.Code -eq 2) -and ($c.Text -match 'CHECK-SET EMPTY') -and ($c.Text -match [regex]::Escape($fxCorpus))) ('one learner document; exit {0}; {1}' -f $c.Code, $(if ($c.Text -match 'CHECK-SET EMPTY') { 'refused with CHECK-SET EMPTY naming the corpus' } else { 'did NOT refuse' }))
+        }
+
+        # (o) an assessor document that pairs with no learner tool: refused by name
+        Write-Fixture -Orphan
+        if (-not (Test-Path -LiteralPath (Join-Path $fxCorpus 'Assessor_Guide_Zeta.txt'))) { Record 'orphan assessor document refuses' $false 'the plant did not land' }
+        else {
+            $c = Invoke-Child $base
+            Record 'orphan assessor document refuses' (($c.Code -eq 2) -and ($c.Text -match 'Assessor_Guide_Zeta')) ('Assessor_Guide_Zeta pairs with nothing; exit {0}; {1}' -f $c.Code, $(if ($c.Text -match 'Assessor_Guide_Zeta') { 'named' } else { 'NOT named' }))
+        }
+
+        # (p) an unknown -Stage is a usage error
+        Write-Fixture
+        $c = Invoke-Child ($base + @{ Stage = '9' })
+        Record 'unknown stage refuses' ($c.Code -eq 2) ('-Stage 9; exit {0}' -f $c.Code)
+
+        # (q) the control again, after every plant
         Write-Fixture
         $c = Invoke-Child $base
         Record 'control after plants' ($c.Code -eq 0) ('the fixture restores clean; exit {0}' -f $c.Code)
@@ -629,6 +711,7 @@ if ($SelfTest) {
 
 if (-not $BuildDir -and -not $CorpusDir) { Fail-Usage 'pass -BuildDir (the corpus, the contract and the hazard file are found under it), or -CorpusDir.' }
 if ($BuildDir -and -not (Test-Path -LiteralPath $BuildDir)) { Fail-Usage ('build directory not found: {0}' -f $BuildDir) }
+if ($Stage -and $Stage -notin @('1', '2')) { Fail-Usage ("-Stage '{0}' is not a stage this gate runs at (1 or 2)." -f $Stage) }
 
 $corpusPath = $null
 try { $corpusPath = Get-GateCorpusDir -BuildDir $(if ($BuildDir) { $BuildDir } else { (Split-Path -Parent $CorpusDir) }) -CorpusDir $CorpusDir }
@@ -636,6 +719,55 @@ catch { Fail-Usage $_.Exception.Message }
 
 $contract = $null
 if ($BuildDir) { $contract = Get-GateContract -BuildDir $BuildDir }
+
+#  The arm roster (Lib-GateCommon). Every arm ends ran / empty / declared-n-a
+#  - or, for count-vs-grid alone, DEFERRED with the stage's reason.
+Reset-GateArmRoster
+Register-GateArm -Name 'question-text' -Blocking
+Register-GateArm -Name 'missing-item' -Blocking
+Register-GateArm -Name 'mapping' -Blocking
+Register-GateArm -Name 'numeral' -Blocking
+Register-GateArm -Name 'count-vs-grid' -Blocking
+Register-GateArm -Name 'orphan-assessor' -Blocking
+Register-GateArm -Name 'arithmetic'
+function Stop-OnRefusal {
+    param($Err)
+    $m = $Err.Exception.Message
+    if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE):') { Fail-Usage $m }
+    Fail-Usage ("the gate could not run - {0}" -f $m)
+}
+# REQUEST: Lib-GateCommon Set-GateArmState (see scratchpad\p0\REQUESTS\K.md)
+function Set-ArmState {
+    <#  Record an arm as DEFERRED (registered, not run, and not a pass, with
+        the reason the stage table gives) or ABSENT (its input was promised
+        for this stage and is not there - a failure, exit 1, naming the
+        input). Lib-GateCommon's Complete-GateArm knows ran / empty /
+        declared-n-a; until it grows these two states (requested), the roster
+        object is stamped here. The runners read the state off the ARMS line
+        and must treat 'deferred' as a named partial at Stage 1 and anything
+        but ran / declared-n-a as a failure at Stage 2.  #>
+    param([Parameter(Mandatory)][string] $Name, [Parameter(Mandatory)][ValidateSet('deferred', 'absent')][string] $State, [Parameter(Mandatory)][string] $Reason)
+    $arm = $null
+    foreach ($a in @(Get-GateArmRoster)) { if ($a.Name -eq $Name) { $arm = $a } }
+    if ($null -eq $arm) { throw ("Set-ArmState: arm '{0}' was never registered." -f $Name) }
+    if ($arm.State -ne 'not-run') { throw ("Set-ArmState: arm '{0}' already ended as '{1}'." -f $Name, $arm.State) }
+    if ("$Reason".Trim().Length -lt 20) { throw ("Set-ArmState: arm '{0}' needs a written reason." -f $Name) }
+    $arm.State = $State
+    $arm.Reason = "$Reason"
+    $arm.CompletedUtc = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
+}
+function Complete-ArmOrDeclare {
+    <#  ran when the set is non-empty; otherwise declared-n-a when the contract
+        says so with a reason, else empty (a refusal the roster check turns
+        into exit 2).  #>
+    param([Parameter(Mandatory)][string] $Name, [int] $Size, [int] $Findings = 0)
+    if ($Size -gt 0) { Complete-GateArm -Name $Name -State 'ran' -Size $Size -Findings $Findings; return 'ran' }
+    $na = $null
+    if ($BuildDir) { $na = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm $Name -Contract $contract }
+    if ($na) { Complete-GateArm -Name $Name -State 'declared-n-a' -Reason $na; return 'declared-n-a' }
+    Complete-GateArm -Name $Name -State 'empty' -Size 0
+    return 'empty'
+}
 
 if (-not $HazardPath) {
     if (-not $BuildDir) { Fail-Usage 'pass -HazardPath, or -BuildDir so the disposition file has a home. A hazard list nothing re-reads is a list nobody has to answer.' }
@@ -710,9 +842,27 @@ foreach ($l in $learners) {
 $orphans = @($assessors | Where-Object { -not $claimed.Contains($_.Name) })
 
 # --- the pack's typed response grids, keyed by (document, item, part)
+#
+#  WHAT THE STAGE ALLOWS. grids.json is a Stage 2 product. At -Stage 1 the
+#  count-vs-grid arm is DEFERRED by name whether or not a file is lying there
+#  from an earlier run; at -Stage 2 its absence is a failure naming it; with
+#  no -Stage it runs when present and is deferred when not.
 $gridRows = @{}
-$gridsFrom = 'no typed grids file - the count arm is SKIPPED'
-$grids = Get-GateJson -Path $GridsPath
+$gridsPresent = (Test-Path -LiteralPath $GridsPath)
+$gridDeferReason = ''
+$gridStageFailure = ''
+if ($Stage -eq '1') {
+    $gridDeferReason = ('grids.json written at Stage 2 (New-WithholdRegister); the count-vs-grid arm runs at -Stage 2{0}' -f $(if ($gridsPresent) { ' - a grids.json is present from an earlier run and is deliberately not read at Stage 1' } else { '' }))
+}
+elseif ($Stage -eq '2' -and -not $gridsPresent) {
+    $gridStageFailure = ('at -Stage 2 the count-vs-grid arm must run and its input is absent: no grids.json at {0}. New-WithholdRegister writes it into the corpus directory at Stage 2; the arm was promised and cannot run.' -f $GridsPath)
+}
+elseif (-not $gridsPresent) {
+    $gridDeferReason = ('grids.json written at Stage 2 (New-WithholdRegister) and not present at {0}; the count-vs-grid arm is deferred, not skipped' -f $GridsPath)
+}
+$gridsFrom = $(if ($gridDeferReason) { 'DEFERRED - ' + $gridDeferReason } elseif ($gridStageFailure) { 'ABSENT at Stage 2 - ' + $GridsPath } else { 'no typed grids file' })
+$grids = $null
+if ($gridsPresent -and -not $gridDeferReason) { $grids = Get-GateJson -Path $GridsPath }
 if ($null -ne $grids) {
     $gl = @(Get-GateProp -Object $grids -Names @('grids') -Default @())
     foreach ($g in $gl) {
@@ -754,7 +904,19 @@ function Add-Arm { param([string] $Name, [bool] $Ran, [string] $Detail) $armLog.
 
 $multiFamilies = @($families.ToArray() | Where-Object { $_.Members.Count -gt 1 })
 
+# --- ARM 0: an assessor-only document that pairs with no learner-facing tool
+#     was compared with nothing. Refused by name (exit 2), or declared not
+#     applicable in the contract with a reason.
+$orphanNa = $null
+if ($orphans.Count -gt 0 -and $BuildDir) { $orphanNa = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm 'orphan-assessor' -Contract $contract }
+if ($orphans.Count -gt 0 -and -not $orphanNa) {
+    Fail-Usage ('CHECK-SET EMPTY: {0} is assessor-facing and pairs with no learner-facing tool in the corpus ({1}), so nothing in it was compared with anything. A family is derived by name - the learner tool''s name inside the assessor document''s - and this document matched none. Fix the extraction name, or declare the arm not applicable in contract.json gateArms.{2}.orphan-assessor with a written reason.' -f ((@($orphans | ForEach-Object { $_.Name })) -join ', '), ((@($learners | ForEach-Object { $_.Name })) -join ', '), $GATE)
+}
+if ($orphanNa) { Complete-GateArm -Name 'orphan-assessor' -State 'declared-n-a' -Reason $orphanNa }
+else { Complete-GateArm -Name 'orphan-assessor' -State 'ran' -Size $parsed.Count -Findings 0 }
+
 # --- ARM 1 and 2 and 4: question text, missing items, mapping
+$itemsCompared = 0
 if ($multiFamilies.Count -eq 0) {
     Add-Arm 'question-text' $false 'no family has two documents: nothing to compare a question against'
     Add-Arm 'missing-item'  $false 'no family has two documents'
@@ -767,6 +929,7 @@ else {
             for ($b = $a + 1; $b -lt $mem.Count; $b++) {
                 $dA = $mem[$a]
                 $dB = $mem[$b]
+                $itemsCompared += $dA.Items.Count + $dB.Items.Count
 
                 # missing items
                 foreach ($n in @($dA.Items.Keys)) {
@@ -843,6 +1006,18 @@ else {
     Add-Arm 'question-text' $true ('{0} famil(ies) with two or more documents' -f $multiFamilies.Count)
     Add-Arm 'missing-item'  $true ('{0} famil(ies) with two or more documents' -f $multiFamilies.Count)
     Add-Arm 'mapping'       $true ('{0} famil(ies) with two or more documents; contract map: {1}' -f $multiFamilies.Count, $keFrom)
+}
+#  The three family arms share one check-set: the items of every document
+#  pair inside a family with two or more documents. A one-document corpus
+#  leaves it empty, and empty is a refusal, not a pass.
+$famNa = $null
+if ($itemsCompared -eq 0 -and $BuildDir) { $famNa = Get-GateDeclaredNa -BuildDir $BuildDir -Gate $GATE -Arm 'question-text' -Contract $contract }
+try {
+    Write-GateCheckSet -What 'item(s) compared across family document pairs' -Count $itemsCompared -DerivedFrom ('{0} famil(ies) with two or more documents, out of {1}' -f $multiFamilies.Count, $families.Count) -Blocking:(-not $famNa) -Input ('the corpus at {0} (one learner-facing document and the assessor documents whose names contain its name)' -f $corpusPath)
+}
+catch { Stop-OnRefusal $_ }
+foreach ($famArm in @('question-text', 'missing-item', 'mapping')) {
+    $null = Complete-ArmOrDeclare -Name $famArm -Size $itemsCompared -Findings @($hazards.ToArray() | Where-Object { $_.type -eq $famArm }).Count
 }
 
 # --- ARM 4b: the pack's own mapping against the contract's
@@ -933,10 +1108,22 @@ foreach ($fam in $families.ToArray()) {
     }
 }
 Add-Arm 'numeral' $true ('{0} measured statement(s) read; scope: {1}' -f $maskHits, $(if ($IncludeWithinDocument) { 'across AND within documents' } else { 'ACROSS documents of one family only - the within-document arm is available under -IncludeWithinDocument and is off by default, because a two-row standard stated as two rows is not a divergence' }))
+$null = Complete-ArmOrDeclare -Name 'numeral' -Size $maskHits -Findings @($hazards.ToArray() | Where-Object { $_.type -eq 'numeral' }).Count
 
 # --- ARM 5: a stated count against the pack's own grid for that question
-if ($gridRows.Count -eq 0) {
-    Add-Arm 'count-vs-grid' $false $gridsFrom
+$stageFailures = New-Object System.Collections.Generic.List[string]
+if ($gridDeferReason) {
+    Add-Arm 'count-vs-grid' $false ('DEFERRED - ' + $gridDeferReason)
+    Set-ArmState -Name 'count-vs-grid' -State 'deferred' -Reason $gridDeferReason
+}
+elseif ($gridStageFailure) {
+    Add-Arm 'count-vs-grid' $false ('ABSENT INPUT - ' + $gridStageFailure)
+    Set-ArmState -Name 'count-vs-grid' -State 'absent' -Reason $gridStageFailure
+    $stageFailures.Add($gridStageFailure)
+}
+elseif ($gridRows.Count -eq 0) {
+    Add-Arm 'count-vs-grid' $false ('grids.json at {0} carries no grid with a row count' -f $GridsPath)
+    try { Write-GateCheckSet -What 'typed grid(s) with a row count' -Count 0 -DerivedFrom (Split-Path $GridsPath -Leaf) -Blocking -Input $GridsPath } catch { Stop-OnRefusal $_ }
 }
 else {
     $verbRx = '(?:give|list|name|identify|state|provide|select|describe)'
@@ -984,6 +1171,10 @@ else {
         }
     }
     Add-Arm 'count-vs-grid' $true ('{0}; {1} question(s) stated a count against a grid' -f $gridsFrom, $checked)
+    #  The check-set is the grids with a row count, not the questions that
+    #  happened to state a count: a pack whose stems state no count has still
+    #  been examined against every grid it built.
+    Complete-GateArm -Name 'count-vs-grid' -State 'ran' -Size $gridRows.Count -Findings @($hazards.ToArray() | Where-Object { $_.type -eq 'count-vs-grid' }).Count
 }
 
 # --- ARM 6: arithmetic, on a line that states its own components and total
@@ -1018,6 +1209,19 @@ foreach ($d in $parsed.ToArray()) {
     }
 }
 Add-Arm 'arithmetic' $true ('{0} line(s) stated components and a total' -f $arithChecked)
+#  Advisory on the roster: a pack with no line stating components and a total
+#  has nothing for this arm, and that is not a defect of the pack.
+Complete-GateArm -Name 'arithmetic' -State $(if ($arithChecked -gt 0) { 'ran' } else { 'empty' }) -Size $arithChecked -Findings @($hazards.ToArray() | Where-Object { $_.type -eq 'arithmetic' }).Count
+
+#  Every declared arm must have ended. A blocking arm left not-run or empty is
+#  a refusal (exit 2); deferred and absent are stamped states the report and
+#  the runner read.
+$roster = @()
+try {
+    Assert-GateArmsComplete
+    $roster = @(Write-GateArmRoster)
+}
+catch { Stop-OnRefusal $_ }
 
 # --- de-duplicate: one hazard per id, however many arms reached it
 $unique = New-Object System.Collections.Specialized.OrderedDictionary
@@ -1117,10 +1321,12 @@ Write-Result -Path $HazardPath -Body $hazFileBody
 
 $exitCode = 0
 if ($undispositioned.Count -gt 0) { $exitCode = 1 }
+if ($stageFailures.Count -gt 0) { $exitCode = 1 }
 
 if (-not $Quiet) {
     Write-Host ''
     Write-Host 'PACK SELF-CONSISTENCY - hazards inside the pack, raised and dispositioned, never fixed' -ForegroundColor Cyan
+    Write-Host ("  stage  : {0}" -f $(if ($Stage) { $Stage } else { 'not given - the count-vs-grid arm runs when grids.json is present' })) -ForegroundColor DarkGray
     Write-Host ("  corpus : {0}  (classified from {1})" -f $corpusPath, $corpus.ClassifiedFrom) -ForegroundColor DarkGray
     Write-GateCheckSet -What 'pack documents' -Count $parsed.Count -DerivedFrom 'Lib-GateCommon Get-GateCorpusDocs'
     Write-GateCheckSet -What ('item label word(s): ' + ($labelSet -join ', ')) -Count $labelSet.Count -DerivedFrom $labelFrom
@@ -1129,9 +1335,12 @@ if (-not $Quiet) {
     Write-Host ("  stem overlap floor {0:P0} ({1}); grids: {2}; knowledge map: {3}" -f $stemFloor, $stemFrom, $gridsFrom, $keFrom) -ForegroundColor DarkGray
     Write-Host ''
     foreach ($a in $armLog.ToArray()) {
-        if ($a.ran) { Write-Host ("  arm {0,-14} ran     - {1}" -f $a.arm, $a.detail) -ForegroundColor DarkGray }
-        else        { Write-Host ("  arm {0,-14} SKIPPED - {1}" -f $a.arm, $a.detail) -ForegroundColor Yellow }
+        $state = 'ran'
+        foreach ($r in $roster) { if ($r.name -eq $a.arm) { $state = $r.state } }
+        if ($a.ran) { Write-Host ("  arm {0,-14} {1,-9} - {2}" -f $a.arm, $state, $a.detail) -ForegroundColor DarkGray }
+        else        { Write-Host ("  arm {0,-14} {1,-9} - {2}" -f $a.arm, $state.ToUpperInvariant(), $a.detail) -ForegroundColor Yellow }
     }
+    foreach ($sf in $stageFailures.ToArray()) { Write-Host ("  X {0}" -f $sf) -ForegroundColor Red }
     Write-Host ''
     Write-Host '  This gate cannot see a figure contradicted in different words - a card''s stated yield against its own method. That still belongs to the Stage 1 reader and the Stage 6 audit.' -ForegroundColor DarkGray
 
@@ -1164,9 +1373,12 @@ if (-not $Quiet) {
         if ($out.Count -eq 0) { Write-Host '  the pack is self-consistent on every arm that ran. Authoring may open.' -ForegroundColor Green }
         else { Write-Host '  every hazard carries a written decision. The build inherits them knowingly, and the report says so.' -ForegroundColor Green }
     }
-    else {
+    elseif ($undispositioned.Count -gt 0) {
         Write-Host ("  X {0} hazard(s) have no written disposition. Authoring must not open: an undispositioned pack defect is one the guide will absorb silently, and the RTO will never hear about it." -f $undispositioned.Count) -ForegroundColor Red
         Write-Host ("    Write a decision and a note into {0}, then re-run." -f $HazardPath) -ForegroundColor Red
+    }
+    else {
+        Write-Host ("  X {0} arm(s) whose input this stage promised is absent - see above. The gate FAILS naming the input; it does not pass over its absence." -f $stageFailures.Count) -ForegroundColor Red
     }
     Write-Host ("  hazards written to {0}" -f $HazardPath) -ForegroundColor DarkGray
 }
@@ -1182,7 +1394,10 @@ $body['families']        = @($families.ToArray() | ForEach-Object { [pscustomobj
 $body['orphanAssessorDocuments'] = @($orphans | ForEach-Object { $_.Name })
 $body['itemLabels']      = $labelSet
 $body['itemLabelsFrom']  = $labelFrom
+$body['stage']           = $Stage
 $body['arms']            = $armLog.ToArray()
+$body['roster']          = @($roster)
+$body['stageFailures']   = $stageFailures.ToArray()
 $body['hazards']         = $out.ToArray()
 $body['staleHazards']    = $stale.ToArray()
 $body['dispositioned']   = $dispositioned

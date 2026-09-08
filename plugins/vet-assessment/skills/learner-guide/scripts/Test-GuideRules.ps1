@@ -54,8 +54,10 @@
 
     ASCII only in this file.
 #>
+# GATE: stages=4,7c; requires=Path,QuestionsInPack
 
 # No Set-StrictMode - dot-sourced.
+if (-not (Get-Command Write-GateCheckSet -ErrorAction SilentlyContinue)) { . (Join-Path $PSScriptRoot 'Lib-GateCommon.ps1') }
 
 function Get-GuideBodyBlock {
     <#  The document body as an ordered list of top-level blocks.
@@ -170,6 +172,14 @@ function Test-GuideRules {
         }
     }
 
+    #  Every blocking rule is an ARM: registered before it runs, completed as
+    #  ran / empty, and printed as one roster line the runner parses. An arm
+    #  that examined nothing shows as 'empty' beside the partial it raised;
+    #  the roster is how a rule that quietly ran on nothing becomes visible.
+    Reset-GateArmRoster
+    foreach ($armName in @('content-width', 'topic-floor', 'subject-floor', 'page-breaks', 'document-control', 'artwork', 'question-xref')) { Register-GateArm -Name $armName -Blocking }
+    Register-GateArm -Name 'numbering'
+
     $doc = Get-DocxPart -WorkDir $wd -Part 'word/document.xml'
 
     # ------------------------------------------------------- table well-formed
@@ -279,17 +289,32 @@ function Test-GuideRules {
         # column overhangs the margin; narrower is a deliberate inset and only
         # warned about when it is close enough to have been meant as full width.
         $widths = @([regex]::Matches($doc, '<w:tblW w:w="(\d+)" w:type="dxa"') | ForEach-Object { [int]$_.Groups[1].Value })
-        $over  = @($widths | Where-Object { $_ -gt $cw })
-        $near  = @($widths | Where-Object { $_ -lt $cw -and $_ -ge ($cw - 800) })
-        if ($over.Count) {
-            $worst = ($over | Measure-Object -Maximum).Maximum
-            $fail.Add("$($over.Count) table(s) are wider than the content width - widest $worst DXA against CW $cw, overhanging the right margin by $($worst - $cw) DXA")
+        $tableCount = @([regex]::Matches($doc, '<w:tbl>')).Count
+        Write-GateCheckSet -What 'table width attribute(s) in the w:tblW w:w="N" w:type="dxa" shape' -Count $widths.Count -DerivedFrom ("word/document.xml, {0} table(s)" -f $tableCount)
+        if ($widths.Count -eq 0 -and $tableCount -gt 0) {
+            # Tables exist and NONE carries a width in the one attribute shape
+            # the rule reads: the blocking rule matched nothing. That is a
+            # refusal naming the shape, never a silent pass over N tables.
+            Complete-GateArm -Name 'content-width' -State empty
+            & $partialRule 'content width (table widths not in the w:tblW w:w="N" w:type="dxa" attribute shape)' `
+                ("declare every table width as <w:tblW w:w=`"N`" w:type=`"dxa`"/> - {0} table(s) exist and none carries a width in that shape" -f $tableCount) `
+                'The content-width rule is blocking; it matched no width attribute while tables exist, so it checked nothing.'
         }
-        if ($near.Count) {
-            $warn.Add("$($near.Count) table(s) sit just inside CW (narrowest $(($near | Measure-Object -Minimum).Minimum) vs $cw) - check they were meant to be full width")
-        }
-        if (-not $over.Count -and $widths.Count) {
-            $info.Add("full-width tables: $(@($widths | Where-Object { $_ -eq $cw }).Count) of $($widths.Count) exactly $cw DXA")
+        else {
+            $over  = @($widths | Where-Object { $_ -gt $cw })
+            $near  = @($widths | Where-Object { $_ -lt $cw -and $_ -ge ($cw - 800) })
+            if ($over.Count) {
+                $worst = ($over | Measure-Object -Maximum).Maximum
+                $fail.Add("$($over.Count) table(s) are wider than the content width - widest $worst DXA against CW $cw, overhanging the right margin by $($worst - $cw) DXA")
+            }
+            if ($near.Count) {
+                $warn.Add("$($near.Count) table(s) sit just inside CW (narrowest $(($near | Measure-Object -Minimum).Minimum) vs $cw) - check they were meant to be full width")
+            }
+            if (-not $over.Count -and $widths.Count) {
+                $info.Add("full-width tables: $(@($widths | Where-Object { $_ -eq $cw }).Count) of $($widths.Count) exactly $cw DXA")
+            }
+            if ($widths.Count) { Complete-GateArm -Name 'content-width' -State ran -Size $widths.Count -Findings $over.Count }
+            else { Complete-GateArm -Name 'content-width' -State empty }
         }
     }
     else {
@@ -297,6 +322,7 @@ function Test-GuideRules {
         # margins. No geometry, no derivation, no check - and the delivered
         # reference guide overhangs its right margin on all 361 of its tables,
         # so this is not a rule that can be waved through as unimportant.
+        Complete-GateArm -Name 'content-width' -State empty
         & $partialRule 'content width (page geometry)' `
             'the document must declare <w:pgSz> and <w:pgMar> so CW can be derived' `
             'Every full-width table must equal CW exactly; unchecked, a table can overhang the right margin on every page.'
@@ -330,12 +356,20 @@ function Test-GuideRules {
 
     $topicWords = @{}; $topicOrder = New-Object System.Collections.Generic.List[string]
     $subjWords  = @{}; $subjOrder  = New-Object System.Collections.Generic.List[string]
+    #  THE DENOMINATOR IS THE HEADING3 SET, not the blocks that happened to be
+    #  found: a sub-section whose Underpinning knowledge block is missing
+    #  entirely used to be absent from $subjWords, never reported, and the
+    #  info line printed a bare count with nothing to compare it to.
+    $h3Subjects = New-Object System.Collections.Generic.List[string]
     $curTopic = $null; $curSubj = $null
+    $script:inSubject = $false
+    $blockIndex = -1
 
     $topicHeadNoBreak = New-Object System.Collections.Generic.List[string]
     $pcHeadNoBreak    = New-Object System.Collections.Generic.List[string]
 
     foreach ($b in $blocks) {
+        $blockIndex++
         if ($b.Kind -eq 'table') { continue }         # excluded from the word floor
         $t = $b.Text.Trim()
 
@@ -352,6 +386,7 @@ function Test-GuideRules {
 
         if ($b.Style -eq 'Heading3' -and $t -match '^\d+\.\d+') {
             $curSubj = $t
+            if (-not $h3Subjects.Contains($t)) { $h3Subjects.Add($t) }
             if ($b.Xml -notmatch 'pageBreakBefore') { $pcHeadNoBreak.Add($t) }
             continue
         }
@@ -360,7 +395,15 @@ function Test-GuideRules {
             # 'Underpinning knowledge' opens the deepest teaching block; any
             # other H4 closes it.
             if ($t -match 'Underpinning\s+[Kk]nowledge') {
-                $curSubj = if ($curSubj) { $curSubj } else { 'unknown sub-section' }
+                if (-not $curSubj) {
+                    #  A block under no numbered sub-section heading cannot be
+                    #  attributed. It used to be summed into one shared 'unknown
+                    #  sub-section' key, so N thin blocks cleared the floor
+                    #  together; it is a named failure, never a bucket.
+                    $fail.Add("Underpinning knowledge block at body block $blockIndex sits under no numbered sub-section heading (Heading3 'N.M ...') - it cannot be attributed to a sub-section and is not counted toward any")
+                    $script:inSubject = $false
+                    continue
+                }
                 $key = "$curSubj"
                 if (-not $subjWords.ContainsKey($key)) { $subjWords[$key] = 0; $subjOrder.Add($key) }
                 $script:inSubject = $true
@@ -380,10 +423,18 @@ function Test-GuideRules {
         else { $info.Add("${t}: $w words") }
     }
     if (-not $topicOrder.Count) {
+        Complete-GateArm -Name 'topic-floor' -State empty
         & $partialRule 'topic word floor (no "Topic N" Heading1 found)' `
             'render the guide with its Topic headings before gating it' `
             "The 3,000-word floor is a content requirement, and with no topic to measure it passed on nothing."
     }
+    else { Complete-GateArm -Name 'topic-floor' -State ran -Size $topicOrder.Count -Findings @($topicOrder | Where-Object { $topicWords[$_] -lt $TopicWordFloor }).Count }
+
+    $noBlock = @($h3Subjects | Where-Object { -not $subjWords.ContainsKey($_) })
+    foreach ($s in ($noBlock | Select-Object -First 8)) {
+        $fail.Add("sub-section '$s' has no Underpinning knowledge block at all (expected $($h3Subjects.Count) block(s) from the numbered Heading3 set, found $($subjOrder.Count))")
+    }
+    if ($noBlock.Count -gt 8) { $fail.Add("...and $($noBlock.Count - 8) further sub-section(s) with no Underpinning knowledge block") }
 
     $thin = @($subjOrder | Where-Object { $subjWords[$_] -lt $SubjectWordFloor })
     if ($thin.Count) {
@@ -392,7 +443,14 @@ function Test-GuideRules {
         }
         if ($thin.Count -gt 8) { $fail.Add("...and $($thin.Count - 8) further Underpinning knowledge blocks under $SubjectWordFloor words") }
     }
-    elseif ($subjOrder.Count) { $info.Add("Underpinning knowledge blocks: $($subjOrder.Count), all >= $SubjectWordFloor words") }
+    elseif ($subjOrder.Count -and -not $noBlock.Count) { $info.Add("Underpinning knowledge blocks: $($subjOrder.Count) of $($h3Subjects.Count) sub-section(s), all >= $SubjectWordFloor words") }
+    if ($h3Subjects.Count) { Complete-GateArm -Name 'subject-floor' -State ran -Size $h3Subjects.Count -Findings ($thin.Count + $noBlock.Count) }
+    else {
+        Complete-GateArm -Name 'subject-floor' -State empty
+        & $partialRule 'subject detail floor (no numbered "N.M" Heading3 found)' `
+            'render the guide with its PC sub-section headings before gating it' `
+            "The 800-word Underpinning knowledge floor is measured per sub-section, and with no sub-section heading to attribute a block to it passed on nothing."
+    }
 
     if ($topicHeadNoBreak.Count) { $fail.Add("$($topicHeadNoBreak.Count) Topic heading(s) do not start a new page: $(($topicHeadNoBreak | Select-Object -First 3) -join '; ')") }
     if ($pcHeadNoBreak.Count)    { $fail.Add("$($pcHeadNoBreak.Count) PC sub-section heading(s) do not start a new page: $(($pcHeadNoBreak | Select-Object -First 3) -join '; ')") }
@@ -453,12 +511,17 @@ function Test-GuideRules {
     # planning. After Stage 7b it must carry NONE: a prompt that survives
     # artwork is a prompt an auditor reads.
     $prompts = @()
+    $promptOpenerRx = Get-GatePromptMarkerRegex -Part opener     # declared once, read here
+    $paraBlocks = 0
     foreach ($b in $blocks) {
         if ($b.Kind -ne 'para') { continue }
-        $m = [regex]::Match($b.Text.Trim(), '^\[\s*(IMAGE|DIAGRAM|ILLUSTRATION|PHOTO|FIGURE|PICTURE)\s*[:\-]')
+        $paraBlocks++
+        $m = [regex]::Match($b.Text.Trim(), $promptOpenerRx)
         if ($m.Success) { $prompts += $m.Groups[1].Value.ToUpper() }
     }
     $pics = @([regex]::Matches($doc, '<(?:w|wp):(?:drawing|inline|anchor)\b')).Count
+    if ($paraBlocks) { Complete-GateArm -Name 'artwork' -State ran -Size $paraBlocks -Findings $(if ($AfterArtwork) { $prompts.Count } else { 0 }) }
+    else { Complete-GateArm -Name 'artwork' -State empty }
 
     if ($AfterArtwork) {
         if ($prompts.Count) {
@@ -524,6 +587,18 @@ function Test-GuideRules {
             'It is the whole point of the guide, and it is checked in both directions: a cited question the pack does not contain is a learner revising for a question that is not on the paper, and a question no topic prepares is a coverage gap.'
     }
 
+    #  Close the roster. The arms not completed above end here from the state
+    #  the rules left: page-breaks examined every Topic and sub-section heading,
+    #  document-control and numbering examined the document, question-xref ran
+    #  over the pack's question set or was starved of it.
+    $headingCount = $topicOrder.Count + $h3Subjects.Count
+    if ($headingCount) { Complete-GateArm -Name 'page-breaks' -State ran -Size $headingCount -Findings ($topicHeadNoBreak.Count + $pcHeadNoBreak.Count) } else { Complete-GateArm -Name 'page-breaks' -State empty }
+    Complete-GateArm -Name 'document-control' -State ran -Size 1
+    Complete-GateArm -Name 'numbering' -State ran -Size ([Math]::Max(1, $distinct.Count))
+    if ($QuestionsInPack -and @($QuestionsInPack).Count) { Complete-GateArm -Name 'question-xref' -State ran -Size @($QuestionsInPack).Count }
+    else { Complete-GateArm -Name 'question-xref' -State empty }
+    $roster = Write-GateArmRoster
+
     return [pscustomobject]@{
         Ok            = ($fail.Count -eq 0)
         Failures      = $fail
@@ -535,6 +610,7 @@ function Test-GuideRules {
         TopicWords    = $topicWords
         SubjectWords  = $subjWords
         CitedQuestions = $cited
+        Arms          = $roster
     }
 }
 

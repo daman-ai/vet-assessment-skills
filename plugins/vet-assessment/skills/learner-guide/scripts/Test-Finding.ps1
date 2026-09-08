@@ -264,22 +264,40 @@ function New-ArbiterDoc {
     return [pscustomobject]@{ Name = $Name; Audience = $Audience; Lines = @($Lines); Norm = $norm.ToArray(); Paths = $Paths }
 }
 
+# REQUEST: Lib-GateCommon Get-GateNormalBoundaryRegex - one boundary rule for
+#          every gate that looks a normalised string up inside a normalised
+#          line. Implemented privately here until it lands (see
+#          scratchpad\p0\REQUESTS\M.md).
+function Get-GateNormalBoundaryRegex {
+    <#  A normalised value, anchored so it cannot match inside a longer token.
+        ConvertTo-GateNormal leaves only [a-z0-9 ], so the boundary is
+        "not a letter or digit" on each side - which is exactly what a plain
+        .Contains() lacked: '7.5 L' normalises to '7 5 l' and is a substring of
+        '17 5 l', so a finding valued 7.5 L was REFUTED by a corpus that only
+        ever said 17.5 L.  #>
+    param([Parameter(Mandatory)][string] $Normalised)
+    return ('(?<![a-z0-9])' + [regex]::Escape($Normalised) + '(?![a-z0-9])')
+}
+
 function Find-ValueInDocs {
-    <#  Arm 1: the variant regex. Arm 2: the normalised value as a substring of
-        the normalised line. Reports up to -Max hits with doc, line (or spine
-        path), arm and text.  #>
+    <#  Arm 1: the variant regex, itself anchored on (?<![\d.,]). Arm 2: the
+        normalised value inside the normalised line, anchored the same way, so
+        neither arm can report a hit that lies inside a longer number or word.
+        Reports up to -Max hits with doc, line (or spine path), arm and text.  #>
     param([string] $Value, $Docs, [int] $Max = 5)
     $hits = New-Object System.Collections.Generic.List[object]
     if (-not "$Value".Trim()) { return $hits }
     $rx = Get-ValueVariantRegex -Value $Value
     $norm = ConvertTo-GateNormal $Value
+    $normRx = $null
+    if ($norm -and $norm.Length -ge 3) { $normRx = Get-GateNormalBoundaryRegex -Normalised $norm }
     foreach ($d in @($Docs)) {
         for ($i = 0; $i -lt $d.Lines.Count; $i++) {
             $line = $d.Lines[$i]
             if (-not $line) { continue }
             $arm = $null
             if ($rx -and [regex]::IsMatch($line, $rx, 'IgnoreCase')) { $arm = 'variant' }
-            elseif ($norm -and $norm.Length -ge 3 -and $d.Norm[$i].Contains($norm)) { $arm = 'normalised' }
+            elseif ($normRx -and [regex]::IsMatch($d.Norm[$i], $normRx)) { $arm = 'normalised' }
             if (-not $arm) { continue }
             $where = if ($null -ne $d.Paths) { $d.Paths[$i] } else { "line $($i + 1)" }
             $hits.Add([pscustomobject]@{ Candidate = $Value; Doc = $d.Name; Where = $where; Arm = $arm; Text = (Get-Snippet $line) })
@@ -299,7 +317,12 @@ function Get-ArbiterSources {
     $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
     $corpusDirResolved = $null
     try { $corpusDirResolved = Get-GateCorpusDir -BuildDir $BuildDir -CorpusDir $CorpusDir }
-    catch { if (-not $PackDir) { throw } }
+    catch {
+        #  -PackDir is EXTRA source text, never a substitute for the corpus. An
+        #  arbiter that searched the pack directory alone would print UNREFUTED
+        #  over a check-set missing every learner tool and every assessor guide.
+        throw ("{0}: no corpus of pack text resolves for -BuildDir {1}{2}{3}. {4}" -f $GATE, $BuildDir, $(if ($CorpusDir) { " -CorpusDir $CorpusDir" } else { '' }), $(if ($PackDir) { " (with -PackDir $PackDir, which is extra source text and cannot stand in for the corpus)" } else { '' }), ("$($_.Exception.Message)" -replace '\r?\n\s*', ' '))
+    }
 
     if ($corpusDirResolved) {
         $corpus = Get-GateCorpusDocs -CorpusDir $corpusDirResolved -BuildDir $BuildDir
@@ -330,7 +353,15 @@ function Get-ArbiterSpine {
     param([string] $BuildDir, [string] $SpineDir)
     $docs = New-Object System.Collections.Generic.List[object]
     $files = @()
-    try { $files = @(Get-GateSpineFiles -BuildDir $BuildDir -SpineDir $SpineDir -Exclude @()) } catch { $files = @() }
+    #  A missing spine is a hard refusal, the same one the arbiter gives for
+    #  zero source documents. Swallowing the throw here once left every
+    #  wrong-value, leak, not-taught and missing-target finding UNCHECKED with
+    #  a note nobody read, over a build that had no spine at all.
+    try { $files = @(Get-GateSpineFiles -BuildDir $BuildDir -SpineDir $SpineDir -Exclude @()) }
+    catch { throw ("{0}: no spine to arbitrate against. {1} Pass -SpineDir, or a -BuildDir that holds spine\." -f $GATE, ("$($_.Exception.Message)" -replace '\r?\n\s*', ' ')) }
+    if ($files.Count -eq 0) {
+        throw ("{0}: the spine directory {1} holds no spine file (*.json; sidecars excluded). A wrong-value, leak, not-taught or missing-target finding cannot be tested against nothing." -f $GATE, $(if ($SpineDir) { $SpineDir } else { (Join-Path $BuildDir 'spine') }))
+    }
     foreach ($f in $files) {
         $j = Get-GateJson -Path $f.FullName
         if ($null -eq $j) { continue }
@@ -469,11 +500,15 @@ function Resolve-SubSectionFiles {
     return $files.ToArray()
 }
 
+#  The mirror gate this arbiter runs for a leak finding. A script-scope path so
+#  the self-test can stand a stub in its place and prove what an exit 2 does.
+$script:MirrorGatePath = Join-Path $PSScriptRoot 'Check-FigureMirror.ps1'
+
 function Invoke-MirrorScoped {
     <# Check-FigureMirror.ps1 over ONE sub-section's spine file(s), in a throwaway spine directory. #>
     param([string] $BuildDir, [string] $CorpusDir, $Files)
-    $gate = Join-Path $PSScriptRoot 'Check-FigureMirror.ps1'
-    if (-not (Test-Path -LiteralPath $gate)) { return $null }
+    $gate = $script:MirrorGatePath
+    if (-not $gate -or -not (Test-Path -LiteralPath $gate)) { return $null }
     $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ('tf_mirror_' + [guid]::NewGuid().ToString('N').Substring(0, 8))
     New-Item -ItemType Directory -Force -Path $tmp | Out-Null
     try {
@@ -481,12 +516,15 @@ function Invoke-MirrorScoped {
         $args = @{ BuildDir = $BuildDir; SpineDir = $tmp; Quiet = $true }
         if ($CorpusDir) { $args.CorpusDir = $CorpusDir }
         $text = ''
-        $code = 0
+        $code = $null
         try {
             #  *>&1, not 2>&1: the gate reports through Write-Host, which PS 5.1
             #  puts on the information stream. A 2>&1 capture read an empty
             #  string, counted zero hits, and let the gate's real X lines spill
             #  past this script onto the console - a silent success.
+            #  LASTEXITCODE is cleared first: a gate that returned without
+            #  exiting would otherwise inherit the previous command's code.
+            $global:LASTEXITCODE = $null
             $text = (& $gate @args *>&1 | Out-String)
             $code = $LASTEXITCODE
         }
@@ -673,12 +711,17 @@ function Test-OneFinding {
                 $r.note = 'Check-FigureMirror.ps1 is not beside this script; the mirror count could not be taken'
             }
             else {
-                $r.status = 'UNREFUTED'
                 $r.mirrorHits = $mir.Count
                 $r.mirrorExit = $mir.Exit
-                if ($mir.Exit -eq 2) { $r.note = ("mirror gate could not run over {0}: {1}" -f ($mir.Files -join ', '), (Get-Snippet $mir.Output)) }
-                elseif ($mir.Count -gt 0) { $r.note = ("mirror gate agrees: {0} grid hit(s) in {1}" -f $mir.Count, ($mir.Files -join ', ')) }
-                else { $r.note = ("mirror gate finds 0 grid hits in {0}. A prose leak is outside that gate's sight - read the passage; this is not a clearance." -f ($mir.Files -join ', ')) }
+                if ($null -eq $mir.Exit -or [int]$mir.Exit -eq 2) {
+                    #  A gate that could not run examined nothing. The finding
+                    #  stays UNCHECKED - never UNREFUTED, which would read as
+                    #  "the mirror gate found nothing against it".
+                    $r.status = 'UNCHECKED'
+                    $r.note = ("mirror gate could not run over {0} (exit {1}) - UNCHECKED, not a search result. Fix the gate's input and re-run: {2}" -f ($mir.Files -join ', '), $(if ($null -eq $mir.Exit) { 'none' } else { $mir.Exit }), (Get-Snippet $mir.Output))
+                }
+                elseif ($mir.Count -gt 0) { $r.status = 'UNREFUTED'; $r.note = ("mirror gate agrees: {0} grid hit(s) in {1}" -f $mir.Count, ($mir.Files -join ', ')) }
+                else { $r.status = 'UNREFUTED'; $r.note = ("mirror gate finds 0 grid hits in {0}. A prose leak is outside that gate's sight - read the passage; this is not a clearance." -f ($mir.Files -join ', ')) }
             }
         }
     }
@@ -779,25 +822,31 @@ function Write-ArbiterTable {
 function Invoke-Arbitration {
     param($FindingList, [string] $BuildDir, [string] $CorpusDir, [string] $SpineDir, [string] $PackDir, [switch] $Quiet, [string] $Mode = 'json')
 
+    #  Both resolvers throw, naming the input, when a blocking input is absent:
+    #  the corpus (even with -PackDir) and the spine directory. Nothing below
+    #  runs over an empty check-set.
     $sources = Get-ArbiterSources -BuildDir $BuildDir -CorpusDir $CorpusDir -PackDir $PackDir
     $spine = @(Get-ArbiterSpine -BuildDir $BuildDir -SpineDir $SpineDir)
+    $spineDirShown = if ($SpineDir) { $SpineDir } else { (Join-Path $BuildDir 'spine') }
+    if (@($sources.Docs).Count -eq 0) {
+        throw ("{0}: no source documents. The corpus read at {1} yielded no document{2}. A finding cannot be arbitrated against nothing." -f $GATE, $sources.CorpusDir, $(if ($PackDir) { (", and -PackDir {0} holds no .txt or .md" -f $PackDir) } else { '' }))
+    }
 
     if (-not $Quiet) {
         Write-Host ''
         Write-Host 'FINDING ARBITRATION - test the premise before the work order' -ForegroundColor Cyan
         Write-Host '  The arbiter never clears a finding. It demotes a finding to needs-re-read and prints the line.' -ForegroundColor DarkGray
-        Write-GateCheckSet -What 'source document(s)' -Count @($sources.Docs).Count -DerivedFrom (('the canonical corpus' + $(if ($sources.CorpusDir) { " at " + (Split-Path $sources.CorpusDir -Leaf) } else { '' })) + ', unit_extract*.md' + $(if ($PackDir) { ', and -PackDir' } else { '' }))
+        #  The directory ACTUALLY READ is printed in full, not its leaf: two
+        #  builds can each have a corpus\ and the leaf tells them apart from nothing.
+        Write-GateCheckSet -What 'source document(s)' -Count @($sources.Docs).Count -DerivedFrom (("the canonical corpus read at {0}, unit_extract*.md{1}" -f $sources.CorpusDir, $(if ($PackDir) { (", and -PackDir {0}" -f $PackDir) } else { '' }))) -Blocking -Input ("-BuildDir {0}{1}" -f $BuildDir, $(if ($CorpusDir) { " -CorpusDir $CorpusDir" } else { '' }))
         foreach ($d in @($sources.Docs)) { Write-Host ("    {0,-9} {1} ({2} lines)" -f $d.Audience, $d.Name, $d.Lines.Count) -ForegroundColor DarkGray }
-        Write-GateCheckSet -What 'spine file(s)' -Count $spine.Count -DerivedFrom 'the build spine directory, front matter included'
+        Write-GateCheckSet -What 'spine file(s)' -Count $spine.Count -DerivedFrom ("the spine directory read at {0}, front matter included" -f $spineDirShown) -Blocking -Input $(if ($SpineDir) { "-SpineDir $SpineDir" } else { "-BuildDir $BuildDir (spine\)" })
         if ($Mode -eq 'markdown') {
             Write-Host ''
             Write-Host '  ! MARKDOWN INPUT - BEST-EFFORT PARSE. Class and value below are INFERRED from prose.' -ForegroundColor Yellow
             Write-Host '    Check the CLASS and the quoted value on every row before believing its status.' -ForegroundColor Yellow
             Write-Host '    Write a findings.json sidecar for anything that matters.' -ForegroundColor Yellow
         }
-    }
-    if (@($sources.Docs).Count -eq 0) {
-        throw "$GATE`: no source documents. A finding cannot be arbitrated against nothing."
     }
 
     $results = New-Object System.Collections.Generic.List[object]
@@ -840,7 +889,11 @@ function New-SelfTestFixture {
     $card = @(
         'Recipe card. Chickpea and potato curry.',
         '350 Gms of curry per portion, packed 10 portions to a 3.5 L bucket. The batch weighs about 3840 Gms raw and finishes at about 3.6 kg, so the bucket fills with a working margin.',
-        'Standard 1.2.5 of the same Code sets the date marking rules for use-by and best-before dates.'
+        'Standard 1.2.5 of the same Code sets the date marking rules for use-by and best-before dates.',
+        #  The boundary plant: the corpus says 17.5 L and never 7.5 L. Arm 2 read
+        #  the normalised value as a plain substring, and '7 5 l' sits inside
+        #  '17 5 l' - so a finding valued 7.5 L was refuted by this very line.
+        'Bulk service: the stockpot is filled to 17.5 L at the working line before the first pass.'
     )
     $enc = New-Object System.Text.UTF8Encoding($false)
     [System.IO.File]::WriteAllText((Join-Path $root 'corpus\Recipe_Workbook.txt'), ($card -join "`r`n"), $enc)
@@ -931,6 +984,69 @@ function Invoke-SelfTest {
             $blocking = @($run.Results | Where-Object { $_.blocking }).Count
             if ($blocking -eq 3) { & $ok 'three findings block the round (H-3, L-1, M-T); T-1 does not' } else { & $bad ("{0} finding(s) block, wanted 3" -f $blocking) }
         }
+
+        # --- the boundary arm: a persona finding whose value only LOOKS present
+        #     because it is a substring of a longer number is NOT refuted
+        $normLong = ConvertTo-GateNormal '17.5 L'
+        $normShort = ConvertTo-GateNormal '7.5 L'
+        if ($normLong.Contains($normShort)) { & $ok ("plant landed: normalised '{0}' contains '{1}', which is exactly the substring hit arm 2 used to report" -f $normLong, $normShort) } else { & $bad ("plant did NOT land: normalised '{0}' does not contain '{1}'" -f $normLong, $normShort) }
+        $boundary = @(
+            [pscustomobject]@{ id = 'P4-1'; risk = 'High'; class = 'fabricated'; claim = 'The guide states the stockpot is filled to 7.5 L; no source carries that volume.'; value = '7.5 L'; where = [pscustomobject]@{ artefact = 'guide'; locator = 'Topic 2, 2.1' }; source = $null; proposedForbid = @() },
+            [pscustomobject]@{ id = 'P4-2'; risk = 'High'; class = 'fabricated'; claim = 'The guide states the stockpot is filled to 17.5 L; the workbook carries no such figure.'; value = '17.5 L'; where = [pscustomobject]@{ artefact = 'guide'; locator = 'Topic 2, 2.2' }; source = $null; proposedForbid = @() }
+        )
+        $runB = Invoke-Arbitration -FindingList $boundary -BuildDir $fixture -CorpusDir '' -SpineDir '' -PackDir '' -Quiet
+        $b1 = @($runB.Results | Where-Object { $_.id -eq 'P4-1' })[0]
+        $b2 = @($runB.Results | Where-Object { $_.id -eq 'P4-2' })[0]
+        #  .evidence, and @() around it: the record has no 'hits' member, and
+        #  @($null).Count is 1 in PS 5.1 - a misspelt field reads as one hit.
+        $b1ev = @($b1.evidence | Where-Object { $null -ne $_ })
+        $b2ev = @($b2.evidence | Where-Object { $null -ne $_ })
+        if ($b1.status -eq 'UNREFUTED' -and $b1ev.Count -eq 0) { & $ok "a persona finding valued '7.5 L' is NOT refuted by a corpus that only says 17.5 L - the boundary holds" } else { & $bad ("'7.5 L' came back {0} with {1} evidence line(s): {2}" -f $b1.status, $b1ev.Count, $b1.note) }
+        if ($b2.status -eq 'REFUTED-CANDIDATE' -and @($b2ev | Where-Object { $_.Text -match '17\.5 L' }).Count -ge 1) { & $ok "the control: a persona finding 'fabricated' against a value the corpus DOES carry returns REFUTED-CANDIDATE, quoting the line" } else { & $bad ("'17.5 L' came back {0} with {1} evidence line(s): {2}" -f $b2.status, $b2ev.Count, $b2.note) }
+
+        # --- refusals: a missing spine directory, and a corpus that does not resolve even with -PackDir
+        $noSpine = Join-Path ([System.IO.Path]::GetTempPath()) ('tf_nospine_' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+        New-Item -ItemType Directory -Force -Path (Join-Path $noSpine 'corpus') | Out-Null
+        Copy-Item -LiteralPath (Join-Path $fixture 'corpus\Recipe_Workbook.txt') -Destination (Join-Path $noSpine 'corpus\Recipe_Workbook.txt')
+        try {
+            if (-not (Test-Path -LiteralPath (Join-Path $noSpine 'spine'))) { & $ok 'plant landed: the no-spine build has a corpus and no spine directory' } else { & $bad 'plant did NOT land: a spine directory exists' }
+            $msg = ''
+            try { Invoke-Arbitration -FindingList $findings -BuildDir $noSpine -CorpusDir '' -SpineDir '' -PackDir '' -Quiet | Out-Null } catch { $msg = "$($_.Exception.Message)" }
+            if ($msg -match 'no spine to arbitrate against' -and $msg -match [regex]::Escape((Join-Path $noSpine 'spine'))) { & $ok 'a build with no spine directory is REFUSED naming the spine directory' } else { & $bad ("a build with no spine directory was not refused by name: {0}" -f $msg) }
+            $emptySpine = Join-Path $noSpine 'spine'; New-Item -ItemType Directory -Force -Path $emptySpine | Out-Null
+            $msg = ''
+            try { Invoke-Arbitration -FindingList $findings -BuildDir $noSpine -CorpusDir '' -SpineDir '' -PackDir '' -Quiet | Out-Null } catch { $msg = "$($_.Exception.Message)" }
+            if ($msg -match 'holds no spine file' -and $msg -match [regex]::Escape($emptySpine)) { & $ok 'a spine directory with no spine file is REFUSED naming it' } else { & $bad ("an empty spine directory was not refused by name: {0}" -f $msg) }
+            $noCorpus = Join-Path $noSpine 'nocorpus'; New-Item -ItemType Directory -Force -Path (Join-Path $noCorpus 'spine') | Out-Null
+            $packOnly = Join-Path $noSpine 'packonly'; New-Item -ItemType Directory -Force -Path $packOnly | Out-Null
+            Copy-Item -LiteralPath (Join-Path $fixture 'corpus\Recipe_Workbook.txt') -Destination (Join-Path $packOnly 'Recipe_Workbook.txt')
+            $msg = ''
+            try { Invoke-Arbitration -FindingList $findings -BuildDir $noCorpus -CorpusDir '' -SpineDir '' -PackDir $packOnly -Quiet | Out-Null } catch { $msg = "$($_.Exception.Message)" }
+            if ($msg -match 'no corpus of pack text resolves' -and $msg -match [regex]::Escape($noCorpus) -and $msg -match [regex]::Escape($packOnly)) { & $ok '-PackDir with an unresolvable corpus is REFUSED naming both inputs (the pack directory is no substitute)' } else { & $bad ("-PackDir with no corpus was not refused naming both inputs: {0}" -f $msg) }
+        }
+        finally { Remove-Item -LiteralPath $noSpine -Recurse -Force -ErrorAction SilentlyContinue }
+
+        # --- a leak finding whose mirror gate cannot run stays UNCHECKED, never UNREFUTED
+        $leak = [pscustomobject]@{ id = 'K-1'; risk = 'High'; class = 'leak'; claim = 'Figure 1.3.1 fills the assessed column.'; value = 'Figure 1.3.1'; where = [pscustomobject]@{ artefact = 'guide'; locator = 'Figure 1.3.1' }; source = $null; proposedForbid = @() }
+        $stubDir = Join-Path ([System.IO.Path]::GetTempPath()) ('tf_stub_' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+        New-Item -ItemType Directory -Force -Path $stubDir | Out-Null
+        $realGate = $script:MirrorGatePath
+        try {
+            $stubHead = 'param([string] $BuildDir, [string] $SpineDir, [string] $CorpusDir, [switch] $Quiet)'
+            $stub2 = Join-Path $stubDir 'exit2.ps1'
+            [System.IO.File]::WriteAllText($stub2, ($stubHead + "`r`nWrite-Host '  X CHECK-SET EMPTY: stub refusal'`r`nexit 2`r`n"), (New-Object System.Text.UTF8Encoding($true)))
+            $script:MirrorGatePath = $stub2
+            $runK = Invoke-Arbitration -FindingList @($leak) -BuildDir $fixture -CorpusDir '' -SpineDir '' -PackDir '' -Quiet
+            $k1 = @($runK.Results)[0]
+            if ($k1.status -eq 'UNCHECKED' -and "$($k1.mirrorExit)" -eq '2' -and -not $k1.blocking -and $k1.note -match 'UNCHECKED') { & $ok 'a leak finding whose mirror gate exits 2 is left UNCHECKED (never UNREFUTED), and does not block' } else { & $bad ("mirror exit 2 gave status {0} (exit '{1}'): {2}" -f $k1.status, $k1.mirrorExit, $k1.note) }
+            $stub0 = Join-Path $stubDir 'exit0.ps1'
+            [System.IO.File]::WriteAllText($stub0, ($stubHead + "`r`nWrite-Host '  mirror: 0 hits'`r`nexit 0`r`n"), (New-Object System.Text.UTF8Encoding($true)))
+            $script:MirrorGatePath = $stub0
+            $runK0 = Invoke-Arbitration -FindingList @($leak) -BuildDir $fixture -CorpusDir '' -SpineDir '' -PackDir '' -Quiet
+            $k0 = @($runK0.Results)[0]
+            if ($k0.status -eq 'UNREFUTED' -and "$($k0.mirrorExit)" -eq '0') { & $ok 'the control: a mirror gate that runs and finds nothing gives UNREFUTED' } else { & $bad ("mirror exit 0 gave status {0} (exit '{1}')" -f $k0.status, $k0.mirrorExit) }
+        }
+        finally { $script:MirrorGatePath = $realGate; Remove-Item -LiteralPath $stubDir -Recurse -Force -ErrorAction SilentlyContinue }
     }
     finally { Remove-Item -LiteralPath $fixture -Recurse -Force -ErrorAction SilentlyContinue }
 
@@ -964,7 +1080,15 @@ if (@($read.Findings).Count -eq 0) {
     exit 2
 }
 
-$run = Invoke-Arbitration -FindingList $read.Findings -BuildDir $BuildDir -CorpusDir $CorpusDir -SpineDir $SpineDir -PackDir $PackDir -Quiet:$Quiet -Mode $read.Mode
+$run = $null
+try { $run = Invoke-Arbitration -FindingList $read.Findings -BuildDir $BuildDir -CorpusDir $CorpusDir -SpineDir $SpineDir -PackDir $PackDir -Quiet:$Quiet -Mode $read.Mode }
+catch {
+    #  A blocking input is absent (no corpus, no spine). Nothing was arbitrated;
+    #  exit 2 is the only honest exit, and the message names the input.
+    Write-Host ("  X {0}" -f $_.Exception.Message) -ForegroundColor Red
+    Write-Host '  nothing was arbitrated. Supply the input named above and re-run.' -ForegroundColor Red
+    exit 2
+}
 Write-ArbiterTable -Results $run.Results -Mode $read.Mode
 
 if (-not $OutPath) { $OutPath = Join-Path (Split-Path -Parent (Resolve-Path -LiteralPath $Findings).Path) 'findings_arbitrated.json' }

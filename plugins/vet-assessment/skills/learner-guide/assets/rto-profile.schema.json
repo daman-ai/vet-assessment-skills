@@ -1,4 +1,4 @@
-{
+﻿{
   "_comment": "SCHEMA for an RTO profile pack (assets/rto-profile.<rto>.json). This file is READ by scripts/Get-RtoProfile.ps1, not just documented by it: Assert-RtoProfile derives its required-key set, its closed palette role enum and its identity field list from here, so the validator and the specification cannot drift apart. Add a key to a profile and it is unvalidated until it is added here with a reason.",
 
   "schemaVersion": "1.0",
@@ -12,6 +12,7 @@
     "rto",
     "profileVersion",
     "brandingFile",
+    "templates.brand",
     "templates.guide",
     "templates.deck",
     "guideProfile",
@@ -29,6 +30,7 @@
     "rto": "The brand key. Must match the branding profile's own 'brand' value, or the pack and the identity it claims are two different RTOs.",
     "profileVersion": "The pack's own version. The pack is cached across every unit this RTO ever builds, so a change to it has to be visible.",
     "brandingFile": "The branding profile this RTO's identity strings and palette are READ from. Named, never copied: the crossover sweep derives its forbidden set from the same files.",
+    "templates.brand": "The brand whose approved templates the pack points at - the SOURCE brand of every hex and identity string those templates carry. The brand swap compares it with the build's target brand: equal means the palette step runs as NORMALISATION (legacy hexes and docProps ancestry moved, nothing else), different means a full swap and a self-mapping role THROWS. Until this key existed the literal 'MVC' stood in for it inside Set-ResourceBrand.ps1, which is the portability defect the pack exists to remove, and a same-brand build returned a no-op that guaranteed a build-local repaint round.",
     "templates.guide": "The approved, geometry-patched Learner Guide template. A brand with no approved template cannot be built - ask the RTO for one rather than generating it.",
     "templates.deck": "The approved deck template, same rule. The build clones an exemplar per layout and swaps its words.",
     "guideProfile": "Measured page geometry, heading colours, callout map and word floors for this RTO's guide.",
