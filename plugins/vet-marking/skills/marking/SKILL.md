@@ -145,6 +145,19 @@ Satisfactory** and note the reasoning in the assessor comments.
 actually read; record its path in the ledger's `evidence` field. If you cannot
 find a submission, that is a **non-submission** — not a fail on quality grounds.
 
+**Judge each response box, not each task.** A task whose (a) and (b) are full
+and whose (c) is two letters sums to a healthy word count and reads as complete.
+One learner's whole Task 12 passed that way on a first pass; the answer to part
+(c) was `SS`. Check the parts, then the whole.
+
+**Two versions of a tool can be in circulation at once.** Learners submit the
+copy they were given, which is not always the current one. Mark the instrument
+in front of you, tell the learner which version to use next time, and tell the
+RTO. To find a learner's own words, subtract the **blank template** — differencing
+one submission against the rest of the cohort makes a colluding group's shared
+text look like boilerplate, and an older version's boilerplate look like
+collusion.
+
 Full standard: [references/marking-standard.md](references/marking-standard.md).
 
 ## Two comma rules. They are not the same rule.
@@ -163,6 +176,26 @@ Comma count is a proxy for sentence complexity, not authorship — it flags a
 student listing six ingredients and misses generated text in short sentences.
 `Test-AiFlag.ps1` therefore reports every hit **with the sentence that triggered
 it**, and **every flag is an assessor decision before it reaches the ledger.**
+
+## Never call a learner he or she
+
+The RTO's rule, enforced by the resolver: everything the assessor writes says
+**the learner**. No `he`, `she`, `his`, `her`, `him`, `himself` or `herself` in
+an observation record, a criterion comment, a checklist comment or a note.
+
+It applies to what is written *about* a learner. Feedback written *to* one is
+second person — "your Task 12 calculation reached 16 bags" — and needs nothing.
+
+Substituting the pronoun straight out reads badly: "set the learner's controls"
+three times in a sentence is worse prose than the thing it replaced. Name the
+learner once per sentence and let the rest of it use plain articles.
+
+> The learner named the alkaline dust as the first hazard and set the controls
+> around it. The PPE changed as the learner moved from unloading to decanting.
+
+If you rewrite in bulk, **re-check the 25-word floor and cross-student
+uniqueness afterwards.** Shortening the possessives shortens the paragraph, and
+on the run this rule came from it made two records identical again.
 
 ## The marked assessment
 
@@ -220,15 +253,43 @@ stops. `MarkedCopyInAnswerSpace` checks the delivered file: an outcome line
 sitting under a blank paragraph, or outside the box holding the answer above it,
 fails the gate.
 
-### Two sheet shapes
+### Three sheet shapes, and the wrong reader ticks nothing
 
-A **labelled** sheet writes the decision into the box's own text — `☐ Yes`. A
-**column** sheet heads two columns `Yes` and `No` and leaves a bare `☐` in each
-cell, which is what ACI's construction checklists do. The readers are blind to
-each other, so the ledger says which shape it is with
-`observationSheet.layout: "columns"`, and a column sheet's `comments` fill its
-comments column, one note per criterion row. Details:
-[references/marked-assessment.md](references/marked-assessment.md).
+Handing a sheet to the wrong reader is silent: it finds no box, ticks no box,
+and reports success.
+
+| Shape | Ledger |
+|---|---|
+| **Labelled** — the decision is in the box's own text, `☐ Yes` | `observationSheet.outcomes` |
+| **Column** — `Yes` and `No` head two columns, a bare `☐` in each cell | `observationSheet.layout: "columns"`, `comments` one per row |
+| **S / NS grid** — criteria down, bare boxes under `S` and `NS`, no Yes/No words | `snsChecklists`, one entry per grid |
+
+The first two are one sheet read two ways, so the ledger says which with
+`observationSheet.layout`. The third is a different instrument: a document can
+carry more than one grid, so `snsChecklists` takes **one entry per grid in
+document order**, each with its own `outcomes` (one `S` or `NS` per criterion
+row) and, where the sheet provides them, an `outcome` for its Outcome table,
+`comments` for its comments box, `notes` one per row, and a `decision`
+answering the task decision line printed after the grid. A count that does not
+match the grids found is a hard failure, not a half-filled column.
+
+Columns are located **by their headings, never by ordinal**. Three spellings of
+the pair are in circulation — `S`/`NS`, `S`/`NYS` and `Satisfactory`/`Not yet`
+— and the not-satisfactory heading is matched **first**, or `Not yet` is
+claimed by the satisfactory pattern and both columns address one cell. **Two
+characters are used for an empty box**, WHITE SQUARE and BALLOT BOX: they look
+alike, they are not the same codepoint, and a reader that knows only one leaves
+every box on the other instrument untouched and reports success. The gate's
+patterns are the writer's, word for word.
+
+**A row whose opposite box is already marked is a hard failure**, not something
+to tick beside — the row would carry two marks and say both things at once.
+**Boxes outside every grid still have to be ticked**: one instrument closes each
+performance task with a decision pair of its own, in no grid and in no outcome
+table, and that line is answered by the grid's own `decision` rather than by the
+tool result. The two are not always the same judgement.
+
+Details: [references/marked-assessment.md](references/marked-assessment.md).
 
 ### The observation sheet is filled in, not bypassed
 
@@ -642,6 +703,18 @@ build before it was found.
 7. **The comma binds tighter than `+` in a PowerShell array literal.**
    `@('a', 'b' + $x, 'c')` is four elements, not three, so a `-join` of it
    silently gains a line break where the concatenation was meant to be.
+
+8. **`Add-CellLine` writes nothing when the cell's last paragraph is empty** —
+   it clones that paragraph, finds no run to fill, and returns having appended a
+   blank. It reported success while two learners' observation comments went
+   missing under a signed record. Fixed by building the run; the lesson is the
+   older one, that a no-op is not an error.
+
+9. **A paragraph's own MARK carries a colour, and it is read before the run's.**
+   `w:pPr/w:rPr/w:color` tints only the pilcrow, so it changes nothing a reader
+   sees — but it is the first `w:color` in the paragraph, and anything asking
+   "what colour is this line" finds it first. Three green Satisfactory lines were
+   reported as black. `Set-CellText` and `Add-CellLine` now clear it.
 
 Details, plus the nested-array and `SetAttribute`-returns-a-value traps:
 [references/template-fill.md](references/template-fill.md).

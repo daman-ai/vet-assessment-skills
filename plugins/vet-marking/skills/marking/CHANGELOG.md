@@ -1,5 +1,44 @@
 # Changelog
 
+## v2.8.0 — 9 September 2026
+
+The 7 and 8 September fixes from the CPCCCM2008, CPCCSP2002 and CPCCSP2003
+marking runs, merged onto v2.7.0. That work was done on the machine against the
+pre-v2.6.0 line, so this is a merge in both directions: its fixes came across,
+and nothing v2.7.0 carried was taken back out.
+
+### S / NS checklist grids
+
+A third observation-sheet shape: criteria down the rows, bare boxes under **S**
+and **NS** headings, no `Yes`/`No` words anywhere. `snsChecklists` takes one
+entry per grid in document order, each with its own `outcomes`, and where the
+instrument provides them an `outcome`, a `comments` box, a per-row `notes`
+column and a `decision` answering the task decision line printed after the grid.
+A count that does not match the grids found is a hard failure.
+
+Three spellings of the pair are in circulation — `S`/`NS`, `S`/`NYS` and
+`Satisfactory`/`Not yet` — and the not-satisfactory heading is matched first, or
+`Not yet` is claimed by the satisfactory pattern and both columns address one
+cell. Two characters are used for an empty box, WHITE SQUARE and BALLOT BOX.
+
+### The learner is not called he or she
+
+`Test-LearnerPronouns` refuses a gendered pronoun in assessor prose — observation
+records, criterion comments, checklist comments and notes. Feedback written *to*
+the student is second person and is not checked.
+
+### Three silent writers
+
+- **A paragraph's own mark carries a colour, and it is read before the run's.**
+  `w:pPr/w:rPr/w:color` tints only the pilcrow, so it changes nothing a reader
+  sees, but it is the first `w:color` in the paragraph. Three green Satisfactory
+  lines were reported as black. `Set-CellText` and `Add-CellLine` now clear it.
+- **A submission with no table at all** — one arrived as fifty-three page images
+  and nothing else — now reports its content box on the text margin rather than
+  returning `$null`, so the front block and the feedback sheet are sized to the
+  same box the gate measures.
+- **`Test-AiFlag` unrolled a single-object JSON file into nothing.** It now
+  appends element by element.
 ## v2.7.0 — 7 September 2026
 
 Merged the 6 September group-packaging branch onto v2.6.0. That branch was cut

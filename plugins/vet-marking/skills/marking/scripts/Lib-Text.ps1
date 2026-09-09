@@ -347,5 +347,35 @@ function Test-ObservationRowNoteStyle {
     @($out)
 }
 
+function Test-LearnerPronouns {
+    <#
+      The RTO's rule: an assessment record does not call a learner he or she.
+      Everything written ABOUT a learner says 'the learner'. Returns the
+      offending words, or an empty array.
+
+      This applies to prose written about the learner — observation records,
+      criterion comments, checklist comments and notes. It does NOT apply to
+      feedback written TO them, which is second person and mentions no third
+      party at all.
+    #>
+    param(
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Text,
+        [string]$Where = 'assessor prose'
+    )
+    if (-not $Text) { return @() }
+    $hits = @()
+    foreach ($m in [regex]::Matches($Text, '\b(he|she|his|her|him|hers|himself|herself)\b', 'IgnoreCase')) {
+        $from = [math]::Max(0, $m.Index - 40)
+        $len  = [math]::Min($Text.Length - $from, 90)
+        $hits += [pscustomobject]@{
+            where = $Where
+            word  = $m.Value
+            near  = ($Text.Substring($from, $len) -replace '\s+', ' ')
+            fix   = "Write 'the learner'. Name the learner once in the sentence and use plain articles after it."
+        }
+    }
+    $hits
+}
+
 function Get-FeedbackMaxCommas { $script:FEEDBACK_MAX_COMMAS }
 function Get-AuthorshipMaxCommas { $script:AUTHORSHIP_MAX_COMMAS }

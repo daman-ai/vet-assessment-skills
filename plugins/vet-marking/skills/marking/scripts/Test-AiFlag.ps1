@@ -60,7 +60,8 @@ $responses = @()
 if ($Text)     { $responses += [pscustomobject]@{ label = $Label; text = $Text } }
 elseif ($Path) {
     if (-not (Test-Path -LiteralPath $Path)) { throw "Not found: $Path" }
-    $responses += @(Get-Content -Raw -Encoding UTF8 -LiteralPath $Path | ConvertFrom-Json)
+    $parsed = Get-Content -Raw -Encoding UTF8 -LiteralPath $Path | ConvertFrom-Json
+    foreach ($item in @($parsed)) { $responses += $item }
 }
 elseif ($DocxPath) {
     . (Join-Path $PSScriptRoot 'Lib-Docx.ps1')

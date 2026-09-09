@@ -380,6 +380,9 @@ foreach ($s in @($L.students)) {
             foreach ($h in @(Test-FeedbackStyle -Text "$point" -Where "$who / '$($t.name)' / observation point")) {
                 Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
             }
+            foreach ($h in @(Test-LearnerPronouns -Text "$point" -Where "$who / '$($t.name)' / observation point")) {
+                Fail ("{0}: the word '{1}' - the RTO does not call a learner he or she. {2} - `"{3}`"" -f $h.where, $h.word, $h.fix, $h.near)
+            }
         }
 
         # --- where the observation record is written --------------------------
@@ -446,7 +449,106 @@ foreach ($s in @($L.students)) {
                     if (-not $fld.label) { Fail "$who / '$($t.name)': an observationSheet field has no label." }
                     if (-not $fld.PSObject.Properties.Name.Contains('value') -or "$($fld.value)".Trim() -eq '') {
                         Fail "$who / '$($t.name)': observationSheet field '$($fld.label)' has no value. A field left blank on a signed observation sheet reads as nobody filled it in."
+                        foreach ($h in @(Test-LearnerPronouns -Text $text -Where "$who / '$($t.name)' / criterion comment $($ci + 1)")) {
+                            Fail ("{0}: the word '{1}' - the RTO does not call a learner he or she. {2} - `"{3}`"" -f $h.where, $h.word, $h.fix, $h.near)
+                        }
                     }
+                }
+
+                # snsChecklists — one per S / NS tick-box grid in the
+                # submission, in document order. A practical tool observed on
+                # two occasions carries two grids, and each needs its own
+                # outcomes, its own overall outcome and its own comments box.
+                # Same floor as the observation record, because that box IS the
+                # record for that occasion.
+                $sns = @()
+                if ($sheet.PSObject.Properties.Name.Contains('snsChecklists') -and $sheet.snsChecklists) {
+                    $sns = @($sheet.snsChecklists)
+                }
+                $snsSeen = @{}
+                # A checklist split across two tables carries its outcome and
+                # its comments on the second of them, so the record is required
+                # once per TOOL rather than once per grid.
+                $snsRecorded = $false
+                for ($si = 0; $si -lt $sns.Count; $si++) {
+                    $cl = $sns[$si]
+                    $n  = $si + 1
+                    # 'outcome' and 'comments' are both optional, because the
+                    # small-table instrument records its overall outcome and its
+                    # commentary somewhere other than beside each grid. What is
+                    # never optional is the per-criterion judgement.
+                    if ("$($cl.outcome)" -ne '' -and "$($cl.outcome)" -notin @('S','NS')) {
+                        Fail "$who / '$($t.name)': observation checklist $n outcome must be 'S' or 'NS', got '$($cl.outcome)'."
+                    }
+                    if ("$($cl.outcome)" -eq 'NS' -and $result -ne 'NYS') {
+                        Fail "$who / '$($t.name)': observation checklist $n is Not Satisfactory but the tool is $result. The checklist and the SAR would disagree."
+                    }
+                    # 'decision' answers the task decision line printed after
+                    # this grid, where the instrument prints one. It is allowed
+                    # to be Satisfactory under an NYS tool - a practical the
+                    # assessor watched and accepted stays accepted when the
+                    # tool fails on written evidence - but an NS decision under
+                    # a Satisfactory tool would contradict the SAR.
+                    if ("$($cl.decision)" -ne '' -and "$($cl.decision)" -notin @('S','NS')) {
+                        Fail "$who / '$($t.name)': observation checklist $n decision must be 'S' or 'NS', got '$($cl.decision)'."
+                    }
+                    if ("$($cl.decision)" -eq 'NS' -and $result -ne 'NYS') {
+                        Fail "$who / '$($t.name)': observation checklist $n records a Not Yet Satisfactory task decision but the tool is $result. The marked copy and the SAR would disagree."
+                    }
+                    $cn = @()
+                    if ($cl.PSObject.Properties.Name.Contains('notes') -and $cl.notes) { $cn = @($cl.notes) }
+                    if ($cn.Count -gt 0 -and $cn.Count -ne @($cl.outcomes).Count) {
+                        Fail "$who / '$($t.name)': observation checklist $n gives $($cn.Count) note(s) for $(@($cl.outcomes).Count) criterion outcome(s). Give one per row, blank where there is nothing to add."
+                    }
+                    foreach ($nt in $cn) {
+                        if ("$nt".Trim() -eq '') { continue }
+                        foreach ($h in @(Test-FeedbackStyle -Text "$nt" -Where "$who / '$($t.name)' / observation checklist $n note")) {
+                            Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
+                        }
+                        foreach ($h in @(Test-LearnerPronouns -Text "$nt" -Where "$who / '$($t.name)' / observation checklist $n note")) {
+                            Fail ("{0}: the word '{1}' - the RTO does not call a learner he or she. {2} - `"{3}`"" -f $h.where, $h.word, $h.fix, $h.near)
+                        }
+                    }
+                    $co = @($cl.outcomes)
+                    if ($co.Count -eq 0) { Fail "$who / '$($t.name)': observation checklist $n has no per-criterion outcomes." }
+                    foreach ($o in $co) {
+                        if ("$o" -notin @('S','NS')) { Fail "$who / '$($t.name)': observation checklist $n outcomes must each be 'S' or 'NS', got '$o'." }
+                    }
+                    if ("$($cl.outcome)" -eq 'S' -and @($co | Where-Object { "$_" -eq 'NS' }).Count -gt 0) {
+                        Fail "$who / '$($t.name)': observation checklist $n is Satisfactory overall but has a criterion marked NS."
+                    }
+                    if ("$($cl.outcome)" -eq 'NS' -and @($co | Where-Object { "$_" -eq 'NS' }).Count -eq 0) {
+                        Fail "$who / '$($t.name)': observation checklist $n is Not Satisfactory overall but every criterion is marked S. Say which behaviour was not met."
+                    }
+                    if (@($cn | Where-Object { "$_".Trim() -ne '' }).Count -gt 0) { $snsRecorded = $true }
+                    $cp = @((("$($cl.comments)") -split "`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+                    if ($cp.Count -eq 0) { continue }
+                    $snsRecorded = $true
+                    if (-not $cl.assessor)  { Fail "$who / '$($t.name)': observation checklist $n has no assessor name for its sign-off line." }
+                    if (-not $cl.dateText)  { Fail "$who / '$($t.name)': observation checklist $n has no dateText for its sign-off line." }
+                    if ($cp.Count -lt 2) {
+                        Fail "$who / '$($t.name)': observation checklist $n comments run to $($cp.Count) paragraph(s); the RTO requires at least 2. Separate them with a newline."
+                    }
+                    for ($pi = 0; $pi -lt $cp.Count; $pi++) {
+                        $wc = @(($cp[$pi] -split '\s+') | Where-Object { $_ -ne '' }).Count
+                        if ($wc -lt 25) {
+                            Fail "$who / '$($t.name)': observation checklist $n, comment paragraph $($pi + 1) is $wc word(s); the RTO requires at least 25. Say what you saw this student do."
+                        }
+                    }
+                    $key = (("$($cl.comments)") -replace '\s+', ' ').Trim().ToLowerInvariant()
+                    if ($snsSeen.ContainsKey($key)) {
+                        Fail "$who / '$($t.name)': observation checklist $n repeats checklist $($snsSeen[$key]) word for word. Each occasion is a different project and needs its own record."
+                    }
+                    $snsSeen[$key] = $n
+                    foreach ($h in @(Test-FeedbackStyle -Text "$($cl.comments)" -Where "$who / '$($t.name)' / observation checklist $n")) {
+                        Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
+                    }
+                    foreach ($h in @(Test-LearnerPronouns -Text "$($cl.comments)" -Where "$who / '$($t.name)' / observation checklist $n")) {
+                        Fail ("{0}: the word '{1}' - the RTO does not call a learner he or she. {2} - `"{3}`"" -f $h.where, $h.word, $h.fix, $h.near)
+                    }
+                }
+                if ($sns.Count -gt 0 -and -not $snsRecorded) {
+                    Fail "$who / '$($t.name)': the observation checklists carry no comments and no notes, so nothing on them records what was observed."
                 }
                 if ($sheet.PSObject.Properties.Name.Contains('feedback') -and $sheet.feedback) {
                     if (-not $sheet.feedbackAnchor) { Fail "$who / '$($t.name)': observationSheet.feedback was written but there is no feedbackAnchor saying where it goes." }

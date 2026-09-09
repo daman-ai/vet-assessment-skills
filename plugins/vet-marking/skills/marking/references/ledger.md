@@ -121,6 +121,41 @@ used.
           // numbered questions, and give that tool 'observations' instead.
           //
           // 'anchorAfter' is for a heading the assessment prints TWICE — once
+            // snsChecklists — one per S / NS tick-box GRID in the submission,
+            // in document order. That grid has no Yes/No words beside its
+            // boxes and often no comments column, so neither of the writers
+            // above finds anything in it. Two occasions is two entries; a
+            // checklist split across two tables is also two, and the one
+            // carrying the comments box is the second. The pair of columns is
+            // found by its headings and three spellings are in circulation:
+            // S / NS, S / NYS, and Satisfactory / Not yet.
+            //   outcomes  one 'S' or 'NS' per criterion row, in sheet order
+            //   notes     optional, one per row, '' where there is nothing.
+            //             A notes cell that already carries writing is
+            //             appended to, never overwritten
+            //   outcome   optional, for the sheet's Outcome (tick one) table
+            //   decision  optional, for a task decision line printed AFTER this
+            //             grid — 'Assessor decision for Task 2 practical
+            //             erection:  [] Satisfactory   [] Not Yet Satisfactory'.
+            //             It is THIS GRID's judgement, not the tool's: a learner
+            //             whose erection was watched and accepted, and whose
+            //             dismantling record is missing, is 'S' here and 'NS' on
+            //             the next grid, under one NYS tool. Left out, the tool
+            //             result answers the line
+            //   comments  optional, for the sheet's comments box; same floor
+            //             as the observation record and unique to the learner
+            //   assessor / dateText   the sheet's own sign-off line
+            "snsChecklists": [
+              {
+                "outcomes": ["S", "S", "S"],
+                "notes":    ["", "", ""],
+                "outcome":  "S",
+                "decision": "S",
+                "comments": "The learner read the work instructions first...\nPPE changed at each stage as the work changed...",
+                "assessor": "Priya Raman",
+                "dateText": "02 / 09 / 2026"
+              }
+            ],
           // in its list of tasks and again over the task itself. It narrows the
           // search to what follows text that appears once; the anchor must
           // still match exactly once inside that.
@@ -248,7 +283,14 @@ it summarises. If you want a different value, change the input it comes from.
   cannot hold a Not Yet Satisfactory task, and an NYS tool with tasks has to name
   which task was not met;
 - every row of `observationSheet.verification[]` names an `item`, reads `Yes` or
-  `No`, and its `note` meets the row-note standard.
+  `No`, and its `note` meets the row-note standard;
+- every `snsChecklists` entry judges each criterion `S` or `NS`, agrees with its
+  own overall `outcome` and with the tool result, gives one `notes` entry per
+  row where it gives any, and — across the tool — records what was observed
+  somewhere, in a comments box or in the notes;
+- **no assessor prose calls a learner he or she.** Observation records,
+  criterion comments, checklist comments and notes say *the learner*. Feedback
+  written to the student is second person and is not checked.
 
 It reports **every** problem at once and builds nothing. Fix them together.
 

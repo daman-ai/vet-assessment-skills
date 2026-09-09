@@ -30,6 +30,7 @@
     MarkedCopyInAnswerSpace  every outcome line sits in the answer it judges
     MarkedCopyDeclarationPage the declaration is a page of its own, before the student's
     MarkedCopyObservationSheet the observation record is in the sheet, not bolted on the front
+    MarkedCopySnsChecklist   every S/NS grid is ticked, signed and commented as the ledger judges it
     MarkedCopyFrontBlockAligned  the front block sits on the content's own edges
     NoBannedWord             the RTO's banned word appears in no issued document
     NoMojibake               no double-encoded characters
@@ -1649,6 +1650,151 @@ if ($foreignProbs.Count -eq 0 -and $foreignMeta.Count -gt 0) {
     Add-Check 'NoForeignRtoIdentity' ($foreignProbs.Count -eq 0) `
         $(if ($foreignProbs.Count) { (($foreignProbs | Select-Object -Unique | Select-Object -First 4) -join ' · ') } else { "no record names a provider other than $($Rto.rto.tradingName), headers and footers included" })
 }
+
+# ------------------------------ 11b-ii. the S / NS observation grids ---------
+#
+# The same distrust, applied to the third sheet shape. The grids are found in
+# the DELIVERED file and re-paired against the ledger here, rather than trusting
+# the build's own count: two of this skill's worst defects were writers that
+# found nothing and ticked nothing without raising anything. A blank grid under
+# a signed outcome is the failure that looks most like success.
+
+$snsProbs = @()
+foreach ($name in $markedExpected.Keys) {
+    $path = Join-Path $dirFull $name
+    if (-not (Test-Path -LiteralPath $path)) { continue }
+    $exp = $markedExpected[$name]
+    $want = @()
+    foreach ($res in @($exp.results)) {
+        if ($res.observationSheet -and $res.observationSheet.PSObject.Properties.Name.Contains('snsChecklists')) {
+            foreach ($cl in @($res.observationSheet.snsChecklists)) { if ($cl) { $want += $cl } }
+        }
+    }
+    if ($want.Count -eq 0) { continue }
+
+    $pkg = Open-Docx -Path $path
+    try {
+        $ns = $pkg.Ns
+        $grids = @(); $gmaps = @()
+        foreach ($tbl in @($pkg.Body.SelectNodes('./w:tbl', $ns))) {
+            $trs = @($tbl.SelectNodes('./w:tr', $ns))
+            if ($trs.Count -lt 2) { continue }
+            for ($k = 0; $k -lt [math]::Min(4, $trs.Count); $k++) {
+                $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+                if ($cells.Count -lt 3) { continue }
+                $hdr = @($cells | ForEach-Object { (($_.SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim() })
+                # These four patterns must stay word for word the same as the
+                # ones in Write-SnsChecklist. A gate that finds a different set
+                # of grids from the writer reports a file as unmarked when it is
+                # marked, or passes one that is not. The NOT-satisfactory column
+                # is tested first so 'Not yet' cannot be claimed as 'S'.
+                $sc = -1; $nc = -1
+                for ($c = 0; $c -lt $hdr.Count; $c++) {
+                    if ($nc -lt 0 -and $hdr[$c] -match '^(NS|NYS)(\s|$)')     { $nc = $c; continue }
+                    if ($nc -lt 0 -and $hdr[$c] -match '^Not\s*[Yy]et')       { $nc = $c; continue }
+                    if ($sc -lt 0 -and $hdr[$c] -match '^S(\s|$)')            { $sc = $c; continue }
+                    if ($sc -lt 0 -and $hdr[$c] -match '^Satisfactory(\s|$)') { $sc = $c }
+                }
+                if ($sc -lt 0 -or $nc -lt 0) { continue }
+                $grids += $tbl
+                $gmaps += [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $sc; ns = $nc }
+                break
+            }
+        }
+        if ($grids.Count -ne $want.Count) {
+            $snsProbs += "${name}: the delivered file holds $($grids.Count) S/NS grid(s), the ledger judges $($want.Count)"
+        } else {
+            for ($g = 0; $g -lt $grids.Count; $g++) {
+                $gm   = $gmaps[$g]
+                $rows = @()
+                $trs  = @($grids[$g].SelectNodes('./w:tr', $ns))
+                for ($k = $gm.header + 1; $k -lt $trs.Count; $k++) {
+                    $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+                    if ($cells.Count -ne $gm.cols) { continue }
+                    $c0 = (($cells[0].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
+                    if ($c0 -eq '') { continue }
+                    $rows += ,$cells
+                }
+                $wo = @($want[$g].outcomes)
+                if ($rows.Count -ne $wo.Count) {
+                    $snsProbs += "${name}: grid $($g + 1) holds $($rows.Count) criterion row(s), the ledger judges $($wo.Count)"
+                    continue
+                }
+                for ($r = 0; $r -lt $rows.Count; $r++) {
+                    $sTxt = (($rows[$r][$gm.s].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
+                    $nTxt = (($rows[$r][$gm.ns].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
+                    # A box the build ticked reads BALLOT BOX WITH X. A box that
+                    # was already marked when the submission arrived is left
+                    # alone by design, and it commonly reads BALLOT BOX WITH
+                    # CHECK, so both count as marked. Only the box that carries
+                    # no mark at all is unmarked.
+                    $sOn  = ($sTxt -eq [string]$BOX_T -or $sTxt -eq [string][char]0x2611)
+                    $nOn  = ($nTxt -eq [string]$BOX_T -or $nTxt -eq [string][char]0x2611)
+                    $wantS = ("$($wo[$r])" -eq 'S')
+                    if ($sOn -ne $wantS -or $nOn -eq $wantS) {
+                        $snsProbs += "${name}: grid $($g + 1) row $($r + 1) should read $($wo[$r]) but reads S='$sTxt' NS='$nTxt'"
+                    }
+                }
+            }
+        }
+
+        # every comments box carries its record, and the sign-off line names the
+        # assessor and the date. Read off the DOM already open here — Get-DocxText
+        # takes a PATH and would reopen the file from scratch.
+        $body = (($pkg.Body.SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '')
+        foreach ($cl in $want) {
+            $first = @((("$($cl.comments)") -split "`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })[0]
+            if ($first) {
+                if ($body.IndexOf($first, [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                    $snsProbs += "${name}: an observation checklist's comments are not in the delivered file"
+                }
+                if ($body.IndexOf("Assessor name: $($cl.assessor)", [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                    $snsProbs += "${name}: an observation checklist sign-off line does not name $($cl.assessor)"
+                }
+            }
+            foreach ($nt in @($cl.notes)) {
+                if ("$nt".Trim() -eq '') { continue }
+                if ($body.IndexOf("$nt".Trim(), [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                    $snsProbs += "${name}: an observation note is not in the delivered file"
+                    break
+                }
+            }
+        }
+    } finally { Close-Docx $pkg }
+}
+Add-Check 'MarkedCopySnsChecklist' ($snsProbs.Count -eq 0) `
+    $(if ($snsProbs.Count) { ($snsProbs | Select-Object -First 4) -join ' · ' } else { 'every S/NS observation grid is ticked, signed and commented as the ledger judges it' })
+
+# ------------------------------- 11b2. the task decision lines ---------------
+#
+# A decision line that carries both boxes on one paragraph is not a grid, so the
+# check above never reaches it. One learner's workbook printed the line as
+# '[] satisfactory' in lower case, the writer's match was case sensitive, and
+# the box went out empty under a signed result with every other check green.
+# What is asserted here is only what can be asserted without the ledger: the
+# line resolves to exactly one marked box and one empty one.
+
+$decProbs = @()
+$MARK_T = [string][char]0x2612
+$MARK_C = [string][char]0x2611
+foreach ($name in $markedExpected.Keys) {
+    $path = Join-Path $dirFull $name
+    if (-not (Test-Path -LiteralPath $path)) { continue }
+    $pkg = Open-Docx -Path $path
+    try {
+        foreach ($p in @($pkg.Body.SelectNodes('.//w:p', $pkg.Ns))) {
+            $t = (Get-RunText $p $pkg.Ns).Trim()
+            if ($t -notmatch '(Assessor decision for |Task\s+\d+\s+result\s*:)') { continue }
+            $marked = ([regex]::Matches($t, "[$MARK_T$MARK_C]")).Count
+            $empty  = ([regex]::Matches($t, '[□☐]')).Count
+            if ($marked -ne 1 -or $empty -ne 1) {
+                $decProbs += "${name}: a task decision line carries $marked marked and $empty empty box(es)"
+            }
+        }
+    } finally { Close-Docx $pkg }
+}
+Add-Check 'MarkedCopyTaskDecision' ($decProbs.Count -eq 0) `
+    $(if ($decProbs.Count) { ($decProbs | Select-Object -First 4) -join ' · ' } else { 'every task decision line resolves to one marked box and one empty one' })
 
 # ------------------------------------------- 11c. the RTO's word ban ---------
 #
