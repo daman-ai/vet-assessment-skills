@@ -735,7 +735,7 @@ if ($points.Count -eq 0) { $keMissingInput.Add(("unit extract yields no KE point
 $keAgree = $null
 if ($keMissingInput.Count -eq 0) {
     $keAgree = Compare-RcKeSets -Points $points -KeIds $keIds
-    $disagree = ($keAgree.Expected -ne $keIds.Count -or @($keAgree.Missing).Count -gt 0 -or @($keAgree.Unknown).Count -gt 0)
+    $disagree = ($keAgree.Expected -ne $keIds.Count -or (Get-GateCount -Value $keAgree.Missing) -gt 0 -or (Get-GateCount -Value $keAgree.Unknown) -gt 0)
     $agreeLine = ("  keMap {0} point(s) against {1} expected from the extract's {2} point(s) at the keMap's granularity{3}{4}" -f $keIds.Count, $keAgree.Expected, $points.Count,
         $(if (@($keAgree.Missing).Count) { '; not named in the keMap: ' + (@($keAgree.Missing) -join ', ') } else { '' }),
         $(if (@($keAgree.Unknown).Count) { '; named in the keMap but not in the extract: ' + (@($keAgree.Unknown) -join ', ') } else { '' }))
@@ -835,7 +835,7 @@ else {
         $shown = if ($k.KeMapKey -and $k.KeMapKey -ne $k.Id) { "{0} ({1})" -f $k.KeMapKey, $k.Id } else { $k.Id }
         Write-Host ("  {0} {1} -> {2}: {3} of {4} term(s) present, missing {5}   [{6}]" -f $(if ($Whole) { 'X' } else { '~' }), $shown, $where, $k.Present, @($k.Terms).Count, ($k.Missing -join ', '), $(if ($k.Text.Length -gt 70) { $k.Text.Substring(0, 70) + '...' } else { $k.Text })) -ForegroundColor $c
     }
-    foreach ($k in ($keOut | Where-Object { $_.Covered -and @($_.Missing).Count -gt 0 })) {
+    foreach ($k in ($keOut | Where-Object { $_.Covered -and (Get-GateCount -Value $_.Missing) -gt 0 })) {
         Write-Host ("    ok {0} -> {1}: covered ({2} of {3}); term(s) not found: {4}" -f $k.Id, ($k.AssignedTo -join ', '), $k.Present, @($k.Terms).Count, ($k.Missing -join ', ')) -ForegroundColor DarkGray
     }
 }

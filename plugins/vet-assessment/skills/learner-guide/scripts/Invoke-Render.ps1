@@ -217,8 +217,21 @@ function Get-ReferenceLabelSet {
         foreach ($p in $Contract.referenceConvention.PSObject.Properties) {
             if ($p.Name -like '_*') { continue }
             if ($p.Value -isnot [string]) { continue }
-            if ($p.Value -notmatch '^[A-Za-z][A-Za-z ]*\{n\}(\(\{part\}\))?$') { continue }
-            $labels[$p.Name] = ([string]$p.Value -replace '\s*\(\{part\}\)\s*', '').Trim()
+            #  THE LABEL IS WHATEVER PRECEDES {n}, and everything after it is
+            #  that family's subpart grammar - which this function does not
+            #  need and must not require.
+            #
+            #  The old test demanded the WHOLE pattern be 'Label {n}' or
+            #  'Label {n}({part})', so a contract declaring 'Task {n}, Part
+            #  {part}' matched nothing here. The label set then came back with
+            #  only the families whose patterns happened to end at {n} - on
+            #  this build, Observation alone - and Get-PackWordGuide skipped
+            #  every knowledge and design content file because the family it
+            #  resolved was not in the set. The word-guide map came back empty,
+            #  which is a throw, and the guide would not render at all.
+            $lm = [regex]::Match([string]$p.Value, '^([A-Za-z][A-Za-z ]*)\{n\}')
+            if (-not $lm.Success) { continue }
+            $labels[$p.Name] = ($lm.Groups[1].Value.Trim() + ' {n}')
         }
     }
     if ($labels.Count -eq 0 -and (HasProp $Contract 'questionMap')) {
@@ -878,10 +891,34 @@ function Invoke-GuideRender {
         foreach ($pc in (AsArr $t.pcs)) {
             $s = $subs[$pc]
             foreach ($r in (AsArr $s.assessmentLink.refs)) {
-                $key = ([string]$r) -replace '\s*\([a-z]\)\s*$', ''
+                #  THE WORD GUIDE IS SET PER TASK, and a reference may name a
+                #  PART of one. Two keys are tried, most specific first: the
+                #  reference as written, then the reference truncated at its
+                #  first number run - the task-level key the pack's own content
+                #  file is keyed by.
+                #
+                #  The old strip removed only a trailing '(a)', so it handled
+                #  'Knowledge Task 11(a)' and nothing else. A contract whose
+                #  references read 'Task 2, Part a' missed every lookup, and
+                #  because a miss is deliberately fatal here - it must never
+                #  print another item's wording as fact - the guide could not
+                #  render at all: 48 references, every one of them real and
+                #  present in the pack.
+                #
+                #  Truncating at the first number run is convention-agnostic:
+                #  'Task 2, Part a' and 'Task 2(a)' both give 'Task 2',
+                #  'Design Task 3, Part 4b' gives 'Design Task 3', and
+                #  'Observation 1' is already task-level and is unchanged.
+                $refStr = [string]$r
+                $key = $refStr -replace '\s*\([a-z]\)\s*$', ''
                 $wg = ''
                 if ($wordGuide.ContainsKey($key)) { $wg = $wordGuide[$key] }
-                elseif ($obsRx -and (([string]$r) -match $obsRx)) { $wg = [string]$obsWordGuide }
+                else {
+                    $taskKey = [regex]::Replace($refStr, '^(.*?\d+).*$', '$1').Trim()
+                    if ($taskKey -and $wordGuide.ContainsKey($taskKey)) { $wg = $wordGuide[$taskKey]; $key = $taskKey }
+                }
+                if ($wg) { }
+                elseif ($obsRx -and ($refStr -match $obsRx)) { $wg = [string]$obsWordGuide }
                 else { $xrefMisses.Add(("'{0}' (Topic {1}, section {2}, looked up as '{3}')" -f $r, $t.n, $pc, $key)) }
                 $rows += ,@([string]$r, "Topic $($t.n)", "Section $pc", $wg)
             }
@@ -1052,12 +1089,70 @@ function Invoke-DeckRender {
     # Keys that are metadata rather than a template slot.
     $META = @('layout', 'kind', 'notes', 'chip', 'tableRows', 'figureSlot', 'rows', 'tag', '_comment', '_taglineNote', 'fit')
 
+    # -----------------------------------------------------------------------
+    #  SLIDE KINDS COME FROM THE DECK PROFILE, NOT FROM LISTS TYPED IN HERE
+    #
+    #  Three kind sets below were literal arrays written at the point they were
+    #  used - a second source of truth beside deck-layouts.mvc.json, which is
+    #  what every gate reads, and free to drift from it without a word. Each is
+    #  now derived from the profile, or SELECTED from the profile's own kind
+    #  vocabulary by name and refused if the profile does not carry the name,
+    #  and each prints its size and the map it came from.
+    #
+    #  'recap' is the one kind the profile carries nothing for - no layout of
+    #  its own and no notes rule - and the delivery spec signposts it anyway.
+    #  It is added explicitly where it is used and named as an addition on the
+    #  printed line, never buried inside a hand-typed list.
+    # -----------------------------------------------------------------------
+    $DPPath = [string]$rtoProfile.DeckLayoutsPath
+
+    $kindVocab = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
+    if (HasProp $DP 'deckRules') {
+        foreach ($n in (AsArr $DP.deckRules.notesRequiredOn))    { if ("$n") { [void]$kindVocab.Add("$n") } }
+        foreach ($n in (AsArr $DP.deckRules.notesNotRequiredOn)) { if ("$n") { [void]$kindVocab.Add("$n") } }
+    }
+    if (HasProp $DP 'layouts') {
+        foreach ($p in @($DP.layouts.PSObject.Properties)) { if ($p.Name) { [void]$kindVocab.Add([string]$p.Name) } }
+    }
+    if ($kindVocab.Count -eq 0) {
+        throw ("Invoke-Render: the deck profile at {0} carries no slide-kind vocabulary (no layouts and no deckRules lists). Every kind set in this renderer is selected from it, and a selection over an empty vocabulary places nothing and reports nothing." -f $DPPath)
+    }
+    Write-Host ("  check-set: {0} slide kind(s) in the deck-profile vocabulary, derived from {1} (layouts + deckRules)" -f $kindVocab.Count, $DPPath) -ForegroundColor DarkGray
+
+    function Select-DeckKind {
+        <#  A named selection FROM the profile vocabulary, refused if the
+            profile does not carry the name. -Plus admits a kind the profile
+            carries nothing for, and prints it as an addition.  #>
+        param(
+            [Parameter(Mandatory)][string] $What,
+            [Parameter(Mandatory)][string[]] $Names,
+            [string[]] $Plus = @()
+        )
+        $unknown = @($Names | Where-Object { -not $kindVocab.Contains($_) })
+        if ($unknown.Count -gt 0) {
+            throw ("Invoke-Render: unknown slide kind(s) in the {0} set: {1}. The deck profile at {2} carries {3} kind(s); a set naming a kind it does not carry matches no slide and reports nothing." -f $What, ($unknown -join ', '), $DPPath, $kindVocab.Count)
+        }
+        $set = @($Names + $Plus)
+        $tail = if ($Plus.Count -gt 0) { (" plus {0}, which the profile carries no layout for" -f (($Plus | ForEach-Object { "'" + $_ + "'" }) -join ', ')) } else { '' }
+        Write-Host ("  check-set: {0} {1}, derived from {2}{3}" -f $set.Count, $What, $DPPath, $tail) -ForegroundColor DarkGray
+        return , $set
+    }
+
     # Slide kinds that must point the room at the assessment: the deck profile's
     # notes-required kinds plus recap, which the delivery spec signposts too.
-    $CHIP_KINDS = @('teaching', 'case-study', 'figures', 'process', 'table', 'assessment-link', 'recap')
-    if ((HasProp $DP 'deckRules') -and (HasProp $DP.deckRules 'notesRequiredOn')) {
-        $CHIP_KINDS = @(@(AsArr $DP.deckRules.notesRequiredOn | ForEach-Object { [string]$_ }) + @('recap') | Sort-Object -Unique)
+    $notesRequired = @(AsArr $(if (HasProp $DP 'deckRules') { $DP.deckRules.notesRequiredOn } else { $null }) |
+                       ForEach-Object { [string]$_ } | Where-Object { $_ })
+    if ($notesRequired.Count -eq 0) {
+        throw ("Invoke-Render: the deck profile at {0} carries no deckRules.notesRequiredOn, so the chip kinds cannot be derived. Falling back to a list typed into the renderer signposts the assessment on whatever that list happens to name, which is how a renderer and its gates come to disagree." -f $DPPath)
     }
+    $CHIP_KINDS = @($notesRequired + @('recap') | Sort-Object -Unique)
+    Write-Host ("  check-set: {0} chip kind(s), derived from {1} deckRules.notesRequiredOn ({2} kind(s)) plus 'recap'" -f $CHIP_KINDS.Count, $DPPath, $notesRequired.Count) -ForegroundColor DarkGray
+
+    # The topic-level slides placed by name before the per-PC slides, in this
+    # order; and the full set placed by name, which is that list plus the recap
+    # placed after them. Anything else on a topic is an extra.
+    $TOPIC_LEAD_KINDS   = Select-DeckKind -What 'topic lead kind(s), placed in this order before the PC slides' -Names 'divider', 'outcomes', 'key-terms'
+    $TOPIC_PLACED_KINDS = Select-DeckKind -What 'topic kind(s) placed by name (anything else on the topic is an extra)' -Names $TOPIC_LEAD_KINDS -Plus 'recap'
 
     $labels = Get-ReferenceLabelSet -Contract $contract
     $chipRx = Get-ChipLabelRegex -Labels $labels
@@ -1224,7 +1319,7 @@ function Invoke-DeckRender {
         $tp = $topics[$n]
         $topicSlides = AsArr $tp.slides
 
-        foreach ($k in @('divider', 'outcomes', 'key-terms')) {
+        foreach ($k in $TOPIC_LEAD_KINDS) {
             foreach ($s in ($topicSlides | Where-Object { [string]$_.kind -eq $k })) {
                 Add-Slide -S $s -Tag "T$n $k" -Topic $n | Out-Null
             }
@@ -1246,7 +1341,7 @@ function Invoke-DeckRender {
             Add-Slide -S $s -Tag "T$n recap" -Topic $n -ChipFallbackRefs @($topicRefs) | Out-Null
         }
 
-        $extras = @($topicSlides | Where-Object { @('divider', 'outcomes', 'key-terms', 'recap') -notcontains [string]$_.kind })
+        $extras = @($topicSlides | Where-Object { $TOPIC_PLACED_KINDS -notcontains [string]$_.kind })
         foreach ($s in $extras) { Add-Slide -S $s -Tag "T$n extra" -Topic $n | Out-Null }
     }
 

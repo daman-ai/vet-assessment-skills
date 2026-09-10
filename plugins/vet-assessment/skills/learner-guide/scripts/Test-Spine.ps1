@@ -169,12 +169,29 @@ $KEY_TERMS_MIN  = 6
 $REQUIRED_SUB_FIELDS = @('ref', 'pc', 'title', 'whatThisMeans', 'remember', 'underpinningKnowledge',
                          'regulatoryBasis', 'howToDoIt', 'caseStudy', 'commonErrors', 'selfCheck',
                          'assessmentLink', 'visuals', 'slides')
+#  THE TOPIC-LEVEL CONTENT MODEL, and it is this gate's own. No file on disk
+#  carries it: the guide profile's callouts map is a list of BOX TYPES the
+#  guide can render (remember, keyPoint, workedExample, ...), not the fields a
+#  topic node must carry, and three of the ten below - overview, summary,
+#  outcomes - appear in no profile at all. Test-SpineRead.ps1 is the arm that
+#  holds these against the renderers' own source, which is the only other
+#  place that knows. Recorded as a refutation against GH02 in
+#  assets\gate-hygiene.reclassified.json.
 $REQUIRED_TOPIC_FIELDS = @('overview', 'outcomes', 'keyTerms', 'readBeforeYouStart', 'summary',
                            'industryInsight', 'reflection', 'discussion', 'assessmentPrep', 'furtherReading')
-#  references\powerpoint.md section 4: every slide except divider, outcomes
-#  and key-terms carries notes.
-$NOTES_REQUIRED_KINDS = @('teaching', 'case-study', 'assessment-link', 'figures', 'process', 'table', 'recap')
-$SHAPE_FIELDS = @('lead', 'headline', 'left', 'right', 'card1Body', 'card2Body', 'card3Body', 'note', 'quote')
+#  $NOTES_REQUIRED_KINDS and $SHAPE_FIELDS are NOT declared here. Both are
+#  properties of the deck the build renders, and the deck profile
+#  (assets\deck-layouts.<brand>.json) is where the build, Invoke-Render and
+#  Assert-DeckParity all read them from. They are derived from it inside the
+#  main try below, where a profile that yields nothing is a typed CHECK-SET
+#  EMPTY refusal rather than a rule that quietly checks less than it says.
+#
+#  The typed lists this replaces had already drifted: the notes list carried
+#  six of the profile's eight kinds - not 'outcomes', not 'key-terms' - while
+#  Assert-DeckParity, reading the same profile's notesNotRequiredOn, required
+#  notes on both. Two gates, one deck, two answers.
+#  The recap slide kind is the spine's own and no template layout carries it,
+#  so it is unioned in where the set is derived, named and explained there.
 #  A callout box and the fields that can carry its content.
 $BOX_FIELDS = [ordered]@{
     rolePlay          = @('scenario', 'roles', 'steps', 'doneWell')
@@ -220,6 +237,81 @@ function Count-BlockWords {
     $n = 0
     foreach ($p in (AsArr $Block)) { $n += Count-Words ([string]$p) }
     return $n
+}
+
+function Get-SpineDeckVocabulary {
+    <#  WHAT A SLIDE CAN CARRY AND WHICH SLIDES MUST BE TAUGHT FROM, read off
+        the deck profile that declares both.
+
+        assets\deck-layouts.<brand>.json is the one file that holds the layout
+        map: deckRules.notesRequiredOn says which slide kinds must carry
+        speaker notes, and layouts.*.slots names every text slot a slide can
+        fill. Invoke-Render renders from it, Assert-DeckParity gates against
+        it, and until this function existed Test-Spine carried its own typed
+        copies of both - which had already fallen behind the profile by two
+        slide kinds.
+
+        Two deliberate adjustments, each named on the check-set line:
+
+          'recap' is a SPINE slide kind with no template layout of its own, so
+          no deck profile can name it. It has always required notes here and
+          still does, so it is unioned in.
+
+          'bullets' is dropped from the shape-cap set. It is an ARRAY of
+          bullet strings with its own per-bullet cap immediately below the
+          shape cap, and measuring the joined array against the shape cap
+          would report one failure twice under two different rules.
+
+        Every deck profile on disk is read and the sets unioned: the spine is
+        brand-neutral and a kind or a slot any RTO's deck declares is one this
+        gate should measure.  #>
+    [CmdletBinding()]
+    param([string] $SkillDir)
+
+    $roots = New-Object System.Collections.Generic.List[string]
+    if ($SkillDir) { $roots.Add((Join-Path $SkillDir 'assets')) }
+    $notes = New-Object System.Collections.Generic.List[string]
+    $slots = New-Object System.Collections.Generic.List[string]
+    $from  = New-Object System.Collections.Generic.List[string]
+
+    foreach ($r in $roots) {
+        if (-not "$r".Trim() -or -not (Test-Path -LiteralPath "$r")) { continue }
+        foreach ($f in @(Get-ChildItem -LiteralPath "$r" -Filter 'deck-layouts.*.json' -File -ErrorAction SilentlyContinue)) {
+            $j = Get-GateJson -Path $f.FullName
+            if ($null -eq $j) { continue }
+            $added = 0
+            $rules = Get-GateProp -Object $j -Names @('deckRules')
+            foreach ($k in (AsArr (Get-GateProp -Object $rules -Names @('notesRequiredOn')))) {
+                $kv = "$k".Trim()
+                if ($kv -and -not $notes.Contains($kv)) { $notes.Add($kv); $added++ }
+            }
+            $layouts = Get-GateProp -Object $j -Names @('layouts')
+            if ($null -ne $layouts) {
+                foreach ($lay in @($layouts.PSObject.Properties)) {
+                    if ($lay.Name -like '_*') { continue }
+                    $sl = Get-GateProp -Object $lay.Value -Names @('slots')
+                    if ($null -eq $sl) { continue }
+                    foreach ($p in @($sl.PSObject.Properties)) {
+                        $sn = "$($p.Name)".Trim()
+                        if (-not $sn -or $sn -like '_*') { continue }
+                        if (-not $slots.Contains($sn)) { $slots.Add($sn); $added++ }
+                    }
+                }
+            }
+            if ($added -gt 0) { $from.Add($f.Name) }
+        }
+    }
+
+    #  The spine-only kind, and the one slot that is measured by another rule.
+    if ($notes.Count -gt 0 -and -not $notes.Contains('recap')) { $notes.Add('recap') }
+    $shape = New-Object System.Collections.Generic.List[string]
+    foreach ($s in $slots) { if ($s -ne 'bullets') { $shape.Add($s) } }
+
+    return [pscustomobject]@{
+        NotesRequiredKinds = $notes.ToArray()
+        ShapeFields        = $shape.ToArray()
+        Source             = @($from)
+    }
 }
 
 function Read-SpineFile {
@@ -564,7 +656,11 @@ function Get-SpineFrontMatterReadField {
             if (-not ($a.Left -is [System.Management.Automation.Language.VariableExpressionAst])) { continue }
             $rhs = "$($a.Right.Extent.Text)"
             foreach ($k in @($map.Keys)) {
-                if ($rhs -match ("(?i)['`"]" + $k + "\.json['`"]")) { $alias[$a.Left.VariablePath.UserPath] = $map[$k] }
+                #  The node name goes into a REGEX, so it is escaped: an
+                #  unescaped value decides what the pattern means the moment
+                #  one of them carries a metacharacter, and the alias scan
+                #  would then follow the wrong variable or none at all.
+                if ($rhs -match ("(?i)['`"]" + [regex]::Escape("$k") + "\.json['`"]")) { $alias[$a.Left.VariablePath.UserPath] = $map[$k] }
             }
         }
 
@@ -757,6 +853,19 @@ try {
     Add-Info ('question pattern: {0} ({1})' -f $QuestionPattern, $patternFrom)
     Add-Info ('contract carries {0} assessment reference(s) across {1} sub-section(s)' -f $script:expectedRefs.Count, $mapCount)
 
+    # --- the deck vocabulary, DERIVED from the deck profile the build renders
+    #     from. Both sets are blocking: a slide-kind set with nothing in it
+    #     asks no slide for notes, and a slot set with nothing in it measures
+    #     no text against the shape cap - each would print green over a deck
+    #     nobody checked.
+    $deckVocab = Get-SpineDeckVocabulary -SkillDir $script:SkillDirForRenderers
+    $NOTES_REQUIRED_KINDS = @($deckVocab.NotesRequiredKinds)
+    $SHAPE_FIELDS = @($deckVocab.ShapeFields)
+    $vocabFrom = @($deckVocab.Source | Where-Object { "$_".Trim() })
+    $vocabWhere = if ($vocabFrom.Count -gt 0) { $vocabFrom -join ', ' } else { 'the deck profile(s)' }
+    Write-GateCheckSet -What 'slide kind(s) that must carry speaker notes' -Count $NOTES_REQUIRED_KINDS.Count -DerivedFrom ("deckRules.notesRequiredOn in {0}, plus the spine-only 'recap' kind no template layout carries" -f $vocabWhere) -Blocking -Input ('assets\deck-layouts.<brand>.json deckRules.notesRequiredOn under ' + $script:SkillDirForRenderers + ' - no deck profile names a kind that needs notes, so no slide on the spine would ever be asked for any')
+    Write-GateCheckSet -What 'slide text slot(s) measured against the shape cap' -Count $SHAPE_FIELDS.Count -DerivedFrom ('layouts.*.slots in ' + $vocabWhere) -Blocking -Input ('assets\deck-layouts.<brand>.json layouts.*.slots under ' + $script:SkillDirForRenderers + ' - no deck profile declares a text slot, so no slide text would be measured against the ' + $SHAPE_CAP + '-character cap') -Excluded @('bullets')
+
     # =======================================================================
     # SELF-TEST
     # =======================================================================
@@ -776,6 +885,10 @@ try {
         $refTopic = $script:pcTopic[$refIdent.Pc]
 
         $tmpBuild = Join-Path ([System.IO.Path]::GetTempPath()) ('spinetest_' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
+        #  Named in script scope so the catch at the tail can ASK THE
+        #  FILESYSTEM what this run actually wrote before it threw, rather than
+        #  taking the exception's word for it.
+        $script:SelfTestBuild = $tmpBuild
         $tmpSpine = Join-Path $tmpBuild 'spine'
         New-Item -ItemType Directory -Force -Path $tmpSpine | Out-Null
         Copy-Item -LiteralPath $contractUsed -Destination (Join-Path $tmpBuild 'contract.json')
@@ -1193,8 +1306,40 @@ catch {
     #  blocking arm never completed - are named as refusals, not as generic
     #  validator errors, so a reader can tell an absent input from a broken one.
     $msg = $_.Exception.Message
+
+    #  ASK THE FILESYSTEM BEFORE BELIEVING THE EXCEPTION. A throw that arrives
+    #  after the work is done - a teardown, a temp directory another process
+    #  still holds, a child run whose result file is already written - is not
+    #  evidence that nothing was produced. Word finished an export and died at
+    #  COM teardown, and the finisher reported FAILED while a correct 383-page
+    #  PDF sat on disk. So every artefact this run writes is read back off disk
+    #  here and reported beside the exception: whether it exists, how many
+    #  bytes it carries and whether it still parses. The verdict below stays
+    #  ERROR - a validator that threw did not finish its checks - but the
+    #  reader is told which of the two they have, instead of being left to
+    #  assume that a throw means nothing was written.
+    $onDisk = New-Object System.Collections.Generic.List[string]
+    foreach ($art in @([string]$ResultPath, [string]$script:SelfTestBuild)) {
+        if (-not "$art".Trim()) { continue }
+        if (-not (Test-Path -LiteralPath $art)) {
+            $onDisk.Add(('{0} - not on disk, so nothing was written before the exception' -f $art))
+            continue
+        }
+        $item = Get-Item -LiteralPath $art -ErrorAction SilentlyContinue
+        if ($null -eq $item) { continue }
+        if ($item.PSIsContainer) {
+            $kids = @(Get-ChildItem -LiteralPath $art -Filter '*.json' -File -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Length -gt 0 })
+            $onDisk.Add(('{0} - {1} non-empty JSON file(s) written under it before the exception' -f $art, $kids.Count))
+        }
+        else {
+            $parses = $null -ne (Get-GateJson -Path $art)
+            $onDisk.Add(('{0} - {1} byte(s) on disk and it {2}' -f $art, $item.Length, $(if ($parses) { 'still parses as JSON' } else { 'does NOT parse' })))
+        }
+    }
+
     if ($msg -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') { Add-Fail ('REFUSED - {0}' -f $msg) }
     else { Add-Fail ('validator error: {0}' -f $msg) }
+    foreach ($d in $onDisk) { Add-Info ('after the exception, the filesystem says: {0}' -f $d) }
     $verdict = 'ERROR'
     $exitCode = 2
 }

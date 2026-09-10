@@ -178,6 +178,74 @@ function Get-DeckIdentityStringFromAssets {
     }
     return $out.ToArray()
 }
+function Get-DeckKindVocabulary {
+    <#  WHICH SLIDE KINDS MUST CARRY SPEAKER NOTES, AND WHICH MUST CARRY AN
+        ASSESSMENT CHIP - read off the deck profile that declares them.
+
+        assets\deck-layouts.<brand>.json holds deckRules.notesRequiredOn. The
+        list used to be typed into the notes rule below and had fallen SIX of
+        EIGHT: the profile requires notes on 'outcomes' and 'key-terms' too,
+        and this gate silently did not. That is the same defect as three of
+        nine palette hexes typed by hand, and it is invisible because the rule
+        still reports green over the kinds it was never told about.
+
+        The chip vocabulary is deckRules.chipRequiredOn where a profile
+        declares one. No profile does yet, and the chip rule has always run
+        over the same content-slide vocabulary as the notes rule, so that is
+        what it falls back to - the SAME derived set, not a second typed one.
+
+        Every deck profile on disk is read and the lists unioned: this gate is
+        handed a deck, not a brand, and a kind that some RTO's profile says
+        must be taught to is never a kind this gate should be silent about.
+
+        Returns NotesRequiredOn, ChipRequiredOn and Source.  #>
+    [CmdletBinding()]
+    param([string] $AssetsDir)
+
+    $roots = New-Object System.Collections.Generic.List[string]
+    if ($AssetsDir) { $roots.Add($AssetsDir) }
+    else {
+        $here = ''
+        $cands = @($PSScriptRoot)
+        if ($MyInvocation.MyCommand.Path) { $cands += (Split-Path -Parent $MyInvocation.MyCommand.Path) }
+        if (Get-Variable -Name SkillDir -Scope Global -ErrorAction SilentlyContinue) { $cands += (Join-Path $global:SkillDir 'scripts') }
+        foreach ($c in $cands) {
+            if ("$c".Trim() -and (Test-Path -LiteralPath "$c")) { $here = "$c"; break }
+        }
+        if ($here) {
+            $skill = Split-Path -Parent $here
+            if ($skill) { $roots.Add((Join-Path $skill 'assets')) }
+        }
+    }
+
+    $notes = New-Object System.Collections.Generic.List[string]
+    $chip  = New-Object System.Collections.Generic.List[string]
+    $from  = New-Object System.Collections.Generic.List[string]
+    foreach ($r in $roots) {
+        if (-not (Test-Path -LiteralPath "$r")) { continue }
+        foreach ($f in @(Get-ChildItem -LiteralPath "$r" -Filter 'deck-layouts.*.json' -File -ErrorAction SilentlyContinue)) {
+            try { $j = [IO.File]::ReadAllText($f.FullName) | ConvertFrom-Json } catch { continue }
+            if ($null -eq $j -or @($j.PSObject.Properties.Name) -notcontains 'deckRules') { continue }
+            $rules = $j.deckRules
+            $added = 0
+            foreach ($pair in @(@{ K = 'notesRequiredOn'; L = $notes }, @{ K = 'chipRequiredOn'; L = $chip })) {
+                if (@($rules.PSObject.Properties.Name) -notcontains $pair.K) { continue }
+                foreach ($k in @($rules.($pair.K))) {
+                    $kv = "$k".Trim()
+                    if (-not $kv -or $pair.L.Contains($kv)) { continue }
+                    $pair.L.Add($kv); $added++
+                }
+            }
+            if ($added -gt 0) { $from.Add($f.Name) }
+        }
+    }
+    #  No profile declares a chip list; the chip rule then runs over the same
+    #  content-slide vocabulary the notes rule does, which is what it has
+    #  always checked. One derived set, two rules - never a second typed list.
+    if ($chip.Count -eq 0) { foreach ($k in $notes) { $chip.Add($k) } }
+    return [pscustomobject]@{ NotesRequiredOn = $notes.ToArray(); ChipRequiredOn = $chip.ToArray(); Source = @($from) }
+}
+
 function Get-DeckPlaceholderPhrase {
     <#  Every distinct run of text the TEMPLATE ships, as the placeholder
         vocabulary. Harvested rather than hard-coded, so the list cannot drift
@@ -348,7 +416,7 @@ function Test-DeckRules {
     # docProps - title "ACI Branded PowerPoint Template", subject
     # "RTO 45797 | CRICOS 03978F", creator "Adelaide Construction Institute".
     # Nothing of it appears on a slide, so every other rule in this file passed
-    # a deck that told File > Info, Explorer and every exported PDF that it
+    # a deck that told File > Info, Explorer and every copy made from it that it
     # belonged to a competitor. Save-Deck now stamps these; this is the net
     # under that, because the failure is invisible on the page.
     $props = ''
@@ -362,7 +430,7 @@ function Test-DeckRules {
     if (-not $Rto) {
         & $partialRule 'document-property identity, RTO (-Rto)' `
             "pass -Rto from the RTO profile pack's identity strings" `
-            'The approved template was cloned from another RTO and still carried that RTO code in docProps, where nothing on a slide shows it and every exported PDF carries it.'
+            'The approved template was cloned from another RTO and still carried that RTO code in docProps, where nothing on a slide shows it and it travels with the file wherever it goes.'
     }
     if (-not $Cricos) {
         & $partialRule 'document-property identity, CRICOS (-Cricos)' `
@@ -461,8 +529,18 @@ function Test-DeckRules {
             $warn.Add("plan describes $($Plan.Count) slides but the deck has $($order.Count)")
         }
 
-        $needNotes = @('teaching', 'case-study', 'assessment-link', 'figures', 'process', 'table')
-        $needChip  = @('teaching', 'case-study', 'figures', 'process', 'table', 'assessment-link')
+        #  DERIVED from the deck profile's deckRules, never typed here, and
+        #  both sets say how big they are and where they came from. The typed
+        #  list this replaces carried six of the profile's eight kinds - it did
+        #  not carry 'outcomes' or 'key-terms' - so two kinds of slide could
+        #  ship with no speaker notes and this rule reported green over them.
+        $deckKinds = Get-DeckKindVocabulary
+        $needNotes = @($deckKinds.NotesRequiredOn)
+        $needChip  = @($deckKinds.ChipRequiredOn)
+        $kindsFrom = @($deckKinds.Source | Where-Object { "$_".Trim() })
+        $kindsWhere = if ($kindsFrom.Count -gt 0) { $kindsFrom -join ', ' } else { 'the deck profile(s)' }
+        Write-GateCheckSet -What 'slide kind(s) that must carry speaker notes' -Count $needNotes.Count -DerivedFrom ('deckRules.notesRequiredOn in ' + $kindsWhere) -Blocking -Input 'assets\deck-layouts.<brand>.json deckRules.notesRequiredOn - no deck profile on disk names a kind that needs notes, so every slide in the deck would pass the notes rule by never being asked'
+        Write-GateCheckSet -What 'slide kind(s) that must carry an assessment-question reference' -Count $needChip.Count -DerivedFrom ('deckRules.chipRequiredOn where a profile declares one, else the same notesRequiredOn content-slide vocabulary, in ' + $kindsWhere) -Blocking -Input 'assets\deck-layouts.<brand>.json deckRules - no deck profile on disk names a kind that needs a chip, so the signposting rule would examine nothing'
 
         $n = 0
         foreach ($p in $order) {

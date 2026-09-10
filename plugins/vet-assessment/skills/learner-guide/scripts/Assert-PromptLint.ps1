@@ -140,8 +140,15 @@ $script:Skippable = @('a', 'an', 'the', 'one', 'two', 'three', 'four', 'five', '
     'what', 'where', 'which', 'this', 'that', 'these', 'those', 'and', 'or', 'young', 'older', 'adult',
     'male', 'female', 'single', 'senior', 'junior', 'new')
 $script:DefaultFramingOpener = '^\W*framed from the (?:shoulders|chest|neck|waist) down\b'
-$script:RouteAKinds = '^(?:image|illustration|photo|photograph|picture)$'
-$script:RouteBKinds = '^(?:diagram|table|canvas|chart|flow|flowchart|process|cycle|hierarchy|bands|matrix|comparison|timeline)$'
+#  CLOSED LISTS, NOT PATTERNS. These decide whether a visual reaches the paid
+#  image endpoint, and they were anchored alternations held in a string - a
+#  shape where the value in the variable, not the code, decides what a kind
+#  matches. A closed list compared with -contains asks the same question of the
+#  same members and no metacharacter can ever widen it. Membership is
+#  case-insensitive by -contains, and Test-RouteA lower-cases the kind first.
+$script:RouteAKinds = @('image', 'illustration', 'photo', 'photograph', 'picture')
+$script:RouteBKinds = @('diagram', 'table', 'canvas', 'chart', 'flow', 'flowchart', 'process',
+    'cycle', 'hierarchy', 'bands', 'matrix', 'comparison', 'timeline')
 
 # ---------------------------------------------------------------------------
 # 1. The rules, from the profile
@@ -315,8 +322,8 @@ function Test-RouteA {
     <# Route A is generated; Route B is built natively and never reaches the endpoint. Unknown kinds with no spec are generated. #>
     param($V)
     $k = ("" + $V.Kind).Trim().ToLowerInvariant()
-    if ($k -match $script:RouteAKinds) { return $true }
-    if ($k -match $script:RouteBKinds) { return $false }
+    if ($script:RouteAKinds -contains $k) { return $true }
+    if ($script:RouteBKinds -contains $k) { return $false }
     return ($null -eq $V.Spec)
 }
 
@@ -456,7 +463,11 @@ function Write-LintReport {
         Write-Host ("    {0,-7} {1,-16} {2}" -f '', '', $snip) -ForegroundColor DarkGray
     }
     $subj = @($failed | Where-Object { $_.SubjectNoun -and -not $_.Allowed -and -not $_.Framed }).Count
-    $negs = @($failed | Where-Object { @($_.Missing).Count -gt 0 }).Count
+    #  Get-GateCount, not @($x).Count: @($null).Count is 1 in PS 5.1, so every
+    #  failed prompt counted as "missing negatives" whether it had a Missing
+    #  property or not, and the summary line attributed person-subject failures
+    #  to the wrong cause.
+    $negs = @($failed | Where-Object { (Get-GateCount -Value $_.Missing) -gt 0 }).Count
     Write-Host ''
     if ($failed.Count -eq 0) {
         Write-Host ("  {0} Route A prompt(s) checked, every one framed hands-and-equipment and carrying its required negatives" -f $Run.RouteA) -ForegroundColor Green

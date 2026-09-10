@@ -1356,7 +1356,7 @@ if (-not $Quiet) {
     Write-Host ("  assessor cells: {0}  (GATE-ONLY; read for content-word sets, never printed)" -f (Split-Path $result.AssessorCells -Leaf)) -ForegroundColor DarkGray
     Write-Host ("  word pipeline:  {0}" -f $result.PipelineNote) -ForegroundColor DarkGray
     Write-GateCheckSet -What 'withheld rows' -Count $result.WithheldRows -DerivedFrom ("the register's {0} assessed grid(s), matched to the gate-only assessor cells' model rows" -f $result.WithheldGrids)
-    if (@($result.Unmapped).Count -gt 0) {
+    if ((Get-GateCount -Value $result.Unmapped) -gt 0) {
         Write-Host ("  ! {0} register row(s) have no model row in the assessor cells and are NOT checked:" -f @($result.Unmapped).Count) -ForegroundColor Yellow
         foreach ($u in ($result.Unmapped | Select-Object -First 12)) { Write-Host ("      {0}" -f $u) -ForegroundColor Yellow }
         if (@($result.Unmapped).Count -gt 12) { Write-Host ("      ... and {0} more" -f (@($result.Unmapped).Count - 12)) -ForegroundColor Yellow }
@@ -1464,7 +1464,7 @@ Write-Host ''
 foreach ($c in $result.Cleared) {
     Write-Host ("  ok [{0}] {1} - cleared on figures.json withholdAllow: {2}" -f $c.Hit.File, $c.Hit.Path, $c.Why) -ForegroundColor DarkGray
 }
-if (@($result.WithinAllowance).Count -gt 0) {
+if ((Get-GateCount -Value $result.WithinAllowance) -gt 0) {
     Write-Host ("  {0} string(s) sit inside the register's own allowance (the permitted exemplar row), counted once across both artefacts:" -f @($result.WithinAllowance).Count) -ForegroundColor DarkGray
     $shownAllow = 0
     foreach ($h in $result.WithinAllowance) {
@@ -1475,7 +1475,7 @@ if (@($result.WithinAllowance).Count -gt 0) {
     if (@($result.WithinAllowance).Count -gt $shownAllow) { Write-Host ("      ... and {0} more; the complete list is in the report file" -f (@($result.WithinAllowance).Count - $shownAllow)) -ForegroundColor DarkGray }
 }
 
-if (@($result.Divergent).Count -gt 0) {
+if ((Get-GateCount -Value $result.Divergent) -gt 0) {
     Write-Host ''
     Write-Host ("  BUILD-WIDE: {0} withheld row(s) are answered in ONE artefact only. A corrected guide beside an" -f @($result.Divergent).Count) -ForegroundColor Yellow
     Write-Host '  uncorrected deck is worse than either alone - fix both, or neither is fixed.' -ForegroundColor Yellow

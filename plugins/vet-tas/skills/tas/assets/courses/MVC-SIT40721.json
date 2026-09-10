@@ -1,0 +1,713 @@
+{
+    "schemaVersion":  "2.0",
+    "courseId":  "MVC-SIT40721",
+    "qualificationCode":  "SIT40721",
+    "qualificationTitle":  "Certificate IV in Patisserie",
+    "productType":  "Qualification",
+    "aqfLevel":  "Certificate IV",
+    "provider":  "MVC",
+    "brandVariant":  null,
+    "institute":  "Meridian Vocational College",
+    "siblingCourse":  null,
+    "durationWeeks":  30,
+    "packagingRule":  {
+                          "rule":  "32 units - 26 core plus 6 electives; 3 from Group A or Group B and 3 from the listed electives or any current endorsed training package.",
+                          "core":  26,
+                          "elective":  6,
+                          "totalUnits":  32,
+                          "statedInTas":  false
+                      },
+    "unitCount":  32,
+    "deliveredCount":  13,
+    "priorCourse":  "MVC-SIT31021",
+    "sequencing":  {
+                       "model":  "theme",
+                       "source":  "derived 2026-09-09; themes follow MVC-SIT40521 because ten of the thirteen delivered units are the same management units",
+                       "clusters":  [
+                                        {
+                                            "number":  1,
+                                            "name":  "Leading a diverse kitchen team",
+                                            "focus":  "Lead and develop a mixed brigade, build an inclusive section culture and handle conflict.",
+                                            "weeks":  "1-8",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBTWK501",
+                                                          "SITXHRM009",
+                                                          "SITXCOM010"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Operations, budgets and rostering",
+                                            "focus":  "Monitor day-to-day operations, work to a wage and ingredient budget, build rosters and keep WHS practices in place.",
+                                            "weeks":  "9-16",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXWHS007",
+                                                          "SITXFIN009",
+                                                          "SITXMGT004",
+                                                          "SITXHRM008"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Food safety, planning and special diets",
+                                            "focus":  "Write and monitor a food safety program, plan cooking operations and develop recipes for special dietary requirements.",
+                                            "weeks":  "17-24",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXFSA008",
+                                                          "SITHKOP012",
+                                                          "SITHKOP013"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  4,
+                                            "name":  "Advanced patisserie and showpieces",
+                                            "focus":  "Produce chocolate confectionery, model sugar-based decorations and design and produce sweet showpieces.",
+                                            "weeks":  "25-30",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITHPAT018",
+                                                          "SITHPAT019",
+                                                          "SITHPAT020"
+                                                      ]
+                                        }
+                                    ],
+                       "order":  [
+                                     "BSBTWK501",
+                                     "SITXHRM009",
+                                     "SITXCOM010",
+                                     "SITXWHS007",
+                                     "SITXFIN009",
+                                     "SITXMGT004",
+                                     "SITXHRM008",
+                                     "SITXFSA008",
+                                     "SITHKOP012",
+                                     "SITHKOP013",
+                                     "SITHPAT018",
+                                     "SITHPAT019",
+                                     "SITHPAT020"
+                                 ]
+                   },
+    "units":  [
+                  {
+                      "code":  "BSBTWK501",
+                      "title":  "Lead diversity and inclusion",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC023",
+                      "title":  "Use food preparation equipment",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC027",
+                      "title":  "Prepare dishes using basic methods of cookery",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC034",
+                      "title":  "Work effectively in a commercial kitchen",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITHCCC027",
+                                                "title":  "Prepare dishes using basic methods of cookery"
+                                            },
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC038",
+                      "title":  "Produce and serve food for buffets",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITHCCC027",
+                                                "title":  "Prepare dishes using basic methods of cookery"
+                                            },
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHCCC042",
+                      "title":  "Prepare food to meet special dietary requirements",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITHCCC027",
+                                                "title":  "Prepare dishes using basic methods of cookery"
+                                            },
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHKOP010",
+                      "title":  "Plan and cost recipes",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHKOP012",
+                      "title":  "Develop recipes for special dietary requirements",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  9,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITHCCC027",
+                                                "title":  "Prepare dishes using basic methods of cookery"
+                                            },
+                                            {
+                                                "code":  "SITHCCC042",
+                                                "title":  "Prepare food to meet special dietary requirements"
+                                            },
+                                            {
+                                                "code":  "SITHKOP010",
+                                                "title":  "Plan and cost recipes"
+                                            },
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHKOP013",
+                      "title":  "Plan cooking operations",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  10,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT011",
+                      "title":  "Produce cakes",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT012",
+                      "title":  "Produce specialised cakes",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT013",
+                      "title":  "Produce pastries",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT014",
+                      "title":  "Produce yeast-based bakery products",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT015",
+                      "title":  "Produce petits fours",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT016",
+                      "title":  "Produce desserts",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT017",
+                      "title":  "Prepare and model marzipan",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT018",
+                      "title":  "Produce chocolate confectionery",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  11,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT019",
+                      "title":  "Model sugar-based decorations",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  12,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT020",
+                      "title":  "Design and produce sweet showpieces",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  4,
+                      "sequence":  13,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXCOM010",
+                      "title":  "Manage conflict",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  3,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFIN009",
+                      "title":  "Manage finances within a budget",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  5,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFSA005",
+                      "title":  "Use hygienic practices for food safety",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFSA006",
+                      "title":  "Participate in safe food handling practices",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFSA008",
+                      "title":  "Develop and implement a food safety program",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  3,
+                      "sequence":  8,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            },
+                                            {
+                                                "code":  "SITXFSA006",
+                                                "title":  "Participate in safe food handling practices"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXHRM007",
+                      "title":  "Coach others in job skills",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXHRM008",
+                      "title":  "Roster staff",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  7,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXHRM009",
+                      "title":  "Lead and manage people",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  2,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXINV006",
+                      "title":  "Receive, store and maintain stock",
+                      "designation":  "Core",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+                                            {
+                                                "code":  "SITXFSA005",
+                                                "title":  "Use hygienic practices for food safety"
+                                            }
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXINV007",
+                      "title":  "Purchase goods",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXMGT004",
+                      "title":  "Monitor work operations",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  6,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXWHS006",
+                      "title":  "Identify hazards, assess and control safety risks",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXWHS007",
+                      "title":  "Implement and monitor work health and safety practices",
+                      "designation":  "Core",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  2,
+                      "sequence":  4,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  }
+              ],
+    "supersededUnits":  [
+
+                        ],
+    "titleCorrections":  [
+
+                         ],
+    "unitsNotInCache":  [
+
+                        ],
+    "source":  {
+                   "tasFile":  null,
+                   "tasSha256":  null,
+                   "unitSource":  "training.gov.au REST API; packaging rules and unit banks from SIT40721_R2.xml",
+                   "generatedUtc":  "2026-09-09T02:57:13Z",
+                   "tasVerifiedUtc":  null,
+                   "scopeCheckedUtc":  "2026-09-09T02:57:13Z",
+                   "scopeNote":  "SIT40721 is on RTO 45039 scope, extent \"Deliver and assess\", current, 10 June 2022 to 15 November 2030."
+               },
+    "notes":  [
+                  "New course added 9 September 2026. No TAS document exists yet - this record is the source for writing one.",
+                  "Delivered as an add-on after MVC-SIT31021 Certificate III in Patisserie. Direct entry to the Certificate IV is also offered.",
+                  "Duration set to 30 weeks to match MVC-SIT40521, which has the same shape (a Certificate IV following a Certificate III with most units credited). CONFIRM against CRICOS/PRISMS before publishing."
+              ],
+    "openItems":  [
+                      {
+                          "severity":  "BLOCKING",
+                          "item":  "SITHPAT018, SITHPAT019 and SITHPAT020 are delivered but have no assessment tool or learner guide.",
+                          "raised":  "2026-09-09"
+                      },
+                      {
+                          "severity":  "WATCH",
+                          "item":  "Topic ownership rulings have not been derived for this course, so the teach-once rule is not yet enforced on it.",
+                          "raised":  "2026-09-09"
+                      },
+                      {
+                          "severity":  "WATCH",
+                          "item":  "Course duration of 30 weeks is assumed, not confirmed against PRISMS.",
+                          "raised":  "2026-09-09"
+                      }
+                  ],
+    "pathway":  {
+                    "role":  "addOn",
+                    "priorCourses":  [
+                                         "MVC-SIT31021"
+                                     ],
+                    "leadsTo":  [
+                                    "MVC-SIT50422"
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026",
+                    "note":  "No direct entry. The only way into this course is from MVC-SIT31021. Meridian admits to the Certificate IIIs only."
+                }
+}

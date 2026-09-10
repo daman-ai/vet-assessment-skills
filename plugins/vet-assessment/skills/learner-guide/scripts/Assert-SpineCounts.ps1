@@ -284,6 +284,20 @@ function ConvertTo-ScLabelSpec {
         Pattern           = $Pattern
         RequiresPart      = [bool]($Pattern -match '\{part\}')
         ParenthesisedPart = [bool]($Pattern -match '\{n\}\s*\(\{part\}\)')
+        #  PartsOnOwnLines: this family's parts may be printed on their own
+        #  lines beneath the heading rather than beside it. ParenthesisedPart
+        #  used to stand in for this, and its own comment claimed the bracket
+        #  shape was "the only shape whose parts are written on their own
+        #  lines". That is not true of every RTO: this pack declares
+        #  "Task {n}, Part {part}" and prints "Task 3" as a heading with
+        #  "Part d." on its own line underneath. Gating the continuation on
+        #  the BRACKETS meant the join never ran, the pack yielded ten bare
+        #  task signposts and no questions at all, and all 51 part-level
+        #  references the guide cites were reported as invented - the most
+        #  damaging finding this gate can make, and every one of them false.
+        #  Any family that REQUIRES a part can have that part printed on its
+        #  own line; the candidate is then built from the declared pattern.
+        PartsOnOwnLines   = [bool]($Pattern -match '\{part\}')
     }
 }
 
@@ -420,25 +434,53 @@ function Get-ScPackReferences {
                 Add-ScPackRef -Display $m.Value -Doc $d.Name -DocPath ([string]$d.Path) -Line $lineNo -Quote $m.Value -How 'reference regex'
             }
 
-            if (-not $docSpec.ParenthesisedPart) { continue }
+            if (-not $docSpec.PartsOnOwnLines) { continue }
 
-            $h = $Rx.Match($s)
-            $isHeading = ($h.Success -and $h.Index -eq 0 -and ($s -match ('^' + [regex]::Escape($docSpec.Label) + '\s*\d')))
-            if ($isHeading) {
-                $headText = ($h.Value -replace '\s+', ' ').Trim()
+            #  THE HEADING. Detected on the declared LABEL and a number, case
+            #  insensitively, because a pack may print its headings in capitals
+            #  - this one writes "DESIGN TASK 1 - DESIGN SHOWPIECE 1 - ..." -
+            #  and the compiled reference regex is deliberately case sensitive.
+            #  The NUMBER is what is carried forward, not the matched text, so
+            #  the canonical reference is rebuilt from the contract's own
+            #  pattern below and comes out in the contract's casing.
+            $hm = [regex]::Match($s, ('^' + [regex]::Escape($docSpec.Label) + '\s*(\d+)\b'), 'IgnoreCase')
+            if ($hm.Success) {
                 #  Only a BARE label-and-number heads a list of parts. A line
                 #  opening with a complete reference is a mapping row, not a
                 #  heading, and must not adopt the parts printed under it.
-                if (-not (Test-ScRefIsComplete -Value $headText -Labels $Labels)) {
-                    $cur = [pscustomobject]@{ Text = $headText; Line = $lineNo }
+                #  The BARE reference is everything the pattern puts BEFORE
+                #  {n}, plus the number - never the pattern with {part}
+                #  stripped out of it, which leaves the separator behind and
+                #  yields 'Task 1, Part' for a pattern of 'Task {n}, Part
+                #  {part}'. That string is not a reference, is not complete,
+                #  and heads nothing.
+                $headCanon = ($docSpec.Pattern.Substring(0, $docSpec.Pattern.IndexOf('{n}')) + $hm.Groups[1].Value).Trim()
+                if (-not (Test-ScRefIsComplete -Value $headCanon -Labels $Labels)) {
+                    $cur = [pscustomobject]@{ Text = $headCanon; Num = $hm.Groups[1].Value; Line = $lineNo }
                 }
                 continue
             }
-            if ($null -ne $cur -and $s -match '^\(([a-z])\)') {
-                $cand = ('{0} ({1})' -f $cur.Text, $Matches[1])
-                $cm = $Rx.Match($cand)
-                if ($cm.Success -and $cm.Index -eq 0 -and $cm.Length -eq $cand.Length) {
-                    Add-ScPackRef -Display $cand -Doc $d.Name -DocPath ([string]$d.Path) -Line $lineNo -Quote $quote -How ("part label under the heading at line {0}" -f $cur.Line)
+
+            #  THE PART LABEL, in either shipped convention: "(a)" beside the
+            #  bracket families, and "Part a." / "Part 4b." for the families
+            #  that spell it. Both are matched here; which one a pack uses is
+            #  not this gate's opinion, and a pack that used only one of them
+            #  had every one of its references called invented.
+            if ($null -ne $cur) {
+                $pm = [regex]::Match($s, '^(?:\((?<p>[a-z0-9]{1,3})\)|Part\s+(?<p>[a-z0-9]{1,3})\s*[.):])', 'IgnoreCase')
+                if ($pm.Success) {
+                    #  BUILD THE CANDIDATE FROM THE DECLARED PATTERN, never from
+                    #  a format string typed in here. The old join hard-coded
+                    #  '{0} ({1})' and so could only ever produce the bracket
+                    #  form, whatever the contract declared. The candidate is
+                    #  then handed BACK TO THE ONE REGEX and must match whole -
+                    #  the regex stays the only authority on both sides.
+                    $cand = ($docSpec.Pattern -replace '\{n\}', $cur.Num) -replace '\{part\}', $pm.Groups['p'].Value
+                    $cand = ($cand -replace '\s+', ' ').Trim()
+                    $cm = $Rx.Match($cand)
+                    if ($cm.Success -and $cm.Index -eq 0 -and $cm.Length -eq $cand.Length) {
+                        Add-ScPackRef -Display $cand -Doc $d.Name -DocPath ([string]$d.Path) -Line $lineNo -Quote $quote -How ("part label under the heading at line {0}" -f $cur.Line)
+                    }
                 }
             }
         }

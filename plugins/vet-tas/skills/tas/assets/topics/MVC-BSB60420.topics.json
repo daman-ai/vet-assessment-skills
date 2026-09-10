@@ -1,12 +1,12 @@
 ﻿{
-    "schemaVersion":  "1.0",
+    "schemaVersion":  "1.1",
     "courseId":  "MVC-BSB60420",
     "qualificationCode":  "BSB60420",
     "qualificationTitle":  "Advanced Diploma of Leadership and Management",
     "provider":  "MVC",
     "brandVariant":  null,
-    "priorCourse":  null,
-    "generatedUtc":  "2026-09-08T00:35:18Z",
+    "priorCourse":  "MVC-BSB50420",
+    "generatedUtc":  "2026-09-09T07:05:42Z",
     "method":  {
                    "unitSource":  "training.gov.au REST API",
                    "overlapDetection":  "assets/topics/families/MVC-BSB60420.families.json",
@@ -100,5 +100,6 @@
                                                                   ]
                                          }
                        },
-    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed.",
+    "assessmentNote":  "ASSESSMENT IS PER UNIT. A ruling never removes a requirement from an applying unit\u0027s assessment tool - every unit is separately certified and evidences its own requirements in full, on its own mapped line, with no line naming another unit as its evidence. assessmentDepth governs DEPTH and FORM only: \"applied\" means assessed inside a question about this unit\u0027s own subject or carried by an observation item, against the owner\u0027s benchmark; \"full\" means this unit teaches and assesses its own subject matter in full. The register exists to keep those benchmarks consistent across the units that share a requirement, which is what Standard 1.5 validation tests."
 }

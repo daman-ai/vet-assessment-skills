@@ -428,8 +428,30 @@ function Get-HygieneTargetSet {
 # ---------------------------------------------------------------------------
 
 function Get-JsonLeafValue {
-    <# Every string leaf and every property name in a JSON object graph. #>
-    param($Node, $Bag, [int] $Depth = 0)
+    <#  Every string leaf, and - unless -ValuesOnly - every property name too.
+
+        WHY THE SWITCH EXISTS. In a skill's assets\ the KEYS often are the
+        vocabulary: the layout names a deck profile declares are the property
+        names under `layouts`, and a gate that hand-lists them really has
+        duplicated a map. So both halves are harvested there.
+
+        In a BUILD directory the opposite holds. contract.json, figures.json
+        and the typed task files are instance data whose property names are the
+        SCHEMA - and a gate must name the fields it reads. Harvesting those
+        names made every such gate look like it had hand-listed a check-set:
+        measured on this build, 17 CONFIRMED rows, every one false, including
+        `'pcs', 'subSections'` (the two fields Assert-SpineCounts reads off a
+        topic), `'reason', 'why', 'note'` (the keys an allow-list entry may
+        carry its reason under) and `'Path', 'BuildDir', 'Brand'` (parameter
+        names, matched because a contract has a build.brand). A gate cannot
+        read a field without naming it, so a rule that fires on the naming
+        fires on correct code - and a rule that fires on correct code is the
+        crying-wolf gate this file forbids.
+
+        Values are still harvested from build registries in full, so a gate
+        that really does hand-list palette hexes, identity strings or locked
+        terms is caught exactly as before.  #>
+    param($Node, $Bag, [int] $Depth = 0, [switch] $ValuesOnly)
     if ($Depth -gt 8 -or $null -eq $Node) { return }
     if ($Node -is [string]) {
         $s = "$Node".Trim()
@@ -437,14 +459,16 @@ function Get-JsonLeafValue {
         return
     }
     if ($Node -is [System.Collections.IEnumerable] -and -not ($Node -is [string])) {
-        foreach ($item in $Node) { Get-JsonLeafValue -Node $item -Bag $Bag -Depth ($Depth + 1) }
+        foreach ($item in $Node) { Get-JsonLeafValue -Node $item -Bag $Bag -Depth ($Depth + 1) -ValuesOnly:$ValuesOnly }
         return
     }
     if ($Node -is [psobject] -and $null -ne $Node.PSObject) {
         foreach ($p in $Node.PSObject.Properties) {
-            $pn = "$($p.Name)".Trim()
-            if ($pn.Length -ge 3 -and $pn.Length -le 80) { [void]$Bag.Add($pn) }
-            Get-JsonLeafValue -Node $p.Value -Bag $Bag -Depth ($Depth + 1)
+            if (-not $ValuesOnly) {
+                $pn = "$($p.Name)".Trim()
+                if ($pn.Length -ge 3 -and $pn.Length -le 80) { [void]$Bag.Add($pn) }
+            }
+            Get-JsonLeafValue -Node $p.Value -Bag $Bag -Depth ($Depth + 1) -ValuesOnly:$ValuesOnly
         }
     }
 }
@@ -465,8 +489,41 @@ function Get-HygieneSourceOfTruth {
     if ($Build) { $dirs.Add($Build) }
     if ($null -ne $ExtraDir) { foreach ($d in $ExtraDir) { if ($d) { $dirs.Add($d) } } }
 
+    #  A SOURCE OF TRUTH IS A CONFIG, A PROFILE OR A REGISTRY - never CONTENT,
+    #  and never a run output.
+    #
+    #  The skill's assets\ and references\ are all three of those things. A
+    #  BUILD directory is not: alongside contract.json and figures.json, which
+    #  are exactly what this rule wants, it fills up with derived registers,
+    #  per-stage results and gate-only extractions of the assessment pack. Feed
+    #  those to the hand-listing rule and it compares a gate's vocabulary
+    #  against the prose of a patisserie assessment.
+    #
+    #  Measured on this build: with -BuildDir the source-of-truth set went from
+    #  7 files to 63, assessor-cells.json contributed 1,672 values of model
+    #  answer text, and gates were CONFIRMED for hand-listing check-sets like
+    #  'hold', 'jig', 'square' and 'slot', 'figure', 'number' - ordinary
+    #  English that happens to appear in a recipe. Every one of those was
+    #  false, and between them they turned a clean 62-script sweep into a
+    #  failing one. A rule that fires on coincidence is the crying-wolf gate
+    #  this file forbids.
+    #
+    #  So a build JSON is read only if it does NOT declare itself generated or
+    #  gate-only. That is the file's own word for what it is, not a name list:
+    #  every producer in this pipeline stamps one of these keys. Whatever is
+    #  skipped is PRINTED, because a source set that silently shrinks is the
+    #  failure this whole file was written against.
+    $script:TruthSkipped = New-Object System.Collections.Generic.List[string]
+    #  'checkedAt' catches THIS GATE'S OWN REPORT, gate-hygiene.json, which
+    #  lists every gate script by name - so a runner that legitimately names
+    #  its own members was CONFIRMED for hand-listing a set it had "derived"
+    #  from the gate's previous output. A gate's own report is never a source
+    #  of truth about anything.
+    $generatedKeys = @('generated', 'generatedBy', 'generatedUtc', '_generatedUtc', '_WARNING', 'verdict', 'ranAt', 'startedAt', 'checkedAt')
+
     foreach ($d in $dirs) {
         if (-not (Test-Path -LiteralPath $d)) { continue }
+        $isBuild = ($Build -and $d -eq $Build)
         $jsons = @()
         try { $jsons = @(Get-ChildItem -LiteralPath $d -Filter '*.json' -File -Recurse -Depth 2 -ErrorAction Stop) }
         catch { $jsons = @() }
@@ -476,8 +533,20 @@ function Get-HygieneSourceOfTruth {
             try { $obj = (Read-HygieneText -File $j.FullName | ConvertFrom-Json) }
             catch { $obj = $null }
             if ($null -eq $obj) { continue }
+
+            if ($isBuild) {
+                $names = @()
+                if ($null -ne $obj.PSObject) { $names = @($obj.PSObject.Properties.Name) }
+                $why = ''
+                foreach ($k in $generatedKeys) { if ($names -contains $k) { $why = ("declares '{0}'" -f $k); break } }
+                if ($why) {
+                    $script:TruthSkipped.Add(("{0} ({1})" -f $j.Name, $why))
+                    continue
+                }
+            }
+
             $bag = New-Object 'System.Collections.Generic.HashSet[string]' ([System.StringComparer]::OrdinalIgnoreCase)
-            Get-JsonLeafValue -Node $obj -Bag $bag
+            Get-JsonLeafValue -Node $obj -Bag $bag -ValuesOnly:$isBuild
             if ($bag.Count -ge 2) {
                 $maps.Add([pscustomobject]@{ File = $j.FullName; Values = $bag })
             }
@@ -1808,6 +1877,12 @@ $identity = Get-BrandIdentityValue -Skill $SkillDir
 $identityActive = ($identity.Count -gt 0)
 if (-not $Quiet) {
     Write-Host ('  sources of truth: {0} config/profile/registry files, {1} identity strings' -f $truth.Count, $identity.Count) -ForegroundColor DarkGray
+    #  Print what was left out, and why. A source set that shrinks in silence
+    #  is indistinguishable from one that had nothing to shrink.
+    if ($null -ne $script:TruthSkipped -and $script:TruthSkipped.Count -gt 0) {
+        Write-Host ('  build files NOT read as sources of truth ({0}) - generated or gate-only, never a check-set map:' -f $script:TruthSkipped.Count) -ForegroundColor DarkGray
+        foreach ($s in $script:TruthSkipped) { Write-Host ("    {0}" -f $s) -ForegroundColor DarkGray }
+    }
 }
 if (-not $identityActive) {
     #  A forbidden set of zero is not a clean sweep. The gate that this rule

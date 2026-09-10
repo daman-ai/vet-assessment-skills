@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "MVC-SIT60322",
     "qualificationCode":  "SIT60322",
@@ -21,10 +21,43 @@
     "deliveredCount":  7,
     "priorCourse":  "MVC-SIT50422",
     "sequencing":  {
-                       "model":  "sequence",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT60322 Advanced Diploma of Hospitality Management.docx",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "Business plans, finance and assets",
+                                            "focus":  "Write and implement a business plan, manage organisational finances and plan the venue\u0027s physical assets.",
+                                            "weeks":  "1-12",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBOPS601",
+                                                          "BSBFIN601",
+                                                          "SITXFIN011"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Recruitment and staff performance",
+                                            "focus":  "Recruit, select and induct staff, then monitor and manage their performance.",
+                                            "weeks":  "13-21",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXHRM010",
+                                                          "SITXHRM012"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Marketing and WHS systems",
+                                            "focus":  "Develop and run a marketing strategy and establish a venue-wide work health and safety system.",
+                                            "weeks":  "22-30",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXMPR014",
+                                                          "SITXWHS008"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
 
@@ -36,7 +69,7 @@
                       "title":  "Develop and implement business plans",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
@@ -51,7 +84,7 @@
                       "title":  "Manage organisational finances",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
@@ -66,7 +99,7 @@
                       "title":  "Manage physical assets",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
@@ -81,7 +114,7 @@
                       "title":  "Recruit, select and induct staff",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
@@ -96,7 +129,7 @@
                       "title":  "Monitor staff performance",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
@@ -111,7 +144,7 @@
                       "title":  "Develop and implement marketing strategies",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
@@ -126,7 +159,7 @@
                       "title":  "Establish and maintain a work health and safety system",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  7,
                       "weeks":  null,
                       "prerequisites":  [
@@ -543,15 +576,28 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT60322 Advanced Diploma of Hospitality Management.docx",
-                   "tasSha256":  "F625C111AC87CDA57A8FF80AD2F1F912485A4B3FF77EC1E1BC7A9CB9E005FED9",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\MVC-SIT60322.docx",
+                   "tasSha256":  "0E8FD7FF46EE0DA1E16E51B3D4A54BB5AC9AC188448E9A4AEC422B3F71FA2F90",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:44Z"
+                   "generatedUtc":  "2026-09-08T00:41:44Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "SEVEN OF THE THIRTY-THREE UNITS ARE DELIVERED. Credit transfer applies from SIT30821, SIT40521 and SIT50422 - the full pathway below this qualification."
               ],
     "openItems":  [
 
-                  ]
+                  ],
+    "pathway":  {
+                    "role":  "addOn",
+                    "priorCourses":  [
+                                         "MVC-SIT50422"
+                                     ],
+                    "leadsTo":  [
+
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

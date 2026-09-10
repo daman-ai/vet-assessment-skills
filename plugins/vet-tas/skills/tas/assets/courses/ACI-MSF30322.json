@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "ACI-MSF30322",
     "qualificationCode":  "MSF30322",
@@ -21,14 +21,14 @@
     "deliveredCount":  25,
     "priorCourse":  null,
     "sequencing":  {
-                       "model":  "cluster",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\1.13 TAS MSF30322 Certificate III in Cabinet Making and timber technology.pdf",
                        "clusters":  [
                                         {
                                             "number":  1,
-                                            "name":  "WHS \u0026 Workplace Fundamentals",
-                                            "focus":  "Induction and core workplace skills",
-                                            "weeks":  null,
+                                            "name":  "Workshop safety, sustainability and teamwork",
+                                            "focus":  "Work safely in a workshop and on site, follow environmental practices, and communicate and work as part of a production team.",
+                                            "weeks":  "1-17",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "CPCWHS1001",
@@ -40,9 +40,9 @@
                                         },
                                         {
                                             "number":  2,
-                                            "name":  "Measurement, Calculation and Documentation",
-                                            "focus":  "Technical numeracy and job interpretation",
-                                            "weeks":  null,
+                                            "name":  "Work documents, cutting lists and job costing",
+                                            "focus":  "Read job documentation, take measurements and calculations, produce cutting lists and estimate and cost a job.",
+                                            "weeks":  "18-34",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "MSFGN2001",
@@ -54,9 +54,9 @@
                                         },
                                         {
                                             "number":  3,
-                                            "name":  "Tools, Machines \u0026 Joints",
-                                            "focus":  "Basic and advanced tool usage",
-                                            "weeks":  null,
+                                            "name":  "Hand tools, static machines and timber jointing",
+                                            "focus":  "Safely use furniture making hand and power tools and basic static machines, and cut and assemble solid timber joints.",
+                                            "weeks":  "35-48",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "MSFFM2013",
@@ -67,57 +67,39 @@
                                         },
                                         {
                                             "number":  4,
-                                            "name":  "Timber \u0026 Materials Selection",
-                                            "focus":  "Material knowledge",
-                                            "weeks":  null,
+                                            "name":  "Timber selection, surface preparation and production drawings",
+                                            "focus":  "Select timbers for a job, prepare surfaces for finishing, and produce manual and computer-aided production drawings.",
+                                            "weeks":  "49-63",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "MSFFM3029",
-                                                          "MSFFF2012"
-                                                      ]
-                                        },
-                                        {
-                                            "number":  5,
-                                            "name":  "Drawing and CAD Skills",
-                                            "focus":  "Design and visual communication",
-                                            "weeks":  null,
-                                            "nominalHours":  null,
-                                            "units":  [
+                                                          "MSFFF2012",
                                                           "MSFFM3030",
                                                           "MSFFDM4012"
                                                       ]
                                         },
                                         {
-                                            "number":  6,
-                                            "name":  "Cabinetry Fabrication",
-                                            "focus":  "Construction of furniture and cabinetry",
-                                            "weeks":  null,
+                                            "number":  5,
+                                            "name":  "Cabinetry measure-up and fabrication",
+                                            "focus":  "Measure, document and confirm cabinetry requirements and fabricate cabinets to those specifications.",
+                                            "weeks":  "64-75",
                                             "nominalHours":  null,
                                             "units":  [
-                                                          "MSFFM3042",
                                                           "MSFKB2003",
-                                                          "MSFFM3041"
+                                                          "MSFFM3041",
+                                                          "MSFFM3042"
                                                       ]
                                         },
                                         {
-                                            "number":  7,
-                                            "name":  "Installation and On-Site Work",
-                                            "focus":  "Installation and site organisation",
-                                            "weeks":  null,
+                                            "number":  6,
+                                            "name":  "Cabinetry installation and client service",
+                                            "focus":  "Plan and install kitchen and bathroom cabinetry on site, organise the on-site work and deliver service to the client.",
+                                            "weeks":  "76-92",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "MSFFM3043",
                                                           "MSFKB3012",
-                                                          "MSMOPS363"
-                                                      ]
-                                        },
-                                        {
-                                            "number":  8,
-                                            "name":  "Customer Service and Delivery",
-                                            "focus":  "Client engagement and job handover",
-                                            "weeks":  null,
-                                            "nominalHours":  null,
-                                            "units":  [
+                                                          "MSMOPS363",
                                                           "BSBOPS304"
                                                       ]
                                         }
@@ -133,7 +115,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  3,
-                      "sequence":  1,
+                      "sequence":  11,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -147,8 +129,8 @@
                       "title":  "Produce manual and computer-aided production drawings",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  5,
-                      "sequence":  2,
+                      "cluster":  4,
+                      "sequence":  17,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -163,7 +145,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  3,
+                      "sequence":  8,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -178,14 +160,30 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  4,
+                      "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
 
                                         ],
                       "status":  "superseded",
                       "statusLabel":  "Superseded",
-                      "releaseCurrency":  "current"
+                      "releaseCurrency":  "current",
+                      "supersession":  {
+                                           "supersededOn":  "2026-03-12",
+                                           "equivalentTo":  "MSFOPS201",
+                                           "isEquivalent":  true,
+                                           "qualificationStillNamesIt":  true,
+                                           "qualificationRelease":  "MSF30322 Release 2, 2022-12-21",
+                                           "decision":  "continue-delivery",
+                                           "decidedOn":  "2026-09-08",
+                                           "reviewBy":  "2027-03-12",
+                                           "reason":  "MSF30322 has not been reissued since Release 2 of 21 December 2022, and that release names MSFGN2001 as one of its eight core units - MSFOPS201 does not appear in the qualification at all. A qualification is delivered against the packaging rules as they stand on the national register, so the superseded unit continues to be delivered as part of MSF30322. It may not be delivered as a standalone enrolment. Comparison against other providers on 8 September 2026 found none that had moved: every published MSF30322 course structure still lists MSFGN2001 as core. ASQA guidance would permit substituting the current version early with a documented industry and student rationale, but there is no reason to be first, and doing so would invalidate the existing assessment tools. Transition when the qualification is reissued, or by the review date, whichever comes first.",
+                                           "sources":  [
+                                                           "https://training.gov.au/training/details/MSFGN2001/unitdetails",
+                                                           "https://training.gov.au/assets/MSF/MSF30322_R2.xml",
+                                                           "https://www.asqa.gov.au/rtos/change-rto-scope/when-training-products-change/keeping-course-structure-relevant"
+                                                       ]
+                                       }
                   },
                   {
                       "code":  "MSFGN3005",
@@ -193,7 +191,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  5,
+                      "sequence":  7,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -208,7 +206,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  6,
+                      "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -223,7 +221,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  7,
+                      "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -238,7 +236,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  8,
+                      "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -253,7 +251,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  3,
-                      "sequence":  9,
+                      "sequence":  12,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -268,7 +266,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  3,
-                      "sequence":  10,
+                      "sequence":  13,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -283,7 +281,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  3,
-                      "sequence":  11,
+                      "sequence":  14,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -298,7 +296,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  4,
-                      "sequence":  12,
+                      "sequence":  15,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -312,8 +310,8 @@
                       "title":  "Determine and document requirements for cabinetry installation",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  6,
-                      "sequence":  13,
+                      "cluster":  5,
+                      "sequence":  20,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -327,8 +325,8 @@
                       "title":  "Fabricate cabinetry",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  6,
-                      "sequence":  14,
+                      "cluster":  5,
+                      "sequence":  21,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -342,8 +340,8 @@
                       "title":  "Install cabinetry",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  7,
-                      "sequence":  15,
+                      "cluster":  6,
+                      "sequence":  22,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -357,8 +355,8 @@
                       "title":  "Prepare for cabinetry installation",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  6,
-                      "sequence":  16,
+                      "cluster":  5,
+                      "sequence":  19,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -372,8 +370,8 @@
                       "title":  "Plan kitchen and bathroom projects",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  7,
-                      "sequence":  17,
+                      "cluster":  6,
+                      "sequence":  23,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -388,7 +386,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  18,
+                      "sequence":  9,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -402,8 +400,8 @@
                       "title":  "Produce computer-aided line and component production drawings",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  5,
-                      "sequence":  19,
+                      "cluster":  4,
+                      "sequence":  18,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -417,8 +415,8 @@
                       "title":  "Deliver and monitor a service to customers",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  8,
-                      "sequence":  20,
+                      "cluster":  6,
+                      "sequence":  25,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -433,7 +431,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  4,
-                      "sequence":  21,
+                      "sequence":  16,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -448,7 +446,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  22,
+                      "sequence":  10,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -462,8 +460,8 @@
                       "title":  "Organise on-site work",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  7,
-                      "sequence":  23,
+                      "cluster":  6,
+                      "sequence":  24,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -478,7 +476,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  24,
+                      "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -493,7 +491,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  25,
+                      "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -513,16 +511,21 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\1.13 TAS MSF30322 Certificate III in Cabinet Making and timber technology.pdf",
-                   "tasSha256":  "3CDE0863363111B6DFDD7A08586523A1D470131326B8DCA5F5DC7D1BF1DF6A54",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\ACI-MSF30322.docx",
+                   "tasSha256":  "2F20CB8B51753D4D01AAFF745EE2F8780D58045B5ED34F246E9D92D4B722790D",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:43Z"
+                   "generatedUtc":  "2026-09-08T00:41:43Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "An Adelaide Construction Institute course whose units carry MSF, MSM, CPC and BSB prefixes. NO UPDATED STRATEGY WAS SUPPLIED in the September 2026 batch, so this record still reads the 2025 PDF."
               ],
     "openItems":  [
-                      "BLOCKING FOR ANY BUILD - MSFGN2001 Make measurements and calculations is SUPERSEDED on training.gov.au. It sits in Cluster 2 as a core unit. Transition to the superseding unit before building or delivering against it.",
+                      "WATCH, REVIEW BY 12 MARCH 2027 - MSFGN2001 Make measurements and calculations was superseded on training.gov.au on 12 March 2026 by MSFOPS201, which is flagged EQUIVALENT, so it is on scope automatically and no application is needed. It is NOT a blocker. MSF30322 has not been reissued since Release 2 of 21 December 2022 and that release still names MSFGN2001 as one of its eight core units, so it continues to be delivered as part of this qualification - but never as a standalone enrolment, where the current unit must be used. Every other provider checked on 8 September 2026 is in the same position. Build against MSFGN2001. Transition to MSFOPS201 when the qualification is reissued, or by the review date, whichever comes first - see the supersession block on the unit for the full ruling.",
                       "The assessment skill Resolve-BrandVariant maps CPC to the construction variant and throws on an unmapped package. MSF and MSM are unmapped, so an MSF unit cannot resolve a trading name. assets/providers.json records MSF and MSM as construction; the assessment skill needs the same mapping."
-                  ]
+                  ],
+    "retired":  {
+                    "on":  "2026-09-09",
+                    "reason":  "Course discontinued by the RTO, 9 September 2026. Cabinet making and timber technology is no longer offered."
+                }
 }

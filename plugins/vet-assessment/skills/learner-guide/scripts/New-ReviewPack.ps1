@@ -540,7 +540,10 @@ function New-AllowListText {
     $o.Add('')
 
     $mk = @($Mirror.Keys | Sort-Object)
-    if ($TopicNumber -gt 0) { $mk = @($mk | Where-Object { $_ -match ('^' + $TopicNumber + '\.') }) }
+    #  The topic number goes into the regex engine, so it is escaped like any
+    #  other domain value; the '\.' after it is the boundary that keeps Topic 1's
+    #  clearances out of Topic 11's ('^1\.' cannot match '11.2.3').
+    if ($TopicNumber -gt 0) { $mk = @($mk | Where-Object { $_ -match ('^' + [regex]::Escape([string]$TopicNumber) + '\.') }) }
     $o.Add(("MIRROR CLEARANCES (slot: reason) - {0} shown of {1} in the registry" -f $mk.Count, $Mirror.Count))
     if ($mk.Count -eq 0) { $o.Add('  (none)') }
     foreach ($k in $mk) { $o.Add(("  {0}: {1}" -f $k, $Mirror[$k])) }
@@ -755,7 +758,11 @@ function Invoke-ReviewPack {
 
     foreach ($req in @('guideExtract', 'deckExtract', 'packDir', 'figureSheet', 'deckPlan', 'unitExtract')) {
         if (-not $p[$req] -or -not (Test-Path -LiteralPath $p[$req])) {
-            $looked = @($in.How | Where-Object { $_ -like ($req + ':*') }) -join ' '
+            #  Resolve-ReviewInput writes each How line as "<key>: <what it did>",
+            #  so this is a start-anchored match on the key. The key is escaped
+            #  before it enters the engine and the ':' is the boundary, so a key
+            #  can never pick up the How line of a key it is a prefix of.
+            $looked = @($in.How | Where-Object { $_ -match ('^' + [regex]::Escape($req) + ':') }) -join ' '
             $result.Errors.Add(("required input '{0}' is missing ({1}). A pack cut without it would hand the reviewer less than the checklist requires and say nothing." -f $req, $looked))
         }
     }
@@ -953,8 +960,24 @@ function Invoke-ReviewPack {
             $refs = @($topicRefs[$n])
             $assignedRefs = @($refs | Sort-Object Kind, Number | ForEach-Object { ($_.Ref -replace '\s*\([a-z0-9]+\)\s*$', '').Trim() } | Select-Object -Unique)
             foreach ($ad in $assessorDocs) {
+                #  WHICH LEARNER TOOL IS THIS ASSESSOR GUIDE THE GUIDE TO? The
+                #  answer decides which task regions are cut into this pack, so a
+                #  bare '*stem*' containment is not good enough twice over. The
+                #  stem is a domain value - a document name off the disk - and it
+                #  went into the matcher unescaped; and containment with no
+                #  boundary lets a stem match INSIDE a longer name, so
+                #  'UNIT_Knowledge' claims 'Assessor_Guide_UNIT_Knowledge_Part2'
+                #  and the guide is sliced to the wrong tool's tasks. Match the
+                #  stem as a WHOLE delimited component (Assessor_Guide_<stem> is
+                #  the convention both the fixture and the shipped corpus use),
+                #  and where two stems both qualify take the LONGEST rather than
+                #  whichever the corpus happened to sort first.
                 $learnerStem = $null
-                foreach ($ld in $learnerDocs) { if ($ad.Name -like ('*' + $ld.Name + '*')) { $learnerStem = $ld.Name; break } }
+                foreach ($ld in $learnerDocs) {
+                    if ($ad.Name -match ('(?:^|[^A-Za-z0-9])' + [regex]::Escape($ld.Name) + '(?:[^A-Za-z0-9]|$)')) {
+                        if ($null -eq $learnerStem -or $ld.Name.Length -gt $learnerStem.Length) { $learnerStem = $ld.Name }
+                    }
+                }
                 $wanted = @($refs | Where-Object { $_.DocStem -and $learnerStem -and $_.DocStem -eq $learnerStem })
                 if (-not $learnerStem) { $result.Notes.Add(("{0}: assessor extract matches no learner extract by name, so no task can be assigned to it; it is sliced to nothing" -f $ad.Name)) }
                 $slice = New-AssessorSliceText -Doc $ad -Regions $assessorRegions[$ad.Name] -Wanted $wanted -TopicNumber $n -LearnerStem $(if ($learnerStem) { $learnerStem + '.txt' } else { '(no learner document matched by name)' })

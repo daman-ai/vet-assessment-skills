@@ -1,11 +1,10 @@
 ﻿<#
-    Finish-Documents.ps1 - Stage 8: build the Contents, export both PDFs, and
-    believe the FILESYSTEM about what happened.
+    Finish-Documents.ps1 - Stage 7b builds the Contents; Stage 8 proves the
+    delivered artefacts are the ones the gates judged, and believes the
+    FILESYSTEM about what happened.
 
-    Promoted from a build-directory copy. The Word work is unchanged in
-    substance; what is added is a concurrent PowerPoint export in its own
-    process, and a byte-level verification of both PDFs before either is
-    reported as success.
+    The deliverables are the .docx and the .pptx. Nothing here writes any other
+    rendition of them.
 
     WHY THIS IS CAREFUL. On this machine a .docx carrying live PAGE and NUMPAGES
     footer fields together with a large number of drawing objects has hung Word
@@ -25,15 +24,16 @@
     Contents, and it is all the Contents needs.
 
     A COM ERROR IS NOT PROOF THE WORK DID NOT HAPPEN. Word on this machine
-    reliably completes the TOC update, the save and the export, and THEN dies at
-    teardown with RPC_E_DISCONNECTED. The copy this replaces once believed the
-    exception, reported FAILED, and a correct 383-page PDF was deleted and
-    re-exported twice. So the verdict is read from the filesystem: the PDF must
-    exist, must be newer than both the document and the moment this run began,
-    must end in %%EOF, and must carry a page tree whose /Count agrees with what
-    the application measured. A PDF that passes all of that is a success
-    whatever the exception said; one that fails any of it is a failure whatever
-    the application said.
+    reliably completes the TOC update and the save, and THEN dies at teardown
+    with RPC_E_DISCONNECTED. An earlier copy of this script believed the
+    exception and reported FAILED twice over work that had in fact completed -
+    a correct 383-page result was thrown away on the strength of it. So the
+    verdict is read from the filesystem: the artefact must still hash to what
+    the 7c extract stamps, must still open as an OOXML package carrying its
+    main part, and any number reported must be one the application actually
+    returned. An artefact that passes all of that is a success whatever the
+    exception said; one that fails any of it is a failure whatever the
+    application said.
 
     WORD IS UNRELIABLE AGAINST ONEDRIVE-SYNCED PATHS. Documents.Open silently
     remaps FullName to the SharePoint URL and Save then fails "read-only" - while
@@ -42,10 +42,10 @@
     and reports the remap if Word does it anyway. Run it on local temp copies
     and copy the verified files back.
 
-    THE TWO EXPORTS RUN CONCURRENTLY. Word and PowerPoint are different
+    THE TWO READS RUN CONCURRENTLY. Word and PowerPoint are different
     applications with no shared state, and each is driven from its own
-    Start-Job process, so the deck's PDF is being written while Word is still
-    updating the Contents. The copy this replaces ran them serially.
+    Start-Job process, so the deck is being measured while Word is still
+    measuring the guide. The copy this replaces ran them serially.
 
     KILL RATHER THAN HANG. A job that overruns -TimeoutMinutes is stopped and
     the Office processes that started after this run began are killed. Only
@@ -54,37 +54,38 @@
 
     TWO MODES, AND THE SPLIT IS THE WHOLE POINT.
 
-    This script used to update the Contents and export both PDFs in one pass at
-    Stage 8 - AFTER the last gate. Updating a table of contents SAVES the
-    document: every delivered .docx was therefore rewritten after the gate that
-    judged it, and on the reference build the deck was rewritten 92 seconds
-    after the last gate too. Nothing downstream could tell a Contents rebuild
-    from a content edit, because the evidence is the same - a newer file.
+    This script used to update the Contents at Stage 8 - AFTER the last gate.
+    Updating a table of contents SAVES the document: every delivered .docx was
+    therefore rewritten after the gate that judged it, and on the reference
+    build the deck was rewritten 92 seconds after the last gate too. Nothing
+    downstream could tell a Contents rebuild from a content edit, because the
+    evidence is the same - a newer file.
 
       -UpdateContents   Stage 7b, AFTER placement and BEFORE the 7c re-gate.
                         Opens the guide read-WRITE, updates only the tables of
                         contents, saves, closes. The last write to the .docx.
                         7c then gates the document as it will ship.
 
-      -ExportPdfs       Stage 8. Opens both artefacts READ-ONLY, exports, and
-                        verifies each PDF against what the application
-                        measured. It cannot mutate either artefact, and it
-                        refuses to export one whose bytes are not the bytes
-                        7c judged (-ExtractDir, below).
+      -VerifyDelivery   Stage 8. Opens both artefacts READ-ONLY, measures each,
+                        and reports pages, words, tables of contents and slides
+                        as the application returned them. It cannot mutate
+                        either artefact, and it refuses to deliver one whose
+                        bytes are not the bytes 7c judged (-ExtractDir, below).
 
     Exactly one mode per run. Running both in one pass is the arrangement this
     change exists to remove, so there is no default that does both.
 
-    FRESHNESS IS PROVED, NOT ASSUMED. -ExportPdfs requires -ExtractDir: the
+    FRESHNESS IS PROVED, NOT ASSUMED. -VerifyDelivery requires -ExtractDir: the
     directory holding the 7c text extracts, whose SOURCE line carries the
-    sha256 of the package bytes the gate read. Export recomputes that hash and
-    refuses by name when it differs. A missing -ExtractDir is a REFUSAL naming
-    the parameter, never a silent skip - "the artefact I exported is the
-    artefact the gate judged" is the claim Stage 8 exists to make.
+    sha256 of the package bytes the gate read. Stage 8 recomputes that hash,
+    before the open and again after it, and refuses by name when it differs. A
+    missing -ExtractDir is a REFUSAL naming the parameter, never a silent skip -
+    "the artefact I am delivering is the artefact the gate judged" is the claim
+    Stage 8 exists to make.
 
     Usage
       Finish-Documents.ps1 -UpdateContents -Guide <path.docx> [-TimeoutMinutes 12]
-      Finish-Documents.ps1 -ExportPdfs -Guide <path.docx> -Deck <path.pptx> -ExtractDir <dir>
+      Finish-Documents.ps1 -VerifyDelivery -Guide <path.docx> -Deck <path.pptx> -ExtractDir <dir>
       Finish-Documents.ps1 -SelfTest        no Office
 
     PS 5.1. ASCII only in this file. UTF-8 BOM required on disk.
@@ -98,10 +99,10 @@ param(
     [string] $Deck,
     #  Stage 7b: Word updates the tables of contents and saves. Guide only.
     [switch] $UpdateContents,
-    #  Stage 8: both artefacts opened READ-ONLY and exported.
-    [switch] $ExportPdfs,
+    #  Stage 8: both artefacts opened READ-ONLY, measured, and proved fresh.
+    [switch] $VerifyDelivery,
     #  Where the 7c extracts live. Their SOURCE line carries the sha256 of the
-    #  package the gate read; -ExportPdfs refuses without it.
+    #  package the gate read; -VerifyDelivery refuses without it.
     [string] $ExtractDir,
     [int] $TimeoutMinutes = 12,
     [switch] $SelfTest
@@ -110,73 +111,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 # ---------------------------------------------------------------------------
-# PDF verification - bytes, not beliefs
-# ---------------------------------------------------------------------------
-
-function Test-PdfFile {
-    <#  Is this a complete PDF, and does its page tree say what it should?
-
-        Reads the file as Latin-1 so every byte maps to one character and the
-        regexes see the raw dictionaries. Word and PowerPoint on this machine
-        write the page-tree root and the page objects as plain (uncompressed)
-        objects even though they also use object streams, which is why /Count is
-        reachable by pattern. Where a producer hides the page objects inside
-        object streams the visible-page cross-check is a warning, not a failure;
-        the root /Count is the number that must exist.  #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][string] $Path,
-        [int] $ExpectedPages = 0
-    )
-    $problems = New-Object System.Collections.Generic.List[string]
-    $warnings = New-Object System.Collections.Generic.List[string]
-    $count = 0
-    $visible = 0
-    $bytes = 0
-
-    if (-not (Test-Path -LiteralPath $Path)) {
-        $problems.Add('the PDF does not exist')
-        return [pscustomobject]@{ Ok = $false; Problems = @($problems); Warnings = @(); PageCount = 0; VisiblePages = 0; Bytes = 0 }
-    }
-    $raw = [System.IO.File]::ReadAllBytes((Resolve-Path -LiteralPath $Path).Path)
-    $bytes = $raw.Length
-    if ($bytes -lt 64) {
-        $problems.Add("the file is only $bytes byte(s)")
-        return [pscustomobject]@{ Ok = $false; Problems = @($problems); Warnings = @(); PageCount = 0; VisiblePages = 0; Bytes = $bytes }
-    }
-    $s = [System.Text.Encoding]::GetEncoding(28591).GetString($raw)
-
-    if (-not $s.StartsWith('%PDF-')) { $problems.Add('no %PDF- header') }
-
-    $tail = $s.Substring([Math]::Max(0, $s.Length - 2048))
-    if ($tail.TrimEnd() -notmatch '%%EOF\s*$') { $problems.Add('the file does not end in %%EOF - the writer did not finish, or the file is truncated') }
-
-    #  The page tree root. Either key order occurs in the wild; take the largest
-    #  /Count seen on a /Pages node, which is the root's.
-    foreach ($m in [regex]::Matches($s, '/Type\s*/Pages\b[^>]*?/Count\s+(\d+)')) { $n = [int]$m.Groups[1].Value; if ($n -gt $count) { $count = $n } }
-    foreach ($m in [regex]::Matches($s, '/Count\s+(\d+)[^>]*?/Type\s*/Pages\b')) { $n = [int]$m.Groups[1].Value; if ($n -gt $count) { $count = $n } }
-    if ($count -le 0) { $problems.Add('no page-tree root (/Type /Pages with a /Count) is visible - the document structure was never written') }
-
-    $visible = ([regex]::Matches($s, '/Type\s*/Page\b')).Count
-    if ($count -gt 0 -and $visible -gt 0 -and $visible -ne $count) {
-        $warnings.Add("page tree says $count page(s) but $visible page object(s) are visible - some may sit inside object streams")
-    }
-    if ($ExpectedPages -gt 0 -and $count -gt 0 -and $count -ne $ExpectedPages) {
-        $problems.Add("the page tree carries $count page(s) but the application measured $ExpectedPages - this is not the export of the document as it now stands")
-    }
-
-    [pscustomobject]@{
-        Ok           = ($problems.Count -eq 0)
-        Problems     = @($problems)
-        Warnings     = @($warnings)
-        PageCount    = $count
-        VisiblePages = $visible
-        Bytes        = $bytes
-    }
-}
-
-# ---------------------------------------------------------------------------
-# Freshness - the artefact I am exporting IS the artefact the gate judged
+# Freshness - the artefact I am delivering IS the artefact the gate judged
 # ---------------------------------------------------------------------------
 
 function Get-ExtractSourceHash {
@@ -216,7 +151,7 @@ function Find-ArtefactExtract {
     }
     return [pscustomobject]@{ Found = $false; Path = ''
         Stamp = [pscustomobject]@{ Ok = $false; Hash = ''; Source = ''
-            Problem = ("no extract in {0} names {1} on its SOURCE line ({2} extract(s) read). Stage 8 cannot claim the artefact it is exporting is the one 7c judged." -f $Dir, $leaf, $cands.Count) } }
+            Problem = ("no extract in {0} names {1} on its SOURCE line ({2} extract(s) read). Stage 8 cannot claim the artefact it is delivering is the one 7c judged." -f $Dir, $leaf, $cands.Count) } }
 }
 
 function Test-ArtefactFresh {
@@ -237,7 +172,7 @@ function Test-ArtefactFresh {
     $actual = (Get-FileHash -LiteralPath $Artefact -Algorithm SHA256).Hash.ToLower()
     if ($actual -ne $hit.Stamp.Hash) {
         return [pscustomobject]@{ Ok = $false; Extract = $hit.Path; Expected = $hit.Stamp.Hash; Actual = $actual
-            Problem = ("{0} has been rewritten since 7c read it: the extract {1} describes sha256 {2}, the file on disk is {3}. Stage 8 exports the artefact the gates judged, or it exports nothing." -f (Split-Path $Artefact -Leaf), (Split-Path $hit.Path -Leaf), $hit.Stamp.Hash.Substring(0, 12), $actual.Substring(0, 12)) }
+            Problem = ("{0} has been rewritten since 7c read it: the extract {1} describes sha256 {2}, the file on disk is {3}. Stage 8 delivers the artefact the gates judged, or it delivers nothing." -f (Split-Path $Artefact -Leaf), (Split-Path $hit.Path -Leaf), $hit.Stamp.Hash.Substring(0, 12), $actual.Substring(0, 12)) }
     }
     return [pscustomobject]@{ Ok = $true; Problem = ''; Expected = $hit.Stamp.Hash; Actual = $actual; Extract = $hit.Path }
 }
@@ -357,7 +292,7 @@ $script:WordContentsBody = {
 #  here saves, and the document is closed with 0 (do not save changes) even on
 #  the error path. A Stage 8 that could write is a Stage 8 that can mutate
 #  after the last gate.
-$script:WordExportBody = {
+$script:WordReadBody = {
     param($p)
     $w = $null
     try {
@@ -371,10 +306,8 @@ $script:WordExportBody = {
         #  NOT updated here. If the Contents is stale at Stage 8 the 7b step
         #  did not run, and that is a finding, not something to fix silently.
         $pages = $d.ComputeStatistics(2)
-        $pdf = [System.IO.Path]::ChangeExtension($p, '.pdf')
-        $d.ExportAsFixedFormat($pdf, 17)
         $d.Close(0)
-        [pscustomobject]@{ Ok = $true; Pages = $pages; Words = $words; Toc = $tocCount; Remapped = $remapped; Pdf = $pdf; ReadOnly = $true }
+        [pscustomobject]@{ Ok = $true; Pages = $pages; Words = $words; Toc = $tocCount; Remapped = $remapped; ReadOnly = $true }
     }
     catch { [pscustomobject]@{ Ok = $false; Error = $_.Exception.Message } }
     finally { if ($w) { try { $w.Quit() } catch { } } }
@@ -388,10 +321,8 @@ $script:PowerPointBody = {
         # ReadOnly, not Untitled, no window. The deck is not modified here.
         $pr = $pp.Presentations.Open($p, $true, $false, $false)
         $slides = $pr.Slides.Count
-        $pdf = [System.IO.Path]::ChangeExtension($p, '.pdf')
-        $pr.SaveAs($pdf, 32)
         $pr.Close()
-        [pscustomobject]@{ Ok = $true; Slides = $slides; Pdf = $pdf }
+        [pscustomobject]@{ Ok = $true; Slides = $slides }
     }
     catch { [pscustomobject]@{ Ok = $false; Error = $_.Exception.Message } }
     finally { if ($pp) { try { $pp.Quit() } catch { } } }
@@ -401,37 +332,38 @@ $script:PowerPointBody = {
 # The verdict - from the filesystem
 # ---------------------------------------------------------------------------
 
-function Get-ExportVerdict {
-    <#  Did the export land, whatever the application said? The PDF must exist,
-        postdate both the run start and the source file, and pass Test-PdfFile
-        against the page count the application measured where it gave one.  #>
+function Get-DeliveryVerdict {
+    <#  Is this a deliverable artefact, whatever the application said?
+
+        It must exist, carry bytes, and still open as an OOXML package with its
+        main part present - which is what catches a half-written or torn file
+        that every other check would report as delivered.
+
+        Deliberately NOT a freshness rule. Stage 8 writes nothing, so a
+        delivered artefact SHOULD predate this run; freshness is proved by
+        sha256 against the 7c extract, not by a modification time, exactly as
+        Test-ArtefactFresh argues.  #>
     param(
         [Parameter(Mandatory)][string] $Source,
-        [Parameter(Mandatory)][datetime] $Started,
-        [int] $ExpectedPages = 0
+        [Parameter(Mandatory)][string] $MainPart
     )
-    $pdf  = [System.IO.Path]::ChangeExtension($Source, '.pdf')
-    $srcF = Get-Item -LiteralPath $Source -ErrorAction SilentlyContinue
-    $pdfF = Get-Item -LiteralPath $pdf -ErrorAction SilentlyContinue
     $problems = New-Object System.Collections.Generic.List[string]
-    if (-not $pdfF) { $problems.Add('no PDF was written') }
+    $fi = Get-Item -LiteralPath $Source -ErrorAction SilentlyContinue
+    $parts = 0
+    if (-not $fi) { $problems.Add('the artefact does not exist') }
     else {
-        if ($pdfF.LastWriteTime -lt $Started.AddSeconds(-2)) { $problems.Add(("the PDF predates this run ({0}) - it is a stale file from an earlier export" -f $pdfF.LastWriteTime.ToString('HH:mm:ss'))) }
-        if ($srcF -and $pdfF.LastWriteTime -lt $srcF.LastWriteTime) { $problems.Add(("the PDF ({0}) is OLDER than the document ({1}) - it is stale" -f $pdfF.LastWriteTime.ToString('HH:mm:ss'), $srcF.LastWriteTime.ToString('HH:mm:ss'))) }
-    }
-    $t = $null
-    if ($pdfF) {
-        $t = Test-PdfFile -Path $pdf -ExpectedPages $ExpectedPages
-        foreach ($x in $t.Problems) { $problems.Add($x) }
+        if ($fi.Length -le 0) { $problems.Add('the artefact is zero bytes') }
+        else {
+            $pk = Test-OoxmlPackage -Path $Source -MainPart $MainPart
+            if (-not $pk.Ok) { $problems.Add($pk.Problem) } else { $parts = $pk.Parts }
+        }
     }
     [pscustomobject]@{
-        Ok        = ($problems.Count -eq 0)
-        Pdf       = $pdf
-        Problems  = @($problems)
-        Warnings  = $(if ($t) { @($t.Warnings) } else { @() })
-        PageCount = $(if ($t) { $t.PageCount } else { 0 })
-        Bytes     = $(if ($pdfF) { $pdfF.Length } else { 0 })
-        Written   = $(if ($pdfF) { $pdfF.LastWriteTime } else { $null })
+        Ok       = ($problems.Count -eq 0)
+        Problems = @($problems)
+        Parts    = $parts
+        Bytes    = $(if ($fi) { $fi.Length } else { 0 })
+        Written  = $(if ($fi) { $fi.LastWriteTime } else { $null })
     }
 }
 
@@ -460,59 +392,38 @@ if ($SelfTest) {
     $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ('fd_selftest_' + [Guid]::NewGuid().ToString('N').Substring(0, 8))
     New-Item -ItemType Directory -Force -Path $tmp | Out-Null
     try {
-        $latin1 = [System.Text.Encoding]::GetEncoding(28591)
-        function New-MinimalPdf {
-            param([int] $Count = 1, [int] $PageObjects = 1)
-            $sb = New-Object System.Text.StringBuilder
-            [void]$sb.Append("%PDF-1.4`n")
-            [void]$sb.Append("1 0 obj`n<< /Type /Catalog /Pages 2 0 R >>`nendobj`n")
-            $kids = @(); for ($i = 0; $i -lt $PageObjects; $i++) { $kids += ("{0} 0 R" -f (3 + $i)) }
-            [void]$sb.Append(("2 0 obj`n<< /Type /Pages /Kids [{0}] /Count {1} >>`nendobj`n" -f ($kids -join ' '), $Count))
-            for ($i = 0; $i -lt $PageObjects; $i++) {
-                [void]$sb.Append(("{0} 0 obj`n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 200] >>`nendobj`n" -f (3 + $i)))
+        # ---- the delivery verdict reads the FILESYSTEM, not the application
+        Add-Type -AssemblyName System.IO.Compression -ErrorAction SilentlyContinue
+        function New-TinyPackage {
+            param([string] $Path, [string] $Part = 'word/document.xml')
+            $fs = [System.IO.File]::Open($Path, 'Create')
+            try {
+                $za = New-Object System.IO.Compression.ZipArchive($fs, 'Create')
+                try {
+                    $en = $za.CreateEntry($Part)
+                    $sw = New-Object System.IO.StreamWriter($en.Open())
+                    $sw.Write('<w:document/>'); $sw.Flush(); $sw.Dispose()
+                }
+                finally { $za.Dispose() }
             }
-            $xrefAt = $sb.Length
-            $n = 3 + $PageObjects
-            [void]$sb.Append("xref`n0 $n`n0000000000 65535 f `n")
-            for ($i = 1; $i -lt $n; $i++) { [void]$sb.Append("0000000010 00000 n `n") }
-            [void]$sb.Append("trailer`n<< /Size $n /Root 1 0 R >>`nstartxref`n$xrefAt`n%%EOF`n")
-            return $sb.ToString()
+            finally { $fs.Dispose() }
         }
-        $good = Join-Path $tmp 'good.pdf'
-        [System.IO.File]::WriteAllBytes($good, $latin1.GetBytes((New-MinimalPdf -Count 1 -PageObjects 1)))
-        $t = Test-PdfFile -Path $good -ExpectedPages 1
-        if ($t.Ok -and $t.PageCount -eq 1) { Ok 'a minimal valid PDF is accepted, page tree /Count 1' } else { Bad ("good pdf rejected: " + ($t.Problems -join '; ')) }
+        $art = Join-Path $tmp 'artefact.docx'
+        New-TinyPackage -Path $art
+        $v = Get-DeliveryVerdict -Source $art -MainPart 'word/document.xml'
+        if ($v.Ok -and $v.Bytes -gt 0 -and $v.Written) { Ok 'a delivered package is verified from the file: bytes, write time and main part' } else { Bad ("delivery verdict: " + ($v.Problems -join '; ')) }
 
-        $noEof = Join-Path $tmp 'noeof.pdf'
-        $txt = New-MinimalPdf -Count 1 -PageObjects 1
-        $cut = $txt.Substring(0, $txt.IndexOf('%%EOF'))
-        [System.IO.File]::WriteAllBytes($noEof, $latin1.GetBytes($cut))
-        $t2 = Test-PdfFile -Path $noEof
-        if (-not $t2.Ok -and ($t2.Problems -join ' ') -match '%%EOF') { Ok 'a file without %%EOF is rejected, naming %%EOF' } else { Bad ("truncated pdf: ok=$($t2.Ok) " + ($t2.Problems -join '; ')) }
+        $v2 = Get-DeliveryVerdict -Source $art -MainPart 'ppt/presentation.xml'
+        if (-not $v2.Ok -and ($v2.Problems -join ' ') -match 'ppt/presentation\.xml') { Ok 'and a package missing its main part FAILS, naming the part' } else { Bad 'wrong main part not detected' }
 
-        $wrong = Join-Path $tmp 'wrongcount.pdf'
-        [System.IO.File]::WriteAllBytes($wrong, $latin1.GetBytes((New-MinimalPdf -Count 3 -PageObjects 1)))
-        $t3 = Test-PdfFile -Path $wrong -ExpectedPages 1
-        if (-not $t3.Ok -and ($t3.Problems -join ' ') -match 'measured 1') { Ok 'a page tree that disagrees with the application''s count is rejected' } else { Bad ("count mismatch: ok=$($t3.Ok) " + ($t3.Problems -join '; ')) }
-        if (@($t3.Warnings).Count -eq 1) { Ok 'visible page objects against /Count is cross-checked (warning)' } else { Bad 'no visible-page warning' }
+        $gone = Join-Path $tmp 'missing.docx'
+        $v3 = Get-DeliveryVerdict -Source $gone -MainPart 'word/document.xml'
+        if (-not $v3.Ok -and ($v3.Problems -join ' ') -match 'does not exist') { Ok 'an artefact that is not on disk FAILS rather than being reported delivered' } else { Bad 'missing artefact not detected' }
 
-        $noPages = Join-Path $tmp 'nopages.pdf'
-        [System.IO.File]::WriteAllBytes($noPages, $latin1.GetBytes("%PDF-1.4`n1 0 obj << /Type /Catalog >> endobj`n" + ('x' * 100) + "`ntrailer << /Size 2 >>`n%%EOF`n"))
-        $t4 = Test-PdfFile -Path $noPages
-        if (-not $t4.Ok -and ($t4.Problems -join ' ') -match 'page-tree root') { Ok 'a PDF with no page tree is rejected' } else { Bad ("no-pages: " + ($t4.Problems -join '; ')) }
-
-        # ---- the real exports on this machine, if any are beside a delivered build: not touched here.
-
-        # ---- the export verdict reads the filesystem: a PDF older than the run is stale
-        $doc = Join-Path $tmp 'X.docx'
-        [System.IO.File]::WriteAllText($doc, 'not really a docx')
-        [System.IO.File]::Copy($good, (Join-Path $tmp 'X.pdf'), $true)
-        (Get-Item (Join-Path $tmp 'X.pdf')).LastWriteTime = (Get-Date).AddHours(-1)
-        $v = Get-ExportVerdict -Source $doc -Started (Get-Date) -ExpectedPages 1
-        if (-not $v.Ok -and ($v.Problems -join ' ') -match 'predates this run') { Ok 'a PDF that predates the run is reported stale, however valid its bytes' } else { Bad ("stale verdict: ok=$($v.Ok) " + ($v.Problems -join '; ')) }
-        (Get-Item (Join-Path $tmp 'X.pdf')).LastWriteTime = (Get-Date).AddSeconds(5)
-        $v2 = Get-ExportVerdict -Source $doc -Started (Get-Date).AddSeconds(-1) -ExpectedPages 1
-        if ($v2.Ok -and $v2.PageCount -eq 1) { Ok 'a fresh, valid PDF with the measured page count is a verified success' } else { Bad ("fresh verdict: " + ($v2.Problems -join '; ')) }
+        $tornArt = Join-Path $tmp 'torn.docx'
+        [System.IO.File]::WriteAllBytes($tornArt, ([System.IO.File]::ReadAllBytes($art))[0..40])
+        $v4 = Get-DeliveryVerdict -Source $tornArt -MainPart 'word/document.xml'
+        if (-not $v4.Ok) { Ok 'a half-written package FAILS rather than being reported delivered' } else { Bad 'a truncated package passed' }
 
         # ---- the watchdog stops an overrunning job and kills nothing it did not start
         $quick = Start-OfficeJob -Name 'quick' -Body { param($x) [pscustomobject]@{ Ok = $true; Pages = $x } } -ArgumentList @(7) -ProcessName 'NoSuchProcess_FinishSelfTest'
@@ -523,7 +434,7 @@ if ($SelfTest) {
         if (-not $res['slow'].Ok -and $res['slow'].TimedOut -and $sw.Elapsed.TotalSeconds -lt 30) { Ok ("the watchdog stops an overrunning job rather than hanging ({0:N1}s)" -f $sw.Elapsed.TotalSeconds) } else { Bad ("slow job: " + ($res['slow'] | Out-String)) }
         if (@(Get-Job -Name 'slow' -ErrorAction SilentlyContinue).Count -eq 0) { Ok 'the stopped job is removed' } else { Bad 'stopped job left behind'; Get-Job -Name 'slow' | Remove-Job -Force }
 
-        # ---- FRESHNESS: the artefact exported IS the artefact 7c judged
+        # ---- FRESHNESS: the artefact delivered IS the artefact 7c judged
         $ex = Join-Path $tmp 'extracts'
         New-Item -ItemType Directory -Force -Path $ex | Out-Null
         $art = Join-Path $tmp 'Guide.docx'
@@ -555,7 +466,7 @@ if ($SelfTest) {
         $orphan = Join-Path $tmp 'Deck.pptx'
         [System.IO.File]::WriteAllText($orphan, 'deck bytes')
         $f3 = Test-ArtefactFresh -Artefact $orphan -Dir $ex
-        if (-not $f3.Ok -and $f3.Problem -match 'Deck\.pptx') { Ok 'an artefact no extract names is REFUSED by name, never exported on trust' }
+        if (-not $f3.Ok -and $f3.Problem -match 'Deck\.pptx') { Ok 'an artefact no extract names is REFUSED by name, never delivered on trust' }
         else { Bad ("orphan artefact: ok=$($f3.Ok) " + $f3.Problem) }
 
         # ---- the package check a save has to survive
@@ -587,16 +498,16 @@ if ($SelfTest) {
         $z3 = Test-OoxmlPackage -Path $torn -MainPart 'word/document.xml'
         if (-not $z3.Ok) { Ok 'a half-written package FAILS rather than being reported saved' } else { Bad 'a truncated zip passed' }
 
-        # ---- exactly one mode, and -ExportPdfs refuses without -ExtractDir
+        # ---- exactly one mode, and -VerifyDelivery refuses without -ExtractDir
         $me = $PSCommandPath
         $null = & $me -Guide $zipOk -Deck $orphan 6>&1 2>&1
         if ($LASTEXITCODE -eq 2) { Ok 'no mode named: exit 2, and the banner says why there is no both-at-once mode' } else { Bad "no-mode exit $LASTEXITCODE" }
-        $null = & $me -UpdateContents -ExportPdfs -Guide $zipOk -Deck $orphan -ExtractDir $ex 6>&1 2>&1
+        $null = & $me -UpdateContents -VerifyDelivery -Guide $zipOk -Deck $orphan -ExtractDir $ex 6>&1 2>&1
         if ($LASTEXITCODE -eq 2) { Ok 'both modes named: exit 2 - updating the Contents SAVES, and Stage 8 may not write' } else { Bad "both-modes exit $LASTEXITCODE" }
-        $out = & $me -ExportPdfs -Guide $zipOk -Deck $orphan 6>&1 2>&1
-        if ($LASTEXITCODE -eq 2 -and (($out | Out-String -Width 4096) -match 'ExtractDir')) { Ok '-ExportPdfs with no -ExtractDir REFUSES exit 2 and names the parameter' } else { Bad "no-extractdir exit $LASTEXITCODE" }
-        $out = & $me -ExportPdfs -Guide $zipOk -Deck $orphan -ExtractDir $ex 6>&1 2>&1
-        if ($LASTEXITCODE -eq 2 -and (($out | Out-String -Width 4096) -match 'STAGE 8 REFUSED')) { Ok 'and a stale artefact stops Stage 8 BEFORE Office is opened - nothing is exported' } else { Bad ("stale-refusal exit $LASTEXITCODE : " + (($out | Out-String -Width 4096).Trim())) }
+        $out = & $me -VerifyDelivery -Guide $zipOk -Deck $orphan 6>&1 2>&1
+        if ($LASTEXITCODE -eq 2 -and (($out | Out-String -Width 4096) -match 'ExtractDir')) { Ok '-VerifyDelivery with no -ExtractDir REFUSES exit 2 and names the parameter' } else { Bad "no-extractdir exit $LASTEXITCODE" }
+        $out = & $me -VerifyDelivery -Guide $zipOk -Deck $orphan -ExtractDir $ex 6>&1 2>&1
+        if ($LASTEXITCODE -eq 2 -and (($out | Out-String -Width 4096) -match 'STAGE 8 REFUSED')) { Ok 'and a stale artefact stops Stage 8 BEFORE Office is opened - nothing is opened' } else { Bad ("stale-refusal exit $LASTEXITCODE : " + (($out | Out-String -Width 4096).Trim())) }
     }
     finally { Remove-Item -LiteralPath $tmp -Recurse -Force -ErrorAction SilentlyContinue }
     Write-Host ''
@@ -608,8 +519,8 @@ if ($SelfTest) {
     #  this whole file argues against.
     $partial = @(
         'Word COM: $script:WordContentsBody - open read-write, TablesOfContents.Update, Save',
-        'Word COM: $script:WordExportBody - open READ-ONLY, ExportAsFixedFormat',
-        'PowerPoint COM: $script:PowerPointBody - open read-only, SaveAs 32'
+        'Word COM: $script:WordReadBody - open READ-ONLY, ComputeStatistics, TablesOfContents.Count',
+        'PowerPoint COM: $script:PowerPointBody - open READ-ONLY, Slides.Count'
     )
     Write-Host ("  {0} passed, {1} failed" -f $pass, $fail) -ForegroundColor $(if ($fail) { 'Red' } else { 'Green' })
     foreach ($x in $partial) { Write-Host ("  PARTIAL  not run in this harness: {0}" -f $x) -ForegroundColor Yellow }
@@ -624,13 +535,13 @@ if ($SelfTest) {
 
 $modes = @()
 if ($UpdateContents) { $modes += 'UpdateContents' }
-if ($ExportPdfs)     { $modes += 'ExportPdfs' }
+if ($VerifyDelivery) { $modes += 'VerifyDelivery' }
 if ($modes.Count -ne 1) {
     Write-Host ''
-    Write-Host 'Finish-Documents: choose EXACTLY ONE of -UpdateContents or -ExportPdfs.' -ForegroundColor Red
+    Write-Host 'Finish-Documents: choose EXACTLY ONE of -UpdateContents or -VerifyDelivery.' -ForegroundColor Red
     Write-Host '  -UpdateContents  Stage 7b, after placement and BEFORE the 7c re-gate. Word updates the' -ForegroundColor DarkGray
     Write-Host '                   tables of contents and saves. This is the last write to the .docx.' -ForegroundColor DarkGray
-    Write-Host '  -ExportPdfs      Stage 8. Both artefacts opened READ-ONLY and exported, and refused if' -ForegroundColor DarkGray
+    Write-Host '  -VerifyDelivery  Stage 8. Both artefacts opened READ-ONLY and measured, and refused if' -ForegroundColor DarkGray
     Write-Host '                   their bytes are not the bytes the 7c extracts describe.' -ForegroundColor DarkGray
     Write-Host '  There is deliberately no mode that does both: updating the Contents SAVES the document,' -ForegroundColor DarkGray
     Write-Host '  and doing that at Stage 8 rewrote every delivered artefact after the gate that judged it.' -ForegroundColor DarkGray
@@ -700,7 +611,7 @@ if ($mode -eq 'UpdateContents') {
     Write-Host ''
     if ($problems.Count -eq 0) {
         Write-Host ("CONTENTS UPDATED - re-run the 7c gate band against these bytes  ({0}s)" -f [int]((Get-Date) - $started).TotalSeconds) -ForegroundColor Green
-        Write-Host '  Stage 8 will refuse to export any artefact whose sha256 differs from the one 7c stamps into its extract.' -ForegroundColor DarkGray
+        Write-Host '  Stage 8 will refuse any artefact whose sha256 differs from the one 7c stamps into its extract.' -ForegroundColor DarkGray
         exit 0
     }
     Write-Host '  FAILED - the Contents update is not a verified save:' -ForegroundColor Red
@@ -709,18 +620,18 @@ if ($mode -eq 'UpdateContents') {
 }
 
 # ---------------------------------------------------------------------------
-# Stage 8 - export, READ-ONLY, and only what the gates judged
+# Stage 8 - READ-ONLY, and only what the gates judged
 # ---------------------------------------------------------------------------
 
 if (-not (Test-FinishPath -Path $Guide -What 'Guide')) { exit 2 }
 if (-not (Test-FinishPath -Path $Deck  -What 'Deck'))  { exit 2 }
 if (-not $ExtractDir) {
     Write-Host ''
-    Write-Host 'Finish-Documents: -ExportPdfs REFUSES without -ExtractDir.' -ForegroundColor Red
+    Write-Host 'Finish-Documents: -VerifyDelivery REFUSES without -ExtractDir.' -ForegroundColor Red
     Write-Host '  It names the directory holding the 7c text extracts. Their SOURCE line carries the sha256' -ForegroundColor DarkGray
-    Write-Host '  of the package bytes the gate read, and Stage 8 recomputes it before it exports anything.' -ForegroundColor DarkGray
-    Write-Host '  Without it this script can export a PDF, but it cannot say the PDF is of the document the' -ForegroundColor DarkGray
-    Write-Host '  gates passed - which is the only claim Stage 8 exists to make. Supply the directory.' -ForegroundColor DarkGray
+    Write-Host '  of the package bytes the gate read, and Stage 8 recomputes it before it opens anything.' -ForegroundColor DarkGray
+    Write-Host '  Without it this script can measure the files, but it cannot say the files it measured are' -ForegroundColor DarkGray
+    Write-Host '  the documents the gates passed - which is the only claim Stage 8 exists to make.' -ForegroundColor DarkGray
     exit 2
 }
 if (-not (Test-Path -LiteralPath $ExtractDir)) {
@@ -731,13 +642,6 @@ $Guide = (Resolve-Path -LiteralPath $Guide).Path
 $Deck  = (Resolve-Path -LiteralPath $Deck).Path
 $ExtractDir = (Resolve-Path -LiteralPath $ExtractDir).Path
 
-#  Word cannot save to a path longer than 255 characters, and only the PDF
-#  vanishes - the .docx was written by OOXML editing and is unaffected, which
-#  reads as a content bug until the path is measured.
-foreach ($p in @($Guide, $Deck)) {
-    $pdfLen = ([System.IO.Path]::ChangeExtension($p, '.pdf')).Length
-    if ($pdfLen -gt 255) { Write-Host ("  WARNING: the PDF path for {0} is {1} characters; Word fails silently past 255. Use a shorter working path." -f (Split-Path $p -Leaf), $pdfLen) -ForegroundColor Yellow }
-}
 foreach ($p in @($Guide, $Deck)) {
     if (Test-SyncedPath -Path $p) {
         Write-Host ("  WARNING: {0} looks OneDrive-synced. Word remaps a synced path to its SharePoint URL on open. Finish local temp copies and copy the verified files back." -f (Split-Path $p -Leaf)) -ForegroundColor Yellow
@@ -745,7 +649,7 @@ foreach ($p in @($Guide, $Deck)) {
 }
 
 Write-Host ''
-Write-Host 'STAGE 8 FRESHNESS - the artefact exported is the artefact the gates judged' -ForegroundColor Cyan
+Write-Host 'STAGE 8 FRESHNESS - the artefact delivered is the artefact the gates judged' -ForegroundColor Cyan
 $stale = New-Object System.Collections.Generic.List[string]
 foreach ($p in @($Guide, $Deck)) {
     $fr = Test-ArtefactFresh -Artefact $p -Dir $ExtractDir
@@ -754,16 +658,16 @@ foreach ($p in @($Guide, $Deck)) {
 }
 if ($stale.Count -gt 0) {
     Write-Host ''
-    Write-Host 'STAGE 8 REFUSED - nothing was exported. Re-run the 7c band against the bytes on disk, then export.' -ForegroundColor Red
+    Write-Host 'STAGE 8 REFUSED - nothing was opened. Re-run the 7c band against the bytes on disk, then verify.' -ForegroundColor Red
     exit 2
 }
 
 Write-Host ''
-Write-Host ("EXPORT PDFS - Word and PowerPoint READ-ONLY, in parallel, {0} minute watchdog" -f $TimeoutMinutes) -ForegroundColor Cyan
+Write-Host ("VERIFY DELIVERY - Word and PowerPoint READ-ONLY, in parallel, {0} minute watchdog" -f $TimeoutMinutes) -ForegroundColor Cyan
 Write-Host ("  guide: {0}" -f $Guide) -ForegroundColor DarkGray
 Write-Host ("  deck:  {0}" -f $Deck) -ForegroundColor DarkGray
 
-$hw = Start-OfficeJob -Name 'word'       -Body $script:WordExportBody -ArgumentList @($Guide) -ProcessName 'WINWORD'
+$hw = Start-OfficeJob -Name 'word'       -Body $script:WordReadBody   -ArgumentList @($Guide) -ProcessName 'WINWORD'
 $hp = Start-OfficeJob -Name 'powerpoint' -Body $script:PowerPointBody -ArgumentList @($Deck)  -ProcessName 'POWERPNT'
 $res = Wait-OfficeJob -Handles @($hw, $hp) -TimeoutSeconds $timeout
 
@@ -771,11 +675,9 @@ $rc = 0
 
 # ---- guide
 Write-Host ''
-Write-Host 'LEARNER GUIDE - PDF' -ForegroundColor Cyan
+Write-Host 'LEARNER GUIDE' -ForegroundColor Cyan
 $g = $res['word']
-$expectedPages = 0
 if ($g.Ok) {
-    $expectedPages = [int]$g.Pages
     Write-Host ("  Word: opened READ-ONLY, {0} pages, {1} words, {2} table(s) of contents present" -f $g.Pages, $g.Words, $g.Toc) -ForegroundColor Green
     if ([int]$g.Toc -eq 0) { Write-Host '  NOTE: no table of contents in this document - if one is expected, -UpdateContents did not run at 7b' -ForegroundColor Yellow }
     if ($g.Remapped) { Write-Host '  NOTE: Word remapped the path on open - this is a synced folder' -ForegroundColor Yellow }
@@ -784,59 +686,55 @@ else {
     Write-Host ("  Word reported: {0}" -f $g.Error) -ForegroundColor DarkYellow
     Write-Host '  asking the filesystem rather than believing the exception' -ForegroundColor DarkGray
 }
-$gv = Get-ExportVerdict -Source $Guide -Started $started -ExpectedPages $expectedPages
+$gv = Get-DeliveryVerdict -Source $Guide -MainPart 'word/document.xml'
 if ($gv.Ok) {
-    Write-Host ("  PDF verified: {0} page(s) in the page tree, {1} MB, %%EOF present, written {2}" -f $gv.PageCount, [math]::Round($gv.Bytes / 1MB, 2), $gv.Written.ToString('HH:mm:ss')) -ForegroundColor Green
+    Write-Host ("  artefact verified: {0} MB, package intact ({1} parts), written {2}" -f [math]::Round($gv.Bytes / 1MB, 2), $gv.Parts, $gv.Written.ToString('HH:mm:ss')) -ForegroundColor Green
     if (-not $g.Ok) { Write-Host '  treating as SUCCESS on the evidence of the file - Word died at teardown after the work was done' -ForegroundColor Green }
-    if ($expectedPages -eq 0) { Write-Host '  NOTE: Word gave no page count before it died, so the page tree is checked for presence, not against a measurement' -ForegroundColor Yellow }
+    if (-not $g.Ok -or [int]$g.Pages -eq 0) { Write-Host '  NOTE: Word gave no page count, so the numbers above are the file, not the application' -ForegroundColor Yellow }
 }
 else {
     $rc = 1
-    Write-Host '  FAILED - the guide PDF is not a verified export:' -ForegroundColor Red
+    Write-Host '  FAILED - the guide is not a verified delivery artefact:' -ForegroundColor Red
     foreach ($x in $gv.Problems) { Write-Host ("    X {0}" -f $x) -ForegroundColor Red }
 }
-foreach ($x in $gv.Warnings) { Write-Host ("    ! {0}" -f $x) -ForegroundColor Yellow }
 
 # ---- deck
 Write-Host ''
-Write-Host 'DELIVERY DECK - PDF' -ForegroundColor Cyan
+Write-Host 'DELIVERY DECK' -ForegroundColor Cyan
 $d = $res['powerpoint']
-$expectedSlides = 0
 if ($d.Ok) {
-    $expectedSlides = [int]$d.Slides
-    Write-Host ("  PowerPoint: opened read-only, {0} slides" -f $d.Slides) -ForegroundColor Green
+    Write-Host ("  PowerPoint: opened READ-ONLY, {0} slides" -f $d.Slides) -ForegroundColor Green
 }
 else {
     Write-Host ("  PowerPoint reported: {0}" -f $d.Error) -ForegroundColor DarkYellow
     Write-Host '  asking the filesystem rather than believing the exception' -ForegroundColor DarkGray
 }
-$dv = Get-ExportVerdict -Source $Deck -Started $started -ExpectedPages $expectedSlides
+$dv = Get-DeliveryVerdict -Source $Deck -MainPart 'ppt/presentation.xml'
 if ($dv.Ok) {
-    Write-Host ("  PDF verified: {0} page(s) in the page tree, {1} MB, %%EOF present, written {2}" -f $dv.PageCount, [math]::Round($dv.Bytes / 1MB, 2), $dv.Written.ToString('HH:mm:ss')) -ForegroundColor Green
+    Write-Host ("  artefact verified: {0} MB, package intact ({1} parts), written {2}" -f [math]::Round($dv.Bytes / 1MB, 2), $dv.Parts, $dv.Written.ToString('HH:mm:ss')) -ForegroundColor Green
     if (-not $d.Ok) { Write-Host '  treating as SUCCESS on the evidence of the file' -ForegroundColor Green }
-    if ($expectedSlides -eq 0) { Write-Host '  NOTE: PowerPoint gave no slide count, so the page tree is checked for presence, not against a measurement' -ForegroundColor Yellow }
+    if (-not $d.Ok -or [int]$d.Slides -eq 0) { Write-Host '  NOTE: PowerPoint gave no slide count, so the numbers above are the file, not the application' -ForegroundColor Yellow }
 }
 else {
     $rc = 1
-    Write-Host '  FAILED - the deck PDF is not a verified export:' -ForegroundColor Red
+    Write-Host '  FAILED - the deck is not a verified delivery artefact:' -ForegroundColor Red
     foreach ($x in $dv.Problems) { Write-Host ("    X {0}" -f $x) -ForegroundColor Red }
 }
-foreach ($x in $dv.Warnings) { Write-Host ("    ! {0}" -f $x) -ForegroundColor Yellow }
 
-# ---- and nothing was mutated by exporting
+# ---- and nothing was mutated by reading
 Write-Host ''
 $moved = New-Object System.Collections.Generic.List[string]
 foreach ($p in @($Guide, $Deck)) {
     $fr = Test-ArtefactFresh -Artefact $p -Dir $ExtractDir
-    if (-not $fr.Ok) { $moved.Add(("{0} changed DURING the export - the export path is supposed to be read-only" -f (Split-Path $p -Leaf))) }
+    if (-not $fr.Ok) { $moved.Add(("{0} changed DURING the read - this path is supposed to be read-only" -f (Split-Path $p -Leaf))) }
 }
 if ($moved.Count -gt 0) {
     $rc = 1
     foreach ($x in $moved) { Write-Host ("  X {0}" -f $x) -ForegroundColor Red }
 }
-else { Write-Host '  both artefacts are byte-identical to the bytes the gates judged, after the export' -ForegroundColor Green }
+else { Write-Host '  both artefacts are byte-identical to the bytes the gates judged, after the read' -ForegroundColor Green }
 
 Write-Host ''
-if ($rc -eq 0) { Write-Host ("BOTH PDFS VERIFIED  ({0}s)" -f [int]((Get-Date) - $started).TotalSeconds) -ForegroundColor Green }
-else           { Write-Host ("EXPORT FAILED - do not deliver  ({0}s)" -f [int]((Get-Date) - $started).TotalSeconds) -ForegroundColor Red }
+if ($rc -eq 0) { Write-Host ("DELIVERY VERIFIED - both artefacts measured and byte-identical to the bytes the gates judged  ({0}s)" -f [int]((Get-Date) - $started).TotalSeconds) -ForegroundColor Green }
+else           { Write-Host ("DELIVERY VERIFICATION FAILED - do not deliver  ({0}s)" -f [int]((Get-Date) - $started).TotalSeconds) -ForegroundColor Red }
 exit $rc

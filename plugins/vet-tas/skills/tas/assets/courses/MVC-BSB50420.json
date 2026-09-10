@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "MVC-BSB50420",
     "qualificationCode":  "BSB50420",
@@ -19,12 +19,59 @@
                       },
     "unitCount":  12,
     "deliveredCount":  12,
-    "priorCourse":  null,
+    "priorCourse":  "",
     "sequencing":  {
-                       "model":  "sequence",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB50420 Diploma of Leadership and Management.docx",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "Communication and workplace relationships",
+                                            "focus":  "Communicate with influence, build critical thinking in others and lead productive working relationships across a team.",
+                                            "weeks":  "1-13",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBCMM511",
+                                                          "BSBCRT511",
+                                                          "BSBLDR523"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Leading teams and operational performance",
+                                            "focus":  "Turn an operational plan into team performance, using emotional intelligence to lead people through it.",
+                                            "weeks":  "14-26",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBOPS502",
+                                                          "BSBPEF502",
+                                                          "BSBTWK502"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Workplace policy, safety and improvement",
+                                            "focus":  "Develop and implement sustainability, WHS and continuous improvement policies for a work area.",
+                                            "weeks":  "27-39",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBSUS511",
+                                                          "BSBSTR502",
+                                                          "BSBWHS521"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  4,
+                                            "name":  "Resource, financial and digital management",
+                                            "focus":  "Manage budgets, physical and digital resources and collaborative technology to deliver work within cost.",
+                                            "weeks":  "40-52",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBOPS503",
+                                                          "BSBOPS501",
+                                                          "BSBFIN501"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
 
@@ -36,7 +83,7 @@
                       "title":  "Communicate with influence",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
@@ -51,7 +98,7 @@
                       "title":  "Develop critical thinking in others",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
@@ -66,7 +113,7 @@
                       "title":  "Lead and manage effective workplace relationships",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
@@ -81,7 +128,7 @@
                       "title":  "Manage business operational plans",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
@@ -96,7 +143,7 @@
                       "title":  "Develop and use emotional intelligence",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
@@ -111,7 +158,7 @@
                       "title":  "Manage team effectiveness",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
@@ -126,7 +173,7 @@
                       "title":  "Develop workplace policies and procedures for sustainability",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  7,
                       "weeks":  null,
                       "prerequisites":  [
@@ -141,7 +188,7 @@
                       "title":  "Facilitate continuous improvement",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  8,
                       "weeks":  null,
                       "prerequisites":  [
@@ -156,7 +203,7 @@
                       "title":  "Ensure a safe workplace for a work area",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  9,
                       "weeks":  null,
                       "prerequisites":  [
@@ -167,11 +214,11 @@
                       "releaseCurrency":  "current"
                   },
                   {
-                      "code":  "BSBTEC404",
-                      "title":  "Use digital technologies to collaborate in a work environment",
+                      "code":  "BSBOPS503",
+                      "title":  "Develop administrative systems",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  4,
                       "sequence":  10,
                       "weeks":  null,
                       "prerequisites":  [
@@ -186,7 +233,7 @@
                       "title":  "Manage business resources",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  4,
                       "sequence":  11,
                       "weeks":  null,
                       "prerequisites":  [
@@ -201,7 +248,7 @@
                       "title":  "Manage budgets and financial plans",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  4,
                       "sequence":  12,
                       "weeks":  null,
                       "prerequisites":  [
@@ -222,15 +269,28 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB50420 Diploma of Leadership and Management.docx",
-                   "tasSha256":  "4B6865BE06603B1B1C5A28C0A9826588204BC778049497663ACC1377F7EE0885",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\MVC-BSB50420.docx",
+                   "tasSha256":  "EA9596C0042AEC6845D2A76BF70D5F6773712D49D4FF00A35BF7E2781C6CB06F",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:44Z"
+                   "generatedUtc":  "2026-09-08T00:41:44Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "52 weeks including 4 weeks term break. All 12 units are delivered - there is no credit-transfer pathway into this qualification. The unit table is numbered and that numbering is the delivery order."
               ],
     "openItems":  [
+                      "SUBSTITUTED 8 SEPTEMBER 2026 - BSBTEC404 replaced by BSBOPS503. BSBTEC404 Use digital technologies to collaborate in a work environment is not on RTO 45039 scope, so the qualification could not be awarded on it. None of the BSBTEC units Meridian does hold appears in the BSB50420 elective bank, so a like-for-like digital swap was not available from the listed electives. BSBOPS503 Develop administrative systems is in the bank, is on Meridian scope, and keeps the theme coherent: it sits with Manage business resources and Manage budgets and financial plans as the systems a work area runs on. It needs a new assessment tool and learner guide - Meridian does not deliver it elsewhere. THE TAS UNIT TABLE, THE DELIVERY PLAN AND THE ELECTIVE RATIONALE MUST BE UPDATED TO MATCH."
+                  ],
+    "pathway":  {
+                    "role":  "entry",
+                    "priorCourses":  [
 
-                  ]
+                                     ],
+                    "leadsTo":  [
+                                    "MVC-BSB60420"
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

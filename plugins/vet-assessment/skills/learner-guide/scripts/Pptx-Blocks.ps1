@@ -120,7 +120,12 @@ function Get-SlideShape {
         # page number into the chip, leaving the real footer number stale.
         # Marking build-added shapes by name keeps the declared ordinals stable
         # however many shapes are appended.
-        $hasText = ($s -match '<p:txBody>') -and ($name -notlike "$script:LG_SHAPE_PREFIX*")
+        # The prefix test is a literal StartsWith, not a -notlike whose wildcard
+        # the prefix itself gets to write: LG_SHAPE_PREFIX is a domain value
+        # read from the shared library, and a prefix carrying a [ or a * would
+        # have decided which shapes counted toward the text ordinals - which is
+        # the ordinal shift this whole block exists to prevent.
+        $hasText = ($s -match '<p:txBody>') -and (-not $name.StartsWith($script:LG_SHAPE_PREFIX, [System.StringComparison]::OrdinalIgnoreCase))
         if ($hasText) { $t++ }
         $txt = @([regex]::Matches($s, '<a:t>([^<]*)</a:t>') | ForEach-Object { $_.Groups[1].Value })
         $out.Add([pscustomobject]@{
@@ -432,7 +437,11 @@ function Set-SlidePicture {
 
     # Declare the extension, or PowerPoint offers to repair the file.
     $ct = Get-DocxPart -WorkDir $Deck.WorkDir -Part '[Content_Types].xml'
-    if ($ct -notmatch "Extension=`"$ext`"") {
+    # $ext comes off a filesystem path, so it is escaped before it reaches the
+    # regex engine: an extension carrying a metacharacter would otherwise decide
+    # what "already declared" means, and a wrong answer here is the package
+    # PowerPoint offers to repair.
+    if ($ct -notmatch ('Extension="' + [regex]::Escape($ext) + '"')) {
         $mime = switch ($ext) { 'png' { 'image/png' } 'jpeg' { 'image/jpeg' } 'gif' { 'image/gif' } default { "image/$ext" } }
         $ct = $ct.Replace('<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">',
               "<Types xmlns=`"http://schemas.openxmlformats.org/package/2006/content-types`"><Default Extension=`"$ext`" ContentType=`"$mime`"/>")
@@ -845,7 +854,7 @@ function Save-Deck {
     # Template", subject "RTO 45797 | CRICOS 03978F", creator "Adelaide
     # Construction Institute". None of it appears on a slide, so every visual
     # check and every structural gate passes - but it shows in File > Info, in
-    # Explorer's Details pane, and in the metadata of any PDF exported from it.
+    # Explorer's Details pane, and in the metadata of any copy made from it.
     # A student-facing, auditor-facing MVC resource asserting a competitor's RTO
     # and CRICOS number is not defensible, and it shipped once already.
     #
@@ -862,8 +871,14 @@ function Save-Deck {
     }
     foreach ($k in $meta.Keys) {
         $v = ConvertTo-XmlText $meta[$k]
-        if ($core -match "<$k>.*?</$k>") {
-            $core = [regex]::Replace($core, "<$k>.*?</$k>", "<$k>$v</$k>", 'Singleline')
+        # ONE pattern for the test and the replace, with the tag name escaped.
+        # The test used to be built by interpolation and to run WITHOUT
+        # Singleline while the replace ran with it, so a property whose value
+        # wrapped across a line tested absent, fell to the elseif, and a SECOND
+        # copy of the tag was appended to core.xml.
+        $tagRx = '<' + [regex]::Escape($k) + '>.*?</' + [regex]::Escape($k) + '>'
+        if ([regex]::IsMatch($core, $tagRx, 'Singleline')) {
+            $core = [regex]::Replace($core, $tagRx, "<$k>$v</$k>", 'Singleline')
         } elseif ($v) {
             $core = $core -replace '</cp:coreProperties>', "<$k>$v</$k></cp:coreProperties>"
         }

@@ -1,55 +1,79 @@
-{
-  "_comment": "AUTHORED OWNERSHIP DECISIONS for CPC20220. Every family in families/ACI-CPC20220.families.json appears exactly once below.",
-  "courseId": "ACI-CPC20220",
-  "_deliveredNote": "Ten units over four terms, one cluster per term. Cluster 1 CPCWHS1001, CPCCWHS2001, CPCCOM1012. Cluster 2 CPCCOM1013, CPCCOM1015. Cluster 3 CPCCCM2012, CPCCSP2002. Cluster 4 CPCCSP2003, CPCCCO2013, CPCCVE1011. Ownership follows that delivery order, not the order units appear in the TAS unit table.",
-  "topics": [
-    {
-      "families": ["F06"],
-      "name": "Reporting hazards, incidents and injuries",
-      "kind": "progressive-depth",
-      "owner": "CPCWHS1001",
-      "rationale": "CPCWHS1001 is the White Card - the statutory general construction induction - and is delivered in the first week of Term 1. Hazard and incident reporting is content the induction is required by law to cover, so a learner meets it there before anything else. CPCCWHS2001 follows in the same cluster and goes deeper.",
-      "teachingRule": "CPCCWHS2001 does not re-teach what a hazard is or why it is reported. It teaches the DELTA: the organisation's own reporting procedure, the forms and registers that record it, and the notifiable-incident duty that sends a report to the regulator rather than to a supervisor."
-    },
-    {
-      "families": ["F03"],
-      "name": "Personal protective equipment: selection, fitting, use and care",
-      "kind": "shared-scaffold",
-      "owner": "CPCCCM2012",
-      "rationale": "PPE is named by three units. CPCCCM2012 Work safely at heights, delivered first in Term 3, carries the fullest statement of it - selection, fitting AND use - because fall-arrest equipment is the case where fitting actually decides whether the equipment works. Teaching it there gives the plastering units a fitted-PPE standard to apply rather than a second, thinner account of the same thing.",
-      "teachingRule": "CPCCSP2002 and CPCCSP2003 name the PPE their task requires and the reason for it - eye protection against splashback, respiratory protection against silica dust - and do not restate selection or fitting."
-    },
-    {
-      "families": ["F02"],
-      "name": "Safety data sheets and hazardous material information",
-      "kind": "shared-scaffold",
-      "owner": "CPCCCM2012",
-      "rationale": "Reading an SDS is one skill regardless of the substance. It is owned in the same unit as PPE because the two are read together: the SDS is what tells a worker which PPE the substance requires.",
-      "teachingRule": "The plastering units point at the SDS for the specific product in front of the learner - cement, lime, additives - and read the exposure and first-aid sections from it. They do not re-teach the sixteen-section structure of the document."
-    },
-    {
-      "families": ["F01"],
-      "name": "Job safety analyses and safe work method statements",
-      "kind": "shared-scaffold",
-      "owner": "CPCCSP2002",
-      "rationale": "Three units require a JSA or SWMS prepared to the Safe Work Australia Code of Practice for Construction Work. CPCCSP2002, first in Term 3, is the earliest of them, and a SWMS is a document a learner writes once and then reuses with a different task in the task column.",
-      "teachingRule": "CPCCSP2003, CPCCCO2013 and CPCCVE1011 each produce a SWMS for their own task. They are assessed on the CONTENT being right for that task, not on knowing what a SWMS is. The risk-control reasoning behind it belongs to CPCCWHS2001 in Cluster 1 and is cited, not repeated."
-    },
-    {
-      "families": ["F05"],
-      "name": "Workplace quality policies and standards for trade work",
-      "kind": "shared-scaffold",
-      "owner": "CPCCSP2002",
-      "rationale": "What 'to standard' means - tolerance, finish, rectification, sign-off - is a single idea shared by the two plastering units, and CPCCSP2002 is delivered first.",
-      "teachingRule": "CPCCSP2003 states the tolerance that applies to a prepared surface and moves on."
-    },
-    {
-      "families": ["F04"],
-      "name": "National Construction Code and Australian Standards compliance",
-      "kind": "regulatory-recall",
-      "owner": "CPCCCO2013",
-      "rationale": "Both Term 4 units cite the NCC and Australian Standards. The TAS delivery sequence puts CPCCCO2013 before CPCCVE1011, so the concreting unit introduces what the Code is, how a Standard is called up by it, and how to find the clause that governs a task. The capstone project unit then applies it. NOTE: the detector suggested CPCCVE1011 because it sits earlier in the TAS unit TABLE; the delivery sequence is the authority and it says otherwise.",
-      "teachingRule": "CPCCVE1011 identifies the clauses relevant to its own project and demonstrates compliance. It does not re-explain the Code's structure."
-    }
-  ]
+﻿{
+    "_comment":  "AUTHORED OWNERSHIP DECISIONS for CPC20220. Every family in families/ACI-CPC20220.families.json appears exactly once below.",
+    "courseId":  "ACI-CPC20220",
+    "_deliveredNote":  "Ten units over four terms, one cluster per term. Cluster 1 CPCWHS1001, CPCCWHS2001, CPCCOM1012. Cluster 2 CPCCOM1013, CPCCOM1015. Cluster 3 CPCCCM2012, CPCCSP2002. Cluster 4 CPCCSP2003, CPCCCO2013, CPCCVE1011. Ownership follows that delivery order, not the order units appear in the TAS unit table.",
+    "topics":  [
+                   {
+                       "families":  [
+                                        "F06"
+                                    ],
+                       "name":  "Reporting hazards, incidents and injuries",
+                       "kind":  "progressive-depth",
+                       "owner":  "CPCWHS1001",
+                       "rationale":  "CPCWHS1001 is the White Card - the statutory general construction induction - and is delivered in the first week of Term 1. Hazard and incident reporting is content the induction is required by law to cover, so a learner meets it there before anything else. CPCCWHS2001 follows in the same cluster and goes deeper.",
+                       "teachingRule":  "CPCCWHS2001 does not re-teach what a hazard is or why it is reported. It teaches the DELTA: the organisation\u0027s own reporting procedure, the forms and registers that record it, and the notifiable-incident duty that sends a report to the regulator rather than to a supervisor.",
+                       "ownerBenchmark":  "A satisfactory answer identifies a hazard by its potential to cause harm, not by whether harm occurred, and states who it is reported to, how, and within what time. It distinguishes a hazard from an incident from an injury, and names the record each one goes into.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F03"
+                                    ],
+                       "name":  "Personal protective equipment: selection, fitting, use and care",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCCM2012",
+                       "rationale":  "PPE is named by three units. CPCCCM2012 Work safely at heights, delivered first in Term 3, carries the fullest statement of it - selection, fitting AND use - because fall-arrest equipment is the case where fitting actually decides whether the equipment works. Teaching it there gives the plastering units a fitted-PPE standard to apply rather than a second, thinner account of the same thing.",
+                       "teachingRule":  "CPCCSP2002 and CPCCSP2003 name the PPE their task requires and the reason for it - eye protection against splashback, respiratory protection against silica dust - and do not restate selection or fitting.",
+                       "ownerBenchmark":  "A satisfactory answer selects PPE against the specific hazard rather than by habit, describes how it is fitted and checked before use, and states the inspection, cleaning, storage and replacement it needs. It recognises that PPE is the lowest level of control and never the first answer.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F02"
+                                    ],
+                       "name":  "Safety data sheets and hazardous material information",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCCM2012",
+                       "rationale":  "Reading an SDS is one skill regardless of the substance. It is owned in the same unit as PPE because the two are read together: the SDS is what tells a worker which PPE the substance requires.",
+                       "teachingRule":  "The plastering units point at the SDS for the specific product in front of the learner - cement, lime, additives - and read the exposure and first-aid sections from it. They do not re-teach the sixteen-section structure of the document.",
+                       "ownerBenchmark":  "A satisfactory answer locates the SDS for the product in hand, reads the hazard identification, exposure controls, PPE and first-aid sections, and states what those sections require for this task. It knows an SDS must be current and accessible where the product is used.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F01"
+                                    ],
+                       "name":  "Job safety analyses and safe work method statements",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCSP2002",
+                       "rationale":  "Three units require a JSA or SWMS prepared to the Safe Work Australia Code of Practice for Construction Work. CPCCSP2002, first in Term 3, is the earliest of them, and a SWMS is a document a learner writes once and then reuses with a different task in the task column.",
+                       "teachingRule":  "CPCCSP2003, CPCCCO2013 and CPCCVE1011 each produce a SWMS for their own task. They are assessed on the CONTENT being right for that task, not on knowing what a SWMS is. The risk-control reasoning behind it belongs to CPCCWHS2001 in Cluster 1 and is cited, not repeated.",
+                       "ownerBenchmark":  "A satisfactory SWMS breaks the task into steps, names the hazard at each step, applies the hierarchy of control rather than defaulting to PPE, and identifies who does the work and who supervises it. It is written to the Safe Work Australia Code of Practice for Construction Work and is signed before work starts.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F05"
+                                    ],
+                       "name":  "Workplace quality policies and standards for trade work",
+                       "kind":  "shared-scaffold",
+                       "owner":  "CPCCSP2002",
+                       "rationale":  "What \u0027to standard\u0027 means - tolerance, finish, rectification, sign-off - is a single idea shared by the two plastering units, and CPCCSP2002 is delivered first.",
+                       "teachingRule":  "CPCCSP2003 states the tolerance that applies to a prepared surface and moves on.",
+                       "ownerBenchmark":  "A satisfactory answer states the tolerance the work is measured against, how it is checked, what happens when it fails, and who signs it off. Finished to standard is a measurable condition, not an opinion.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F04"
+                                    ],
+                       "name":  "National Construction Code and Australian Standards compliance",
+                       "kind":  "regulatory-recall",
+                       "owner":  "CPCCCO2013",
+                       "rationale":  "Both Term 4 units cite the NCC and Australian Standards. The TAS delivery sequence puts CPCCCO2013 before CPCCVE1011, so the concreting unit introduces what the Code is, how a Standard is called up by it, and how to find the clause that governs a task. The capstone project unit then applies it. NOTE: the detector suggested CPCCVE1011 because it sits earlier in the TAS unit TABLE; the delivery sequence is the authority and it says otherwise.",
+                       "teachingRule":  "CPCCVE1011 identifies the clauses relevant to its own project and demonstrates compliance. It does not re-explain the Code\u0027s structure.",
+                       "ownerBenchmark":  "A satisfactory answer names the NCC clause or Australian Standard that governs the task, states what it requires in a number or a condition, and explains how compliance is demonstrated. Citing that the Code applies is not sufficient without the clause.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   }
+               ]
 }

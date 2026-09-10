@@ -130,7 +130,7 @@ Holding a whole table on one page takes `keepNext` on every row but the last, pl
 
 ### No blank pages, no half-empty pages
 
-Render to PDF and inspect every page before delivery.
+Open the finished document in Word and inspect every page before delivery. Word is the authority on where its own page breaks fall, and the pack ships no PDF to inspect instead.
 
 **Where a page is less than roughly half filled and is not the last page of a section, deepen the writing rows so the page fills.** The writing room is the learner's working surface — spend the space there rather than pulling content up. Never resolve a half-empty page by shrinking a response box.
 

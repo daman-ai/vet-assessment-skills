@@ -1,4 +1,4 @@
-﻿# Compliance audit — clean-room learner-resource review
+# Compliance audit — clean-room learner-resource review
 
 This file is the reviewer's **only** rule source. It stands alone: it never assumes the reader knows how the documents under review were produced.
 
@@ -327,7 +327,7 @@ Every figure, diagram and table — read as content, per *Read the figures* abov
 AQF level, reading load, scaffolding, terminology introduced before use, whether a learner could work through it unaided. Assessed terminology is never simplified — flag any place it has been.
 
 ### Step 8 — Document control
-Version, date, unit code and release on the artefact; footer attribution; the deck's slide numbering matching its actual positions; the PDF no older than the file beside it.
+Version, date, unit code and release on the artefact; footer attribution; the deck's slide numbering matching its actual positions.
 
 **Counting slides and comparing file times is a gate's job and it has already been done.** What is left is the part a gate cannot rule on: whether the document-control block **says what the RTO's own standard requires it to say**, and whether the artefact you are holding is the one the record describes. Three consecutive audits on one build could only record the document-control block as *not verifiable*, because the standard it must meet had never been written down. If it is still not verifiable, **say so as a finding** rather than passing over it.
 

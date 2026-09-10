@@ -1,0 +1,30 @@
+Scope of registration checked against training.gov.au, 2026-09-08 15:47
+
+RTO 45797 : 681 training components on scope
+RTO 45039 : 801 training components on scope
+
+ACI-CPC20220    RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+ACI-CPC31020    RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+ACI-CPC40120    RTO 45797  qualification on scope: yes   delivered units off scope: 1   [CHECK]
+      off scope: BSBESB401
+ACI-CPC50220    RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+ACI-MSF30322    RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+ACI-SIT20421    RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+ACI-SIT30821    RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+ACI-SIT40521    RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+ACI-SIT50422    RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+ACI-SITSS00069  RTO 45797  qualification on scope: yes   delivered units off scope: 0   [ok]
+MVC-BSB50420    RTO 45039  qualification on scope: yes   delivered units off scope: 1   [CHECK]
+      off scope: BSBTEC404
+MVC-BSB60420    RTO 45039  qualification on scope: yes   delivered units off scope: 0   [ok]
+MVC-BSB80120    RTO 45039  qualification on scope: yes   delivered units off scope: 0   [ok]
+MVC-SIT30821    RTO 45039  qualification on scope: yes   delivered units off scope: 0   [ok]
+MVC-SIT31021    RTO 45039  qualification on scope: yes   delivered units off scope: 0   [ok]
+MVC-SIT40521    RTO 45039  qualification on scope: yes   delivered units off scope: 0   [ok]
+MVC-SIT50422    RTO 45039  qualification on scope: yes   delivered units off scope: 0   [ok]
+MVC-SIT60322    RTO 45039  qualification on scope: yes   delivered units off scope: 0   [ok]
+
+--- the three units the harmonisation depends on ---
+  SITHKOP012   on RTO 45039 scope: YES
+  BSBTWK501    on RTO 45797 scope: YES
+  SITXINV007   on RTO 45797 scope: YES

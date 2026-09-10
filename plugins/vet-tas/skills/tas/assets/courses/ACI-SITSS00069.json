@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "ACI-SITSS00069",
     "qualificationCode":  "SITSS00069",
@@ -17,12 +17,22 @@
                       },
     "unitCount":  2,
     "deliveredCount":  2,
-    "priorCourse":  null,
+    "priorCourse":  "",
     "sequencing":  {
-                       "model":  "sequence",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS Skill Set SITSS00069 Food Safety Supervision.docx",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "Food safety supervision",
+                                            "focus":  "Apply hygienic practices and safe food handling procedures to supervise food safety in a commercial kitchen.",
+                                            "weeks":  "1-4",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXFSA005",
+                                                          "SITXFSA006"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
 
@@ -34,7 +44,7 @@
                       "title":  "Use hygienic practices for food safety",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
@@ -49,7 +59,7 @@
                       "title":  "Participate in safe food handling practices",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
@@ -70,15 +80,28 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS Skill Set SITSS00069 Food Safety Supervision.docx",
-                   "tasSha256":  "BEF9BE23116B6E81D7E7CFB98CC9BD604330EA487F0C16FC100D76B47428D376",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\ACI-SITSS00069.docx",
+                   "tasSha256":  "524EA1DA599F380C655B0E00A12139FA2F4A3B1AC722FBD36D45D3B9853A72D1",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:44Z"
+                   "generatedUtc":  "2026-09-08T00:41:44Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "A SKILL SET, NOT A QUALIFICATION. Four weeks, four weekly face-to-face classes with online study between them. It issues a Statement of Attainment, not a qualification, and it is not on the course prospectus alongside the AQF qualifications."
               ],
     "openItems":  [
                       "Neither unit carries a Core or Elective designation in the TAS table, because a skill set has no packaging rule of that kind. Both are recorded as Core."
-                  ]
+                  ],
+    "pathway":  {
+                    "role":  "standalone",
+                    "priorCourses":  [
+
+                                     ],
+                    "leadsTo":  [
+
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

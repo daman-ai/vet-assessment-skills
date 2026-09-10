@@ -43,7 +43,7 @@ Save-Deck -Deck $deck -Path "$out\$code`_Delivery_PowerPoint.pptx"
 | `two` | Compare or pair two ideas |
 | `cards` | Three related items |
 | `figures` | **Numbers** — temperatures, percentages, limits, standard drinks. Exactly the items most likely to appear in the knowledge questionnaire |
-| `table` | Criteria, options, the question cross-reference. A real PowerPoint table — fill with `Set-SlideTableCell`, and **delete spare rows** with `Remove-SlideTableRow` rather than leaving "Row label four" on screen |
+| `table` | Criteria, options, the question cross-reference. A real PowerPoint table — fill with `Set-SlideTableCell`, and **delete spare rows** with `Remove-SlideTableRow` rather than leaving "Row label four" on screen. The restyle gives the header **one fill across the whole row**, chosen to sit off the slide's own ground (the table slide's ground is blue), and the body cream |
 | `process` | Numbered steps with arrows. Ordinals 6, 10 and 14 are the arrows — leave them alone |
 | `callout` | A quote or a single statement to land |
 | `image` | A visual with explanation |
@@ -85,7 +85,7 @@ The delivered SITHPAT018 deck does this well and is worth reading: Topic 1 runs 
 
 The path from teaching to assessment is explicit and consistent, in three places:
 
-- **The chip.** Every PC teaching slide carries a visible pointer, bottom-right, orange-ruled: `Prepares you for: UAT 1 Q5` or `Assessed in: UAT 2 — Task 2`. **The wording is identical to the guide's Assessment Prompt**, taken verbatim from `assessmentLink.wording` in the spine, so the two resources line up word for word.
+- **The chip.** Every PC teaching slide carries a visible pointer: `Prepares you for: UAT 1 Q5` or `Assessed in: UAT 2 — Task 2`. The restyle sets it as a pill on the 6.25 in baseline in 10 pt Questrial, filled cornflower on cream and butter grounds and butter elsewhere, with the same ink outline every container carries — a pale pill on a pale ground separates by its outline alone. **The wording is identical to the guide's Assessment Prompt**, taken verbatim from `assessmentLink.wording` in the spine, so the two resources line up word for word.
 - **The divider.** Each Topic divider lists the questions that section covers.
 - **The cross-reference slide.** A dedicated table reproducing the guide's Question Cross-Reference.
 

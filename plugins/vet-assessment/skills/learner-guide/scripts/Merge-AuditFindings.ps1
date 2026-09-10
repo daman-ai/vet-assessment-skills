@@ -363,7 +363,12 @@ function Write-MergeStageRecord {
     $round = $prior
     $sha = Get-FileSha256 -Path $OutPath
     $verdict = ("delivery set {0} (guide {1}; deck {2})" -f $Out.verdict.deliverySet, $Out.verdict.guide, $Out.verdict.deck)
-    $uncov = if (@($Out.uncovered).Count -gt 0) { (@($Out.uncovered) -join ', ') } else { 'none' }
+    #  TWO statements, never `$x = if (..) { @(..) }`: a one-element array on
+    #  the output of an if unrolls to the element, and .Count on that answers
+    #  for the element, not for a list.
+    $uncovered = @()
+    if ($null -ne $Out.uncovered) { $uncovered = @($Out.uncovered) }
+    $uncov = if ($uncovered.Count -gt 0) { ($uncovered -join ', ') } else { 'none' }
     $note = ("MACHINE-WRITTEN by Merge-AuditFindings.ps1 - sha256 {0} of {1}. Reviewers merged: {2}. Findings in {3}, same-anchor copies {4}, raised by the merger {5}, out {6}; High against owned artefacts {7}; upstream (pack) {8}, of which High {9}; items no reviewer claims: {10}; coverage claims with no anchor: {11}." -f $sha, $OutPath, ((@($Out.reviewers) | ForEach-Object { $_.reviewer }) -join ', '), $Out.counts.findingsIn, $Out.counts.sameAnchorEntries, $Out.counts.raisedByMerger, $Out.counts.findingsOut, $Out.counts.high, $Out.counts.upstream, $Out.counts.upstreamHigh, $uncov, $Out.counts.claimsWithoutAnchors)
     $ended = (Get-Date).ToUniversalTime().ToString('o')
     $cmd = Get-Command -Name Add-StageRecord -CommandType Function
@@ -591,7 +596,9 @@ function Read-ReviewerFile {
         else {
             $art = Get-WhereArtefact -Where $f.where
             if ((Resolve-ArtefactOwner -Artefact $art -Vocabulary $Vocabulary) -eq 'unknown') {
-                $packNames = if (@($Vocabulary.PackDocs).Count -gt 0) { (@($Vocabulary.PackDocs) -join ', ') } else { 'none listed' }
+                $packDocs = @()
+                if ($null -ne $Vocabulary.PackDocs) { $packDocs = @($Vocabulary.PackDocs) }
+                $packNames = if ($packDocs.Count -gt 0) { ($packDocs -join ', ') } else { 'none listed' }
                 $Violations.Add(("{0}: finding {1}: where.artefact '{2}' is not an artefact this build knows. This build owns {3}; the pack is 'pack' or one of its documents by name ({4}; from {5}). An artefact nobody owns floors no verdict, dedupes with nothing and is remediated nowhere - name it exactly." -f $name, $label, $art, ($Vocabulary.Own -join ' | '), $packNames, $Vocabulary.From))
             }
         }
@@ -971,12 +978,12 @@ function New-MergedMarkdown {
         $o.Add('')
         foreach ($u in $Out.uncovered) { $row = $Out.coverage | Where-Object { $_.item -eq $u } | Select-Object -First 1; $o.Add(("- **{0}** - {1}" -f $u, (Escape-MdCell $row.text))) }
     }
-    if (@($Out.claimsAgainstUnknownItems).Count -gt 0) {
+    if ((Get-GateCount -Value $Out.claimsAgainstUnknownItems) -gt 0) {
         $o.Add('')
         $o.Add('Claims against identifiers the unit extract does not carry (not counted as coverage; a reviewer naming an item that does not exist is itself worth a look):')
         foreach ($c in $Out.claimsAgainstUnknownItems) { $o.Add(('- {0} claimed `{1}`' -f $c.reviewer, (Escape-MdCell $c.item))) }
     }
-    if (@($Out.claimsWithoutAnchors).Count -gt 0) {
+    if ((Get-GateCount -Value $Out.claimsWithoutAnchors) -gt 0) {
         $o.Add('')
         $o.Add('Coverage claims with NO anchor (listed, not counted as coverage - a claim you cannot anchor is a claim you do not make; where the item is claimed with an anchor by nobody else it is raised above):')
         foreach ($c in $Out.claimsWithoutAnchors) { $o.Add(('- {0} claimed `{1}` with an empty anchors[]' -f $c.reviewer, (Escape-MdCell $c.item))) }
@@ -1017,7 +1024,9 @@ function New-MergedMarkdown {
         if ($null -ne $f.source) { $o.Add(("- Source: {0} - {1}" -f [string](Get-GateProp -Object $f.source -Names @('doc') -Default ''), [string](Get-GateProp -Object $f.source -Names @('locator') -Default ''))) }
         else { $o.Add('- Source: (none resolved)') }
         $o.Add(("- Value: {0}" -f [string]$f.value))
-        if (@($f.proposedForbid).Count -gt 0) { $o.Add(("- Proposed forbid: {0}" -f (@($f.proposedForbid) -join ' | '))) }
+        $forbid = @()
+        if ($null -ne $f.proposedForbid) { $forbid = @($f.proposedForbid) }
+        if ($forbid.Count -gt 0) { $o.Add(("- Proposed forbid: {0}" -f ($forbid -join ' | '))) }
         $o.Add('')
         $o.Add('Claim:')
         $o.Add('')

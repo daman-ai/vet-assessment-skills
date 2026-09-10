@@ -755,7 +755,17 @@ function Invoke-EnumerateBeforeFix {
                 $dn = ([string]$d).Trim()
                 if (-not $dn) { continue }
                 if ($req -ieq $dn) { $hit = $true; break }
-                if ($req -like ('*' + $dn + '*') -or $dn -like ('*' + $req + '*')) { $hit = $true; break }
+                #  Containment is DELIBERATE here - 'prose' is covered by a
+                #  declaration of 'guide prose' - so no boundary is wanted. What
+                #  is not wanted is the declared name deciding what the pattern
+                #  MEANS: '*' + $dn + '*' hands a channel name straight to the
+                #  wildcard engine, and a declaration carrying a [ or a * would
+                #  have matched channels it never swept, or thrown. A literal
+                #  ordinal-ignore-case IndexOf asks the same question and the
+                #  value cannot rewrite it.
+                $reqN = [string]$req
+                if ($reqN.IndexOf($dn, [System.StringComparison]::OrdinalIgnoreCase) -ge 0 -or
+                    $dn.IndexOf($reqN, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { $hit = $true; break }
             }
             if (-not $hit) { $missing.Add($req) }
         }
@@ -967,7 +977,11 @@ function Invoke-SelfTest {
               -Ok ((Get-GateFileText -Path $fx.F11).IndexOf($fx.Stale) -lt 0 -and (Get-GateFileText -Path $fx.F12).IndexOf($fx.Stale) -lt 0)
         $r = Invoke-EnumerateBeforeFix -BuildDir $fx.BuildDir -ScriptsDir $ScriptsDir
         Check -What 'the clean round passes' -Ok (@($r.Blocking).Count -eq 0) -Detail (@($r.Blocking | ForEach-Object { $_.Arm + ':' + $_.What }) -join '; ')
-        Check -What 'and it did attribute edits, so the pass is not vacuous' -Ok (@($r.EditedFiles).Count -gt 0)
+        #  Get-GateCount, not @($x).Count: @($null).Count is 1 in PS 5.1, so this
+        #  non-vacuous check passed on a result that carried no EditedFiles
+        #  property at all - the one assertion here whose whole job is to prove
+        #  the clean round was not empty.
+        Check -What 'and it did attribute edits, so the pass is not vacuous' -Ok ((Get-GateCount -Value $r.EditedFiles) -gt 0)
 
         # ---- 2. an edit no enumeration named
         Write-Host '  case: the round edited a file no enumeration names' -ForegroundColor DarkGray
@@ -1090,8 +1104,13 @@ if (-not $OutPath) { $OutPath = Join-Path $BuildDir ('enumerate-before-fix-r{0}.
 Write-Report -Result $result -Path $OutPath -BuildDir $BuildDir
 Write-Line ("  report: {0}" -f $OutPath)
 
-if (@($result.Blocking).Count -gt 0) {
-    Write-Line ("ENUMERATE-BEFORE-FIX FAIL - {0} blocking finding(s)" -f @($result.Blocking).Count) 'Red'
+#  Get-GateCount, not @($x).Count: @($null).Count is 1 in PS 5.1, so a result
+#  object that carried no Blocking property at all failed the build with
+#  "1 blocking finding(s)" and nothing printed above it. Read once, so the
+#  verdict and the number it prints cannot disagree.
+$blockingCount = Get-GateCount -Value $result.Blocking
+if ($blockingCount -gt 0) {
+    Write-Line ("ENUMERATE-BEFORE-FIX FAIL - {0} blocking finding(s)" -f $blockingCount) 'Red'
     exit 1
 }
 Write-Line 'ENUMERATE-BEFORE-FIX PASS - the enumeration came first, covered every channel, and the round cleared it' 'Green'

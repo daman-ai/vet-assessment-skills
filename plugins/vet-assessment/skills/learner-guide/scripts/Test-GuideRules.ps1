@@ -107,6 +107,71 @@ function Get-GuideBodyBlock {
     return $out
 }
 
+function Get-GuideDocumentControlLabel {
+    <#  THE DOCUMENT-CONTROL LABELS, READ OFF THE RTO PROFILE PACK.
+
+        assets\rto-profile.<rto>.json declares documentControl.labels: what a
+        document-control block IS for this RTO, written down so an audit can
+        verify it instead of recording it as "not verifiable" for the third
+        round running. The list used to be typed into the rule below, which
+        made it a second source of truth free to drift from the pack every
+        other reader uses - the same shape as three of nine palette hexes
+        typed by hand, over which a sweep printed "no crossover" while 766
+        live occurrences sat in the files.
+
+        Every pack on disk is read and the labels unioned, because this gate is
+        not told which RTO's guide it is holding, and a label that belongs to
+        some RTO's control block is never ordinary prose. The schema file is
+        excluded: it declares the shape of a pack, not the labels of one.
+
+        Returns Labels (de-duplicated, in pack order) and Source (the packs
+        they came from, for the check-set line).  #>
+    [CmdletBinding()]
+    param([string] $AssetsDir)
+
+    $roots = New-Object System.Collections.Generic.List[string]
+    if ($AssetsDir) { $roots.Add($AssetsDir) }
+    else {
+        #  $PSScriptRoot is set when this file is dot-sourced by path, which is
+        #  how every caller loads it, and EMPTY when the text is run as a
+        #  scriptblock. Each candidate is guarded; deriving nothing is caught
+        #  by the blocking check-set below, loudly, rather than here.
+        $here = ''
+        $cands = @($PSScriptRoot)
+        if ($MyInvocation.MyCommand.Path) { $cands += (Split-Path -Parent $MyInvocation.MyCommand.Path) }
+        if (Get-Variable -Name SkillDir -Scope Global -ErrorAction SilentlyContinue) { $cands += (Join-Path $global:SkillDir 'scripts') }
+        foreach ($c in $cands) {
+            if ("$c".Trim() -and (Test-Path -LiteralPath "$c")) { $here = "$c"; break }
+        }
+        if ($here) {
+            $skill = Split-Path -Parent $here
+            if ($skill) { $roots.Add((Join-Path $skill 'assets')) }
+        }
+    }
+
+    $out = New-Object System.Collections.Generic.List[string]
+    $from = New-Object System.Collections.Generic.List[string]
+    foreach ($r in $roots) {
+        if (-not (Test-Path -LiteralPath "$r")) { continue }
+        foreach ($f in @(Get-ChildItem -LiteralPath "$r" -Filter 'rto-profile.*.json' -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch '(?i)schema' })) {
+            $j = Get-GateJson -Path $f.FullName
+            if ($null -eq $j) { continue }
+            $dc = Get-GateProp -Object $j -Names @('documentControl')
+            if ($null -eq $dc) { continue }
+            $labels = Get-GateProp -Object $dc -Names @('labels')
+            $added = 0
+            foreach ($l in @($labels)) {
+                $lv = "$l".Trim()
+                if (-not $lv) { continue }
+                if ($out.Contains($lv)) { continue }
+                $out.Add($lv); $added++
+            }
+            if ($added -gt 0) { $from.Add($f.Name) }
+        }
+    }
+    return [pscustomobject]@{ Labels = $out.ToArray(); Source = @($from) }
+}
+
 function Measure-GuideWord {
     param([string] $Text)
     if (-not $Text) { return 0 }
@@ -468,8 +533,20 @@ function Test-GuideRules {
     # require several cells AND the labels to appear as SHORT CELL VALUES rather
     # than as words inside a paragraph.
     if (-not $AllowDocumentControl) {
-        $labels = @('Document Control', 'Doc #', 'Doc#', 'Revision:', 'Ver#', 'Approved Date',
-                    'Next Review', 'Approved by', 'Revision Date')
+        #  DERIVED from the RTO profile pack's documentControl.labels, never
+        #  typed here, and the size and the source are printed: a rule that
+        #  sweeps a hand-picked subset of the vocabulary it claims to sweep is
+        #  believed while it misses the rest. An empty vocabulary would compare
+        #  every cell against nothing and report every guide clean, so it is a
+        #  blocking refusal naming the pack.
+        $dcSet  = Get-GuideDocumentControlLabel
+        $labels = @($dcSet.Labels)
+        #  The pack names are filtered rather than counted through @(): a
+        #  $null property counts 1 inside @() in PS 5.1, and the line would
+        #  then name a source that does not exist.
+        $dcFrom = @($dcSet.Source | Where-Object { "$_".Trim() })
+        $dcWhere = if ($dcFrom.Count -gt 0) { $dcFrom -join ', ' } else { 'the RTO profile pack(s)' }
+        Write-GateCheckSet -What 'document-control label(s)' -Count $labels.Count -DerivedFrom ('documentControl.labels in ' + $dcWhere) -Blocking -Input 'assets\rto-profile.<rto>.json documentControl.labels - no pack on disk declares a document-control label, so this rule would compare every table cell against nothing and pass every guide'
 
         foreach ($b in $blocks) {
             if ($b.Kind -ne 'table') { continue }

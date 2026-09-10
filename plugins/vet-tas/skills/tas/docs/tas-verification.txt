@@ -1,0 +1,103 @@
+Current TAS documents checked against the registry, 2026-09-08 15:33
+
+=== ACI-CPC20220   CPC20220 Certificate II in Construction Pathways
+    registry holds 10 units; document names 20 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: CPC20220, CPCCCM1012, CPCCPOM1013, CPCCWHS1001, TAE40110, TAE40116, TAE40122, TAE50122, TAEASS502, TAELLN411
+
+=== ACI-CPC31020   CPC31020 Certificate III in Solid Plastering
+    registry holds 20 units; document names 30 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: CPC31020, CPCCCM1012, CPCCPOM1013, CPCCWHS1001, TAE40110, TAE40116, TAE40122, TAE50122, TAEASS502, TAELLN411
+
+=== ACI-CPC40120   CPC40120 Certificate IV in Building and Construction
+    registry holds 19 units; document names 38 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: CPC40120, CPCCBC5010, CPCCBCC4008, CPCCCM2012, CPCCCO2013, CPCCOM1012, CPCCOM1013, CPCCOM1015, CPCCSP2002, CPCCSP2003, CPCCVE1011, CPCCWHS2001, CPCWHS1001, TAE40110, TAE40116, TAE40122, TAE50122, TAEASS502, TAELLN411
+
+=== ACI-CPC50220   CPC50220 Diploma of Building and Construction (Building)
+    registry holds 27 units; document names 38 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: BSBWSH513, CPC50220, CPCCBCC4008, CPCCBS5005, CPCWHS1001, TAE40110, TAE40116, TAE40122, TAE50122, TAEASS502, TAELLN411
+
+=== ACI-MSF30322   MSF30322 Certificate III in Cabinet Making and Timber Technology
+    registry holds 25 units; document names 33 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: CPCCWHS1001, MSF30322, TAE40110, TAE40116, TAE40122, TAE50122, TAEASS502, TAELLN411
+
+=== ACI-SIT20421   SIT20421 Certificate II in Cookery
+    registry holds 13 units; document names 19 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: SIT20421, TAE40110, TAE40116, TAE40122, TAEASS502, TAELLN411
+    document states: 13 units must be completed
+
+=== ACI-SIT30821   SIT30821 Certificate III in Commercial Cookery
+    registry holds 25 units; document names 31 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: BSBSUS211, SIT30821, TAE40110, TAE40116, TAEASS502, TAELLN411
+    document states: 25 units must be completed
+
+=== ACI-SIT40521   SIT40521 Certificate IV in Kitchen Management
+    registry holds 33 units; document names 64 unit-like codes
+    IN REGISTRY BUT NOT NAMED IN THE DOCUMENT: BSBTWK501, SITXINV007
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: BSBSUS211, SIT30821, SIT40516, SIT40521, SIT50422, SITHCCC001, SITHCCC003, SITHCCC005, SITHCCC006, SITHCCC007, SITHCCC008, SITHCCC012, SITHCCC013, SITHCCC014, SITHCCC018, SITHCCC019, SITHCCC020, SITHCCC025, SITHIND002, SITHKOP002, SITHPAT006, SITXFSA001, SITXFSA002, SITXHRM001, SITXHRM007, SITXINV001, SITXINV002, SITXWHS001, TAE40110, TAE40116, TAE40122, TAEASS502, TAELLN411
+
+=== ACI-SIT50422   SIT50422 Diploma of Hospitality Management
+    registry holds 28 units; document names 36 unit-like codes
+    IN REGISTRY BUT NOT NAMED IN THE DOCUMENT: BSBTWK501, SITHKOP013, SITHPAT016, SITXFSA006, SITXINV006
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: SIT40516, SIT40521, SIT50416, SIT50422, SITHCCC025, SITHCCC031, SITHCCC032, SITHCCC038, SITHCCC044, TAE40110, TAE40116, TAEASS502, TAELLN411
+    document states: 28 units must be completed
+
+=== ACI-SITSS00069   SITSS00069 Food Safety Supervision Skill Set
+    registry holds 2 units; document names 3 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: SITSS00069
+    document states: 2 units must be completed
+
+=== MVC-BSB50420   BSB50420 Diploma of Leadership and Management
+    registry holds 12 units; document names 16 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: BSB50420, BSB60420, TAE40116, TAE40122
+
+=== MVC-BSB60420   BSB60420 Advanced Diploma of Leadership and Management
+    registry holds 10 units; document names 31 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: BSB50420, BSB51918, BSB60420, BSB61015, BSB80215, BSB80320, BSBHRM602, BSBINN601, BSBMGT605, BSBMGT608, BSBMGT617, SIT30816, SIT31016, SIT40516, SIT40716, SIT50416, SIT60316, TAE40110, TAE40116, TAEASS502, TAELLN411
+
+=== MVC-BSB80120   BSB80120 Graduate Diploma of Management (Learning)
+    registry holds 8 units; document names 11 unit-like codes
+    IN REGISTRY BUT NOT NAMED IN THE DOCUMENT: BSBHRM613
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: BSB80120, BSBHRM6153, TAE40116, TAE40122
+
+=== MVC-SIT30821   SIT30821 Certificate III in Commercial Cookery
+    registry holds 25 units; document names 35 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: SIT30821, SIT40521, TAE40116, TAE40122, TAESS00003, TAESS00007, TAESS00008, TAESS00013, TAESS00014, TAESS00015
+    document states: 25 units must be completed
+
+=== MVC-SIT31021   SIT31021 Certificate III in Patisserie
+    registry holds 21 units; document names 32 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: SIT31021, SIT40721, SIT50422, TAE40116, TAE40122, TAESS00003, TAESS00007, TAESS00008, TAESS00013, TAESS00014, TAESS00015
+
+=== MVC-SIT40521   SIT40521 Certificate IV in Kitchen Management
+    registry holds 33 units; document names 47 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: SIT30821, SIT40521, SIT50422, TAE40110, TAE40116, TAE40122, TAEASS502, TAELLN411, TAESS00003, TAESS00007, TAESS00008, TAESS00013, TAESS00014, TAESS00015
+
+=== MVC-SIT50422   SIT50422 Diploma of Hospitality Management
+    registry holds 28 units; document names 37 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: SIT30821, SIT40521, SIT50422, SIT60322, SITXFIN0010, TAE40110, TAE40116, TAEASS502, TAELLN411
+
+=== MVC-SIT60322   SIT60322 Advanced Diploma of Hospitality Management
+    registry holds 33 units; document names 40 unit-like codes
+    NAMED IN THE DOCUMENT BUT NOT IN THE REGISTRY: BSB80215, SIT30821, SIT40521, SIT50422, SIT60322, TAE40116, TAE40122
+
+------------------------------------------------------------------------------
+CATALOGUED FAULTS, RE-CHECKED AGAINST THE CURRENT REVISIONS
+------------------------------------------------------------------------------
+  MVC-SIT40521  SITHKOP012 missing from the unit table
+      GONE - already fixed in this revision
+  MVC-BSB80120  BSBHRM6153 typo (should be BSBHRM613)
+      STILL PRESENT
+  MVC-SIT50422  SITXFIN0010 typo (should be SITXFIN010)
+      STILL PRESENT
+  ACI-SIT50422  names superseded SIT40516 as credit-transfer source
+      STILL PRESENT
+  ACI-CPC40120  delivery plan copied from CPC20220 (CPCCVE1011 should not appear)
+      STILL PRESENT
+  ACI-SIT40521  still lists SITXHRM007 (dropped under harmonisation)
+      STILL PRESENT
+  ACI-SIT40521  still lists SITHCCC025 (dropped under harmonisation)
+      STILL PRESENT
+  ACI-SIT40521  does not yet list BSBTWK501 (added under harmonisation)
+      STILL PRESENT
+  ACI-MSF30322  still lists superseded MSFGN2001
+      STILL PRESENT

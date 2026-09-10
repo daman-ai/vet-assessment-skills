@@ -9,20 +9,40 @@
 
 ## Open items
 
-- The TAS types BSBHRM613 Contribute to the development of learning and development strategies as BSBHRM6153 - one digit too many, and no such unit exists on training.gov.au. Corrected on the way in and recorded in titleCorrections. A student training plan for this qualification carries the same table and marks only two units as Core where the packaging rule requires three; check the designations against the rule.
+- CHECKED 8 SEPTEMBER 2026 - the registry holds all three BSB80120 national core units (BSBLDR811, BSBHRM613, TAELED803) correctly designated Core, so the DATA is right and the DOCUMENTS are not. Two things to correct outside the registry: the TAS types BSBHRM613 as BSBHRM6153, one digit too many and no such unit exists on training.gov.au; and the student training plan for this qualification marks only two units as Core where the packaging rule requires three.
 
 ## Units
 
 | # | Code | Title | Core/Elective | Delivery | Cluster | Prerequisite |
 |---:|---|---|---|---|---|---|
-| 1 | BSBLDR811 | Lead strategic transformation | Core | delivered |  |  |
-| 2 | BSBHRM613 | Contribute to the development of learning and development strategies | Core | delivered |  |  |
-| 3 | TAELED803 | Implement improved learning practice | Core | delivered |  |  |
-| 4 | BSBCRT611 | Apply critical thinking for complex problem solving | Elective | delivered |  |  |
-| 5 | BSBSTR801 | Lead innovative thinking and practice | Elective | delivered |  |  |
-| 6 | BSBLDR812 | Develop and cultivate collaborative partnerships and relationships | Elective | delivered |  |  |
-| 7 | BSBLDR601 | Lead and manage organisational change | Elective | delivered |  |  |
-| 8 | BSBOPS601 | Develop and implement business plans | Elective | delivered |  |  |
+| 1 | BSBLDR811 | Lead strategic transformation | Core | delivered | 1 Strategic transformation and learning strategy |  |
+| 2 | BSBHRM613 | Contribute to the development of learning and development strategies | Core | delivered | 1 Strategic transformation and learning strategy |  |
+| 3 | TAELED803 | Implement improved learning practice | Core | delivered | 1 Strategic transformation and learning strategy |  |
+| 4 | BSBCRT611 | Apply critical thinking for complex problem solving | Elective | delivered | 2 Complex problem solving and innovation |  |
+| 5 | BSBSTR801 | Lead innovative thinking and practice | Elective | delivered | 2 Complex problem solving and innovation |  |
+| 6 | BSBLDR812 | Develop and cultivate collaborative partnerships and relationships | Elective | delivered | 3 Partnerships, change and business planning |  |
+| 7 | BSBLDR601 | Lead and manage organisational change | Elective | delivered | 3 Partnerships, change and business planning |  |
+| 8 | BSBOPS601 | Develop and implement business plans | Elective | delivered | 3 Partnerships, change and business planning |  |
+
+## Themes
+
+**1. Strategic transformation and learning strategy** (weeks 1-20)
+
+Lead a strategic transformation agenda and shape the organisation's learning and development strategy and practice.
+
+`BSBLDR811`, `BSBHRM613`, `TAELED803`
+
+**2. Complex problem solving and innovation** (weeks 21-33)
+
+Apply critical thinking to complex organisational problems and lead innovative thinking and practice.
+
+`BSBCRT611`, `BSBSTR801`
+
+**3. Partnerships, change and business planning** (weeks 34-52)
+
+Build collaborative partnerships, lead organisational change and translate strategy into an implemented business plan.
+
+`BSBLDR812`, `BSBLDR601`, `BSBOPS601`
 
 ## Topic map &mdash; who teaches what, once
 
@@ -30,8 +50,8 @@
 
 | Topic | Kind | Taught in full by | Applied, not taught, in |
 |---|---|---|---|
-| **Developing a change management strategy** | shared-scaffold | $(@{id=BSB80120-T01; name=Developing a change management strategy; kind=shared-scaffold; owner=BSBLDR811; ownerCluster=; rationale=BSBLDR811 Lead strategic transformation opens the qualification and owns the content and process of a change management strategy. BSBLDR601 Lead and manage organisational change, delivered seventh, carries the same knowledge point.; teachingRule=BSBLDR601 teaches what is new at its own scope - running a defined change programme, communication planning, resistance and reinforcement - and cites BSBLDR811 for the strategy document itself.; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]}.owner) | `BSBLDR601` |
-| **Organisational mission and values, and the stages of transformation** | shared-scaffold | $(@{id=BSB80120-T02; name=Organisational mission and values, and the stages of transformation; kind=shared-scaffold; owner=BSBLDR811; ownerCluster=; rationale=Two families - organisational mission, purpose and values, and organisational transformation with the management of the stages of change - are one topic: what the organisation is for, and how it moves from one state to another. Both are BSBLDR811's own subject matter and it is delivered first.; teachingRule=BSBLDR812 Develop and cultivate collaborative partnerships builds partnerships that serve the mission and manages relationships through the stages. It cites this topic rather than restating the mission framework or the change model.; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]}.owner) | `BSBLDR812` |
+| **Developing a change management strategy** | shared-scaffold | $(@{id=BSB80120-T01; name=Developing a change management strategy; kind=shared-scaffold; owner=BSBLDR811; ownerCluster=1; rationale=BSBLDR811 Lead strategic transformation opens the qualification and owns the content and process of a change management strategy. BSBLDR601 Lead and manage organisational change, delivered seventh, carries the same knowledge point.; teachingRule=BSBLDR601 teaches what is new at its own scope - running a defined change programme, communication planning, resistance and reinforcement - and cites BSBLDR811 for the strategy document itself.; assessmentDepth=applied; ownerBenchmark=A satisfactory answer states the case for change, identifies stakeholders and their resistance, sets the sequence and the communication plan, and defines how the change will be measured and embedded.; benchmarkProvenance=draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert; excludedUnits=System.Object[]; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]; citations=System.Object[]}.owner) | `BSBLDR601` |
+| **Organisational mission and values, and the stages of transformation** | shared-scaffold | $(@{id=BSB80120-T02; name=Organisational mission and values, and the stages of transformation; kind=shared-scaffold; owner=BSBLDR811; ownerCluster=1; rationale=Two families - organisational mission, purpose and values, and organisational transformation with the management of the stages of change - are one topic: what the organisation is for, and how it moves from one state to another. Both are BSBLDR811's own subject matter and it is delivered first.; teachingRule=BSBLDR812 Develop and cultivate collaborative partnerships builds partnerships that serve the mission and manages relationships through the stages. It cites this topic rather than restating the mission framework or the change model.; assessmentDepth=applied; ownerBenchmark=A satisfactory answer connects the mission, purpose and values to the change being led, and describes the stages of transformation and what leadership does at each.; benchmarkProvenance=draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert; excludedUnits=System.Object[]; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]; citations=System.Object[]}.owner) | `BSBLDR812` |
 
 ### The rulings in full
 
@@ -75,5 +95,5 @@ Anchored to training.gov.au:
 
 ---
 
-Unit list and sequencing from $(@{schemaVersion=2.0; courseId=MVC-BSB80120; qualificationCode=BSB80120; qualificationTitle=Graduate Diploma of Management (Learning); productType=qualification; aqfLevel=Graduate Diploma; provider=MVC; brandVariant=; institute=Meridian Vocational College; siblingCourse=; durationWeeks=52; packagingRule=; unitCount=8; deliveredCount=8; priorCourse=; sequencing=; units=System.Object[]; supersededUnits=System.Object[]; titleCorrections=System.Object[]; unitsNotInCache=System.Object[]; source=; notes=System.Object[]; openItems=System.Object[]}.source.tasFile) (SHA256 $(@{schemaVersion=2.0; courseId=MVC-BSB80120; qualificationCode=BSB80120; qualificationTitle=Graduate Diploma of Management (Learning); productType=qualification; aqfLevel=Graduate Diploma; provider=MVC; brandVariant=; institute=Meridian Vocational College; siblingCourse=; durationWeeks=52; packagingRule=; unitCount=8; deliveredCount=8; priorCourse=; sequencing=; units=System.Object[]; supersededUnits=System.Object[]; titleCorrections=System.Object[]; unitsNotInCache=System.Object[]; source=; notes=System.Object[]; openItems=System.Object[]}.source.tasSha256)). Unit titles, prerequisites and currency from training.gov.au. Generated 2026-09-08 &mdash; do not edit.
+Unit list and sequencing from $(@{schemaVersion=2.0; courseId=MVC-BSB80120; qualificationCode=BSB80120; qualificationTitle=Graduate Diploma of Management (Learning); productType=qualification; aqfLevel=Graduate Diploma; provider=MVC; brandVariant=; institute=Meridian Vocational College; siblingCourse=; durationWeeks=52; packagingRule=; unitCount=8; deliveredCount=8; priorCourse=; sequencing=; units=System.Object[]; supersededUnits=System.Object[]; titleCorrections=System.Object[]; unitsNotInCache=System.Object[]; source=; notes=System.Object[]; openItems=System.Object[]; retired=}.source.tasFile) (SHA256 $(@{schemaVersion=2.0; courseId=MVC-BSB80120; qualificationCode=BSB80120; qualificationTitle=Graduate Diploma of Management (Learning); productType=qualification; aqfLevel=Graduate Diploma; provider=MVC; brandVariant=; institute=Meridian Vocational College; siblingCourse=; durationWeeks=52; packagingRule=; unitCount=8; deliveredCount=8; priorCourse=; sequencing=; units=System.Object[]; supersededUnits=System.Object[]; titleCorrections=System.Object[]; unitsNotInCache=System.Object[]; source=; notes=System.Object[]; openItems=System.Object[]; retired=}.source.tasSha256)). Unit titles, prerequisites and currency from training.gov.au. Generated 2026-09-09 &mdash; do not edit.
 

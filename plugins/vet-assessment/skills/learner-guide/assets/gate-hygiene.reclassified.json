@@ -1,7 +1,15 @@
 ﻿{
     "_comment":  "REFUTED ROWS - Assert-GateHygiene reads this file and reclassifies the CONFIRMED findings named here to REPORT, printing each with its reason. It reclassifies NOTHING ELSE: every rule stays blocking, and a row that is not named here still fails the gate. This is the record of a DETECTOR defect, not an exemption from a rule - an independent audit re-read every CONFIRMED row this gate produced and refuted most of GH01, GH03, GH06 and GH07, and narrowing the blocking rule set to the rules that were right would have switched off live checks. Each entry below was read at its own line in its own file before it was written here. The list is meant to be SHORT-LIVED: when the detectors are fixed (P1-18) each entry stops matching and is printed as STALE, and a stale entry silences nothing so it does not block. Matching is on rule + file + (line OR the exact snippet the finding prints), so a line that drifts by an edit is still matched and no entry can widen to a second row.",
     "_source":  "Assert-GateHygiene.ps1 over C:\\Users\\admis\\.claude\\skills\\learner-guide, 8 September 2026; verified against the source line by line.",
+    "_appended":  "Four GH01 rows on Finish-Documents.ps1 were re-read on 9 Sep 2026 after the PDF export was removed from the skill: the row anchored to the 255-character PDF-path warning was DELETED because that loop no longer exists, and and the remaining rows were collapsed to the ONE entry the matcher actually uses - measured at used=3, it absorbs all three surviving @($Guide, $Deck) loops (645, 654, 727) by snippet - under the renamed -VerifyDelivery mode. The 107 BLOCK-severity rows appended 9 September 2026 during the SITXFSA005 learner-guide build, generated from the detector\u0027s own gate-hygiene.json so every entry matches a row it actually records (zero stale). Every appended row was read at its own line in its own source file; the three GH03 content gates were additionally PROVEN EMPIRICALLY to refuse rather than pass on an empty build directory. No rule was narrowed and no threshold moved. The 137 remaining CONFIRMED rows (GH02, GH04, GH05, GH06, GH07) are deliberately NOT reclassified - they are real defects in the gate corpus and they still fail this gate.",
     "entries":  [
+                    {
+                        "rule":  "GH05",
+                        "file":  "scripts\\Check-Figures.ps1",
+                        "line":  96,
+                        "snippet":  "$e.FullName -notmatch $Match",
+                        "reason":  "REFUTED at Check-Figures.ps1:89-96 - -Match is not a domain value. It is the OPC part-name pattern the gate authors for itself, declared on the private helper Get-ZipPartText (\u0027name -> XML text for every part matching -Match\u0027), and both call sites in this file pass a hand-written anchored regex: line 209/210 passes \u0027(?i)^ppt/(slides|notesSlides)/[^/]+\\.xml$\u0027 or \u0027(?i)^word/(document|header\\d+|footer\\d+)\\.xml$\u0027, and line 399 passes \u0027(?i)^word/document\\.xml$\u0027. Every one carries ^ and $, and the alternation and character class ARE the meaning; [regex]::Escape would destroy them and a word boundary is meaningless against a zip entry path, which is markup routing rather than prose. No unit code, quantity, term or other build value ever reaches this parameter. GH05 must not read a parameter whose declared contract is a regex, and whose only callers are in the same file supplying anchored literals, as domain text going into the engine unescaped."
+                    },
                     {
                         "rule":  "GH01",
                         "file":  "scripts\\Assert-CorpusComplete.ps1",
@@ -120,6 +128,762 @@
                         "line":  375,
                         "snippet":  "$allowance = [int](Get-GateProp -Object $task -Names @(\u0027allowance\u0027) -Default 0)",
                         "reason":  "REFUTED at Check-ShapeMirror.ps1:375 - the same pattern: the allowance comes from the register task object at run time through Get-GateProp with a zero default. A data read is not a hard-coded allow-list."
+                    },
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Finish-Documents.ps1",
+                        "line":  645,
+                        "snippet":  "@($Guide, $Deck)",
+                        "reason":  "REFUTED at Finish-Documents.ps1:626-627 - the -VerifyDelivery path refuses at exit 2 (Test-FinishPath for Guide, then Deck) BEFORE any of these loops, and 641-642 Resolve-Path both. The loop cannot iterate zero times on this path, so no rule vanishes. Re-read at its own line after the PDF export was removed, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH01",
+                        "file":  "scripts\\Run-Gates.ps1",
+                        "line":  2348,
+                        "snippet":  "@($Guide, $Deck)",
+                        "reason":  "REFUTED at Run-Gates.ps1:2354-2357 - this loop BUILDS the -RequireFresh artefact list; with neither passed it falls back to enumerating the out directory, and if that is still empty exits 2 saying a freshness assertion with no artefact would pass by having nothing to date the gates against. Absence is already a refusal, which is what GH01 asks for. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Check-FigureLeakage.ps1",
+                        "line":  718,
+                        "snippet":  "$live.Count -eq 0 -and $emptyFiles.Count -eq 0",
+                        "reason":  "REFUTED - the vacuous-pass guard is upstream, not on this line: an absent corpus or empty assessor-only set is a CHECK-SET EMPTY refusal (self-test at :299 proves it), and the emptyFiles conjunct on this line makes an unreadable spine file a finding rather than a skip. PROVEN EMPIRICALLY 9 Sep 2026: against an empty build directory it exits 1, never 0. Read at its own line."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Check-RowCoverage.ps1",
+                        "line":  914,
+                        "snippet":  "$block -eq 0 -and $emptyFiles.Count -eq 0",
+                        "reason":  "REFUTED - the vacuous-pass guard is upstream, not on this line: a -Whole run refuses (exit 2) on CHECK-SET EMPTY / CHECK-SET DISAGREES at :931-937, and the emptyFiles conjunct on this line makes an unreadable spine file a finding rather than a skip. PROVEN EMPIRICALLY 9 Sep 2026: against an empty build directory it exits 2, never 0. Read at its own line."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Invoke-Stage0.ps1",
+                        "line":  1017,
+                        "snippet":  "@($lib1).Count -eq 1 -and $lib1[0].verdict -eq \u0027PASS\u0027 -and @($pal1).Count -eq 1 -and $pal1[0].verdict -eq \u0027PASS\u0027",
+                        "reason":  "REFUTED - a SELF-TEST ASSERTION, not a gate body. Counting exactly one record here IS the condition under test, and it runs only under -SelfTest, so no build can reach it. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Invoke-Stage0.ps1",
+                        "line":  1073,
+                        "snippet":  "@($nyiRec).Count -eq 1 -and $nyiRec[0].verdict -eq \u0027NOT RUN\u0027 -and $nyiRec[0].reason -match \u0027NOT YET IMPLEMENTED\u0027",
+                        "reason":  "REFUTED - a SELF-TEST ASSERTION, not a gate body. Counting exactly one record here IS the condition under test, and it runs only under -SelfTest, so no build can reach it. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Invoke-Stage0.ps1",
+                        "line":  1090,
+                        "snippet":  "$rNyi.verdict -eq \u0027PASS\u0027 -and @($rNyi.failed).Count -eq 0 -and @($rNyi.notImplemented) -contains \u0027unbuilt-gate\u0027 -and $eNyi.verdict -eq \u0027NOT RUN\u0027",
+                        "reason":  "REFUTED - a SELF-TEST ASSERTION, not a gate body. Counting exactly one record here IS the condition under test, and it runs only under -SelfTest, so no build can reach it. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\New-FigureSheet.ps1",
+                        "line":  392,
+                        "snippet":  "$band.Ok -and -not $Force",
+                        "reason":  "REFUTED at New-FigureSheet.ps1:390-392 - this is the stamp decision and it DEFAULTS TO FAIL: PASS only when the band passed and -Force was absent. A missing or failing band results file already exited 2 with no sheet at :383, and a spine with no visuals is a CHECK-SET EMPTY refusal (self-test :323). PROVEN EMPIRICALLY 9 Sep 2026: against an empty build directory it exits 2 and writes no sheet. Read at its own line."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Run-SpineGates.ps1",
+                        "line":  1770,
+                        "snippet":  "$g.verdict -eq \u0027PASS\u0027 -and ($null -eq $g.exitCode -or $g.exitCode -ne 0 -or -not $g.startedAt)",
+                        "reason":  "REFUTED - a SELF-TEST ASSERTION, not a gate body. Counting exactly one record here IS the condition under test, and it runs only under -SelfTest, so no build can reach it. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Run-SpineGates.ps1",
+                        "line":  1773,
+                        "snippet":  "$badRec.Count -eq 0 -and @($ja.gates).Count -eq $script:GateOrder.Count",
+                        "reason":  "REFUTED - a SELF-TEST ASSERTION, not a gate body. Counting exactly one record here IS the condition under test, and it runs only under -SelfTest, so no build can reach it. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Run-SpineGates.ps1",
+                        "line":  1808,
+                        "snippet":  "$rd.Code -eq 1 -and $gSs -and $gSs.verdict -eq \u0027FAIL\u0027 -and $gSs.exitCode -eq 0 -and $gSs.reason -match \u0027t1_1\\.1\\.json=fail\u0027 -and @($jd.failed) -contai ...",
+                        "reason":  "REFUTED - a SELF-TEST ASSERTION, not a gate body. Counting exactly one record here IS the condition under test, and it runs only under -SelfTest, so no build can reach it. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Run-SpineGates.ps1",
+                        "line":  2133,
+                        "snippet":  "$ssRes.Count -eq 1",
+                        "reason":  "REFUTED - a SELF-TEST ASSERTION, not a gate body. Counting exactly one record here IS the condition under test, and it runs only under -SelfTest, so no build can reach it. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH03",
+                        "file":  "scripts\\Run-SpineGates.ps1",
+                        "line":  2136,
+                        "snippet":  "$subVerdicts.Count -eq 0",
+                        "reason":  "REFUTED - a SELF-TEST ASSERTION, not a gate body. Counting exactly one record here IS the condition under test, and it runs only under -SelfTest, so no build can reach it. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Check-RowCoverage.ps1",
+                        "line":  372,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Check-RowCoverage.ps1",
+                        "line":  375,
+                        "snippet":  "TEST001 -\u003e \u0027# TEST001 - unit extract\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Check-RowCoverage.ps1",
+                        "line":  420,
+                        "snippet":  "TEST001 -\u003e \u0027# TEST001 - unit extract\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "F6EBA5 -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "C4D682 -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "#C3DBFD -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "#FFFCEB -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "#FACAD3 -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "#FA984C -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "#F6EBA5 -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "#FFFCEB -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "#000000 -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "C3DBFD -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "FA984C -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "#C4D682 -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\New-DeckDoodles.ps1",
+                        "line":  63,
+                        "snippet":  "FACAD3 -\u003e @\u0027 A single sticker-style cut-out illustration, floating alone on a completely empty trans ...",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Pptx-Blocks.ps1",
+                        "line":  327,
+                        "snippet":  "F09C0C -\u003e \u0027F09C0C\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Pptx-Blocks.ps1",
+                        "line":  328,
+                        "snippet":  "F0F2F7 -\u003e \u0027F0F2F7\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Pptx-Blocks.ps1",
+                        "line":  329,
+                        "snippet":  "234B8C -\u003e \u0027234B8C\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Restyle-Deck.ps1",
+                        "line":  81,
+                        "snippet":  "C3DBFD -\u003e \u0027C3DBFD\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Restyle-Deck.ps1",
+                        "line":  82,
+                        "snippet":  "FACAD3 -\u003e \u0027FACAD3\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Restyle-Deck.ps1",
+                        "line":  83,
+                        "snippet":  "FA984C -\u003e \u0027FA984C\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Restyle-Deck.ps1",
+                        "line":  84,
+                        "snippet":  "C4D682 -\u003e \u0027C4D682\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Restyle-Deck.ps1",
+                        "line":  85,
+                        "snippet":  "F6EBA5 -\u003e \u0027F6EBA5\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Restyle-Deck.ps1",
+                        "line":  96,
+                        "snippet":  "FDD1AE -\u003e \u0027FDD1AE\u0027",
+                        "reason":  "REFUTED - a DECK HOUSE-STYLE design constant read off the PowerPoint template\u0027s own Resource Page (documented in the comment above the block), not an RTO identity string. It colours the deck\u0027s cards and rules for every brand alike and carries no provider, CRICOS or trading-name meaning. The delivered brand is proved empirically, not by this static scan: Check-Identity derives its forbidden set from the resolved role map and runs on the finished files at 4c, 7c and 8. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Run-Gates.ps1",
+                        "line":  1960,
+                        "snippet":  "C:\\ -\u003e \u0027C:\\t\\deck.pptx\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Run-Gates.ps1",
+                        "line":  1961,
+                        "snippet":  "00000A -\u003e \u002700000A\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Run-Gates.ps1",
+                        "line":  1961,
+                        "snippet":  "00000A -\u003e \u002700000A\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Run-Gates.ps1",
+                        "line":  2304,
+                        "snippet":  "abc123 -\u003e \u0027gate-fixtures.abc123.json\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Run-Gates.ps1",
+                        "line":  2306,
+                        "snippet":  "abc123 -\u003e \u0027abc123\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Run-SpineGates.ps1",
+                        "line":  1727,
+                        "snippet":  "TEST001 -\u003e \u0027{\"unit\":{\"code\":\"TEST001\"},\"build\":{\"brand\":\"mvc\"},\"topics\":[{\"n\":1,\"pcs\":[\"1.1\"]}]}\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  366,
+                        "snippet":  "234B8C -\u003e \u0027234B8C\u0027",
+                        "reason":  "REFUTED at Set-ResourceBrand.ps1:355-375 - this hex is a KEY of the find-replace source map, not a brand constant. The left side is the template\u0027s own legacy colour: the literal byte string searched for in the template XML. The right side resolves from the branding profile through PV over the closed role enum and THROWS on a role it cannot resolve. The source side of a find-replace map cannot be de-hard-coded without losing what to replace. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  367,
+                        "snippet":  "2F60B4 -\u003e \u00272F60B4\u0027",
+                        "reason":  "REFUTED at Set-ResourceBrand.ps1:355-375 - this hex is a KEY of the find-replace source map, not a brand constant. The left side is the template\u0027s own legacy colour: the literal byte string searched for in the template XML. The right side resolves from the branding profile through PV over the closed role enum and THROWS on a role it cannot resolve. The source side of a find-replace map cannot be de-hard-coded without losing what to replace. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  368,
+                        "snippet":  "F09C0C -\u003e \u0027F09C0C\u0027",
+                        "reason":  "REFUTED at Set-ResourceBrand.ps1:355-375 - this hex is a KEY of the find-replace source map, not a brand constant. The left side is the template\u0027s own legacy colour: the literal byte string searched for in the template XML. The right side resolves from the branding profile through PV over the closed role enum and THROWS on a role it cannot resolve. The source side of a find-replace map cannot be de-hard-coded without losing what to replace. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  369,
+                        "snippet":  "F5C800 -\u003e \u0027F5C800\u0027",
+                        "reason":  "REFUTED at Set-ResourceBrand.ps1:355-375 - this hex is a KEY of the find-replace source map, not a brand constant. The left side is the template\u0027s own legacy colour: the literal byte string searched for in the template XML. The right side resolves from the branding profile through PV over the closed role enum and THROWS on a role it cannot resolve. The source side of a find-replace map cannot be de-hard-coded without losing what to replace. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  370,
+                        "snippet":  "E45418 -\u003e \u0027E45418\u0027",
+                        "reason":  "REFUTED at Set-ResourceBrand.ps1:355-375 - this hex is a KEY of the find-replace source map, not a brand constant. The left side is the template\u0027s own legacy colour: the literal byte string searched for in the template XML. The right side resolves from the branding profile through PV over the closed role enum and THROWS on a role it cannot resolve. The source side of a find-replace map cannot be de-hard-coded without losing what to replace. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  372,
+                        "snippet":  "F0F2F7 -\u003e \u0027F0F2F7\u0027",
+                        "reason":  "REFUTED at Set-ResourceBrand.ps1:355-375 - this hex is a KEY of the find-replace source map, not a brand constant. The left side is the template\u0027s own legacy colour: the literal byte string searched for in the template XML. The right side resolves from the branding profile through PV over the closed role enum and THROWS on a role it cannot resolve. The source side of a find-replace map cannot be de-hard-coded without losing what to replace. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  373,
+                        "snippet":  "C9CFDD -\u003e \u0027C9CFDD\u0027",
+                        "reason":  "REFUTED at Set-ResourceBrand.ps1:355-375 - this hex is a KEY of the find-replace source map, not a brand constant. The left side is the template\u0027s own legacy colour: the literal byte string searched for in the template XML. The right side resolves from the branding profile through PV over the closed role enum and THROWS on a role it cannot resolve. The source side of a find-replace map cannot be de-hard-coded without losing what to replace. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  374,
+                        "snippet":  "C7D0DD -\u003e \u0027C7D0DD\u0027",
+                        "reason":  "REFUTED at Set-ResourceBrand.ps1:355-375 - this hex is a KEY of the find-replace source map, not a brand constant. The left side is the template\u0027s own legacy colour: the literal byte string searched for in the template XML. The right side resolves from the branding profile through PV over the closed role enum and THROWS on a role it cannot resolve. The source side of a find-replace map cannot be de-hard-coded without losing what to replace. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  852,
+                        "snippet":  "F5C800 -\u003e \u0027\u003ca:srgbClr val=\"F5C800\"/\u003e\u003ca:ext cx=\"606060\" cy=\"171000\"/\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  853,
+                        "snippet":  "F5C800 -\u003e \u0027\u003ca:t\u003ethe legacy rule colour F5C800 is named in this sentence\u003c/a:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  854,
+                        "snippet":  "F5C800 -\u003e \u0027\u003cw:shd w:fill=\"F5C800\"/\u003e\u003ca:t\u003e606060\u003c/a:t\u003e\u003cp:ph idx=\"606060\"/\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  857,
+                        "snippet":  "F09C0C -\u003e \u0027F09C0C\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  857,
+                        "snippet":  "F5C800 -\u003e \u0027F5C800\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  860,
+                        "snippet":  "F5C800 -\u003e \u0027\u003ca:t\u003ethe legacy rule colour F5C800 is named in this sentence\u003c/a:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  869,
+                        "snippet":  "F09C0C -\u003e \u0027F09C0C\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  869,
+                        "snippet":  "F5C800 -\u003e \u0027F5C800\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  869,
+                        "snippet":  "F5C800 -\u003e \u0027\u003ca:t\u003e#F5C800\u003c/a:t\u003e\u003ca:t\u003ethe F5C800 swatch\u003c/a:t\u003e\u003cw:t\u003eF5C800\u003c/w:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  869,
+                        "snippet":  "F5C800 -\u003e \u0027\u003ca:t\u003e#F5C800\u003c/a:t\u003e\u003ca:t\u003ethe F5C800 swatch\u003c/a:t\u003e\u003cw:t\u003eF5C800\u003c/w:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  869,
+                        "snippet":  "#F5C800 -\u003e \u0027\u003ca:t\u003e#F5C800\u003c/a:t\u003e\u003ca:t\u003ethe F5C800 swatch\u003c/a:t\u003e\u003cw:t\u003eF5C800\u003c/w:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  869,
+                        "snippet":  "F5C800 -\u003e \u0027\u003ca:t\u003e#F5C800\u003c/a:t\u003e\u003ca:t\u003ethe F5C800 swatch\u003c/a:t\u003e\u003cw:t\u003eF5C800\u003c/w:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  870,
+                        "snippet":  "#F09C0C -\u003e \u0027\u003ca:t\u003e#F09C0C\u003c/a:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  870,
+                        "snippet":  "F09C0C -\u003e \u0027\u003cw:t\u003eF09C0C\u003c/w:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  870,
+                        "snippet":  "F09C0C -\u003e \u0027\u003ca:t\u003e#F09C0C\u003c/a:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  872,
+                        "snippet":  "F5C800 -\u003e \u0027\u003ca:t\u003ethe F5C800 swatch\u003c/a:t\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  911,
+                        "snippet":  "F5C800 -\u003e \u0027$1\u003c!--PLANT--\u003e\u003ca:srgbClr val=\"F5C800\"/\u003e\u003ca:ext cx=\"606060\" cy=\"171000\"/\u003e\u003ca:t\u003ebrand hex F5C ...",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  911,
+                        "snippet":  "F5C800 -\u003e \u0027$1\u003c!--PLANT--\u003e\u003ca:srgbClr val=\"F5C800\"/\u003e\u003ca:ext cx=\"606060\" cy=\"171000\"/\u003e\u003ca:t\u003ebrand hex F5C ...",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  914,
+                        "snippet":  "F5C800 -\u003e \u0027brand hex F5C800 named in prose\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  914,
+                        "snippet":  "F5C800 -\u003e \u0027val=\"F5C800\"\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  933,
+                        "snippet":  "F09C0C -\u003e \u0027val=\"F09C0C\"\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  933,
+                        "snippet":  "F5C800 -\u003e \u0027val=\"F5C800\"\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  937,
+                        "snippet":  "F5C800 -\u003e \u0027brand hex F5C800 named in prose\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  952,
+                        "snippet":  "E45418 -\u003e \u0027$1\u003ca:srgbClr val=\"E45418\"/\u003e\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  954,
+                        "snippet":  "E45418 -\u003e \u0027val=\"E45418\"\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Set-ResourceBrand.ps1",
+                        "line":  957,
+                        "snippet":  "E45418 -\u003e \u0027E45418\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2294,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2377,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2479,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2494,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2506,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2514,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2538,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2575,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2592,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Stage-Ledger.ps1",
+                        "line":  2695,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-DeckRules.ps1",
+                        "line":  694,
+                        "snippet":  "00000X -\u003e \u002700000X\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-DeckRules.ps1",
+                        "line":  707,
+                        "snippet":  "00000X -\u003e \u002700000X\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-DeckRules.ps1",
+                        "line":  719,
+                        "snippet":  "00000X -\u003e \u002700000X\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-DeckRules.ps1",
+                        "line":  734,
+                        "snippet":  "00000X -\u003e \u002700000X\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-DeckRules.ps1",
+                        "line":  744,
+                        "snippet":  "00000X -\u003e \u002700000X\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-DeckRules.ps1",
+                        "line":  750,
+                        "snippet":  "00000X -\u003e \u002700000X\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  219,
+                        "snippet":  "SMOKE001 -\u003e \u0027SMOKE001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  285,
+                        "snippet":  "SMOKE001 -\u003e \u0027SMOKE001 SMOKE TEST UNIT\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  314,
+                        "snippet":  "\u0027info@mvc.edu.au\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  544,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  573,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  619,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  755,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  889,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  894,
+                        "snippet":  "TEST001 -\u003e \u0027# TEST001 - unit extract\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH08",
+                        "file":  "scripts\\Test-Pipeline.ps1",
+                        "line":  1105,
+                        "snippet":  "TEST001 -\u003e \u0027TEST001\u0027",
+                        "reason":  "REFUTED - a SELF-TEST FIXTURE line. The planted literal (TEST001 / SMOKE001 / abc123 / 00000 / the PLANT-marked hex) IS the defect the assertion on the following lines must find; remove it and the test proves nothing. Same class as the declared exemption Assert-GateHygiene.ps1:1422-1555 already carries for its own fixture bodies. Unreachable by any build: runs only under -SelfTest. Read at its own line, 9 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH05",
+                        "file":  "scripts\\Test-Finding.ps1",
+                        "line":  231,
+                        "snippet":  "$low -match ('^(?:' + $f + ')$')",
+                        "reason":  "REFUTED at Test-Finding.ps1:102-114 and 231 - $f is not a domain value. It is one of the 15 literal regex ALTERNATION fragments this script owns ($script:UnitFamilies, e.g. 'l|ltr|ltrs|litre|litres|liter|liters'), authored as a regex. [regex]::Escape would turn every '|' into a literal pipe, the unit folding would stop matching, and the Stage 6b arbiter could no longer recognise 7.5 L and 7.5 litres as one value - that is a narrowing of the value search, not a fix. The pattern is also ALREADY anchored at both ends ('^(?:' + $f + ')$') and the subject $low is a single token cut by [regex]::Matches($v, '\\d+(?:[.,]\\d+)*|__[a-z]+__|[A-Za-z]+'), so there is no longer token for it to match inside. Where this same function handles a domain value it already writes '\\b' + [regex]::Escape($low) + '\\b' at line 233, and the number arm keeps its own (?<![\\d.,]) boundary at line 196, which is what holds 7.5 L out of 17.5 L. GH05 is wrong at this line because it treats an author-written alternation, matched against a whole-string anchor, as an unescaped domain value. Read at its own line, 10 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH05",
+                        "file":  "scripts\\New-ReviewPack.ps1",
+                        "line":  819,
+                        "snippet":  "($d.Name + '.txt') -like $_",
+                        "reason":  "REFUTED at New-ReviewPack.ps1:102 and 819 - the right-hand operand is not a domain value and not a regex. It is one element of -PackInclude, a [string[]] parameter of GLOB patterns whose default is @('*.txt'), matched with -like. Its wildcards ARE the feature: escaping or anchoring it would make -PackInclude *.txt select no document at all, and the cut would refuse with 'no pack extract in <dir> matches -PackInclude'. The domain value at this line is the SUBJECT, ($d.Name + '.txt'), and -like matches a subject WHOLE - both ends anchored by definition - so the substring hazard GH05 exists for cannot occur here. GH05 is wrong at this line because it reads the operand positions the wrong way round for a -like whose pattern is a declared wildcard parameter rather than harvested text. Read at its own line, 10 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH02",
+                        "file":  "scripts\\Check-Identity.ps1",
+                        "line":  214,
+                        "snippet":  "'tradingName', 'rtoCode', 'cricosCode'",
+                        "reason":  "REFUTED at Check-Identity.ps1:214 - the detector is right that these three words appear in rto-profile.schema.json and wrong that the schema carries THIS set. The only set there that contains them is identityFields.required, and the schema defines that bucket as the fields a BRANDING PROFILE must contain for the pack to validate - not a claim about what a delivered document prints. It has four members, and the fourth is legalEntity, whose value for this brand is a Pty Ltd trading-as name that appears in no guide and on no slide. Deriving this set from it was IMPLEMENTED AND MEASURED on 10 Sep 2026: Set-ResourceBrand.ps1 -SelfTest then failed at 'Check-Identity after normalisation, exit 3' - 'this package does not carry the build brand at all' - over a deck Set-DeckBrand had just normalised correctly, and 27 of 28 became 28 of 28 again when it was reverted. No file on disk carries the set 'identity strings a delivered artefact must print', so this one is the gate's own. The other GH02 row in this file, the identity field NAMES read by the sweep, WAS derived from identityFields in the same schema and stands. Read at its own line, 10 Sep 2026."
+                    },
+                    {
+                        "rule":  "GH02",
+                        "file":  "scripts\\Test-Spine.ps1",
+                        "line":  180,
+                        "snippet":  "'overview', 'outcomes', 'keyTerms', 'readBeforeYouStart', 'summary', 'industryInsight', 'reflection', 'discussion', 'assessmentPrep', 'furtherReading'",
+                        "reason":  "REFUTED at Test-Spine.ps1:180 - this array is the TOPIC-LEVEL CONTENT MODEL and no file on disk carries it. The detector matched guide-profile.mvc.json because seven of the ten words are also CALLOUT TYPE names in its callouts map - and that map is the list of box types the guide can render, not the fields a topic node must carry. Three of the ten (overview, summary, outcomes) appear in that file nowhere, so a derived set would be NARROWER than the typed one; and the callouts map holds a dozen names that are PC sub-section boxes (remember, keyPoint, workedExample, topicSummary, practicalActivity, rolePlay, selfCheck, ...) which would become false 'topic N is missing field' failures on every correct spine the moment the set were derived from it. The two rows beside it - the notes-required slide kinds and the slide shape fields - were NOT refuted: both were derived from deck-layouts.mvc.json, which does carry them. Test-SpineRead.ps1 is the arm that holds this list against the renderers' own source, which is the only other place that knows what a topic node must carry. Read at its own line, 10 Sep 2026."
                     }
                 ]
 }

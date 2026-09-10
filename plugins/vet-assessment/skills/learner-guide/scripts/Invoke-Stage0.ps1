@@ -395,7 +395,14 @@ function Get-S0Binding {
         'Get-BrandPalettePairs',
         'Assert-GateFixtures.ps1',
         'Assert-GateHygiene.ps1',
-        'Probe-GenerationEndpoints.ps1'
+        'Probe-GenerationEndpoints.ps1',
+        #  The runner's own two. gates.md binds the `schema-compile` and
+        #  `library-load` rows to scripts\Invoke-Stage0.ps1, so both rows key to
+        #  this file's leaf. They ARE implemented - run inline in
+        #  Invoke-Stage0Run, because the dot-source cannot live in a function -
+        #  but omitting the key here made every Stage 0 run refuse at exit 2,
+        #  naming this script twice and running nothing.
+        'Invoke-Stage0.ps1'
     )
 }
 
@@ -831,18 +838,27 @@ function Write-S0Report {
     }
     Write-Host ''
     Write-Host ("  fixtures: {0}" -f $Result.fixtures.note) -ForegroundColor $(if ($Result.fixtures.found) { 'DarkGray' } else { 'Yellow' })
-    if (@($Result.partial).Count -gt 0) {
+    #  READ ONCE, AND WITHOUT THE @($null).Count LIE. @($null).Count is 1 in
+    #  PS 5.1, so `@($Result.partial).Count -gt 0` answered YES for a result
+    #  object that carries no partial[] at all, and Stage 0 announced a PARTIAL
+    #  run with nothing under it.
+    $partialItems = if ($null -ne $Result.partial) { @($Result.partial) } else { @() }
+    if ($partialItems.Count -gt 0) {
         Write-Host ''
-        Write-Host ("  PARTIAL - {0} named entr(y/ies), every one of them in 0-results.json:" -f @($Result.partial).Count) -ForegroundColor Yellow
-        foreach ($x in @($Result.partial)) { Write-Host ("    {0}" -f (Get-S0Short -Value $x -Max 200)) -ForegroundColor Yellow }
+        Write-Host ("  PARTIAL - {0} named entr(y/ies), every one of them in 0-results.json:" -f $partialItems.Count) -ForegroundColor Yellow
+        foreach ($x in $partialItems) { Write-Host ("    {0}" -f (Get-S0Short -Value $x -Max 200)) -ForegroundColor Yellow }
     }
     Write-Host ''
     if ($Result.verdict -eq 'PASS') {
         Write-Host ("STAGE 0 PASS - {0} member(s), {1}s. Every blocking member that EXISTS ran and passed." -f @($Result.gates).Count, $Result.wallClockSeconds) -ForegroundColor Green
     }
     else { Write-Host ("STAGE 0 FAIL - {0}  ({1}s)" -f (@($Result.failed) -join ', '), $Result.wallClockSeconds) -ForegroundColor Red }
-    if (@($Result.notImplemented).Count -gt 0) {
-        Write-Host ("  {0} BLOCKING gate(s) the documentation declares are NOT YET IMPLEMENTED and were performed by NOBODY: {1}" -f @($Result.notImplemented).Count, (@($Result.notImplemented) -join ', ')) -ForegroundColor Yellow
+    #  Same shape, same lie: an absent notImplemented[] counted 1 and this gate
+    #  reported one unnamed NOT-YET-IMPLEMENTED blocking gate on every build
+    #  whose result object did not carry the property. Read once.
+    $nyiItems = if ($null -ne $Result.notImplemented) { @($Result.notImplemented) } else { @() }
+    if ($nyiItems.Count -gt 0) {
+        Write-Host ("  {0} BLOCKING gate(s) the documentation declares are NOT YET IMPLEMENTED and were performed by NOBODY: {1}" -f $nyiItems.Count, ($nyiItems -join ', ')) -ForegroundColor Yellow
         Write-Host '  They are recorded NOT RUN, named in partial[], and can never read as PASS. They do not fail the stage because nobody has built them; that is a roadmap item, not a build defect.' -ForegroundColor DarkGray
     }
     Write-Host ("  0-results.json written to {0}" -f (Join-Path $Result.resultDir '0-results.json')) -ForegroundColor DarkGray

@@ -177,6 +177,12 @@ $script:Here = $PSScriptRoot
 if (-not $script:Here -and $MyInvocation.MyCommand.Path) { $script:Here = Split-Path -Parent $MyInvocation.MyCommand.Path }
 if (-not $SkillDir -and $script:Here) { $SkillDir = Split-Path -Parent $script:Here }
 
+#  Get-GateAllowList and Get-GateCount live here. The allow-list this harness
+#  reads is a VERSIONED REGISTRY FILE, and the one helper that refuses an entry
+#  without a written reason is the library's - a second copy of that rule in
+#  this file is a second rule, free to disagree with it.
+if ($script:Here) { . (Join-Path $script:Here 'Lib-GateCommon.ps1') }
+
 # ---------------------------------------------------------------------------
 # Reading and writing files the way this toolchain has to
 # ---------------------------------------------------------------------------
@@ -1577,10 +1583,14 @@ function Get-StaticFindings {
         elseif (-not $blockingOf.ContainsKey($d.Name)) { $blockingOf[$d.Name] = $false }
     }
     function Add-StaticFinding {
-        param([string] $Kind, [string] $Gate, [string] $Detail)
+        #  -Reported forces a row to REPORT even on a blocking gate. It is used
+        #  only where a versioned registry entry, with a written reason, has
+        #  already answered the finding - the row still prints, so the reason
+        #  is surfaced as evidence rather than the finding disappearing.
+        param([string] $Kind, [string] $Gate, [string] $Detail, [switch] $Reported)
         $rows.Add([pscustomobject]@{
             Kind = $Kind; Gate = $Gate; Detail = $Detail
-            Blocking = [bool]($blockingOf.ContainsKey($Gate) -and $blockingOf[$Gate])
+            Blocking = $(if ($Reported) { $false } else { [bool]($blockingOf.ContainsKey($Gate) -and $blockingOf[$Gate]) })
         })
     }
 
@@ -1615,7 +1625,21 @@ function Get-StaticFindings {
             #  a renderer in the derived set is not a band member, and a header
             #  on it would say nothing.
             if ($isGateName -or ($blockingOf.ContainsKey($h.Gate) -and $blockingOf[$h.Gate])) {
-                Add-StaticFinding -Kind 'NO-HEADER' -Gate $h.Gate -Detail "carries no '# GATE: stages=...; requires=...' line, so Run-SpineGates puts it in no band and no runner threads its inputs"
+                #  THE REGISTER CLEARS ONLY A SCRIPT NO RUNNER PLANS.
+                #  A script a runner names in its plan WILL be looked up for a
+                #  header, so it owes one and no written reason excuses it -
+                #  the same shape as the NO-COVER arm's rule that a gate-named
+                #  script is never cleared. Everything else here is a stage
+                #  tool, a producer or a runner, invoked directly at a stage
+                #  that has no band; the reason is printed as evidence.
+                $cleared = $false
+                if ($script:NoHeaderAllow -and $script:NoHeaderAllow.Contains($h.Gate) -and -not $planNames.ContainsKey($h.Gate)) {
+                    $cleared = $true
+                    Add-StaticFinding -Kind 'NO-HEADER-DECLARED' -Gate $h.Gate -Reported -Detail ("no header, and the registry says why: {0}" -f $script:NoHeaderAllow[$h.Gate])
+                }
+                if (-not $cleared) {
+                    Add-StaticFinding -Kind 'NO-HEADER' -Gate $h.Gate -Detail "carries no '# GATE: stages=...; requires=...' line, so Run-SpineGates puts it in no band and no runner threads its inputs"
+                }
             }
             continue
         }
@@ -1710,23 +1734,36 @@ function Get-ScriptsHash {
     finally { $sha.Dispose(); $ms.Dispose() }
 }
 
-#  THE STATIC RULE'S ALLOW-LIST, beside the rule it weakens. A BLOCKING gate
-#  with neither a self-test switch nor a recipe in this harness is a FAIL in
-#  -StaticOnly. The scripts below are in the derived set because they can
-#  exit non-zero, but they are libraries, renderers or tools, not gates: they
-#  decide no verdict about a build, so a plant has nothing to make them fail
-#  ON. Each carries the reason. A gate-named script (Assert-/Check-/Test-) is
-#  never allow-listed here: it claims a verdict, so it owes a proof.
-$script:StaticCoverAllow = [ordered]@{
-    'Lib-Resolve'                  = 'library: resolves sibling skills and loads libraries; throws on a missing one, decides nothing about a build'
-    'Pptx-Blocks'                  = 'library: slide-building primitives dot-sourced by the deck renderer'
-    'Xml-Scan'                     = 'library: OOXML part scanning primitives used by the gates, no verdict of its own'
-    'Build-Guide'                  = 'renderer: writes the guide from the spine; its output is gated by Test-GuideRules and the 4/7c band'
-    'Set-ResourceBrand'            = 'renderer step: applies the palette; the mark is PROVED afterwards by Check-Identity (stage 4c)'
-    'Patch-GuideTemplateGeometry'  = 'tool: one-off template geometry patch, ShouldProcess-guarded; its effect is gated by Test-GuideRules content width'
-    'New-WithholdRegister'         = 'producer: derives the register at Stage 2; enforced by Assert-WithholdRegister, Check-ShapeMirror and Check-FigureMirror, which carry the proofs'
-    'New-FigureSheet'              = 'producer: cuts the figure sheet; refusal on a failed band is the P0-07 proof owned by its own self-test once landed'
-    'Get-DocText'                  = 'producer: text extracts with a stamp; every rendered-arm gate consumes it and proves against it'
+#  THE STATIC RULE'S ALLOW-LIST, BESIDE THE RULE IT WEAKENS AND IN A VERSIONED
+#  FILE. A BLOCKING gate with neither a self-test switch nor a recipe in this
+#  harness is a FAIL in -StaticOnly. The cleared scripts are in the derived set
+#  because they can exit non-zero, but they are libraries, renderers or tools,
+#  not gates: they decide no verdict about a build, so a plant has nothing to
+#  make them fail ON.
+#
+#  The entries USED TO LIVE HERE, as an in-script table. That is the shape this
+#  whole rule set exists to catch: the thing that switched a blocking rule off
+#  for nine scripts was invisible to the audit that trusted the rule. They now
+#  live in assets\gate-fixtures.json and are read through Lib-GateCommon's
+#  Get-GateAllowList, which REFUSES an entry that carries no written reason. A
+#  gate-named script (Assert-/Check-/Test-) is still never cleared: the NO-COVER
+#  arm re-checks the name, because a script that claims a verdict owes a proof.
+$script:StaticCoverAllowPath = $(if ($SkillDir) { Join-Path $SkillDir 'assets\gate-fixtures.json' } else { '' })
+$script:StaticCoverAllow = @{}
+$script:NoHeaderAllow = @{}
+if ($script:StaticCoverAllowPath) {
+    $reg = Get-GateRegistry -BuildDir $SkillDir -RulesPath $script:StaticCoverAllowPath
+    $script:StaticCoverAllow = Get-GateAllowList `
+        -Registry $reg `
+        -Key 'staticCoverAllow' -IdField @('script', 'id', 'name') -GateName 'Assert-GateFixtures'
+    #  The NO-HEADER register, read the same way and refused the same way: an
+    #  entry with no written reason does not load. See _noHeaderRule in the
+    #  registry for the incident - a blocking band member whose documented
+    #  state was permanent failure, over eight scripts gates.md itself calls
+    #  gates the reconciler cannot place.
+    $script:NoHeaderAllow = Get-GateAllowList `
+        -Registry $reg `
+        -Key 'noHeaderAllow' -IdField @('script', 'id', 'name') -GateName 'Assert-GateFixtures'
 }
 
 
@@ -3414,6 +3451,13 @@ if (-not $Quiet) {
     Write-Host ('  scripts+recipes hash: {0}' -f $scriptsHash.Substring(0, 16)) -ForegroundColor DarkGray
     Write-Host ('  ledger stage table: {0}' -f $(if ($ledger.Found) { ("{0} stage(s), from the {1}" -f @($ledger.Keys).Count, $ledger.Source) } else { $ledger.Note })) -ForegroundColor DarkGray
     Write-Host ('  refusal probe set: {0}' -f $(if ($probes.Found) { ("{0} script(s), from {1}" -f $probes.Set.Count, $probes.Source) } else { $probes.Note })) -ForegroundColor DarkGray
+    #  SAY WHAT THE ALLOW-LIST CLEARED AND WHERE IT CAME FROM. An allow-list
+    #  nobody can see is a gate switched off quietly, so its size, its source
+    #  and every entry it holds are printed as evidence beside the check-set.
+    Write-Host ('  NO-COVER allow-list: {0} entr(ies), each with a written reason, from {1}' -f $script:StaticCoverAllow.Count, $(if ($script:StaticCoverAllowPath) { $script:StaticCoverAllowPath } else { '(no -SkillDir: nothing read)' })) -ForegroundColor DarkGray
+    foreach ($ak in @($script:StaticCoverAllow.Keys | Sort-Object)) {
+        Write-Host ('    {0,-28} {1}' -f $ak, (Get-ShortLine -Value "$($script:StaticCoverAllow[$ak])" -Max 150)) -ForegroundColor DarkGray
+    }
 }
 
 #  Reconcile the doc's claims against the filesystem, both ways.
@@ -3462,7 +3506,13 @@ function Write-StaticFindings {
         $gatesLine = $Plans.GatesNote
         if ($Plans.GatesFound) {
             $gatesLine = ("{0} named entr(ies)" -f @($Plans.GatesScripts).Count)
-            if (@($Plans.GatesUnresolved).Count -gt 0) { $gatesLine = $gatesLine + (", {0} behind a variable and UNRESOLVED" -f @($Plans.GatesUnresolved).Count) }
+            #  Get-GateCount, not @($Plans.GatesUnresolved).Count: @($null).Count
+            #  is 1 in PS 5.1, so a plan view built without that property would
+            #  report ONE entry behind a variable and UNRESOLVED on a plan where
+            #  every entry resolved. Counted once, and the count printed is the
+            #  count that decided.
+            $unresolvedCount = Get-GateCount -Value $Plans.GatesUnresolved
+            if ($unresolvedCount -gt 0) { $gatesLine = $gatesLine + (", {0} behind a variable and UNRESOLVED" -f $unresolvedCount) }
         }
         Write-Host ('  Run-Gates 4/7c plan: {0}' -f $gatesLine) -ForegroundColor DarkGray
     }

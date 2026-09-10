@@ -1171,7 +1171,10 @@ function Write-RunReport {
             Write-Host ('  ! {0} | {1} | {2} | {3}' -f $rp.arm, $(if ($rp.path) { $rp.path } else { '-' }), $(if ($rp.grid) { $rp.grid } else { '-' }), $rp.text) -ForegroundColor Yellow
         }
     }
-    if (@($R.Skipped).Count -gt 0) { Write-Host ('skipped:  {0}' -f (($R.Skipped | ForEach-Object { $_.arm }) -join ', ')) -ForegroundColor DarkGray }
+    #  Get-GateCount, not @($R.Skipped).Count: @($null).Count is 1 in PS 5.1,
+    #  so counting an ABSENT property answers YES and this line would print an
+    #  empty 'skipped:' list over a result that never carried the property.
+    if ((Get-GateCount -Value $R.Skipped) -gt 0) { Write-Host ('skipped:  {0}' -f (($R.Skipped | ForEach-Object { $_.arm }) -join ', ')) -ForegroundColor DarkGray }
     Write-Host ('gate.json: {0}' -f $(if ($R.GateJson) { $R.GateJson } else { 'NOT WRITTEN' })) -ForegroundColor DarkGray
     Write-Host ('==== end verdict: {0} ====' -f $(if ($R.Verdict -eq 'pass') { 'exit 0' } else { 'exit 1 - fix and re-run; a hit you believe is a coincidence stays in place and is named in openQuestions' })) -ForegroundColor Cyan
 }
@@ -1329,7 +1332,14 @@ function Invoke-SelfTest {
                         $named = @(Blocks-On $r 'mirror-own' | ForEach-Object { $_.grid } | Sort-Object -Unique)
                         $expected = @($over | ForEach-Object { $_.Grid.Ref })
                         $hitAll = $true
-                        foreach ($e in $expected) { if (-not @($named | Where-Object { $_ -like ('*' + $e) }).Count) { $hitAll = $false } }
+                        #  A GRID REF IS A DOMAIN VALUE, NOT A WILDCARD PATTERN.
+                        #  `-like ('*' + $e)` hands the register's own ref to the
+                        #  wildcard engine, where a '[', ']', '*' or '?' in a ref
+                        #  stops meaning itself - the same class of defect as
+                        #  '7.5 L' matching inside '17.5 L'. EndsWith asks the
+                        #  question this line means: does the named grid end with
+                        #  this exact ref, case-insensitively as -like was.
+                        foreach ($e in $expected) { if (-not @($named | Where-Object { "$_".EndsWith("$e", [System.StringComparison]::OrdinalIgnoreCase) }).Count) { $hitAll = $false } }
                         Record 'mirror plant (real file)' (($r.Verdict -eq 'fail') -and $hitAll -and $named.Count -ge 1) ('{0}: walker sees {1} table(s); register says worked beyond allowance on {2}; verdict {3}; mirror-own named [{4}]' -f $plName, $ptables.Count, ($expected -join ', '), $r.Verdict, ($named -join '; '))
                     }
                 }

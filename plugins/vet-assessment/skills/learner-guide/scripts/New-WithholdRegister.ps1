@@ -639,6 +639,31 @@ function Find-HeadingLine {
     for ($i = 0; $i -lt $LDoc.Norms.Count; $i++) {
         if ($LDoc.Norms[$i] -eq $HeadingNorm -and $LDoc.Lines[$i] -notmatch 'PAGEREF') { $hits.Add($i) }
     }
+
+    #  SECOND PASS: the document prints its own LABEL in front of the typed
+    #  title. Typed content commonly stores the title alone - "Design
+    #  Showpiece 1 - Easter retail display" - while the document prints
+    #  "DESIGN TASK 1 - DESIGN SHOWPIECE 1 - EASTER RETAIL DISPLAY". Exact
+    #  equality then binds nothing, the task falls back to its typed fields,
+    #  and every reference to it resolves to "no typed task numbered N is
+    #  bound to <document>" - which is true, and is not the defect.
+    #
+    #  Anchored at the END, so the typed title must be the whole tail of the
+    #  document heading, and the prefix is capped: a label like "design task
+    #  1 " is short, and a cap keeps this from matching a heading that merely
+    #  ENDS with the title by coincidence. Exact equality still wins outright,
+    #  because this pass only runs when the first found nothing.
+    if ($hits.Count -eq 0) {
+        $maxPrefix = 40
+        for ($i = 0; $i -lt $LDoc.Norms.Count; $i++) {
+            $n = $LDoc.Norms[$i]
+            if (-not $n -or $LDoc.Lines[$i] -match 'PAGEREF') { continue }
+            if ($n.Length -le $HeadingNorm.Length) { continue }
+            if ($n.Length - $HeadingNorm.Length -gt $maxPrefix) { continue }
+            if ($n.EndsWith($HeadingNorm, [System.StringComparison]::Ordinal)) { $hits.Add($i) }
+        }
+    }
+
     if ($hits.Count -eq 0) { return -1 }
     foreach ($h in $hits) {
         for ($j = $h + 1; $j -lt [math]::Min($LDoc.Lines.Count, $h + 80); $j++) {
@@ -656,9 +681,30 @@ foreach ($tf in $taskFiles) {
         if ($null -eq $item) { continue }
         $heading = [string](Get-GateProp -Object $item -Names @('heading', 'title') -Default '')
         $id = [string](Get-GateProp -Object $item -Names @('id') -Default '')
+        #  THE ITEM'S NUMBER, read from the three conventions a pack uses.
+        #
+        #  The first two were the only ones understood, and between them they
+        #  assume a heading that carries its own "Task N" prefix or an id
+        #  ending in T<digits>. An RTO whose typed content stores the TITLE in
+        #  heading ("Culinary terms and trade names...") and keys the item as
+        #  K-1 or D-1 matched neither, so EVERY item was dropped and the whole
+        #  register refused with "the typed task files carry no task with
+        #  parts" - on a pack whose items all carry parts. A Stage 2 producer
+        #  that cannot read an RTO's own content convention derives nothing for
+        #  it, and nothing downstream of it can run.
+        #
+        #  The third form is <letter(s)>-<digits>, which is this family's:
+        #  K-1 to K-10 knowledge, D-1 to D-3 design. Numbers only have to be
+        #  unique WITHIN a document (the bind key is Doc|Number, and a
+        #  duplicate is already REPORTED as ambiguous rather than mis-bound),
+        #  and they are: the knowledge document carries K-1 to K-10 and the
+        #  workbook carries D-1 to D-3. Items with no parts - this family's
+        #  observation and recipe records - are dropped by the test below and
+        #  never reach the numbering at all.
         $num = $null
         if ($heading -match '(?i)^\s*task\s+(\d+)\b') { $num = [int]$Matches[1] }
         elseif ($id -match 'T(\d+)$') { $num = [int]$Matches[1] }
+        elseif ($id -match '^[A-Za-z]{1,3}[-_ ]?(\d+)$') { $num = [int]$Matches[1] }
         if ($null -eq $num) { continue }
         $parts = @(Get-PropList $item @('parts'))
         if ($parts.Count -eq 0) { continue }

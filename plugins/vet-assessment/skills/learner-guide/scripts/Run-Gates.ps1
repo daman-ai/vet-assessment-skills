@@ -1049,8 +1049,12 @@ function New-GateEntry {
             if (-not $header.Found) { $reports += 'no GATE header on disk (its band membership is this runner''s plan alone)' }
             else {
                 foreach ($p in @($header.Problems)) { $reports += ("GATE header problem: {0} (header: '{1}')" -f $p, $header.Raw) }
-                if (@($header.Stages).Count -gt 0 -and @($header.Stages) -notcontains $Stage -and -not $header.StageRequires.ContainsKey($Stage)) {
-                    $reports += ("GATE header declares stages={0} without {1}, but this runner's {1} plan names it - reconcile the header or the plan" -f (@($header.Stages) -join ','), $Stage)
+                #  TWO statements, never `$x = if (..) { @(..) }`: a one-element
+                #  array on the output of an if unrolls to the element itself.
+                $headerStages = @()
+                if ($null -ne $header.Stages) { $headerStages = @($header.Stages) }
+                if ($headerStages.Count -gt 0 -and $headerStages -notcontains $Stage -and -not $header.StageRequires.ContainsKey($Stage)) {
+                    $reports += ("GATE header declares stages={0} without {1}, but this runner's {1} plan names it - reconcile the header or the plan" -f ($headerStages -join ','), $Stage)
                 }
                 foreach ($n in (Get-HeaderRequirement -Header $header -Stage $Stage -StageQualified:$StageQualified)) { if ($must -notcontains $n) { $must += $n } }
             }
@@ -1454,7 +1458,9 @@ function Get-ThreadedParameterLine {
         $parts = @()
         foreach ($k in $e.Args.Keys) { $parts += ("-{0}={1}" -f $k, (Format-ArgValue $e.Args[$k])) }
         $line = "{0}: {1}" -f $e.Name, ($parts -join ' ')
-        if (@($e.Dropped).Count -gt 0) { $line += ("   [not accepted by this copy, dropped: {0}]" -f (@($e.Dropped) -join ', ')) }
+        $dropped = @()
+        if ($null -ne $e.Dropped) { $dropped = @($e.Dropped) }
+        if ($dropped.Count -gt 0) { $line += ("   [not accepted by this copy, dropped: {0}]" -f ($dropped -join ', ')) }
         $out.Add($line)
     }
     return $out
@@ -1820,7 +1826,11 @@ function New-ResultPayload {
             produces = [string]$e.Produces
         })
         if ($e.Disposition) { $partial.Add([pscustomobject]@{ name = $e.Name; gate = $e.Gate; disposition = [string]$e.Disposition; why = [string]$e.Why }) }
-        elseif (@($r.Partial).Count -gt 0) { $partial.Add([pscustomobject]@{ name = $e.Name; gate = $e.Gate; disposition = 'rules-that-checked-nothing'; why = (@($r.Partial) -join '; ') }) }
+        else {
+            $partialRules = @()
+            if ($null -ne $r.Partial) { $partialRules = @($r.Partial) }
+            if ($partialRules.Count -gt 0) { $partial.Add([pscustomobject]@{ name = $e.Name; gate = $e.Gate; disposition = 'rules-that-checked-nothing'; why = ($partialRules -join '; ') }) }
+        }
     }
     $failed = Get-BandFailure -Plan $Plan -Results $Results
     $rc = [int]$Meta['ExitCode']
@@ -2591,11 +2601,15 @@ foreach ($e in $allPlan) {
     Write-GateText -Text $r.Text
     foreach ($p in @($e.Reports)) { Write-Host ("    ! {0}" -f $p) -ForegroundColor Yellow }
     foreach ($p in @($r.ArmProblems)) { Write-Host ("    ! {0}" -f $p) -ForegroundColor Yellow }
-    if (@($r.ArmsBlockingNotRun).Count -gt 0) {
-        Write-Host ("    X blocking arm(s) that never ran: {0} - a gate that skipped its own rule cannot report green" -f (@($r.ArmsBlockingNotRun) -join ', ')) -ForegroundColor Red
+    $notRunArms = @()
+    if ($null -ne $r.ArmsBlockingNotRun) { $notRunArms = @($r.ArmsBlockingNotRun) }
+    if ($notRunArms.Count -gt 0) {
+        Write-Host ("    X blocking arm(s) that never ran: {0} - a gate that skipped its own rule cannot report green" -f ($notRunArms -join ', ')) -ForegroundColor Red
     }
-    if (@($r.Partial).Count -gt 0) {
-        Write-Host ("    PARTIAL RUN - rules that checked nothing: {0}" -f (@($r.Partial) -join '; ')) -ForegroundColor Magenta
+    $partialRules = @()
+    if ($null -ne $r.Partial) { $partialRules = @($r.Partial) }
+    if ($partialRules.Count -gt 0) {
+        Write-Host ("    PARTIAL RUN - rules that checked nothing: {0}" -f ($partialRules -join '; ')) -ForegroundColor Magenta
     }
 }
 

@@ -240,6 +240,27 @@ function Get-DpNoNotesList {
     $deck = Get-GateJson -Path $deckPath
     $rules = Get-GateProp -Object $deck -Names @('deckRules')
     $notReq = Get-DpArray (Get-GateProp -Object $rules -Names @('notesNotRequiredOn'))
+    #  EVERY TEXT SLOT THE DECK PROFILE DECLARES, across every layout. The
+    #  count-claim rule below reads a slide's prose out of these; the version
+    #  this replaces read three of them (note, lead, headline) and was blind to
+    #  a claim made in a card body, a column or a step description. The profile
+    #  is the only thing that knows what a slide can carry, so the set comes
+    #  from there and grows with it. Slots whose value is not a string are
+    #  skipped where they are read, so an array slot (bullets) is untouched.
+    $slotNames = New-Object System.Collections.Generic.List[string]
+    $layouts = Get-GateProp -Object $deck -Names @('layouts')
+    if ($null -ne $layouts) {
+        foreach ($lay in @($layouts.PSObject.Properties)) {
+            if ($lay.Name -like '_*') { continue }
+            $slots = Get-GateProp -Object $lay.Value -Names @('slots')
+            if ($null -eq $slots) { continue }
+            foreach ($sl in @($slots.PSObject.Properties)) {
+                $sn = "$($sl.Name)".Trim()
+                if (-not $sn -or $sn -like '_*') { continue }
+                if (-not $slotNames.Contains($sn)) { $slotNames.Add($sn) }
+            }
+        }
+    }
     $reasons = Get-GateProp -Object $pack -Names @('noNotesReasons')
     $reasonKeys = @()
     if ($null -ne $reasons) { $reasonKeys = @($reasons.PSObject.Properties.Name | Where-Object { $_ -notlike '_*' }) }
@@ -255,6 +276,7 @@ function Get-DpNoNotesList {
         DeckPath   = $deckPath
         FromDeck   = @($notReq | ForEach-Object { "$_" })
         FromPack   = $reasonKeys
+        SlotNames  = $slotNames.ToArray()
     }
 }
 
@@ -826,8 +848,13 @@ function Invoke-DeckParity {
         # ---- DP-NOTE-COUNT
         $against = if ($tblRows.Count -gt 0) { $dataRows } elseif ($figPairs -gt 0) { $figPairs } else { -1 }
         if ($against -ge 0) {
+            #  The slide's prose is read out of EVERY text slot the deck
+            #  profile declares (Get-DpNoNotesList derives them), not out of
+            #  the three this rule used to name. A slot the slide does not
+            #  carry reads $null and a slot whose value is not a string - an
+            #  array of bullets, a table - is skipped here, exactly as before.
             $prose = ''
-            foreach ($p in @('note', 'lead', 'headline')) {
+            foreach ($p in $noNotes.SlotNames) {
                 $v = Get-GateProp -Object $n -Names @($p)
                 if ($v -is [string]) { $prose += ' ' + $v }
             }
@@ -1057,7 +1084,11 @@ function Invoke-DpSelfTest {
         New-DpFixture -Root $c1 | Out-Null
         $p = Join-Path $c1 'spine\t1_1.1.json'
         $j = Get-GateJson -Path $p
-        $j.slides[0].notes = ($j.slides[0].notes -replace 'ALPHA-VALUE', 'a value the deck no longer names')
+        #  The plant is BOUNDARY-ANCHORED. An unanchored -replace rewrites the
+        #  token inside a longer one too - '7.5 L' inside '17.5 L' is how a
+        #  batch volume moved in four places - and a fixture that plants more
+        #  than it means to proves something other than the case it names.
+        $j.slides[0].notes = ($j.slides[0].notes -replace '\bALPHA-VALUE\b', 'a value the deck no longer names')
         Write-DpJson -Object $j -Path $p
         if (Test-DpPlantLanded -Path $p -What "ALPHA-VALUE removed from every deck-facing channel, still present guide-side" -Probe {
                 param($d)
@@ -1073,8 +1104,8 @@ function Invoke-DpSelfTest {
         New-DpFixture -Root $c2 | Out-Null
         $p = Join-Path $c2 'spine\t1_1.1.json'
         $j = Get-GateJson -Path $p
-        $j.slides[0].notes = ($j.slides[0].notes -replace 'ALPHA-VALUE', 'a value the deck no longer names')
-        $j.whatThisMeans = ($j.whatThisMeans -replace 'ALPHA-VALUE', 'a value the guide no longer names')
+        $j.slides[0].notes = ($j.slides[0].notes -replace '\bALPHA-VALUE\b', 'a value the deck no longer names')
+        $j.whatThisMeans = ($j.whatThisMeans -replace '\bALPHA-VALUE\b', 'a value the guide no longer names')
         Write-DpJson -Object $j -Path $p
         $psFile = Join-Path $c2 'Fix-Figures.ps1'
         [System.IO.File]::WriteAllText($psFile, "# remediation: every occurrence of ALPHA-VALUE was corrected in round 3`r`nWrite-Host 'ALPHA-VALUE'`r`n", (New-Object System.Text.UTF8Encoding($true)))
@@ -1130,7 +1161,7 @@ function Invoke-DpSelfTest {
         New-DpFixture -Root $c6 | Out-Null
         $p = Join-Path $c6 'spine\t1_1.1.json'
         $j = Get-GateJson -Path $p
-        $j.slides[0].notes = ($j.slides[0].notes -replace 'Fixture Order Form', 'that document')
+        $j.slides[0].notes = ($j.slides[0].notes -replace '\bFixture Order Form\b', 'that document')
         Write-DpJson -Object $j -Path $p
         if (Test-DpPlantLanded -Path $p -What 'the accepted instrument is named guide-side and nowhere on any slide' -Probe {
                 param($d)
@@ -1279,6 +1310,7 @@ try {
     }
 
     Write-GateCheckSet -What 'no-notes layout/kind exemption(s)' -Count $result.NoNotes.Set.Count -DerivedFrom ((Split-Path -Leaf $result.Sources.profile) + ' -> ' + (Split-Path -Leaf $result.NoNotes.DeckPath))
+    Write-GateCheckSet -What 'deck text slot(s) a count claim is read from' -Count @($result.NoNotes.SlotNames).Count -DerivedFrom ('layouts.*.slots in ' + (Split-Path -Leaf $result.NoNotes.DeckPath))
     if ($result.NoNotes.Set.Count -gt 0) { Complete-GateArm -Name 'no-notes-exemptions' -State 'ran' -Size $result.NoNotes.Set.Count } else { Complete-GateArm -Name 'no-notes-exemptions' -State 'empty' }
     if ($st.tableShapeCompared -gt 0) { Complete-GateArm -Name 'table-shape' -State 'ran' -Size $st.tableShapeCompared } else { Complete-GateArm -Name 'table-shape' -State 'empty' }
     if ($st.countClaimsExamined -gt 0) { Complete-GateArm -Name 'count-claims' -State 'ran' -Size $st.countClaimsExamined -Findings $st.countClaimsBlocking } else { Complete-GateArm -Name 'count-claims' -State 'empty' }

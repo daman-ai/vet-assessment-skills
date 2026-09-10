@@ -1,12 +1,12 @@
 ﻿{
-    "schemaVersion":  "1.0",
+    "schemaVersion":  "1.1",
     "courseId":  "MVC-BSB80120",
     "qualificationCode":  "BSB80120",
     "qualificationTitle":  "Graduate Diploma of Management (Learning)",
     "provider":  "MVC",
     "brandVariant":  null,
     "priorCourse":  null,
-    "generatedUtc":  "2026-09-08T00:36:20Z",
+    "generatedUtc":  "2026-09-09T07:05:42Z",
     "method":  {
                    "unitSource":  "training.gov.au REST API",
                    "overlapDetection":  "assets/topics/families/MVC-BSB80120.families.json",
@@ -21,9 +21,15 @@
                        "name":  "Developing a change management strategy",
                        "kind":  "shared-scaffold",
                        "owner":  "BSBLDR811",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "BSBLDR811 Lead strategic transformation opens the qualification and owns the content and process of a change management strategy. BSBLDR601 Lead and manage organisational change, delivered seventh, carries the same knowledge point.",
                        "teachingRule":  "BSBLDR601 teaches what is new at its own scope - running a defined change programme, communication planning, resistance and reinforcement - and cites BSBLDR811 for the strategy document itself.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states the case for change, identifies stakeholders and their resistance, sets the sequence and the communication plan, and defines how the change will be measured and embedded.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "BSBLDR811",
@@ -36,16 +42,25 @@
                                             ],
                        "families":  [
                                         "F01"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "BSB80120-T02",
                        "name":  "Organisational mission and values, and the stages of transformation",
                        "kind":  "shared-scaffold",
                        "owner":  "BSBLDR811",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Two families - organisational mission, purpose and values, and organisational transformation with the management of the stages of change - are one topic: what the organisation is for, and how it moves from one state to another. Both are BSBLDR811\u0027s own subject matter and it is delivered first.",
                        "teachingRule":  "BSBLDR812 Develop and cultivate collaborative partnerships builds partnerships that serve the mission and manages relationships through the stages. It cites this topic rather than restating the mission framework or the change model.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer connects the mission, purpose and values to the change being led, and describes the stages of transformation and what leadership does at each.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "BSBLDR811",
@@ -64,7 +79,10 @@
                        "families":  [
                                         "F02",
                                         "F03"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    }
                ],
     "unitTopicIndex":  {
@@ -134,5 +152,6 @@
                                                                   ]
                                          }
                        },
-    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed.",
+    "assessmentNote":  "ASSESSMENT IS PER UNIT. A ruling never removes a requirement from an applying unit\u0027s assessment tool - every unit is separately certified and evidences its own requirements in full, on its own mapped line, with no line naming another unit as its evidence. assessmentDepth governs DEPTH and FORM only: \"applied\" means assessed inside a question about this unit\u0027s own subject or carried by an observation item, against the owner\u0027s benchmark; \"full\" means this unit teaches and assesses its own subject matter in full. The register exists to keep those benchmarks consistent across the units that share a requirement, which is what Standard 1.5 validation tests."
 }

@@ -1027,6 +1027,7 @@ function Invoke-IdentifierNamespace {
 # SELF-TEST
 # ---------------------------------------------------------------------------
 
+# gate-exempt: the fixture below MUST carry planted identifier literals - 'Guide Resource 1', 'Appendix A', 'Task 1', 'Observation 1' - because they ARE the defect this gate proves it can catch: a guide scheme colliding with the pack's. They are written to a temp contract.json and deleted when the self-test ends. GH02 confirmed them against a real build's contract.json, which naturally carries the same identifier vocabulary; deriving a fixture's plants from the build under test would mean the self-test could never fail, which is rule 2 inverted.
 function New-NsFixture {
     <#  -CollideSeed  the contract hands the GUIDE the pack's own appendix
                       letters, which is the Stage 2 defect.
@@ -1112,6 +1113,7 @@ function New-NsFixture {
     })
     return $Root
 }
+# gate-exempt-end
 
 function Invoke-NsSelfTest {
     param([string] $Skill, [string] $ConfigGiven)

@@ -1,79 +1,116 @@
-{
-  "_comment": "AUTHORED OWNERSHIP DECISIONS for MSF30322. Every family in families/ACI-MSF30322.families.json appears exactly once below.",
-  "courseId": "ACI-MSF30322",
-  "_deliveredNote": "25 units across 8 clusters over 92 weeks. Cluster 1 WHS and workplace fundamentals, 2 measurement and documentation, 3 tools machines and joints, 4 timber and materials, 5 drawing and CAD, 6 cabinetry fabrication, 7 installation and on-site work, 8 customer service. WARNING: MSFGN2001 in Cluster 2 is SUPERSEDED on training.gov.au - see openItems in the course record.",
-  "topics": [
-    {
-      "families": ["F05"],
-      "name": "Reporting hazards, incidents and injuries",
-      "kind": "progressive-depth",
-      "owner": "CPCWHS1001",
-      "rationale": "Both construction WHS units sit in Cluster 1. CPCWHS1001 is the White Card statutory induction and is the first thing a learner does; CPCCWHS2001 follows it in the same cluster with the organisational procedure.",
-      "teachingRule": "CPCCWHS2001 teaches only the delta - the employer's own procedure, the register, and the notifiable-incident duty owed to the regulator."
-    },
-    {
-      "families": ["F02"],
-      "name": "Workplace health and safety procedures in a furniture workshop",
-      "kind": "shared-scaffold",
-      "owner": "MSFFM2013",
-      "rationale": "Six units name workplace WHS procedures. The construction WHS units in Cluster 1 own the LEGAL frame; MSFFM2013 Use furniture making hand and power tools, first in Cluster 3, owns the workshop-floor procedure - machine guarding, isolation, housekeeping, dust - because that is the first unit where a learner picks up a tool.",
-      "teachingRule": "Later units name the procedure that governs their own operation and the specific risk it controls. None of them restate the general duty, which belongs to Cluster 1."
-    },
-    {
-      "families": ["F01"],
-      "name": "Personal protective equipment for furniture and cabinetry work",
-      "kind": "shared-scaffold",
-      "owner": "MSFFM2013",
-      "rationale": "Seven units name PPE. Every one of them names the SAME equipment for a different operation - eye, hearing, respiratory and hand protection against the same timber dust, noise and blade hazards. Teaching it seven times teaches nothing new six of those times.",
-      "teachingRule": "MSFFM2013 teaches selection, fit, inspection and care once. Every later unit states which items its operation requires and why, in a line, and is assessed on WEARING them rather than on knowing what they are."
-    },
-    {
-      "families": ["F03"],
-      "name": "Reporting machinery faults and material defects",
-      "kind": "shared-scaffold",
-      "owner": "MSFFM2016",
-      "rationale": "A fault report is one procedure - tag out, report, do not use. MSFFM2016 Join solid timber is the earliest of the three units in Cluster 3 to require it.",
-      "teachingRule": "MSFFM2018 and MSFFM3042 identify the faults and defects specific to their own machines and materials. The reporting procedure itself is cited."
-    },
-    {
-      "families": ["F04", "F06"],
-      "name": "Workplace records, reporting and the legislation behind them",
-      "kind": "shared-scaffold",
-      "owner": "MSMSUP106",
-      "rationale": "Two families - record keeping requirements, and the legislative requirements attaching to work activities - are one topic in Cluster 1: what has to be written down, and which instrument requires it. MSMSUP106 Work in a team is delivered in Cluster 1 and carries organisational procedure as its own subject matter.",
-      "teachingRule": "MSFFF2012 records its own surface-preparation results to that format. MSFFDM4002 identifies the specific legislation bearing on production processes, and does not restate what legislation is."
-    },
-    {
-      "families": ["F09"],
-      "name": "Characteristics, features and components of cabinetry products",
-      "kind": "shared-scaffold",
-      "owner": "MSFFM3041",
-      "rationale": "MSFFM3041 Determine and document requirements for cabinetry installation is delivered first in Cluster 6 and must name the components before it can specify them. MSFFM3042 Fabricate cabinetry then builds them.",
-      "teachingRule": "MSFFM3042 teaches how each component is MADE - the machining, the edge treatment, the assembly - not what it is called or what it is for."
-    },
-    {
-      "families": ["F08"],
-      "name": "Door and drawer systems, and their alignment",
-      "kind": "progressive-depth",
-      "owner": "MSFKB2003",
-      "rationale": "MSFKB2003 Prepare for cabinetry installation, in Cluster 6, owns the hardware - hinge types, runner types, how each is specified and set out. MSFFM3043 Install cabinetry, in Cluster 7, owns adjusting them true on site, which is a different skill and is genuinely new.",
-      "teachingRule": "MSFFM3043 does not re-teach hardware selection. It teaches the three-way adjustment and the sequence for bringing a run of doors into line."
-    },
-    {
-      "families": ["F07"],
-      "name": "Reading the building: wall and floor construction and out-of-square conditions",
-      "kind": "shared-scaffold",
-      "owner": "MSFFM3041",
-      "rationale": "A cabinetmaker measures the room before making anything, and again before fixing anything. MSFFM3041 in Cluster 6 owns it because the survey is what its documentation is FOR.",
-      "teachingRule": "MSFFM3043 applies the scribing and packing techniques that an out-of-square condition demands, and cites MSFFM3041 for how the condition was identified."
-    },
-    {
-      "families": ["F10"],
-      "name": "Statutory planning regulations affecting cabinetry installation",
-      "kind": "regulatory-recall",
-      "owner": "MSFFM3041",
-      "rationale": "Local and state planning requirements are a single body of regulation. It is explained where a learner first has to check it - at the documentation stage, in MSFFM3041.",
-      "teachingRule": "MSFFM3043 confirms the approval is in place before installing and names the consequence of installing without it. It does not re-explain the planning system."
-    }
-  ]
+﻿{
+    "_comment":  "AUTHORED OWNERSHIP DECISIONS for MSF30322. Every family in families/ACI-MSF30322.families.json appears exactly once below.",
+    "courseId":  "ACI-MSF30322",
+    "_deliveredNote":  "25 units across 8 clusters over 92 weeks. Cluster 1 WHS and workplace fundamentals, 2 measurement and documentation, 3 tools machines and joints, 4 timber and materials, 5 drawing and CAD, 6 cabinetry fabrication, 7 installation and on-site work, 8 customer service. WARNING: MSFGN2001 in Cluster 2 is SUPERSEDED on training.gov.au - see openItems in the course record.",
+    "topics":  [
+                   {
+                       "families":  [
+                                        "F05"
+                                    ],
+                       "name":  "Reporting hazards, incidents and injuries",
+                       "kind":  "progressive-depth",
+                       "owner":  "CPCWHS1001",
+                       "rationale":  "Both construction WHS units sit in Cluster 1. CPCWHS1001 is the White Card statutory induction and is the first thing a learner does; CPCCWHS2001 follows it in the same cluster with the organisational procedure.",
+                       "teachingRule":  "CPCCWHS2001 teaches only the delta - the employer\u0027s own procedure, the register, and the notifiable-incident duty owed to the regulator.",
+                       "ownerBenchmark":  "A satisfactory answer identifies a hazard by its potential to cause harm, not by whether harm occurred, and states who it is reported to, how, and within what time. It distinguishes a hazard from an incident from an injury, and names the record each one goes into.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F02"
+                                    ],
+                       "name":  "Workplace health and safety procedures in a furniture workshop",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM2013",
+                       "rationale":  "Six units name workplace WHS procedures. The construction WHS units in Cluster 1 own the LEGAL frame; MSFFM2013 Use furniture making hand and power tools, first in Cluster 3, owns the workshop-floor procedure - machine guarding, isolation, housekeeping, dust - because that is the first unit where a learner picks up a tool.",
+                       "teachingRule":  "Later units name the procedure that governs their own operation and the specific risk it controls. None of them restate the general duty, which belongs to Cluster 1.",
+                       "ownerBenchmark":  "A satisfactory answer states the workshop procedure that governs the machine or task, the guarding and isolation it requires, and the reporting path when something is unsafe.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F01"
+                                    ],
+                       "name":  "Personal protective equipment for furniture and cabinetry work",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM2013",
+                       "rationale":  "Seven units name PPE. Every one of them names the SAME equipment for a different operation - eye, hearing, respiratory and hand protection against the same timber dust, noise and blade hazards. Teaching it seven times teaches nothing new six of those times.",
+                       "teachingRule":  "MSFFM2013 teaches selection, fit, inspection and care once. Every later unit states which items its operation requires and why, in a line, and is assessed on WEARING them rather than on knowing what they are.",
+                       "ownerBenchmark":  "A satisfactory answer selects PPE against the specific hazard of the tool in use - noise, dust, projectile, chemical - states how it is fitted and checked, and what maintenance and storage it needs.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F03"
+                                    ],
+                       "name":  "Reporting machinery faults and material defects",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM2016",
+                       "rationale":  "A fault report is one procedure - tag out, report, do not use. MSFFM2016 Join solid timber is the earliest of the three units in Cluster 3 to require it.",
+                       "teachingRule":  "MSFFM2018 and MSFFM3042 identify the faults and defects specific to their own machines and materials. The reporting procedure itself is cited.",
+                       "ownerBenchmark":  "A satisfactory answer states how a fault or defect is identified, who it is reported to and by what record, and that the machine or material is taken out of use until cleared.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F04",
+                                        "F06"
+                                    ],
+                       "name":  "Workplace records, reporting and the legislation behind them",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSMSUP106",
+                       "rationale":  "Two families - record keeping requirements, and the legislative requirements attaching to work activities - are one topic in Cluster 1: what has to be written down, and which instrument requires it. MSMSUP106 Work in a team is delivered in Cluster 1 and carries organisational procedure as its own subject matter.",
+                       "teachingRule":  "MSFFF2012 records its own surface-preparation results to that format. MSFFDM4002 identifies the specific legislation bearing on production processes, and does not restate what legislation is.",
+                       "ownerBenchmark":  "A satisfactory answer identifies the record the activity requires, states what must be captured and how long it is kept, and names the legislative or organisational requirement behind it.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F09"
+                                    ],
+                       "name":  "Characteristics, features and components of cabinetry products",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM3041",
+                       "rationale":  "MSFFM3041 Determine and document requirements for cabinetry installation is delivered first in Cluster 6 and must name the components before it can specify them. MSFFM3042 Fabricate cabinetry then builds them.",
+                       "teachingRule":  "MSFFM3042 teaches how each component is MADE - the machining, the edge treatment, the assembly - not what it is called or what it is for.",
+                       "ownerBenchmark":  "A satisfactory answer names the components of the cabinet and states the function and material of each, and how they assemble into the finished product.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F08"
+                                    ],
+                       "name":  "Door and drawer systems, and their alignment",
+                       "kind":  "progressive-depth",
+                       "owner":  "MSFKB2003",
+                       "rationale":  "MSFKB2003 Prepare for cabinetry installation, in Cluster 6, owns the hardware - hinge types, runner types, how each is specified and set out. MSFFM3043 Install cabinetry, in Cluster 7, owns adjusting them true on site, which is a different skill and is genuinely new.",
+                       "teachingRule":  "MSFFM3043 does not re-teach hardware selection. It teaches the three-way adjustment and the sequence for bringing a run of doors into line.",
+                       "ownerBenchmark":  "A satisfactory answer selects the hinge or runner system for the door or drawer, states the adjustment each provides, and describes how alignment and consistent gapping are achieved and checked.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F07"
+                                    ],
+                       "name":  "Reading the building: wall and floor construction and out-of-square conditions",
+                       "kind":  "shared-scaffold",
+                       "owner":  "MSFFM3041",
+                       "rationale":  "A cabinetmaker measures the room before making anything, and again before fixing anything. MSFFM3041 in Cluster 6 owns it because the survey is what its documentation is FOR.",
+                       "teachingRule":  "MSFFM3043 applies the scribing and packing techniques that an out-of-square condition demands, and cites MSFFM3041 for how the condition was identified.",
+                       "ownerBenchmark":  "A satisfactory answer measures the opening rather than trusting the drawing, identifies out-of-square, out-of-plumb and uneven floor conditions, and states how the installation is scribed or packed to accommodate them.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F10"
+                                    ],
+                       "name":  "Statutory planning regulations affecting cabinetry installation",
+                       "kind":  "regulatory-recall",
+                       "owner":  "MSFFM3041",
+                       "rationale":  "Local and state planning requirements are a single body of regulation. It is explained where a learner first has to check it - at the documentation stage, in MSFFM3041.",
+                       "teachingRule":  "MSFFM3043 confirms the approval is in place before installing and names the consequence of installing without it. It does not re-explain the planning system.",
+                       "ownerBenchmark":  "A satisfactory answer names the planning or building requirement affecting the installation, states what it requires, and identifies the approval or certificate involved.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   }
+               ]
 }

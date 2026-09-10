@@ -1,135 +1,211 @@
-{
-  "_comment": "AUTHORED OWNERSHIP DECISIONS for SIT20421. Every family in families/ACI-SIT20421.families.json appears exactly once below.",
-  "courseId": "ACI-SIT20421",
-  "_deliveredNote": "13 units over 24 weeks - 20 weeks face to face, 2 weeks term break, 12 service periods of work placement. All delivered, in the order SITXWHS005, SITHCCC023, SITXFSA005, SITXINV006, SITHCCC024, SITHKOP009, SITXFSA006, SITHCCC025, SITHCCC027, SITHCCC028, SITHCCC029, SITHCCC030, SITHCCC034. This is the entry qualification of the cookery pathway and the same duplication pattern as SIT30821 appears in miniature: equipment operation, stock storage and food-safety law restated across most of the cookery units.",
-  "topics": [
-    {
-      "families": ["F01", "F02"],
-      "name": "Selecting and safely operating commercial kitchen equipment",
-      "kind": "shared-scaffold",
-      "owner": "SITHCCC023",
-      "rationale": "Nine of the thirteen units carry a knowledge point reading safe operational practices using essential functions and features of equipment, and six carry an element about using equipment to prepare food. SITHCCC023 Use food preparation equipment is delivered second, before every cookery unit, and it is the unit whose whole subject this is.",
-      "teachingRule": "Each later cookery unit names the equipment its own dishes need and any setting peculiar to them, in a line or two. It does not re-teach assembly, safe operation or the manufacturer instruction, and its assessment tool does not re-ask them."
-    },
-    {
-      "families": ["F09"],
-      "name": "Mise en place: what it means and why it governs the kitchen",
-      "kind": "shared-scaffold",
-      "owner": "SITHCCC023",
-      "rationale": "The meaning and role of mise en place is stated in three units. It belongs where a learner first organises a workstation, which is SITHCCC023 in week two.",
-      "teachingRule": "SITHCCC025 and SITHCCC027 plan their own mise en place and are assessed on the plan working, not on defining the term."
-    },
-    {
-      "families": ["F03", "F04", "F05", "F06"],
-      "name": "Keeping food safe and saleable in storage: date codes, rotation, storage conditions, shelf life and freshness",
-      "kind": "shared-scaffold",
-      "owner": "SITXINV006",
-      "rationale": "Four families - date codes and rotation labels in six units, environmental storage conditions in five, optimising shelf life in five, and freshness and quality indicators in four - are one topic, and it is the subject of SITXINV006 Receive, store and maintain stock, delivered fourth. Twenty restatements of how to store food across a thirteen-unit certificate.",
-      "teachingRule": "A cookery unit states only what is SPECIFIC to its own commodity - that a dressed salad holds badly, that a filled sandwich is a potentially hazardous food - and cites SITXINV006 for the storage system, the rotation method and the labelling."
-    },
-    {
-      "families": ["F07"],
-      "name": "Portioning and preparing ingredients to a standard recipe",
-      "kind": "shared-scaffold",
-      "owner": "SITHCCC027",
-      "rationale": "Four units carry the element Portion and prepare ingredients. SITHCCC027 Prepare dishes using basic methods of cookery is the first of them and the foundational cookery unit of the qualification.",
-      "teachingRule": "SITHCCC028, SITHCCC029 and SITHCCC030 portion their own commodity to their own recipe. The technique is applied, not retaught."
-    },
-    {
-      "families": ["F10", "F13", "F15"],
-      "name": "Work health and safety: legislation, duties and the consequences of failure",
-      "kind": "regulatory-recall",
-      "owner": "SITXWHS005",
-      "rationale": "Three families - the ramifications of failing to observe legislation, employee responsibilities, and safe work practices for a job role - are one body of law and duty. SITXWHS005 Participate in safe work practices is delivered first, in week one.",
-      "teachingRule": "The food safety units cite SITXWHS005 for the structure of duty, breach and penalty, and name the Food Act as their own instrument."
-    },
-    {
-      "families": ["F12"],
-      "name": "Food safety law, the Food Standards Code and the meaning of contamination",
-      "kind": "regulatory-recall",
-      "owner": "SITXFSA005",
-      "rationale": "One account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the regulator. Three units carry it; SITXFSA005 is delivered third and is where it belongs.",
-      "teachingRule": "SITXINV006 and SITXFSA006 name the specific requirement governing their activity - a temperature, a record, a disposal rule - and cite the Code clause rather than re-summarising the Code."
-    },
-    {
-      "families": ["F21"],
-      "name": "Organisational hygiene and food safety procedures",
-      "kind": "shared-scaffold",
-      "owner": "SITXFSA005",
-      "rationale": "What the organisation's own hygiene procedures contain is SITXFSA005's subject matter, and it precedes SITXFSA006 by four units.",
-      "teachingRule": "SITXFSA006 follows the procedure and is assessed on following it, not on reciting what it contains."
-    },
-    {
-      "families": ["F14"],
-      "name": "Safe handling of different food types",
-      "kind": "progressive-depth",
-      "owner": "SITHCCC023",
-      "rationale": "SITHCCC023 is delivered second and SITXFSA006 seventh, so the equipment unit meets food-type handling first - it cannot teach a learner to use a slicer on cooked meat without saying how that meat is handled. SITXFSA006 Participate in safe food handling practices then covers the full matrix.",
-      "teachingRule": "SITHCCC023 introduces handling only as far as its own equipment demands. SITXFSA006 teaches the DELTA and it is substantial: every high-risk food type, cross-contamination between them, and the temperature control each requires."
-    },
-    {
-      "families": ["F20"],
-      "name": "Cleaning products, chemicals and their safe use",
-      "kind": "progressive-depth",
-      "owner": "SITXFSA005",
-      "rationale": "SITXFSA005 is delivered third and SITHKOP009 sixth. SITXFSA005 cannot explain why a surface must be sanitised without naming what sanitises it, and a learner cannot recall a chemical they have not met.",
-      "teachingRule": "SITXFSA005 introduces sanitising at the level food safety requires. SITHKOP009 Clean kitchen premises and equipment teaches the DELTA - the product range, dilution ratios, chemical storage, the PPE each demands, and reading a safety data sheet."
-    },
-    {
-      "families": ["F22"],
-      "name": "Environmentally sound disposal of spoilt stock and kitchen waste",
-      "kind": "shared-scaffold",
-      "owner": "SITXINV006",
-      "rationale": "Disposal of stock that has failed a quality check follows directly from the stock control that identifies it, and SITXINV006 is delivered before SITHKOP009.",
-      "teachingRule": "SITHKOP009 disposes of waste generated by cleaning to the same procedure and cites it."
-    },
-    {
-      "families": ["F19"],
-      "name": "Processes for the basic cookery methods",
-      "kind": "shared-scaffold",
-      "owner": "SITHCCC024",
-      "rationale": "SITHCCC024 Prepare and present simple dishes is delivered fifth and is the first unit to apply a cookery method. SITHCCC027, delivered ninth, carries the same knowledge point about the processes behind those methods.",
-      "teachingRule": "SITHCCC027 extends the range to every method in its own performance evidence and teaches what heat does to each food type, which is new. It does not re-describe what boiling or grilling is."
-    },
-    {
-      "families": ["F11"],
-      "name": "Plating for practicality of service and customer consumption",
-      "kind": "shared-scaffold",
-      "owner": "SITHCCC025",
-      "rationale": "Three units carry plating methods as knowledge evidence. SITHCCC025 Prepare and present sandwiches is the earliest of them and the unit where presentation is most of the product.",
-      "teachingRule": "SITHCCC028 and SITHCCC030 plate their own dishes and are judged on the result. Balance, colour, portion appearance and service practicality are taught once."
-    },
-    {
-      "families": ["F16"],
-      "name": "Judging product appearance and presentation against a specification",
-      "kind": "shared-scaffold",
-      "owner": "SITHCCC025",
-      "rationale": "The vocabulary a cook uses to judge whether a finished item looks right - appearance, presentation, consistency - is one vocabulary, and SITHCCC025 is the earlier of the two units carrying it.",
-      "teachingRule": "SITHCCC029 states the characteristics expected of its own stocks, sauces and soups against that vocabulary."
-    },
-    {
-      "families": ["F17"],
-      "name": "Presenting and storing finished items",
-      "kind": "shared-scaffold",
-      "owner": "SITHCCC025",
-      "rationale": "The element covering presentation and storage of the finished product appears in SITHCCC025 and SITHCCC027, and SITHCCC025 is delivered first.",
-      "teachingRule": "SITHCCC027 presents and stores its own dishes to their own standard."
-    },
-    {
-      "families": ["F08"],
-      "name": "Classical and contemporary variations of a preparation",
-      "kind": "commodity-parallel",
-      "owner": "SITHCCC025",
-      "rationale": "Variations on a sandwich, an appetiser, a sauce and a farinaceous dish are four different bodies of knowledge sharing one phrase. NOT DUPLICATION - each unit teaches its own.",
-      "teachingRule": "Each unit teaches the variations of its own commodity in full and is assessed on them."
-    },
-    {
-      "families": ["F18"],
-      "name": "Culinary terms and trade names for ingredients",
-      "kind": "commodity-parallel",
-      "owner": "SITHCCC028",
-      "rationale": "Both units require the terms for THEIR OWN ingredients, and the vocabulary of salads is not the vocabulary of stocks. Only the idea that a trade name and a classical term can name one thing is set once, in the earlier unit.",
-      "teachingRule": "Each unit teaches its own product vocabulary in full and is assessed on it."
-    }
-  ]
+﻿{
+    "_comment":  "AUTHORED OWNERSHIP DECISIONS for SIT20421. Every family in families/ACI-SIT20421.families.json appears exactly once below.",
+    "courseId":  "ACI-SIT20421",
+    "_deliveredNote":  "13 units over 24 weeks - 20 weeks face to face, 2 weeks term break, 12 service periods of work placement. All delivered, in the order SITXWHS005, SITHCCC023, SITXFSA005, SITXINV006, SITHCCC024, SITHKOP009, SITXFSA006, SITHCCC025, SITHCCC027, SITHCCC028, SITHCCC029, SITHCCC030, SITHCCC034. This is the entry qualification of the cookery pathway and the same duplication pattern as SIT30821 appears in miniature: equipment operation, stock storage and food-safety law restated across most of the cookery units.",
+    "topics":  [
+                   {
+                       "families":  [
+                                        "F01",
+                                        "F02"
+                                    ],
+                       "name":  "Selecting and safely operating commercial kitchen equipment",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC023",
+                       "rationale":  "Nine of the thirteen units carry a knowledge point reading safe operational practices using essential functions and features of equipment, and six carry an element about using equipment to prepare food. SITHCCC023 Use food preparation equipment is delivered second, before every cookery unit, and it is the unit whose whole subject this is.",
+                       "teachingRule":  "Each later cookery unit restates in a line or two the equipment its own dishes need and any setting peculiar to them, prompts the learner to name the checks they would make before use, then teaches that equipment in full. It does not re-explain assembly, safe operation or the manufacturer instruction from scratch. Its tool still evidences the equipment requirement in full - applied, inside a question about its own dishes or carried by an observation item, against the owner\u0027s benchmark. SITXFSA006 is not a recaller of this topic: it teaches its own small equipment requirement in full - calibrating, using, cleaning and fault-checking a temperature probe, and choosing cleaning and sanitising equipment and materials to manufacturer advice - and is assessed on those.",
+                       "excludeUnits":  [
+                                            {
+                                                "unit":  "SITXFSA006",
+                                                "reason":  "SITXFSA006 is not a recaller of this topic: it teaches its own small equipment requirement in full - calibrating, using, cleaning and fault-checking a temperature probe, and choosing cleaning and sanitising equipment and materials to manufacturer advice - and is assessed on those."
+                                            }
+                                        ],
+                       "ownerBenchmark":  "A satisfactory answer selects the equipment for the task, states the pre-use check and the manufacturer instruction that governs its safe operation, and describes assembly, safe use, shutdown and cleaning. It states what makes the equipment unsafe to use and what is done then.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F09"
+                                    ],
+                       "name":  "Mise en place: what it means and why it governs the kitchen",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC023",
+                       "rationale":  "The meaning and role of mise en place is stated in three units. It belongs where a learner first organises a workstation, which is SITHCCC023 in week two.",
+                       "teachingRule":  "SITHCCC025 and SITHCCC027 plan their own mise en place and are assessed on the plan working, not on defining the term.",
+                       "ownerBenchmark":  "A satisfactory answer defines mise en place as everything prepared and positioned before service so the cook works without interruption, and gives the consequence of poor mise en place on quality, timing and safety during service.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F03",
+                                        "F04",
+                                        "F05",
+                                        "F06"
+                                    ],
+                       "name":  "Keeping food safe and saleable in storage: date codes, rotation, storage conditions, shelf life and freshness",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXINV006",
+                       "rationale":  "Four families - date codes and rotation labels in six units, environmental storage conditions in five, optimising shelf life in five, and freshness and quality indicators in four - are one topic, and it is the subject of SITXINV006 Receive, store and maintain stock, delivered fourth. Twenty restatements of how to store food across a thirteen-unit certificate.",
+                       "teachingRule":  "A cookery unit states only what is SPECIFIC to its own commodity - that a dressed salad holds badly, that a filled sandwich is a potentially hazardous food - and cites SITXINV006 for the storage system, the rotation method and the labelling.",
+                       "ownerBenchmark":  "A satisfactory answer reads a date code, applies stock rotation so oldest saleable stock is used first, states the storage condition the item requires - temperature, humidity, covering, separation from raw - and names the freshness indicators that decide whether it is used or discarded.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F07"
+                                    ],
+                       "name":  "Portioning and preparing ingredients to a standard recipe",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC027",
+                       "rationale":  "Four units carry the element Portion and prepare ingredients. SITHCCC027 Prepare dishes using basic methods of cookery is the first of them and the foundational cookery unit of the qualification.",
+                       "teachingRule":  "SITHCCC028, SITHCCC029 and SITHCCC030 portion their own commodity to their own recipe. The technique is applied, not retaught.",
+                       "ownerBenchmark":  "A satisfactory answer weighs and measures to the standard recipe rather than by eye, portions to the specified yield, and states what the recipe requires in trimming and preparation before cooking. It states the cost and consistency consequence of portioning off-standard.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F10",
+                                        "F13",
+                                        "F15"
+                                    ],
+                       "name":  "Work health and safety: legislation, duties and the consequences of failure",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXWHS005",
+                       "rationale":  "Three families - the ramifications of failing to observe legislation, employee responsibilities, and safe work practices for a job role - are one body of law and duty. SITXWHS005 Participate in safe work practices is delivered first, in week one.",
+                       "teachingRule":  "The food safety units cite SITXWHS005 for the structure of duty, breach and penalty, and name the Food Act as their own instrument.",
+                       "ownerBenchmark":  "A satisfactory answer states the duty the WHS Act places on the employer and on the worker, identifies the hazards of the kitchen and the control for each, and names the consequence of failure for the worker, the business and the individual - including prosecution and penalty.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F12"
+                                    ],
+                       "name":  "Food safety law, the Food Standards Code and the meaning of contamination",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXFSA005",
+                       "rationale":  "One account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the regulator. Three units carry it; SITXFSA005 is delivered third and is where it belongs.",
+                       "teachingRule":  "SITXINV006 and SITXFSA006 name the specific requirement governing their activity - a temperature, a record, a disposal rule - and cite the Code clause rather than re-summarising the Code.",
+                       "ownerBenchmark":  "A satisfactory answer defines a contaminant, contamination and a potentially hazardous food in the terms the Food Standards Code uses, names the Code and the state Food Act as the instruments, and states the role of the local enforcement agency.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F21"
+                                    ],
+                       "name":  "Organisational hygiene and food safety procedures",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA005",
+                       "rationale":  "What the organisation\u0027s own hygiene procedures contain is SITXFSA005\u0027s subject matter, and it precedes SITXFSA006 by four units.",
+                       "teachingRule":  "SITXFSA006 follows the procedure and is assessed on following it, not on reciting what it contains.",
+                       "ownerBenchmark":  "A satisfactory answer states what the organisation hygiene and food safety procedures require of the individual - personal hygiene, hand washing, dress, reporting illness, handling practices - and what is done when a procedure cannot be followed.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F14"
+                                    ],
+                       "name":  "Safe handling of different food types",
+                       "kind":  "progressive-depth",
+                       "owner":  "SITXFSA006",
+                       "rationale":  "SITHCCC023 is delivered second and SITXFSA006 seventh, so the equipment unit meets food-type handling first - it cannot teach a learner to use a slicer on cooked meat without saying how that meat is handled. SITXFSA006 Participate in safe food handling practices then covers the full matrix. OWNERSHIP CORRECTED 9 September 2026: the previous rationale claimed SITHCCC023 is delivered second and SITXFSA006 seventh. The course record says the reverse - SITXFSA006 is sequence 4 and SITHCCC023 sequence 5 - so SITXFSA006 meets the food types first and owns them. SITHCCC023 names only the handling point peculiar to the equipment in front of the learner - how cooked meat is handled at the slicer, how raw egg is handled at the mixer - and cites SITXFSA006 for the rest.",
+                       "teachingRule":  "SITHCCC023 introduces handling only as far as its own equipment demands. SITXFSA006 teaches the DELTA and it is substantial: every high-risk food type, cross-contamination between them, and the temperature control each requires.",
+                       "ownerBenchmark":  "A satisfactory answer states the handling requirement for each high-risk food type - dairy, eggs, meat, poultry, seafood, smallgoods, prepared fruit and vegetables - the temperature control each needs, and the cross-contamination risk between them.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F20"
+                                    ],
+                       "name":  "Cleaning products, chemicals and their safe use",
+                       "kind":  "progressive-depth",
+                       "owner":  "SITXFSA005",
+                       "rationale":  "SITXFSA005 is delivered third and SITHKOP009 sixth. SITXFSA005 cannot explain why a surface must be sanitised without naming what sanitises it, and a learner cannot recall a chemical they have not met.",
+                       "teachingRule":  "SITXFSA005 introduces sanitising at the level food safety requires. SITHKOP009 Clean kitchen premises and equipment teaches the DELTA - the product range, dilution ratios, chemical storage, the PPE each demands, and reading a safety data sheet.",
+                       "ownerBenchmark":  "A satisfactory answer states why a surface must be cleaned and then sanitised, selects the product for the surface, and states the dilution, contact time and PPE the product requires and where it is stored.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F22"
+                                    ],
+                       "name":  "Environmentally sound disposal of spoilt stock and kitchen waste",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXINV006",
+                       "rationale":  "Disposal of stock that has failed a quality check follows directly from the stock control that identifies it, and SITXINV006 is delivered before SITHKOP009.",
+                       "teachingRule":  "SITHKOP009 disposes of waste generated by cleaning to the same procedure and cites it.",
+                       "ownerBenchmark":  "A satisfactory answer separates waste by stream, states the disposal method for spoilt stock, oil and packaging, and identifies the record kept where stock is written off.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F19"
+                                    ],
+                       "name":  "Processes for the basic cookery methods",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC024",
+                       "rationale":  "SITHCCC024 Prepare and present simple dishes is delivered fifth and is the first unit to apply a cookery method. SITHCCC027, delivered ninth, carries the same knowledge point about the processes behind those methods.",
+                       "teachingRule":  "SITHCCC027 extends the range to every method in its own performance evidence and teaches what heat does to each food type, which is new. It does not re-describe what boiling or grilling is.",
+                       "ownerBenchmark":  "A satisfactory answer describes the process for each cookery method it uses - the heat transfer, the sequence, the indicators of doneness - and states which method suits the ingredient and why.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F11"
+                                    ],
+                       "name":  "Plating for practicality of service and customer consumption",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC025",
+                       "rationale":  "Three units carry plating methods as knowledge evidence. SITHCCC025 Prepare and present sandwiches is the earliest of them and the unit where presentation is most of the product.",
+                       "teachingRule":  "SITHCCC028 and SITHCCC030 plate their own dishes and are judged on the result. Balance, colour, portion appearance and service practicality are taught once.",
+                       "ownerBenchmark":  "A satisfactory answer plates for balance, colour, height and sauce placement, and for practicality - that the plate can be carried, held at temperature and eaten as presented. It states what makes a plate impractical for service.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F16"
+                                    ],
+                       "name":  "Judging product appearance and presentation against a specification",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC025",
+                       "rationale":  "The vocabulary a cook uses to judge whether a finished item looks right - appearance, presentation, consistency - is one vocabulary, and SITHCCC025 is the earlier of the two units carrying it.",
+                       "teachingRule":  "SITHCCC029 states the characteristics expected of its own stocks, sauces and soups against that vocabulary.",
+                       "ownerBenchmark":  "A satisfactory answer judges the finished item against the specified characteristics - appearance, balance, colour, consistency, texture - and states what is done when the item does not meet them.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F17"
+                                    ],
+                       "name":  "Presenting and storing finished items",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITHCCC025",
+                       "rationale":  "The element covering presentation and storage of the finished product appears in SITHCCC025 and SITHCCC027, and SITHCCC025 is delivered first.",
+                       "teachingRule":  "SITHCCC027 presents and stores its own dishes to their own standard.",
+                       "ownerBenchmark":  "A satisfactory answer finishes and garnishes to specification, holds at the required temperature, and stores leftovers labelled, dated, covered and at the correct temperature.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F08"
+                                    ],
+                       "name":  "Classical and contemporary variations of a preparation",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC025",
+                       "rationale":  "Variations on a sandwich, an appetiser, a sauce and a farinaceous dish are four different bodies of knowledge sharing one phrase. NOT DUPLICATION - each unit teaches its own.",
+                       "teachingRule":  "Each unit teaches the variations of its own commodity in full and is assessed on them.",
+                       "ownerBenchmark":  "A satisfactory answer names the classical form and a contemporary variation of the preparation, and states what distinguishes them in ingredient, method or presentation.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F18"
+                                    ],
+                       "name":  "Culinary terms and trade names for ingredients",
+                       "kind":  "commodity-parallel",
+                       "owner":  "SITHCCC028",
+                       "rationale":  "Both units require the terms for THEIR OWN ingredients, and the vocabulary of salads is not the vocabulary of stocks. Only the idea that a trade name and a classical term can name one thing is set once, in the earlier unit.",
+                       "teachingRule":  "Each unit teaches its own product vocabulary in full and is assessed on it.",
+                       "ownerBenchmark":  "A satisfactory answer uses the correct culinary term for the ingredient and preparation, and recognises that a classical term, a trade name and a convenience-product name can denote the same ingredient.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   }
+               ]
 }

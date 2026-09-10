@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "ACI-CPC20220",
     "qualificationCode":  "CPC20220",
@@ -17,53 +17,53 @@
                       },
     "unitCount":  10,
     "deliveredCount":  10,
-    "priorCourse":  null,
+    "priorCourse":  "",
     "sequencing":  {
-                       "model":  "cluster",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC20220 Certificate II in Construction Pathways.docx",
                        "clusters":  [
                                         {
                                             "number":  1,
-                                            "name":  "Industry Induction \u0026 WHS",
-                                            "focus":  "White card, legal WHS requirements, sustainable work practices",
-                                            "weeks":  null,
+                                            "name":  "Construction site safety and induction",
+                                            "focus":  "Gain site entry and apply construction WHS policies, procedures and safe work method statements.",
+                                            "weeks":  "1-5",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "CPCWHS1001",
-                                                          "CPCCWHS2001",
-                                                          "CPCCOM1012"
+                                                          "CPCCWHS2001"
                                                       ]
                                         },
                                         {
                                             "number":  2,
-                                            "name":  "Work Planning \u0026 Measurements",
-                                            "focus":  "Basic work planning, organising tasks, measuring and calculating",
-                                            "weeks":  null,
+                                            "name":  "Work planning, teamwork and site measurement",
+                                            "focus":  "Plan and organise a task, work sustainably with a crew, and take accurate site measurements and calculations.",
+                                            "weeks":  "6-12",
                                             "nominalHours":  null,
                                             "units":  [
+                                                          "CPCCOM1012",
                                                           "CPCCOM1013",
                                                           "CPCCOM1015"
                                                       ]
                                         },
                                         {
                                             "number":  3,
-                                            "name":  "Practical Tools \u0026 Site Safety",
-                                            "focus":  "Using hand tools and equipment for plastering, working safely at heights",
-                                            "weeks":  null,
+                                            "name":  "Height access and plastering preparation",
+                                            "focus":  "Work safely at height and set up, use and clean plastering tools while preparing surfaces for coating.",
+                                            "weeks":  "13-20",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "CPCCCM2012",
-                                                          "CPCCSP2002"
+                                                          "CPCCSP2002",
+                                                          "CPCCSP2003"
                                                       ]
                                         },
                                         {
                                             "number":  4,
-                                            "name":  "Trade Skills Application",
-                                            "focus":  "Prepare surfaces for plastering, carry out basic concreting, complete a basic construction project",
-                                            "weeks":  null,
+                                            "name":  "Concreting and the construction project",
+                                            "focus":  "Place and finish concrete to simple forms and complete a supervised basic construction project end to end.",
+                                            "weeks":  "21-26",
                                             "nominalHours":  null,
                                             "units":  [
-                                                          "CPCCSP2003",
                                                           "CPCCCO2013",
                                                           "CPCCVE1011"
                                                       ]
@@ -80,7 +80,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  4,
-                      "sequence":  1,
+                      "sequence":  10,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -109,7 +109,7 @@
                       "title":  "Work effectively and sustainably in the construction industry",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  1,
+                      "cluster":  2,
                       "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
@@ -155,7 +155,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  3,
-                      "sequence":  6,
+                      "sequence":  7,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -170,7 +170,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  4,
-                      "sequence":  7,
+                      "sequence":  9,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -184,7 +184,7 @@
                       "title":  "Prepare surfaces for plastering",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  4,
+                      "cluster":  3,
                       "sequence":  8,
                       "weeks":  null,
                       "prerequisites":  [
@@ -200,7 +200,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  3,
-                      "sequence":  9,
+                      "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -215,7 +215,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  10,
+                      "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -240,15 +240,28 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC20220 Certificate II in Construction Pathways.docx",
-                   "tasSha256":  "ABA436E0ED0DDB2559204A073E99555C4DD2161D90EA90F865714539022EF222",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\ACI-CPC20220.docx",
+                   "tasSha256":  "29EAFBD059434B9683AB19EFDC95374D0535BE381D1B2F5BB918030FFF0FEDD7",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:43Z"
+                   "generatedUtc":  "2026-09-08T00:41:43Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "Delivered over four terms, one cluster per term, with a term break between each."
               ],
     "openItems":  [
-                      "CPC20220 nationally packages 12 units (6 core + 6 elective). This TAS states and lists 10. Confirm against the RTO scope of registration before the next intake."
-                  ]
+                      "CHECKED AND CLEARED, 8 SEPTEMBER 2026 - an earlier note claimed CPC20220 nationally packages 12 units (6 core plus 6 elective) against this TAS\u0027s 10. That is WRONG. The CPC20220 packaging rules read: \u0027the candidate must demonstrate competency in 10 units of competency: 5 core units, 5 elective units\u0027. This course carries all 5 national core units (CPCCOM1012, CPCCOM1013, CPCCOM1015, CPCCVE1011, CPCCWHS2001) and 5 electives drawn from Group C (one unit, within the maximum of one) and Group I, with CPCWHS1001 taken under the clause allowing one elective from any current training package. Two groups are used, satisfying \u0027at least two but no more than four of groups A to I\u0027. NO ACTION NEEDED."
+                  ],
+    "pathway":  {
+                    "role":  "entry",
+                    "priorCourses":  [
+
+                                     ],
+                    "leadsTo":  [
+
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

@@ -314,7 +314,13 @@ function Set-GuideNumbering {
     $xml  = Get-DocxPart -WorkDir $WorkDir -Part $part
     $a    = $script:GUIDE_DECIMAL_ABSTRACT
 
-    if ($xml -notmatch "w:abstractNumId=`"$a`"") {
+    #  THE ABSTRACT ID IS A DOMAIN VALUE, ESCAPED BEFORE IT REACHES THE REGEX
+    #  ENGINE. Interpolating it straight into the pattern let any metacharacter
+    #  in the id decide what was matched, and a wrong answer here silently
+    #  re-declares an abstract numbering definition Word is already using. The
+    #  two quotes are the boundary: w:abstractNumId="7" cannot match inside
+    #  w:abstractNumId="17".
+    if ($xml -notmatch ('w:abstractNumId="' + [regex]::Escape("$a") + '"')) {
         $lvls = ''
         for ($l = 0; $l -lt 3; $l++) {
             $left = 720 + ($l * 720)

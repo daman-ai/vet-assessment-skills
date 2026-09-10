@@ -545,7 +545,11 @@ function Get-ProvVariantRegex {
             $parts.Add((Get-ProvNumberRegex "$n")); continue
         }
         $fam = $null
-        foreach ($f in $script:UnitFamilies) { if ($low -match ('^(?:' + $f + ')$')) { $fam = $f; break } }
+        #  -contains over the family's own spellings, not a regex built by
+        #  interpolating the family string into a pattern: the family IS the
+        #  list, and comparing against the list says so. Get-ProvQuantityKey
+        #  below already reads it this way.
+        foreach ($f in $script:UnitFamilies) { if (@($f -split '\|') -contains $low) { $fam = $f; break } }
         if ($fam) { $parts.Add(('\b(?:' + $fam + ')\b')) }
         else      { $parts.Add(('\b' + [regex]::Escape($low) + '\b')) }
     }
@@ -2326,7 +2330,7 @@ function Test-ProvAttribution {
     $rec.locator = (@($locs | ForEach-Object { '{0}:{1}' -f $_.Kind, $_.Text }) -join ', ')
     $rec.locatorIn = $scope
 
-    $hasQty = (@($A.Quantities).Count -gt 0)
+    $hasQty = ((Get-GateCount -Value $A.Quantities) -gt 0)
 
     if (@($named.Docs).Count -eq 0) {
         $rec.disposition = 'SOURCE-ABSENT'
@@ -2622,8 +2626,13 @@ function Invoke-Provenance {
         if (@($row.Classes) -contains 'V' -and "$($row.Value)".Trim()) {
             $v = Test-ProvVenueRow -Row $row -Ctx $ctx
             if ($null -ne $v) {
-                $vn = [ordered]@{ onPage = $v.OnPage; statement = $v.Statement; filesWithoutStatement = @($v.Missing) }
-                if ($v.OnPage -and @($v.Missing).Count -gt 0) { $venueFindings.Add([pscustomobject]@{ Row = $row; Missing = @($v.Missing) }) }
+                #  Assigned in TWO statements, never as `$x = if (..) { @(..) }`:
+                #  a single-element array on the output of an if unrolls to the
+                #  element itself, and .Count on that is not the count of a list.
+                $vMissing = @()
+                if ($null -ne $v.Missing) { $vMissing = @($v.Missing) }
+                $vn = [ordered]@{ onPage = $v.OnPage; statement = $v.Statement; filesWithoutStatement = $vMissing }
+                if ($v.OnPage -and $vMissing.Count -gt 0) { $venueFindings.Add([pscustomobject]@{ Row = $row; Missing = $vMissing }) }
             }
         }
         foreach ($rec in $recs) {
@@ -2719,10 +2728,12 @@ function Write-ProvConsole {
         }
     }
 
-    if (@($Run.LegalConflict).Count -gt 0) {
+    $legalConflicts = @()
+    if ($null -ne $Run.LegalConflict) { $legalConflicts = @($Run.LegalConflict) }
+    if ($legalConflicts.Count -gt 0) {
         Write-Host ''
-        Write-Host ("  L-CLASS MANDATE CONFLICT ({0}) - a recommendation dressed as a legal requirement. BLOCKING." -f @($Run.LegalConflict).Count) -ForegroundColor Red
-        foreach ($c in @($Run.LegalConflict)) {
+        Write-Host ("  L-CLASS MANDATE CONFLICT ({0}) - a recommendation dressed as a legal requirement. BLOCKING." -f $legalConflicts.Count) -ForegroundColor Red
+        foreach ($c in $legalConflicts) {
             Write-Host ("    {0} {1} - {2}" -f $c.Row.File, $c.Row.Field, $c.Row.Name) -ForegroundColor Red
             Write-Host ("      value        : {0}" -f $c.Row.Value) -ForegroundColor Gray
             Write-Host ("      citation     : {0}" -f $c.Legal.citation) -ForegroundColor Gray
@@ -2759,16 +2770,20 @@ function Write-ProvConsole {
         }
     }
 
-    if (@($Run.FilesWithoutProvenance).Count -gt 0) {
+    $filesNoProv = @()
+    if ($null -ne $Run.FilesWithoutProvenance) { $filesNoProv = @($Run.FilesWithoutProvenance) }
+    if ($filesNoProv.Count -gt 0) {
         Write-Host ''
-        Write-Host ("  SPINE FILE(S) WITH NO PROVENANCE BLOCK ({0}) - nothing in them was registered, so nothing in them was proved. Reported by name; a silent skip is how that stays invisible." -f @($Run.FilesWithoutProvenance).Count) -ForegroundColor Yellow
-        Write-Host ("    {0}" -f ((@($Run.FilesWithoutProvenance)) -join ', ')) -ForegroundColor DarkGray
+        Write-Host ("  SPINE FILE(S) WITH NO PROVENANCE BLOCK ({0}) - nothing in them was registered, so nothing in them was proved. Reported by name; a silent skip is how that stays invisible." -f $filesNoProv.Count) -ForegroundColor Yellow
+        Write-Host ("    {0}" -f ($filesNoProv -join ', ')) -ForegroundColor DarkGray
     }
 
-    if (@($Run.VenueFinding).Count -gt 0) {
+    $venueFinds = @()
+    if ($null -ne $Run.VenueFinding) { $venueFinds = @($Run.VenueFinding) }
+    if ($venueFinds.Count -gt 0) {
         Write-Host ''
-        Write-Host ("  V-CLASS WITHOUT THE VENUE STATEMENT ({0}) - the figure is on the page and the page does not say it is the venue's own. Reported." -f @($Run.VenueFinding).Count) -ForegroundColor Yellow
-        foreach ($v in @($Run.VenueFinding | Select-Object -First $script:MaxConsole)) {
+        Write-Host ("  V-CLASS WITHOUT THE VENUE STATEMENT ({0}) - the figure is on the page and the page does not say it is the venue's own. Reported." -f $venueFinds.Count) -ForegroundColor Yellow
+        foreach ($v in @($venueFinds | Select-Object -First $script:MaxConsole)) {
             Write-Host ("    '{0}' appears in {1} without it" -f (Get-ProvSnippet $v.Row.Value 60), (@($v.Missing) -join ', ')) -ForegroundColor DarkGray
         }
     }
@@ -3193,8 +3208,10 @@ function Invoke-ProvSelfTest {
         }
         else { & $bad ("the L-class row came back {0}, wanted RESOLVED - the anchor route to the cited document did not work" -f $(if ($null -eq $r4) { 'MISSING' } else { $r4.disposition })) }
 
-        if (@($run.LegalConflict).Count -ge 1) {
-            $c = @($run.LegalConflict)[0]
+        $stLegal = @()
+        if ($null -ne $run.LegalConflict) { $stLegal = @($run.LegalConflict) }
+        if ($stLegal.Count -ge 1) {
+            $c = $stLegal[0]
             if ($c.Legal.sourceStance -eq 'RECOMMENDS' -and $c.Legal.guideStance -eq 'ASSERTS-REQUIREMENT') {
                 & $ok 'gate fires: an L-class figure asserted as a requirement where the cited text only recommends'
             }
@@ -3517,8 +3534,9 @@ if ($SeedOnly) {
         }
         exit 1
     }
-    if (@($run.LegalConflict).Count -gt 0) {
-        Write-Host ("  X {0} L-class mandate conflict(s)." -f @($run.LegalConflict).Count) -ForegroundColor Red
+    $seedLegal = Get-GateCount -Value $run.LegalConflict
+    if ($seedLegal -gt 0) {
+        Write-Host ("  X {0} L-class mandate conflict(s)." -f $seedLegal) -ForegroundColor Red
         exit 5
     }
     Write-Host '  every registry row resolves in the source it names' -ForegroundColor Green
@@ -3553,8 +3571,9 @@ if ($unresolved.Count -gt 0 -or $unlocated.Count -gt 0) {
     Write-Host ("    {0} NEAR-MISS and {1} SOURCE-ABSENT are reported above for adjudication and do not block." -f $nearMiss.Count, $absent.Count) -ForegroundColor Yellow
     exit 1
 }
-if (@($run.LegalConflict).Count -gt 0) {
-    Write-Host ("  X {0} L-class mandate conflict(s) - a recommendation asserted as a legal requirement." -f @($run.LegalConflict).Count) -ForegroundColor Red
+$legalConflictCount = Get-GateCount -Value $run.LegalConflict
+if ($legalConflictCount -gt 0) {
+    Write-Host ("  X {0} L-class mandate conflict(s) - a recommendation asserted as a legal requirement." -f $legalConflictCount) -ForegroundColor Red
     exit 5
 }
 Write-Host ("  every registered value resolves in the source it names, and every attributed quantity carries a locator that resolves. {0} NEAR-MISS and {1} SOURCE-ABSENT reported for adjudication." -f $nearMiss.Count, $absent.Count) -ForegroundColor Green

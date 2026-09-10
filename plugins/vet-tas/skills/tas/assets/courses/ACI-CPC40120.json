@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "ACI-CPC40120",
     "qualificationCode":  "CPC40120",
@@ -11,96 +11,95 @@
     "siblingCourse":  null,
     "durationWeeks":  52,
     "packagingRule":  {
-                          "rule":  "TAS states 19 units of competency.",
+                          "rule":  "19 units - 11 core plus 8 electives, per the CPC40120 national packaging rules. THE TAS UNIT TABLE DESIGNATES 14 AS CORE, which contradicts its own stated rule of 11; CPCCBC4003, CPCCBC4004 and CPCCBC4005 are Group A electives nationally and are corrected here.",
+                          "core":  11,
+                          "elective":  8,
                           "totalUnits":  19,
                           "statedInTas":  true
                       },
     "unitCount":  19,
     "deliveredCount":  19,
-    "priorCourse":  null,
+    "priorCourse":  "",
     "sequencing":  {
-                       "model":  "timetable",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\1.8 Draft Timetable - CPC40120 Certificate IV in Building and Construction - Building.pdf",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "WHS management, building codes and construction law",
+                                            "focus":  "Manage site WHS and apply the NCC, standards and legal requirements to Class 1, 10 and Type C work.",
+                                            "weeks":  "1-10",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4002",
+                                                          "CPCCBC4001",
+                                                          "CPCCBC4053",
+                                                          "CPCCBC4009"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Work planning, plans and building drawings",
+                                            "focus":  "Plan a residential build program and read, interpret and sketch the drawings the job is built from.",
+                                            "weeks":  "11-18",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4007",
+                                                          "CPCCBC4012",
+                                                          "CPCCBC4014"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Estimating, scheduling and materials procurement",
+                                            "focus":  "Produce estimated costs, labour and material schedules, and select, order and store construction materials.",
+                                            "weeks":  "19-26",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4004",
+                                                          "CPCCBC4005",
+                                                          "CPCCBC4006"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  4,
+                                            "name":  "Contract administration and site management",
+                                            "focus":  "Select and administer a building contract, run site communication and records, resolve disputes and minimise site waste.",
+                                            "weeks":  "27-37",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4003",
+                                                          "CPCCBC4024",
+                                                          "CPCCBC4008",
+                                                          "CPCCBC4021"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  5,
+                                            "name":  "Structural principles, set-out and energy efficiency",
+                                            "focus":  "Apply structural principles to residential and commercial work, carry out site set-out, and build to energy efficiency requirements.",
+                                            "weeks":  "38-46",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "CPCCBC4010",
+                                                          "CPCCBC4018",
+                                                          "CPCSUS4002"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  6,
+                                            "name":  "Business planning and project quality",
+                                            "focus":  "Develop a building business plan and apply quality management techniques to a construction project.",
+                                            "weeks":  "47-52",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBESB407",
+                                                          "BSBPMG422"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
-                                     {
-                                         "code":  "CPCCBC4002",
-                                         "weeks":  "1-2"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4001",
-                                         "weeks":  "3-4"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4053",
-                                         "weeks":  "5-6"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4009",
-                                         "weeks":  "7-8"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4007",
-                                         "weeks":  "9-10"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4012",
-                                         "weeks":  "15-16"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4014",
-                                         "weeks":  "17-18"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4004",
-                                         "weeks":  "19-21"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4005",
-                                         "weeks":  "22-23"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4006",
-                                         "weeks":  "24-25"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4003",
-                                         "weeks":  "26-27"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4024",
-                                         "weeks":  "30-32"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4008",
-                                         "weeks":  "33-34"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4021",
-                                         "weeks":  "35-36"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4010",
-                                         "weeks":  "37-40"
-                                     },
-                                     {
-                                         "code":  "CPCCBC4018",
-                                         "weeks":  "41-42"
-                                     },
-                                     {
-                                         "code":  "CPCSUS4002",
-                                         "weeks":  "43-45"
-                                     },
-                                     {
-                                         "code":  "BSBESB401",
-                                         "weeks":  "48-50"
-                                     },
-                                     {
-                                         "code":  "BSBPMG422",
-                                         "weeks":  "51-52"
-                                     }
+
                                  ]
                    },
     "units":  [
@@ -109,7 +108,7 @@
                       "title":  "Manage work health and safety in the building and construction workplace",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  1,
                       "weeks":  "1-2",
                       "prerequisites":  [
@@ -124,7 +123,7 @@
                       "title":  "Plan building and construction work",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  5,
                       "weeks":  "9-10",
                       "prerequisites":  [
@@ -139,7 +138,7 @@
                       "title":  "Apply building codes and standards to the construction process for Class 1 and 10 buildings",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  2,
                       "weeks":  "3-4",
                       "prerequisites":  [
@@ -152,9 +151,9 @@
                   {
                       "code":  "CPCCBC4003",
                       "title":  "Select, prepare and administer a construction contract",
-                      "designation":  "Core",
+                      "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  4,
                       "sequence":  11,
                       "weeks":  "26-27",
                       "prerequisites":  [
@@ -167,9 +166,9 @@
                   {
                       "code":  "CPCCBC4004",
                       "title":  "Identify and produce estimated costs for building and construction projects",
-                      "designation":  "Core",
+                      "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  8,
                       "weeks":  "19-21",
                       "prerequisites":  [
@@ -182,9 +181,9 @@
                   {
                       "code":  "CPCCBC4005",
                       "title":  "Produce labour and material schedules for ordering",
-                      "designation":  "Core",
+                      "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  9,
                       "weeks":  "22-23",
                       "prerequisites":  [
@@ -199,7 +198,7 @@
                       "title":  "Supervise site communication and administration processes for building and construction projects ",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  4,
                       "sequence":  13,
                       "weeks":  "33-34",
                       "prerequisites":  [
@@ -214,7 +213,7 @@
                       "title":  "Apply legal requirements to building and construction projects",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  4,
                       "weeks":  "7-8",
                       "prerequisites":  [
@@ -229,7 +228,7 @@
                       "title":  "Apply structural principles to residential and commercial constructions",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  5,
                       "sequence":  15,
                       "weeks":  "37-40",
                       "prerequisites":  [
@@ -245,7 +244,7 @@
                       "title":  "Apply building codes and standards to the construction process for Class 2 to 9 Type C buildings",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  3,
                       "weeks":  "5-6",
                       "prerequisites":  [
@@ -260,7 +259,7 @@
                       "title":  "Read and interpret plans and specifications",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  6,
                       "weeks":  "15-16",
                       "prerequisites":  [
@@ -275,7 +274,7 @@
                       "title":  "Minimise waste on the building and construction site",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  4,
                       "sequence":  14,
                       "weeks":  "35-36",
                       "prerequisites":  [
@@ -290,7 +289,7 @@
                       "title":  "Prepare simple building sketches and drawings",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  7,
                       "weeks":  "17-18",
                       "prerequisites":  [
@@ -305,7 +304,7 @@
                       "title":  "Apply site surveys and set-out procedures to building and construction projects",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  5,
                       "sequence":  16,
                       "weeks":  "41-42",
                       "prerequisites":  [
@@ -320,7 +319,7 @@
                       "title":  "Apply project quality management techniques",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  6,
                       "sequence":  19,
                       "weeks":  "51-52",
                       "prerequisites":  [
@@ -335,7 +334,7 @@
                       "title":  "Select, procure and store construction materials for building and construction projects",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  10,
                       "weeks":  "24-25",
                       "prerequisites":  [
@@ -350,7 +349,7 @@
                       "title":  "Use building science principles to construct energy efficient buildings",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  5,
                       "sequence":  17,
                       "weeks":  "43-45",
                       "prerequisites":  [
@@ -365,7 +364,7 @@
                       "title":  "Resolve business disputes",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  4,
                       "sequence":  12,
                       "weeks":  "30-32",
                       "prerequisites":  [
@@ -376,11 +375,11 @@
                       "releaseCurrency":  "current"
                   },
                   {
-                      "code":  "BSBESB401",
-                      "title":  "Research and develop business plans",
+                      "code":  "BSBESB407",
+                      "title":  "Manage finances for new business ventures",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  6,
                       "sequence":  18,
                       "weeks":  "48-50",
                       "prerequisites":  [
@@ -412,16 +411,32 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC40120 Certificate IV in Building and Construction (Building) (1).docx",
-                   "tasSha256":  "A6F779D622DD8CF30593F33FA0C9C4C9745E9D28ADA7BA29B9D6D22B3CEA6D30",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\ACI-CPC40120.docx",
+                   "tasSha256":  "724A891E1346C3616CCD714D1BAE226D9AF3D4BDBDAE21989860D8C335C07076",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:43Z"
+                   "generatedUtc":  "2026-09-08T00:41:43Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "THE DELIVERY SEQUENCE COMES FROM THE DRAFT TIMETABLE, NOT THE TAS. The TAS clustering section is unusable - see openItems - but the draft timetable submitted alongside it in the same scope-application pack carries a correct week-by-week schedule of exactly these 19 units. That is the sequence recorded here, and it is what topic ownership is ordered by."
               ],
     "openItems":  [
+                      "SUBSTITUTED 8 SEPTEMBER 2026 - BSBESB401 replaced by BSBESB407. BSBESB401 Research and Develop Business Plans is not on RTO 45797 scope, so the qualification could not be awarded on it. BSBESB407 Manage finances for new business ventures is in the CPC40120 national elective bank, is on ACI scope until 16 February 2031, and ACI already delivers it in CPC31020 - so the assessment tools and trainer capability exist. It keeps the business-establishment purpose of the elective it replaces. The closest match on content would have been BSBESB406 Establish operational strategies and procedures for new business ventures, which is also on scope but which ACI does not yet deliver anywhere. THE TAS UNIT TABLE, THE DELIVERY PLAN AND THE ELECTIVE RATIONALE MUST BE UPDATED TO MATCH.",
                       "THE TAS CARRIES THE WRONG DELIVERY PLAN, AND THE SEPTEMBER 2026 DOCX STILL DOES. Its Course Clustering Overview and Delivery Sequence sections were copied from the CPC20220 Certificate II strategy: they cluster and timetable CPCWHS1001, CPCCOM1012, CPCCOM1013, CPCCOM1015, CPCCCM2012, CPCCSP2002, CPCCSP2003, CPCCCO2013 and CPCCVE1011 - NINE units this qualification does not contain - plus one Diploma unit, CPCCBC5010. The registry sequences the course from the draft timetable instead, so builds are unblocked, but AN AUDITOR READING THE TAS FINDS A DELIVERY PLAN FOR A DIFFERENT QUALIFICATION. Rewrite that section.",
-                      "BSBESB401 Research and Develop Business Plans is listed in the unit table with no Core/Elective designation. Recorded as elective on the arithmetic - 14 core are designated and the TAS states 19 units - but confirm."
-                  ]
+                      "CONFIRMED 8 SEPTEMBER 2026 - BSBESB401 carries no Core/Elective designation in the TAS unit table and was recorded as elective on the arithmetic. Checked against the CPC40120 national packaging rules: BSBESB401 is not among the core units, so ELECTIVE is correct. The TAS table should still be given the designation explicitly so the next reader does not have to derive it.",
+                      "THE UNIT TABLE DESIGNATES 14 UNITS AS CORE where the document\u0027s own stated rule is 11 core plus 8 electives. Checked against the CPC40120 national packaging rules: the 11 core units are CPCCBC4001, CPCCBC4002, CPCCBC4007, CPCCBC4008, CPCCBC4009, CPCCBC4010, CPCCBC4012, CPCCBC4014, CPCCBC4018, CPCCBC4021 and CPCCBC4053. CPCCBC4003, CPCCBC4004 and CPCCBC4005 are Elective Group A units and are wrongly marked Core in the TAS. All 19 units and all 11 national core units are present, so the qualification can still be issued - but the designations are wrong in the document and were wrong here until 8 September 2026."
+                  ],
+    "pathway":  {
+                    "role":  "entry",
+                    "priorCourses":  [
+
+                                     ],
+                    "leadsTo":  [
+                                    "ACI-CPC50220"
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026",
+                    "note":  "Articulates into ACI-CPC50220, which is also an entry point in its own right."
+                }
 }

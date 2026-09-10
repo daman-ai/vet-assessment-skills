@@ -622,8 +622,29 @@ function Get-StageMachineResult {
     if (Test-LedgerHasProp $raw 'verdict') { $verdictRaw = "$($raw.verdict)" }
     $exitCode = $null
     if ((Test-LedgerHasProp $raw 'exitCode') -and $null -ne $raw.exitCode -and "$($raw.exitCode)" -match '^-?\d+$') { $exitCode = [int]$raw.exitCode }
+    #  TWO DIFFERENT FACTS, and they were being read as one.
+    #
+    #  `partialRun` is the boolean the runners write for a SUBSET run - the
+    #  -Only case, where a selection of members stood in for the band. That is
+    #  what "a partial run is not the band" is about, and it must block.
+    #
+    #  `partial` is the ARRAY of named entries: every rule, arm or member that
+    #  did not run, each named, with the reason. A band can be complete and
+    #  still carry those - Stage 0 always does, because three documented gates
+    #  are marked NOT YET IMPLEMENTED in gates.md and are performed by nobody.
+    #  Invoke-Stage0 records them, names them, refuses to read them as PASS,
+    #  and still returns verdict PASS, because gates.md says in as many words
+    #  that an unbuilt gate "does not fail the stage ... that is a roadmap
+    #  item, not a build defect".
+    #
+    #  `[bool]` on a non-empty array is $true, so reading the array as the flag
+    #  made every honest Stage 0 unrecordable - a stage that passes its runner
+    #  and can never be written to the ledger, on every build, forever. Prefer
+    #  the boolean the runner actually writes; fall back to `partial` only when
+    #  it IS a boolean, which is the older single-field shape.
     $partial = $false
-    if (Test-LedgerHasProp $raw 'partial') { $partial = [bool]$raw.partial }
+    if (Test-LedgerHasProp $raw 'partialRun') { $partial = [bool]$raw.partialRun }
+    elseif ((Test-LedgerHasProp $raw 'partial') -and ($raw.partial -is [bool])) { $partial = [bool]$raw.partial }
     $fp = ''
     if (Test-LedgerHasProp $raw 'spineFingerprint') { $fp = "$($raw.spineFingerprint)".Trim() }
     $after = $null

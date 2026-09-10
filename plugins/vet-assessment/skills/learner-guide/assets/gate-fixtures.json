@@ -1,0 +1,77 @@
+{
+    "_comment":  "THE FIXTURE HARNESS'S OWN REGISTRY. Assert-GateFixtures reads this file through Lib-GateCommon's Get-GateAllowList, which REFUSES any entry that carries no written reason. The list below used to live in Assert-GateFixtures.ps1 as an in-script $script:StaticCoverAllow table, where the thing that switched a blocking rule off for nine scripts was invisible to the audit that trusted the rule. It is versioned with the skill, it travels with the gate it weakens, and every entry is surfaced to the audit as evidence.",
+    "_rule":  "staticCoverAllow weakens ONE rule and no other: the NO-COVER arm of Assert-GateFixtures, which fails a BLOCKING gate that has neither a -SelfTest switch nor a seeded-defect recipe in the harness. An entry here says the named script is in the derived set only because it can exit non-zero - it is a library, a renderer or a tool, and decides no verdict about a build, so a planted defect has nothing to make it fail ON. A gate-named script (Assert-, Check- or Test-) is NEVER cleared by this list: the gate re-checks the name and ignores any entry that matches one, because a script that claims a verdict owes a proof.",
+    "_noHeaderRule":  "noHeaderAllow weakens ONE rule and no other: the NO-HEADER arm, which fails a blocking gate carrying no '# GATE: stages=...' line. THE INCIDENT IT RESOLVES: eight scripts are invoked DIRECTLY at a stage no runner drives - the two runners themselves, two producers, and four stage tools whose stages (S0-RTO, 6b, 7, 7c-meta, 7e) have no band. references/gates.md section 8b addresses exactly this for Test-DeckStyle and says in as many words 'Do not close that by adding a header', because a header naming a stage no runner accepts turns one finding into two. But the fixtures harness is itself a BLOCKING band member at stages 0, 1, 2, 3c, 4 and 7c, so those eight findings failed the harness, which failed every band, on every build, permanently - a blocking gate whose documented state was permanent failure. This register records the eight as what gates.md already calls them: gates the reconciler cannot place. AN ENTRY NEVER CLEARS A SCRIPT A RUNNER ACTUALLY PLANS - the gate re-checks each name against the runner plans and ignores any entry that matches one, because a script a runner will look for a header on owes that header. Every entry is printed as evidence on every run. The list is meant to SHRINK: when a stage gains a runner - the 7e row gates.md asks for is the first - its entry stops being true and comes out.",
+    "noHeaderAllow":  [
+        {
+            "script":  "Run-Gates",
+            "reason":  "runner, not a member: it DRIVES the stage 4 and 7c bands and reads every other gate's header to build its plan. A header on the runner would declare it a member of the band it runs."
+        },
+        {
+            "script":  "Run-SpineGates",
+            "reason":  "runner, not a member: it drives the stage 1, 2 and 3c bands and is the very code that reads '# GATE:' headers. A runner cannot be a member of its own band."
+        },
+        {
+            "script":  "New-WithholdRegister",
+            "reason":  "producer at Stage 2, invoked directly. Its own header comment already states it carries no '# GATE:' line because it is a producer, not a band member. What it derives is enforced by Assert-WithholdRegister, Check-ShapeMirror and Check-FigureMirror, which are band members and carry the proofs a plant would have to defeat."
+        },
+        {
+            "script":  "Get-RtoProfile",
+            "reason":  "S0-RTO, invoked directly as 'Get-RtoProfile.ps1 -Rto <id> -Check' and again by Invoke-Stage0 through Lib-RtoProfile. S0-RTO is cached per RTO and sits off the per-build path; no band drives it, so no runner would ever read a header on it."
+        },
+        {
+            "script":  "Test-Finding",
+            "reason":  "Stage 6b, invoked directly between the review band and remediation. gates.md section 19 documents the direct invocation; 6b has no runner, and the arbiter runs once per findings report rather than as a band member."
+        },
+        {
+            "script":  "Assert-EnumerateBeforeFix",
+            "reason":  "Stage 7, invoked directly once per finding ('-Finding <id>'). gates.md section 32 documents the per-finding invocation; Stage 7 is a remediation round, not a band, so there is no plan to join."
+        },
+        {
+            "script":  "Assert-FullRegateAfterMutation",
+            "reason":  "Stage 7c meta-gate: it reads the Run-Gates PLAN, gates.md and SKILL.md to prove the 7c set was complete. A gate that audits the plan cannot also be an entry in it."
+        },
+        {
+            "script":  "Test-DeckStyle",
+            "reason":  "Stage 7e, invoked directly and twice. gates.md section 8b names this exact situation: 7e is outside Run-SpineGates' vocabulary and the ledger stage table has no 7e row, so a header would turn one finding into two. The real fix is a 7e row in the ledger stage table; until it exists this is the honest state, recorded here rather than left to fail the harness."
+        }
+    ],
+    "staticCoverAllow":  [
+        {
+            "script":  "Lib-Resolve",
+            "reason":  "library: resolves sibling skills and loads libraries; throws on a missing one, decides nothing about a build, so there is no verdict for a planted defect to invert."
+        },
+        {
+            "script":  "Pptx-Blocks",
+            "reason":  "library: slide-building primitives dot-sourced by the deck renderer. It writes shapes; it judges nothing, and the deck it helps build is gated by Test-DeckRules and Test-DeckStyle."
+        },
+        {
+            "script":  "Xml-Scan",
+            "reason":  "library: OOXML part scanning primitives used by the gates. It returns parts and counts and carries no verdict of its own; the gates that call it own the proofs."
+        },
+        {
+            "script":  "Build-Guide",
+            "reason":  "renderer: writes the guide from the spine. Its output is gated by Test-GuideRules and the 4/7c band, so a defect planted in a guide is caught there rather than by the renderer that wrote it."
+        },
+        {
+            "script":  "Set-ResourceBrand",
+            "reason":  "renderer step: applies the palette. The mark it leaves is PROVED afterwards by Check-Identity at stage 4c, which is where a planted brand defect must be made to fail."
+        },
+        {
+            "script":  "Patch-GuideTemplateGeometry",
+            "reason":  "tool: a one-off template geometry patch, ShouldProcess-guarded. Its effect on the delivered guide is gated by the Test-GuideRules content-width arm."
+        },
+        {
+            "script":  "New-WithholdRegister",
+            "reason":  "producer: derives the withhold register at Stage 2. It is enforced by Assert-WithholdRegister, Check-ShapeMirror and Check-FigureMirror, which carry the proofs a plant would have to defeat."
+        },
+        {
+            "script":  "New-FigureSheet",
+            "reason":  "producer: cuts the figure sheet. Its refusal on a failed band is the P0-07 proof, owned by its own self-test once that lands, not by a fixture recipe here."
+        },
+        {
+            "script":  "Get-DocText",
+            "reason":  "producer: writes text extracts with a stamp. Every rendered-arm gate consumes that extract and proves against it, so the extract is evidence rather than a verdict."
+        }
+    ]
+}
