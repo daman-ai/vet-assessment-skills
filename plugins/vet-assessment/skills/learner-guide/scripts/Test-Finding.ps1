@@ -791,21 +791,28 @@ function Write-ArbiterTable {
             'UNREFUTED'         { $col = 'White' }
             'UNCHECKED'         { $col = 'DarkGray' }
         }
+        #  HOW MANY PIECES OF EVIDENCE, read once and asked honestly. @($null).Count
+        #  is 1 in PS 5.1, so a finding whose 'evidence' property is absent used to
+        #  answer YES here: the arbiter printed an anchor built from $null - a bare
+        #  ':  [] ' - and the note that says WHY the finding was not refuted was
+        #  never printed at all. This is the Stage 6b table a human adjudicates from.
+        $evCount = Get-GateCount -Value $r.evidence
+        $evList  = if ($evCount -gt 0) { @($r.evidence) } else { @() }
         $anchor = ''
-        if (@($r.evidence).Count -gt 0) {
-            $e = @($r.evidence)[0]
+        if ($evCount -gt 0) {
+            $e = $evList[0]
             $anchor = ("{0}:{1} [{2}] {3}" -f $e.Doc, $e.Where, $e.Arm, $e.Text)
         }
         else { $anchor = $r.note }
         $risk = "$($r.risk)"
         if ($risk.Length -gt 6) { $risk = $risk.Substring(0, 6) }
         Write-Host ("  {0,-8} {1,-6} {2,-14} {3,-18} {4}" -f $r.id, $risk, $r.class, $r.status, $anchor) -ForegroundColor $col
-        if (@($r.evidence).Count -gt 1) {
-            foreach ($e in @(@($r.evidence) | Select-Object -Skip 1 -First 4)) {
+        if ($evCount -gt 1) {
+            foreach ($e in @($evList | Select-Object -Skip 1 -First 4)) {
                 Write-Host ("  {0,-49} {1}:{2} [{3}] {4}" -f '', $e.Doc, $e.Where, $e.Arm, $e.Text) -ForegroundColor DarkGray
             }
         }
-        if (@($r.evidence).Count -gt 0 -and $r.note) {
+        if ($evCount -gt 0 -and $r.note) {
             Write-Host ("  {0,-49} {1}" -f '', $r.note) -ForegroundColor DarkGray
         }
         foreach ($fb in @($r.forbid)) {

@@ -1168,6 +1168,28 @@ function Invoke-CoverageGate {
                     if ($shown -match '(?i)\b\d+(st|nd|rd|th)\b') { Add-CoverageSuppressed -Rule 'SUP-ORDINAL' -Key $key -Shown $shown; continue }
                     if ($m.Index -le 1 -and $sentence -match '^\s*\(?\d{1,2}[.)]\s') { Add-CoverageSuppressed -Rule 'SUP-LISTNUM' -Key $key -Shown $shown; continue }
                     if ($identSet.ContainsKey($numNorm) -or $identSet.ContainsKey($key)) { Add-CoverageSuppressed -Rule 'SUP-IDENT' -Key $key -Shown $shown; continue }
+                    #  A HYPHENATED IDENTIFIER, BY SHAPE. A number whose
+                    #  immediately preceding characters are a short letter run
+                    #  and a hyphen is the tail of an identifier - R-5, D-3,
+                    #  O-2, A-1 - and not a measured quantity. The identSet
+                    #  above cannot reach these: it recognises ABN, ACN, CRICOS
+                    #  and national unit-code shapes, every one of which
+                    #  carries three or more digits, and a recipe card number
+                    #  is one or two.
+                    #
+                    #  WHAT MISSING IT COSTS: the harvester reads "recipe card
+                    #  R-5 stirs 8 drops of the acid solution" and reports the
+                    #  figure "5 stir" - a string the document does not contain
+                    #  - as an unsourced claim against a card the pack owns.
+                    #  Ten such artefacts appeared on this build (5 stir,
+                    #  6 boil, 1 warn, 9 allow, 10 batch among them), each one
+                    #  a work order naming a figure nobody wrote. A rule that
+                    #  sends a reader hunting for a quantity that does not
+                    #  exist is the crying-wolf gate this file forbids.
+                    #
+                    #  A SHAPE, never a build's values: no identifier literal
+                    #  is typed here, so rule 5 is untouched.
+                    if ($before -match '(?i)[A-Za-z]{1,3}-$') { Add-CoverageSuppressed -Rule 'SUP-IDENT' -Key $key -Shown $shown; continue }
                     if ($numNorm -match '^(1[89]|20)\d{2}$' -and ($before -match ($rxCite + '\W{0,12}$') -or $shown -match '^\(')) {
                         Add-CoverageSuppressed -Rule 'SUP-CITEYEAR' -Key $key -Shown $shown; continue
                     }
@@ -1249,7 +1271,11 @@ function Invoke-CoverageGate {
         foreach ($n in $needles) { $needleRx.Add((ConvertTo-CoverageVariantRegex -Literal $n)) }
         foreach ($r in $regArr) {
             if (-not $r.Norm) { continue }
-            if (@($r.Inputs).Count -gt 0) { continue }
+            #  Get-GateCount, not @($r.Inputs).Count: @($null).Count is 1 in
+            #  PS 5.1, so a registry row that carries NO Inputs property
+            #  answered YES here and was skipped by a rule that reads as if it
+            #  only skipped rows that declare their inputs.
+            if ((Get-GateCount -Value $r.Inputs) -gt 0) { continue }
             $ok = $false
             $padded = ' ' + $r.Norm + ' '
             foreach ($n in $needles) {
@@ -1674,7 +1700,10 @@ function Invoke-CoverageGate {
         Write-Host '  suppression - structural only, every rule named, with what it removed:' -ForegroundColor DarkGray
         foreach ($r in $supRows) {
             $ex = ''
-            if (@($r.examples).Count -gt 0) { $ex = '  e.g. ' + (($r.examples | ForEach-Object { "'$_'" }) -join ', ') }
+            #  Get-GateCount, not @($r.examples).Count: @($null).Count is 1 in
+            #  PS 5.1, so a suppression row with no examples property printed
+            #  an empty "e.g." beside its count as if it had shown its work.
+            if ((Get-GateCount -Value $r.examples) -gt 0) { $ex = '  e.g. ' + (($r.examples | ForEach-Object { "'$_'" }) -join ', ') }
             Write-Host ("    {0,-14} {1,7} occurrence(s), {2,5} distinct{3}" -f $r.rule, $r.occurrencesRemoved, $r.distinctRemoved, $ex) -ForegroundColor DarkGray
         }
         $balanced = (($occArr.Length + $supTotal) -eq $rawSpans)

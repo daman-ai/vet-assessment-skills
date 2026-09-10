@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "MVC-SIT31021",
     "qualificationCode":  "SIT31021",
@@ -19,16 +19,16 @@
                       },
     "unitCount":  21,
     "deliveredCount":  21,
-    "priorCourse":  null,
+    "priorCourse":  "",
     "sequencing":  {
                        "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT31021 Certificte III in Patisserie (1).docx",
                        "clusters":  [
                                         {
                                             "number":  1,
-                                            "name":  "Work safely and hygienically (foundation)",
-                                            "focus":  null,
-                                            "weeks":  null,
+                                            "name":  "Safe work and food hygiene",
+                                            "focus":  "Work safely on the bench, control hazards and handle food to food-safety standard.",
+                                            "weeks":  "1-8",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "SITXWHS005",
@@ -39,54 +39,54 @@
                                         },
                                         {
                                             "number":  2,
-                                            "name":  "Kitchen operations and stock",
-                                            "focus":  null,
-                                            "weeks":  null,
+                                            "name":  "Section set-up, stock and basic cookery",
+                                            "focus":  "Cost a recipe, order and store goods, run the equipment and clean down, and cook by basic methods.",
+                                            "weeks":  "9-22",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "SITHKOP010",
                                                           "SITXINV007",
-                                                          "SITXINV006",
+                                                          "SITHCCC023",
                                                           "SITHKOP009",
-                                                          "SITHCCC023"
+                                                          "SITXINV006",
+                                                          "SITHCCC027",
+                                                          "SITXHRM007"
                                                       ]
                                         },
                                         {
                                             "number":  3,
-                                            "name":  "Core cookery and people skills",
-                                            "focus":  null,
-                                            "weeks":  null,
+                                            "name":  "Plated desserts, buffets and dietary work",
+                                            "focus":  "Produce and plate hot and cold desserts, set a sweet buffet display and adapt items for dietary needs.",
+                                            "weeks":  "23-31",
                                             "nominalHours":  null,
                                             "units":  [
-                                                          "SITHCCC027",
-                                                          "SITXHRM007",
                                                           "SITHCCC042",
-                                                          "SITHCCC038"
+                                                          "SITHCCC038",
+                                                          "SITHPAT016"
                                                       ]
                                         },
                                         {
                                             "number":  4,
-                                            "name":  "Patisserie production",
-                                            "focus":  null,
-                                            "weeks":  null,
+                                            "name":  "Cakes, pastries and yeast goods",
+                                            "focus":  "Bake, fill and finish cakes and gateaux, and produce pastry and yeast-raised bakery lines.",
+                                            "weeks":  "32-47",
                                             "nominalHours":  null,
                                             "units":  [
-                                                          "SITHPAT016",
                                                           "SITHPAT011",
                                                           "SITHPAT012",
                                                           "SITHPAT013",
-                                                          "SITHPAT014",
-                                                          "SITHPAT015",
-                                                          "SITHPAT017"
+                                                          "SITHPAT014"
                                                       ]
                                         },
                                         {
                                             "number":  5,
-                                            "name":  "Apply skills in the commercial kitchen (service periods)",
-                                            "focus":  null,
-                                            "weeks":  null,
+                                            "name":  "Petits fours, marzipan and kitchen placement",
+                                            "focus":  "Produce petits fours and modelled marzipan work, then hold a section through a full service in a commercial kitchen.",
+                                            "weeks":  "48-58",
                                             "nominalHours":  null,
                                             "units":  [
+                                                          "SITHPAT015",
+                                                          "SITHPAT017",
                                                           "SITHCCC034"
                                                       ]
                                         }
@@ -117,7 +117,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  2,
+                      "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -131,8 +131,8 @@
                       "title":  "Coach others in job skills",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  3,
-                      "sequence":  3,
+                      "cluster":  2,
+                      "sequence":  11,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -147,7 +147,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  4,
+                      "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -162,7 +162,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  5,
+                      "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -177,7 +177,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  6,
+                      "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -192,7 +192,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  7,
+                      "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -237,7 +237,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  10,
+                      "sequence":  7,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITXFSA005"
@@ -251,8 +251,8 @@
                       "title":  "Prepare dishes using basic methods of cookery",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  3,
-                      "sequence":  11,
+                      "cluster":  2,
+                      "sequence":  10,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITXFSA005"
@@ -266,8 +266,8 @@
                       "title":  "Produce desserts",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  4,
-                      "sequence":  12,
+                      "cluster":  3,
+                      "sequence":  14,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITXFSA005"
@@ -282,7 +282,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  3,
-                      "sequence":  13,
+                      "sequence":  12,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITHCCC027",
@@ -298,7 +298,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  3,
-                      "sequence":  14,
+                      "sequence":  13,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITHCCC027",
@@ -373,7 +373,7 @@
                       "title":  "Produce petits fours",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  4,
+                      "cluster":  5,
                       "sequence":  19,
                       "weeks":  null,
                       "prerequisites":  [
@@ -388,7 +388,7 @@
                       "title":  "Prepare and model marzipan",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  4,
+                      "cluster":  5,
                       "sequence":  20,
                       "weeks":  null,
                       "prerequisites":  [
@@ -425,15 +425,28 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT31021 Certificte III in Patisserie (1).docx",
-                   "tasSha256":  "C25D879D1C7324EDAD75A6625B1C832B2CFDD742CAD6F5CAF5710755D7E94EF7",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\MVC-SIT31021.docx",
+                   "tasSha256":  "2F0E9D74AAE832A9A1A0AFA04317C5339BFC0C3B3A7AE39B9327132958DCE6C4",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:44Z"
+                   "generatedUtc":  "2026-09-08T00:41:44Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "58 weeks including 6 weeks term break. As with SIT30821, the September 2026 strategy presents a flat numbered sequence and the themes recorded here group that same order."
               ],
     "openItems":  [
 
-                  ]
+                  ],
+    "pathway":  {
+                    "role":  "entry",
+                    "priorCourses":  [
+
+                                     ],
+                    "leadsTo":  [
+                                    "MVC-SIT40721"
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

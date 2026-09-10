@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "MVC-SIT50422",
     "qualificationCode":  "SIT50422",
@@ -21,10 +21,32 @@
     "deliveredCount":  5,
     "priorCourse":  "MVC-SIT40521",
     "sequencing":  {
-                       "model":  "sequence",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT50422 Diploma of Hospitality Management.docx",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "Budgets and service standards",
+                                            "focus":  "Prepare and monitor a venue budget and set the customer service standards the team works to.",
+                                            "weeks":  "1-12",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXFIN010",
+                                                          "SITXCCS016"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Compliance, partnerships and the guest experience",
+                                            "focus":  "Keep the venue legally compliant, manage supplier and partner relationships and lift the guest experience.",
+                                            "weeks":  "13-30",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXGLC002",
+                                                          "SITXMGT005",
+                                                          "SITXCCS015"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
 
@@ -36,7 +58,7 @@
                       "title":  "Prepare and monitor budgets",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
@@ -51,7 +73,7 @@
                       "title":  "Develop and manage quality customer service practices",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
@@ -66,7 +88,7 @@
                       "title":  "Identify and manage legal risks and comply with law",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
@@ -81,7 +103,7 @@
                       "title":  "Establish and conduct business relationships",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
@@ -96,7 +118,7 @@
                       "title":  "Enhance customer service experiences",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
@@ -473,10 +495,11 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS SIT50422 Diploma of Hospitality Management.docx",
-                   "tasSha256":  "DCDF6017DAB219DEDA92339944806140FD644B38C13F3BAF5BB1C3AAC574AD0E",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\MVC-SIT50422.docx",
+                   "tasSha256":  "896DEEC8B8797D9A69D6DD9A80F3FBF9AAF04F1877AB17958C4DBA7CD9648F0D",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:44Z"
+                   "generatedUtc":  "2026-09-08T00:41:44Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "FIVE OF THE TWENTY-EIGHT UNITS ARE DELIVERED. The strategy is written for learners on the pathway Certificate III Commercial Cookery to Certificate IV Kitchen Management to this Diploma; the other 23 arrive by credit transfer.",
@@ -484,5 +507,18 @@
               ],
     "openItems":  [
                       "The TAS unit table types SITXFIN010 as SITXFIN0010. Corrected against training.gov.au and recorded in titleCorrections."
-                  ]
+                  ],
+    "pathway":  {
+                    "role":  "addOn",
+                    "priorCourses":  [
+                                         "MVC-SIT40521",
+                                         "MVC-SIT40721"
+                                     ],
+                    "leadsTo":  [
+                                    "MVC-SIT60322"
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

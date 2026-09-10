@@ -193,7 +193,11 @@ function Invoke-CheckFigures {
             Write-Host ("  placed figures (body w:drawing): {0}   drawings incl. headers/footers: {1}   media parts: {2}" -f $placed, $dc.total, $dc.mediaParts) -ForegroundColor DarkGray
         }
         if ($placed -eq 0) {
-            $namesText = if (@($dc.names).Count -gt 0) { (@($dc.names) -join ', ') } else { '(no drawing objects at all)' }
+            #  Get-GateCount, not @($dc.names).Count: @($null).Count is 1 in PS
+            #  5.1, so a counts object with no names property took the first
+            #  branch and printed an EMPTY name list where the reader needed to
+            #  be told there were no drawing objects at all.
+            $namesText = if ((Get-GateCount -Value $dc.names) -gt 0) { (@($dc.names) -join ', ') } else { '(no drawing objects at all)' }
             Write-Host ("  on the page: {0}" -f $namesText) -ForegroundColor DarkGray
             if ($AfterArtwork -and $reconcileSlots.Count -gt 0) {
                 Write-Host ("  X zero placed figures after artwork against {0} planned slot(s). Filter: {1}" -f $reconcileSlots.Count, $dc.filter) -ForegroundColor Red

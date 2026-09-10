@@ -312,6 +312,11 @@ $UNITQ
     exit 0
 }
 
+#  Stamped before the run so the catch can tell THIS run's report on disk from
+#  one an earlier run left in the same place.
+$script:FlRunStart = (Get-Date).ToUniversalTime().AddSeconds(-2)
+$script:FlVerdictFromReport = $null
+
 try {
 
 # ---------------------------------------------------------------------------
@@ -684,6 +689,13 @@ if ($ReportPath) {
     [void]$sb.AppendLine('')
     [void]$sb.AppendLine(("REPORTED (not blocking - shorter shared runs of {0} words, for the Stage 3d and review-band read)" -f $Shingle))
     foreach ($h in $reported) { [void]$sb.AppendLine(("  [{0}] {1}  slot={2}  channel={3}`n    cell:  {4}`n    match: {5}" -f $h.Cell.File, $h.Cell.Path, $h.Cell.Slot, $h.Cell.Channel, $h.Cell.Text, $h.Phrase)) }
+    #  THE LAST LINE IS THE VERDICT, IN ONE MACHINE-READABLE FORM. It is written
+    #  by the code that decided it, so the console verdict and the report cannot
+    #  disagree, and it is what the catch below reads when this run completes and
+    #  then throws on its way out. A report without this line is not complete and
+    #  is not believed.
+    [void]$sb.AppendLine('')
+    [void]$sb.AppendLine(("VERDICT: blocking={0} unreadable={1}" -f $live.Count, $emptyFiles.Count))
     [System.IO.File]::WriteAllText($ReportPath, $sb.ToString(), (New-Object System.Text.UTF8Encoding($true)))
     Write-Host ("  complete hit list written to {0}" -f $ReportPath) -ForegroundColor DarkGray
 }
@@ -737,15 +749,51 @@ exit 1
 
 }
 catch {
-    #  The typed refusals Lib-GateCommon throws - an empty blocking check-set,
-    #  or a blocking arm that never finished - are exit 2, with the roster
-    #  printed so a runner can see which arm starved. Anything else is a gate
-    #  defect and is re-thrown as one.
     $m = $_.Exception.Message
-    if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
-        Write-Host ("  X {0}: {1}" -f $GATE, $m) -ForegroundColor Red
-        try { [void](Write-GateArmRoster) } catch { }
-        exit 2
+
+    #  ASK THE FILESYSTEM BEFORE BELIEVING THE THROW. The sweep writes its
+    #  complete hit list, ending in a VERDICT line, and only then formats the
+    #  same finding for the console, so a throw raised after that write says
+    #  nothing about whether any channel carries assessor-only wording. The
+    #  recorded incident is the same shape: Word finished a 383-page PDF and
+    #  then died at COM teardown, and the caller reported FAILED over a correct
+    #  file on disk. So the report is read back: it must exist, carry bytes,
+    #  have been written by THIS run, and end in a well-formed VERDICT line.
+    #  Everything before that write - CHECK-SET EMPTY, ARMS INCOMPLETE, an
+    #  unreadable spine - throws with no such report and is unaffected, and a
+    #  run given no -ReportPath has no artefact to read and falls through.
+    $verdictLine = ''
+    if ($ReportPath -and (Test-Path -LiteralPath $ReportPath)) {
+        $rfi = Get-Item -LiteralPath $ReportPath -ErrorAction SilentlyContinue
+        if ($null -ne $rfi -and $rfi.Length -gt 0 -and $rfi.LastWriteTimeUtc -ge $script:FlRunStart) {
+            $rtext = ''
+            try { $rtext = [System.IO.File]::ReadAllText($ReportPath) } catch { $rtext = '' }
+            $vm = [regex]::Match($rtext, '(?m)^VERDICT: blocking=(\d+) unreadable=(\d+)\s*$')
+            if ($vm.Success -and $rtext -match '(?m)^ASSESSOR-ONLY LEAKAGE SWEEP') { $verdictLine = $vm.Value.Trim() }
+        }
     }
-    throw
+    if ($verdictLine) {
+        $vparts = [regex]::Match($verdictLine, 'blocking=(\d+) unreadable=(\d+)')
+        $vBlocking = [int]$vparts.Groups[1].Value
+        $vUnreadable = [int]$vparts.Groups[2].Value
+        Write-Host ("  ! {0}: the sweep completed and wrote {1}, then threw: {2}" -f $GATE, $ReportPath, $m) -ForegroundColor Yellow
+        Write-Host ("  ! the verdict below is read from that report, not from the exception - {0}" -f $verdictLine) -ForegroundColor Yellow
+        if ($vBlocking -eq 0 -and $vUnreadable -eq 0) { $script:FlVerdictFromReport = 0 } else { $script:FlVerdictFromReport = 1 }
+    }
+    else {
+        #  The typed refusals Lib-GateCommon throws - an empty blocking check-set,
+        #  or a blocking arm that never finished - are exit 2, with the roster
+        #  printed so a runner can see which arm starved. Anything else is a gate
+        #  defect and is re-thrown as one.
+        if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
+            Write-Host ("  X {0}: {1}" -f $GATE, $m) -ForegroundColor Red
+            try { [void](Write-GateArmRoster) } catch { }
+            exit 2
+        }
+        throw
+    }
 }
+
+#  Reached only through the catch above, when the report on disk carried the
+#  verdict the exception was about to hide.
+exit ([int]$script:FlVerdictFromReport)

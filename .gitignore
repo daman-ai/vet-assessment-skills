@@ -36,3 +36,8 @@ deliverables/
 *.bak2
 *.orig
 .bak-*/
+
+# Dated working backups a skill run drops beside its own files. Git already
+# keeps the history, so committing these just doubles the repo.
+*-backup-2[0-9][0-9][0-9][0-9][0-9][0-9][0-9]*
+*.backup-2[0-9][0-9][0-9][0-9][0-9][0-9][0-9]*

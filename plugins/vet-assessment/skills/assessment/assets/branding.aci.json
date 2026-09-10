@@ -73,8 +73,8 @@
       "email": "info@culinaryadelaide.sa.edu.au",
       "_emailComment": "RTO DECISION, 26 August 2026: ONE email for both ACI trading names, and it is the culinary address. This is not a fallback - it is what the RTO chose, and it matches what both templates already carry in docProps AdminEmail. Do not derive a constructionadelaide address; there is not one. This closes what was previously logged as source defect 3 in ACI_HOUSE_STANDARD.md.",
       "website": "www.constructionadelaide.sa.edu.au",
-      "trainingPackages": ["CPC"],
-      "_packageComment": "Construction, plumbing and building.",
+      "trainingPackages": ["CPC", "MSF", "MSM"],
+      "_packageComment": "Construction, plumbing and building, plus cabinet making and timber technology. MSF AND MSM ARE NOT OPTIONAL HERE: Adelaide Construction Institute delivers MSF30322 Certificate III in Cabinet Making and Timber Technology, whose units carry MSF, MSM and BSB prefixes. With CPC alone, Resolve-BrandVariant threw on every MSF unit and no assessment tool could be built for that qualification at all. This matches assets/providers.json in the tas skill, which has recorded MSF and MSM as construction since the registry was built.",
 
       "logo": {
         "path": "assets/logos/ACI_Construction_Logo.png",

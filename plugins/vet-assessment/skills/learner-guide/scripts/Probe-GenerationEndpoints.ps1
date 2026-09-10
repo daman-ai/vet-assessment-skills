@@ -223,7 +223,11 @@ function Get-ProbeVerdict {
                 $msg  = "" + (Get-GateProp -Object $e -Names @('message') -Default '')
             }
             $dp = $j.PSObject.Properties['data']
-            if ($null -ne $dp -and $null -ne $dp.Value -and @($dp.Value).Count -gt 0) { $hasData = $true }
+            #  Get-GateCount, not @($dp.Value).Count: @($null).Count is 1 in PS
+            #  5.1 and @('').Count is 1 too, so a data property present but
+            #  EMPTY answered YES and a 200 that carried no image would have
+            #  been reported as an endpoint that works.
+            if ($null -ne $dp -and (Get-GateCount -Value $dp.Value) -gt 0) { $hasData = $true }
         }
         catch { $msg = $R.Body }
     }

@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "MVC-BSB80120",
     "qualificationCode":  "BSB80120",
@@ -21,10 +21,44 @@
     "deliveredCount":  8,
     "priorCourse":  null,
     "sequencing":  {
-                       "model":  "sequence",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB80120 Graduate Diploma of Management (Learning).docx",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "Strategic transformation and learning strategy",
+                                            "focus":  "Lead a strategic transformation agenda and shape the organisation\u0027s learning and development strategy and practice.",
+                                            "weeks":  "1-20",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBLDR811",
+                                                          "BSBHRM613",
+                                                          "TAELED803"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Complex problem solving and innovation",
+                                            "focus":  "Apply critical thinking to complex organisational problems and lead innovative thinking and practice.",
+                                            "weeks":  "21-33",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBCRT611",
+                                                          "BSBSTR801"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Partnerships, change and business planning",
+                                            "focus":  "Build collaborative partnerships, lead organisational change and translate strategy into an implemented business plan.",
+                                            "weeks":  "34-52",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBLDR812",
+                                                          "BSBLDR601",
+                                                          "BSBOPS601"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
 
@@ -36,7 +70,7 @@
                       "title":  "Lead strategic transformation",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
@@ -51,7 +85,7 @@
                       "title":  "Contribute to the development of learning and development strategies",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
@@ -66,7 +100,7 @@
                       "title":  "Implement improved learning practice",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
@@ -81,7 +115,7 @@
                       "title":  "Apply critical thinking for complex problem solving",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
@@ -96,7 +130,7 @@
                       "title":  "Lead innovative thinking and practice",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
@@ -111,7 +145,7 @@
                       "title":  "Develop and cultivate collaborative partnerships and relationships",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
@@ -126,7 +160,7 @@
                       "title":  "Lead and manage organisational change",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  7,
                       "weeks":  null,
                       "prerequisites":  [
@@ -141,7 +175,7 @@
                       "title":  "Develop and implement business plans",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  8,
                       "weeks":  null,
                       "prerequisites":  [
@@ -167,15 +201,20 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB80120 Graduate Diploma of Management (Learning).docx",
-                   "tasSha256":  "7C0C48C2366A35CA7B719DF9A159C3A2AC407DAE9B0EC4E28369D0D74FF36038",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\MVC-BSB80120.docx",
+                   "tasSha256":  "3DB61528F0BEE5CB17079F614A9F2181A9F219DB68AC76789284AB5B397EB894",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:44Z"
+                   "generatedUtc":  "2026-09-08T00:41:44Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "52 weeks including 4 weeks term break. All 8 units delivered."
               ],
     "openItems":  [
-                      "The TAS types BSBHRM613 Contribute to the development of learning and development strategies as BSBHRM6153 - one digit too many, and no such unit exists on training.gov.au. Corrected on the way in and recorded in titleCorrections. A student training plan for this qualification carries the same table and marks only two units as Core where the packaging rule requires three; check the designations against the rule."
-                  ]
+                      "CHECKED 8 SEPTEMBER 2026 - the registry holds all three BSB80120 national core units (BSBLDR811, BSBHRM613, TAELED803) correctly designated Core, so the DATA is right and the DOCUMENTS are not. Two things to correct outside the registry: the TAS types BSBHRM613 as BSBHRM6153, one digit too many and no such unit exists on training.gov.au; and the student training plan for this qualification marks only two units as Core where the packaging rule requires three."
+                  ],
+    "retired":  {
+                    "on":  "2026-09-09",
+                    "reason":  "Course discontinued by the RTO, 9 September 2026. Graduate Diploma of Management (Learning) is no longer offered."
+                }
 }

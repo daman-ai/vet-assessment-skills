@@ -328,11 +328,93 @@ function Test-BrandAncestryCleared {
     [pscustomobject]@{ Ok = ($bad.Count -eq 0); Problems = @($bad); Tokens = $keys }
 }
 
+function Write-BrandCheckSet {
+    <#  'check-set: <count> <what>, derived from <where>' - the one line rule 1
+        of gates.md requires of every derived set. Uses the house helper
+        (Lib-GateCommon's Write-GateCheckSet) wherever a caller has loaded it,
+        and prints the same shape itself where it has not: this file is
+        dot-sourced by builds that do not load the gate library, and adding
+        that dependency to make one line print would be a new dependency for
+        nothing. The shape 'check-set: N what' at the front is load-bearing -
+        Test-SubSection parses the line by it.  #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string] $What, [Parameter(Mandatory)][int] $Count, [Parameter(Mandatory)][string] $DerivedFrom)
+    if (Get-Command -Name 'Write-GateCheckSet' -ErrorAction SilentlyContinue) {
+        Write-GateCheckSet -What $What -Count $Count -DerivedFrom $DerivedFrom
+        return
+    }
+    Write-Host ("  check-set: {0} {1}, derived from {2}" -f $Count, $What, $DerivedFrom) -ForegroundColor DarkGray
+}
+
+function Get-BrandPaletteRoleMap {
+    <#  THE CLOSED ROLE ENUM AND ITS ALIASES, READ OFF THE SCHEMA.
+
+        assets\rto-profile.schema.json declares paletteRoles: one entry per
+        role, whose value is every name that role is known by on the objects
+        that reach the swap (a branding file's own palette names the light fill
+        'lightFill', Set-HousePalette's return names it 'Fill'). Lib-RtoProfile
+        resolves the same enum from the same place at Stage 0, so the palette
+        check and the swap cannot disagree about what the roles ARE.
+
+        The alias lists used to be typed into Get-BrandPalettePairs below. That
+        is a second source of truth: a name added to the schema for a role
+        would not reach the swap, the lookup would fall through, the role would
+        map to itself, and the apply loop skips a pair that maps to itself -
+        which is precisely how 608 of another brand's light fills survived in a
+        guide and 158 in a deck that both passed a crossover sweep.
+
+        Returns Roles (an ordered role -> alias-name[] map) and Path.  #>
+    [CmdletBinding()]
+    param([string] $SchemaPath)
+
+    if (-not $SchemaPath) {
+        $roots = New-Object System.Collections.Generic.List[string]
+        if ($script:SkillRoot) { $roots.Add([string]$script:SkillRoot) }
+        $here = $PSScriptRoot
+        if (-not $here -and $MyInvocation.MyCommand.Path) { $here = Split-Path -Parent $MyInvocation.MyCommand.Path }
+        if ($here) { $roots.Add((Split-Path -Parent $here)) }
+        foreach ($r in $roots) {
+            if (-not "$r".Trim()) { continue }
+            $cand = Join-Path $r 'assets\rto-profile.schema.json'
+            if (Test-Path -LiteralPath $cand) { $SchemaPath = (Resolve-Path -LiteralPath $cand).Path; break }
+        }
+    }
+    if (-not $SchemaPath -or -not (Test-Path -LiteralPath $SchemaPath)) {
+        throw 'The RTO profile schema (assets\rto-profile.schema.json) is not on disk, so the closed palette role enum cannot be read. Pass -SchemaPath. A swap that fell back on its own typed alias list would be free to drift from the schema every other reader resolves the roles through.'
+    }
+    $text = [System.IO.File]::ReadAllText($SchemaPath, [System.Text.Encoding]::UTF8).TrimStart([char]0xFEFF)
+    $schema = $text | ConvertFrom-Json
+    $decl = $null
+    if ($null -ne $schema -and @($schema.PSObject.Properties.Name) -contains 'paletteRoles') { $decl = $schema.paletteRoles }
+    if ($null -eq $decl) {
+        throw ("The RTO profile schema at {0} declares no paletteRoles. Palette resolution is a total function over that closed enum; an absent enum is a schema defect, not a licence to invent one here." -f $SchemaPath)
+    }
+    $map = [ordered]@{}
+    foreach ($p in @($decl.PSObject.Properties)) {
+        if ($p.Name -like '_*') { continue }
+        $names = @(@($p.Value) | ForEach-Object { "$_".Trim() } | Where-Object { $_ })
+        if ($names.Count -eq 0) { continue }
+        $map[[string]$p.Name] = $names
+    }
+    if ($map.Count -eq 0) {
+        throw ("The RTO profile schema at {0} declares paletteRoles with no role in it, so every role below would be unresolvable." -f $SchemaPath)
+    }
+    return [pscustomobject]@{ Roles = $map; Path = $SchemaPath }
+}
+
 function Get-BrandPalettePairs {
     <#  MVC hex -> brand hex, by role - the same map Set-BrandPalette applies,
         plus the Learner Guide profile's own border hex (C7D0DD), which the
-        assessment map does not carry because no assessment document uses it. #>
-    param([Parameter(Mandatory)] $Palette)
+        assessment map does not carry because no assessment document uses it.
+
+        THE ROLE NAMES AND THEIR ALIASES ARE DERIVED from the schema's closed
+        paletteRoles enum (Get-BrandPaletteRoleMap), never typed here, and the
+        set size and the file it came from are printed on every call.  #>
+    param([Parameter(Mandatory)] $Palette, [string] $SchemaPath)
+
+    $roleSet = Get-BrandPaletteRoleMap -SchemaPath $SchemaPath
+    $roles = $roleSet.Roles
+    Write-BrandCheckSet -What 'palette role(s) in the closed enum, with every alias each is known by' -Count $roles.Count -DerivedFrom ('paletteRoles in ' + (Split-Path -Leaf $roleSet.Path))
 
     #  TAKE EACH ROLE UNDER EVERY NAME IT IS KNOWN BY, and this is not defensive
     #  padding. Two differently-shaped objects reach this function: a branding
@@ -356,22 +438,26 @@ function Get-BrandPalettePairs {
     #  and a broken brand file must stop the build rather than quietly produce a
     #  half-branded document.
     function PV {
-        param($o, [string[]] $names, $role)
+        param($o, $role)
+        if (-not $roles.Contains($role)) {
+            throw ("The schema's closed palette role enum does not declare a '{0}' role (it declares: {1}). A role this file asks for and the schema does not know is a swap and a validator that have drifted apart." -f $role, (@($roles.Keys) -join ', '))
+        }
+        $names = @($roles[$role])
         foreach ($n in $names) {
             if ($o.PSObject.Properties.Name -contains $n -and $o.$n) { return [string]$o.$n }
         }
         throw ("Brand palette does not define the '{0}' role (looked for: {1}). A role that cannot be resolved would map to the source brand's own colour and swap nothing. Add it to the branding file." -f $role, ($names -join ', '))
     }
     [ordered]@{
-        '234B8C' = PV $Palette @('dark','Dark')                  'dark'
-        '2F60B4' = PV $Palette @('accent','Accent')              'accent'
-        'F09C0C' = PV $Palette @('rule','Rule')                  'rule'
-        'F5C800' = PV $Palette @('rule','Rule')                  'rule'
-        'E45418' = PV $Palette @('accent','Accent')              'accent'
-        '606060' = PV $Palette @('grey','Grey')                  'grey'
-        'F0F2F7' = PV $Palette @('lightFill','Fill','LightFill') 'lightFill'
-        'C9CFDD' = PV $Palette @('border','Border')              'border'
-        'C7D0DD' = PV $Palette @('border','Border')              'border'
+        '234B8C' = PV $Palette 'dark'
+        '2F60B4' = PV $Palette 'accent'
+        'F09C0C' = PV $Palette 'rule'
+        'F5C800' = PV $Palette 'rule'
+        'E45418' = PV $Palette 'accent'
+        '606060' = PV $Palette 'grey'
+        'F0F2F7' = PV $Palette 'lightFill'
+        'C9CFDD' = PV $Palette 'border'
+        'C7D0DD' = PV $Palette 'border'
     }
 }
 
@@ -772,8 +858,13 @@ function Get-BrandIdentityToken {
             foreach ($x in $node) { & $add $x ($depth + 1) }
             return
         }
-        if ($node.PSObject -and @($node.PSObject.Properties).Count -gt 0) {
-            foreach ($p in $node.PSObject.Properties) {
+        #  @($null).Count is 1 in PS 5.1, so @($node.PSObject.Properties).Count
+        #  answers YES for a node that carries no property bag at all. Read the
+        #  bag ONCE into a variable that is genuinely empty when there is none,
+        #  and walk that same variable below.
+        $nodeProps = if ($null -ne $node.PSObject) { @($node.PSObject.Properties) } else { @() }
+        if ($nodeProps.Count -gt 0) {
+            foreach ($p in $nodeProps) {
                 if ($p.Name -like '_*') { continue }
                 #  Palette hexes are handled by the colour half, on the colour
                 #  attribute; a bare six-hex here would match EMU digits.
@@ -944,8 +1035,15 @@ function Invoke-ResourceBrandSelfTest {
                 if ($g1.Ok) { & $ok 'the step-5 palette gate passes on the normalised package (the clean control)' }
                 else { & $bad ('clean control failed: ' + (@($g1.Problems) -join '; ')) }
                 $expected = @(@($pairs.Keys) | Where-Object { "$($pairs[$_])" -ine "$_" })
-                if (@($g1.Tokens).Count -eq $expected.Count -and @($g1.Tokens).Count -gt 0) { & $ok ('the gate token list is DERIVED from $pairs.Keys - {0} source colour(s) the map actually moves, self-mapping pairs excluded' -f @($g1.Tokens).Count) }
-                else { & $bad ('token list {0}, expected {1}' -f (@($g1.Tokens) -join ','), (@($expected) -join ',')) }
+                #  Read the token list ONCE, and read it in a form that is
+                #  genuinely empty when the gate returned no Tokens property at
+                #  all: @($null).Count is 1 in PS 5.1, so counting it directly
+                #  would report a token list of one over a gate that produced
+                #  none - the self-test would then pass on a gate that checked
+                #  nothing, which is the failure it exists to catch.
+                $g1Tokens = if ($null -ne $g1.Tokens) { @($g1.Tokens) } else { @() }
+                if ($g1Tokens.Count -eq $expected.Count -and $g1Tokens.Count -gt 0) { & $ok ('the gate token list is DERIVED from $pairs.Keys - {0} source colour(s) the map actually moves, self-mapping pairs excluded' -f $g1Tokens.Count) }
+                else { & $bad ('token list {0}, expected {1}' -f ($g1Tokens -join ','), (@($expected) -join ',')) }
 
                 $nmp = Join-Path $wd2 'ppt\notesMasters\notesMaster1.xml'
                 $x2 = [System.IO.File]::ReadAllText($nmp, [System.Text.Encoding]::UTF8)

@@ -13,6 +13,8 @@ The `assessment` skill already runs an assess-once register, but only INSIDE one
 
 This registry is the memory that was missing. It records, per course, which unit OWNS each shared topic. Everything else applies it.
 
+**It solves the two halves differently, and the difference is deliberate.** On the teaching side it removes the repetition outright: the owner explains it once, every later unit recalls and applies it. On the assessment side it removes nothing, because **assessment is per unit** - each unit is separately certified and must evidence its own requirements in full. What it removes there is the *inconsistency*: one owner benchmark instead of twelve, and a later unit assessing the topic applied inside its own subject rather than re-asking the owner's question. Twelve differently-worded benchmarks for one requirement is the defect; twelve tools covering the requirement is the law.
+
 ## Read this before building anything
 
 ```powershell
@@ -43,20 +45,30 @@ A course id is `<PROVIDER>-<QUALIFICATION>`: `MVC-SIT30821`, `ACI-CPC31020`. **P
 
 The distinction decides whether consolidating is a saving or an amputation.
 
-| Kind | Meaning | What a later unit does |
-|---|---|---|
-| `shared-scaffold` | One generic concept several units restate. **This is the duplication.** | Names what is specific to it, in a line or two, and cites the owner |
-| `commodity-parallel` | Same *structure*, different subject - cookery methods for poultry against for seafood | **Teaches its own commodity in full.** Never collapse these |
-| `progressive-depth` | Introduced at one level, deepened later | Teaches only the delta, and says what the delta is |
-| `regulatory-recall` | Legislation, codes, standards | Names the clause that governs it and cites the owner for the frame |
+| Kind | Meaning | What a later unit TEACHES | How it ASSESSES |
+|---|---|---|---|
+| `shared-scaffold` | One generic concept several units restate. **This is the duplication.** | Restate briefly, prompt a recall, then what is specific to it | `applied` |
+| `commodity-parallel` | Same *structure*, different subject - cookery methods for poultry against for seafood | **Teaches its own commodity in full.** Never collapse these | `full` |
+| `progressive-depth` | Introduced at one level, deepened later | Teaches only the delta, and says what the delta is | `applied`, at this unit's level |
+| `regulatory-recall` | Legislation, codes, standards | Names the clause that governs it, recalls the frame | `applied` - and the owner's benchmark matters most here |
+
+**The assess column is depth and form, never coverage.** Every one of these is still evidenced in full in the later unit's own tool.
 
 **A requirement that appears in only one unit is not in the register at all.** It overlapped nothing, so no ruling was needed, and that unit teaches it in full.
 
 ## How a build uses the brief
 
-**Learner guide.** Write the `teachInFull` topics properly. For each `doNotReTeach` topic, follow its `teachingRule`: a short recall naming the owning unit, then straight to what is new here. Never a second full explanation.
+**Learner guide.** Write the `teachInFull` topics properly. For each `doNotReTeach` topic, follow its `teachingRule`, which has three parts and needs all three: a **short restatement** that stands on its own, a **retrieval prompt** the learner answers, then the **delta** taught in full. Never a second full explanation - and never a bare cross-reference, which is worse than a re-teach, because the learner who has forgotten it finds nothing on the page.
 
-**Assessment tool.** `teachInFull` topics are assessable as knowledge in this unit. `doNotReTeach` topics are NOT re-asked as knowledge questions - they may still be *observed* in performance, because applying a thing is not the same as being taught it. Record the cross-unit rulings in the compliance report's assess-once register alongside the within-unit ones.
+The word floors do not shrink for a `doNotReTeach` topic, they **redirect**: the 800 words go to the delta and its worked application, not to re-explaining the base.
+
+**Assessment tool. ASSESSMENT IS PER UNIT AND COVERAGE IS NEVER REDUCED.** Every unit is separately certified - a learner can be issued a Statement of Attainment for one unit alone - so that unit's tool evidences **every one of its own requirements**, `doNotReTeach` topics included, each on its own mapped line. **No assess-once register line may name another unit as its evidence.** A ruling never deletes a question; it is not a coverage exemption.
+
+What a ruling governs is **depth, form and benchmark**:
+
+- **Depth** - `assessmentDepth: applied` means assessed inside a question about *this* unit's own subject rather than as a standalone recall question. `full` (the `commodity-parallel` default) means this unit's own subject matter, assessed in full.
+- **Form** - where an observation item already evidences it, it is not also asked in writing. That is the within-unit assess-once rule, and with per-unit assessment it is the main compression lever, alongside one question carrying several requirements.
+- **Benchmark** - use `ownerBenchmark` as the anchor. Twelve units carrying one requirement must not produce twelve differently-worded standards. Consistency of assessment judgement is what Standard 1.5 validation tests, so this is the register's strongest audit contribution.
 
 **Blockers stop the build.** A superseded unit, a course with no usable delivery sequence, a unit that is credit-transferred and therefore not taught here. They are not advice.
 
@@ -68,6 +80,9 @@ The distinction decides whether consolidating is a saving or an amputation.
 4. **Rule on them.** Write `assets\topics\decisions\<id>.decisions.json`. One entry per topic; `families` lists the detected families it absorbs.
 5. **Build the register.** `scripts\Build-TopicRegister.ps1 -CourseId <id>`. **It fails unless every family is claimed exactly once** - claimed twice means two topics own one piece of ground, claimed by nobody means an overlap nobody ruled on that will ship as duplicated teaching.
 6. **Regenerate the docs.** `scripts\Build-TopicMap.ps1`.
+7. **Regenerate the coverage register page.** `scripts\Build-CoverageRegisterHtml.ps1`, then **publish it** — the page on claude.ai is a separate copy and does not update itself. Skipping this is how the published register came to carry six superseded topics and two missing courses on 9 September 2026.
+
+**The ordering gate.** `Build-TopicRegister.ps1` fails if a unit recalls a topic whose owner is taught later — a learner cannot recall what they have not been taught. Fix it by moving ownership earlier, or by excluding the unit with `excludeUnits: [{ unit, reason }]` when it teaches its own slice in full and is not a recaller at all. **Check the claim before writing "earliest" in a rationale**: the unit TABLE and the delivery SEQUENCE are different orders, and three rulings were wrong because the table was read as the sequence.
 
 **Re-read the family numbering before writing decisions.** Families are numbered by position, so changing the detector or the unit list renumbers them. Authoring against a stale numbering silently attaches a ruling to the wrong topic - the owner check catches most of it, and will not catch a swap between two families that share a unit.
 

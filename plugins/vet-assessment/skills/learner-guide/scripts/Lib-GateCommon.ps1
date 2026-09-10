@@ -124,6 +124,37 @@ function Get-GateProp {
     return $Default
 }
 
+function Test-GateHasProp {
+    <#  Presence, for both shapes an object arrives in - a PSCustomObject from
+        ConvertFrom-Json, or a hashtable a gate built itself.
+
+        WHY IT EXISTS. @($x).Count -gt 0 on a property that does not exist
+        answers YES: @($null).Count is 1 in PS 5.1, so the guard passes and the
+        rule that depends on it never runs. That is GH04, and it is a
+        presence test that lies. Ask whether the property is there, then ask
+        how many.  #>
+    [CmdletBinding()]
+    param($Object, [Parameter(Mandatory)][string] $Name)
+    if ($null -eq $Object) { return $false }
+    if ($Object -is [System.Collections.IDictionary]) { return $Object.Contains($Name) }
+    return (@($Object.PSObject.Properties.Name) -contains $Name)
+}
+
+function Get-GateCount {
+    <#  How many, without the @($null).Count lie.
+
+        $null counts 0, an empty string counts 0, any collection counts its own
+        Count, and a single object counts 1. Use this wherever a gate asks
+        "did this rule find anything" of a value that may be an absent
+        property - the answer decides whether a blocking rule runs at all.  #>
+    [CmdletBinding()]
+    param($Value)
+    if ($null -eq $Value) { return 0 }
+    if ($Value -is [string]) { if ($Value -eq '') { return 0 } else { return 1 } }
+    if ($Value -is [System.Collections.ICollection]) { return $Value.Count }
+    return 1
+}
+
 function Get-GateContract {
     <# The build contract, or $null. Gates degrade to documented defaults without it. #>
     [CmdletBinding()]
@@ -1169,8 +1200,15 @@ function Get-GatePromptMarkerRegex {
         [switch] $Unanchored
     )
     $v = Get-GatePromptVocabulary
-    $kinds = ($v.Kinds -join '|')
-    $trailers = ($v.Trailers -join '|')
+    #  ESCAPE the vocabulary before it becomes a pattern. Today Kinds and
+    #  Trailers are plain uppercase words with no metacharacter in them, so
+    #  this changes nothing; the day someone adds a vocabulary entry carrying
+    #  a '.', a '(' or a '+', an unescaped join would silently change what
+    #  this pattern MEANS rather than failing. That is GH05's incident with
+    #  the roles reversed, and it is invisible to the detector because this
+    #  is an interpolation into a string, not a -match on one.
+    $kinds    = (@($v.Kinds)    | ForEach-Object { [regex]::Escape("$_") }) -join '|'
+    $trailers = (@($v.Trailers) | ForEach-Object { [regex]::Escape("$_") }) -join '|'
     $anchor = if ($Unanchored) { '' } else { '^\s*' }
     $opener  = $anchor + '\[\s*(' + $kinds + ')\s*[:\-]'
     $closer  = $anchor + '\[\s*/\s*(' + $kinds + ')\s*\]'
@@ -1891,21 +1929,29 @@ function Invoke-GateCommonSelfTest {
 
         # -------------------------------------- 8. prefix and prompt markers
         Check ((Get-GateShapePrefix) -eq 'LG ') "Get-GateShapePrefix is 'LG '"
-        $op = Get-GatePromptMarkerRegex -Part opener
-        $cl = Get-GatePromptMarkerRegex -Part closer
-        $tr = Get-GatePromptMarkerRegex -Part trailer
-        $any = Get-GatePromptMarkerRegex
-        Check (('[IMAGE: a bench' -match $op) -and ($Matches[1] -eq 'IMAGE')) 'opener matches [IMAGE: and captures the kind'
-        Check (('  [DIAGRAM - flow' -match $op) -and ($Matches[1] -eq 'DIAGRAM')) 'opener matches [DIAGRAM - with leading space'
-        Check ((-not ('see [Figure 1.1.1]' -match $op)) -and (-not ('[image: x' -match $op)) -and (-not ('[IMAGERY: x' -match $op))) 'opener rejects an in-prose bracket, lower case and a longer word'
-        foreach ($k in @('IMAGE', 'DIAGRAM', 'ILLUSTRATION', 'PHOTO', 'FIGURE', 'PICTURE')) { if (-not (('[' + $k + ': x') -match $op)) { Bad ("opener misses kind {0}" -f $k) } }
-        Check (('[/IMAGE]' -match $cl) -and ($Matches[1] -eq 'IMAGE') -and ('[/ DIAGRAM ]' -match $cl)) 'closer matches [/KIND]'
-        Check ((-not ('[/IMAGE' -match $cl)) -and (-not ('[/image]' -match $cl))) 'closer rejects an unclosed or lower-case marker'
-        Check (('CAPTION: Figure 1.1.1 - x' -match $tr) -and ($Matches[1] -eq 'CAPTION') -and ('PROMPT: y' -match $tr) -and ('ASPECT : 4:3' -match $tr)) 'trailer matches CAPTION:, PROMPT:, ASPECT :'
-        Check ((-not ('Quality: the goods must match' -match $tr)) -and (-not ('CAPTION - x' -match $tr)) -and (-not ('The CAPTION: x' -match $tr))) 'trailer rejects sentence case, a dash and a mid-paragraph token'
-        foreach ($t in @('CAPTION', 'ALT', 'ASPECT', 'QUALITY', 'PROMPT')) { if (-not (($t + ': x') -match $tr)) { Bad ("trailer misses {0}" -f $t) } }
-        Check (('[PHOTO: x' -match $any) -and ('[/PHOTO]' -match $any) -and ('ALT: x' -match $any) -and (-not ('plain prose' -match $any))) "'any' is the union"
-        Check (('prose then [IMAGE: x' -match (Get-GatePromptMarkerRegex -Part opener -Unanchored)) -and (-not ('prose then [IMAGE: x' -match $op))) '-Unanchored drops the paragraph anchor'
+        #  Named $rx* for the same reason as $rx75 / $rxFlex below and
+        #  $AssessorRx / $CaptionStyleRx above: these hold an AUTHORED REGEX
+        #  returned by Get-GatePromptMarkerRegex, not a domain value. There is
+        #  nothing here to [regex]::Escape - the value IS the pattern - and
+        #  nothing to add a \b to, because the pattern already carries its own
+        #  '^\s*' paragraph anchor and '(?-i)', which is exactly what these
+        #  assertions test. The name is what tells a reader, and the hygiene
+        #  rule, which of the two a variable is.
+        $rxOpener = Get-GatePromptMarkerRegex -Part opener
+        $rxCloser = Get-GatePromptMarkerRegex -Part closer
+        $rxTrailer = Get-GatePromptMarkerRegex -Part trailer
+        $rxAny = Get-GatePromptMarkerRegex
+        Check (('[IMAGE: a bench' -match $rxOpener) -and ($Matches[1] -eq 'IMAGE')) 'opener matches [IMAGE: and captures the kind'
+        Check (('  [DIAGRAM - flow' -match $rxOpener) -and ($Matches[1] -eq 'DIAGRAM')) 'opener matches [DIAGRAM - with leading space'
+        Check ((-not ('see [Figure 1.1.1]' -match $rxOpener)) -and (-not ('[image: x' -match $rxOpener)) -and (-not ('[IMAGERY: x' -match $rxOpener))) 'opener rejects an in-prose bracket, lower case and a longer word'
+        foreach ($k in @('IMAGE', 'DIAGRAM', 'ILLUSTRATION', 'PHOTO', 'FIGURE', 'PICTURE')) { if (-not (('[' + $k + ': x') -match $rxOpener)) { Bad ("opener misses kind {0}" -f $k) } }
+        Check (('[/IMAGE]' -match $rxCloser) -and ($Matches[1] -eq 'IMAGE') -and ('[/ DIAGRAM ]' -match $rxCloser)) 'closer matches [/KIND]'
+        Check ((-not ('[/IMAGE' -match $rxCloser)) -and (-not ('[/image]' -match $rxCloser))) 'closer rejects an unclosed or lower-case marker'
+        Check (('CAPTION: Figure 1.1.1 - x' -match $rxTrailer) -and ($Matches[1] -eq 'CAPTION') -and ('PROMPT: y' -match $rxTrailer) -and ('ASPECT : 4:3' -match $rxTrailer)) 'trailer matches CAPTION:, PROMPT:, ASPECT :'
+        Check ((-not ('Quality: the goods must match' -match $rxTrailer)) -and (-not ('CAPTION - x' -match $rxTrailer)) -and (-not ('The CAPTION: x' -match $rxTrailer))) 'trailer rejects sentence case, a dash and a mid-paragraph token'
+        foreach ($t in @('CAPTION', 'ALT', 'ASPECT', 'QUALITY', 'PROMPT')) { if (-not (($t + ': x') -match $rxTrailer)) { Bad ("trailer misses {0}" -f $t) } }
+        Check (('[PHOTO: x' -match $rxAny) -and ('[/PHOTO]' -match $rxAny) -and ('ALT: x' -match $rxAny) -and (-not ('plain prose' -match $rxAny))) "'any' is the union"
+        Check (('prose then [IMAGE: x' -match (Get-GatePromptMarkerRegex -Part opener -Unanchored)) -and (-not ('prose then [IMAGE: x' -match $rxOpener))) '-Unanchored drops the paragraph anchor'
         $toks = @(Get-GatePromptMarkerTokens)
         Check (($toks.Count -eq 11) -and ($toks[0] -eq '[IMAGE') -and ($toks[5] -eq '[PICTURE') -and ($toks[6] -eq 'CAPTION:') -and ($toks[10] -eq 'PROMPT:')) ("the literal token list is derived from the same vocabulary: {0}" -f ($toks -join ' '))
 

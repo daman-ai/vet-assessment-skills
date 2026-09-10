@@ -1,39 +1,56 @@
-{
-  "_comment": "AUTHORED OWNERSHIP DECISIONS for SIT50422. Every family in families/MVC-SIT50422.families.json appears exactly once below.",
-  "courseId": "MVC-SIT50422",
-  "_deliveredNote": "Only 5 of the 28 packaged units are delivered - SITXFIN010, SITXCCS016, SITXGLC002, SITXMGT005, SITXCCS015, in that order. The other 23, including every cookery unit, arrive by credit transfer from SIT30821 and SIT40521. Nothing in the cookery stream is taught in this Diploma.",
-  "topics": [
-    {
-      "families": ["F01", "F03"],
-      "name": "Professional service standards and the attributes expected of service personnel",
-      "kind": "shared-scaffold",
-      "owner": "SITXCCS016",
-      "rationale": "SITXCCS016 Develop and manage quality customer service practices is the unit that WRITES the standard, and it is delivered second. SITXCCS015 Enhance customer service experiences, delivered fifth, works to that standard. The two detected families - professional service standards, and the attitudes and attributes expected by the industry - are one topic: what good service looks like and who is expected to deliver it.",
-      "teachingRule": "SITXCCS015 opens by naming the standard set in SITXCCS016 and moves immediately to its own ground: reading an individual customer, anticipating a need, and recovering a service failure in the moment."
-    },
-    {
-      "families": ["F02"],
-      "name": "Organisational and management restructures as a planning input",
-      "kind": "shared-scaffold",
-      "owner": "SITXFIN010",
-      "rationale": "Delivered first, SITXFIN010 Prepare and monitor budgets must treat a restructure as a factor that moves a budget. SITXCCS016 later treats the same restructure as a factor that dates a customer service policy. The event is one thing and is explained once.",
-      "teachingRule": "SITXCCS016 refers back in a line and teaches only the consequence peculiar to it - that a restructure invalidates the service standards written for the old structure."
-    },
-    {
-      "families": ["F04"],
-      "name": "Complaint and dispute management",
-      "kind": "shared-scaffold",
-      "owner": "SITXCCS016",
-      "rationale": "The complaint system - how complaints are captured, escalated, resolved and fed back into policy - is designed in SITXCCS016. SITXCCS015 handles the complaint in front of the learner.",
-      "teachingRule": "SITXCCS015 teaches the interaction, not the system: acknowledging, taking ownership, offering a remedy inside delegation. It cites the SITXCCS016 escalation path rather than restating it."
-    },
-    {
-      "families": ["F05"],
-      "name": "Consulting staff when developing customer service policy",
-      "kind": "shared-scaffold",
-      "owner": "SITXCCS016",
-      "rationale": "Consultation is part of writing the policy, which is SITXCCS016's own work. SITXCCS015 contributes suggestions rather than running the consultation.",
-      "teachingRule": "In SITXCCS015 this is a single line about where a frontline observation goes. The consultation method itself is not repeated."
-    }
-  ]
+﻿{
+    "_comment":  "AUTHORED OWNERSHIP DECISIONS for SIT50422. Every family in families/MVC-SIT50422.families.json appears exactly once below.",
+    "courseId":  "MVC-SIT50422",
+    "_deliveredNote":  "Only 5 of the 28 packaged units are delivered - SITXFIN010, SITXCCS016, SITXGLC002, SITXMGT005, SITXCCS015, in that order. The other 23, including every cookery unit, arrive by credit transfer from SIT30821 and SIT40521. Nothing in the cookery stream is taught in this Diploma.",
+    "topics":  [
+                   {
+                       "families":  [
+                                        "F01",
+                                        "F03"
+                                    ],
+                       "name":  "Professional service standards and the attributes expected of service personnel",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXCCS016",
+                       "rationale":  "SITXCCS016 Develop and manage quality customer service practices is the unit that WRITES the standard, and it is delivered second. SITXCCS015 Enhance customer service experiences, delivered fifth, works to that standard. The two detected families - professional service standards, and the attitudes and attributes expected by the industry - are one topic: what good service looks like and who is expected to deliver it.",
+                       "teachingRule":  "SITXCCS015 opens by naming the standard set in SITXCCS016 and moves immediately to its own ground: reading an individual customer, anticipating a need, and recovering a service failure in the moment.",
+                       "ownerBenchmark":  "A satisfactory answer states the service standard the organisation sets, the attitudes and attributes expected of service personnel, and how each is observable in practice rather than asserted.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F02"
+                                    ],
+                       "name":  "Organisational and management restructures as a planning input",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFIN010",
+                       "rationale":  "Delivered first, SITXFIN010 Prepare and monitor budgets must treat a restructure as a factor that moves a budget. SITXCCS016 later treats the same restructure as a factor that dates a customer service policy. The event is one thing and is explained once.",
+                       "teachingRule":  "SITXCCS016 refers back in a line and teaches only the consequence peculiar to it - that a restructure invalidates the service standards written for the old structure.",
+                       "ownerBenchmark":  "A satisfactory answer states how a restructure changes resourcing, reporting and cost, and reflects those changes in the plan or budget being prepared.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F04"
+                                    ],
+                       "name":  "Complaint and dispute management",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXCCS016",
+                       "rationale":  "The complaint system - how complaints are captured, escalated, resolved and fed back into policy - is designed in SITXCCS016. SITXCCS015 handles the complaint in front of the learner.",
+                       "teachingRule":  "SITXCCS015 teaches the interaction, not the system: acknowledging, taking ownership, offering a remedy inside delegation. It cites the SITXCCS016 escalation path rather than restating it.",
+                       "ownerBenchmark":  "A satisfactory answer takes the complaint, acknowledges it, resolves it within delegation or escalates it, records it, and identifies what the complaint indicates about the service that produced it.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F05"
+                                    ],
+                       "name":  "Consulting staff when developing customer service policy",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXCCS016",
+                       "rationale":  "Consultation is part of writing the policy, which is SITXCCS016\u0027s own work. SITXCCS015 contributes suggestions rather than running the consultation.",
+                       "teachingRule":  "In SITXCCS015 this is a single line about where a frontline observation goes. The consultation method itself is not repeated.",
+                       "ownerBenchmark":  "A satisfactory answer states how staff suggestions are sought and used in developing customer service policy, and why the people delivering the service are the ones who can see where it fails.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   }
+               ]
 }

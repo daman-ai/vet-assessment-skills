@@ -1,12 +1,12 @@
 ﻿{
-    "schemaVersion":  "1.0",
+    "schemaVersion":  "1.1",
     "courseId":  "ACI-CPC40120",
     "qualificationCode":  "CPC40120",
     "qualificationTitle":  "Certificate IV in Building and Construction",
     "provider":  "ACI",
     "brandVariant":  "construction",
-    "priorCourse":  null,
-    "generatedUtc":  "2026-09-07T07:19:37Z",
+    "priorCourse":  "",
+    "generatedUtc":  "2026-09-09T07:05:41Z",
     "method":  {
                    "unitSource":  "training.gov.au REST API",
                    "overlapDetection":  "assets/topics/families/ACI-CPC40120.families.json",
@@ -21,9 +21,15 @@
                        "name":  "Work health and safety law, policy and reporting in the building workplace",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4002",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Two families - the organisation\u0027s own safety policies and reporting requirements, and the WHS Acts and regulations behind them - are one topic, and CPCCBC4002 Manage work health and safety in the building and construction workplace is the unit whose entire subject it is. Eleven other units restate part of it. The detector did not link CPCCBC4002 into the legislative family because it words the duty differently, which is exactly the failure this register exists to catch: the unit that OWNS a topic can be the one the machine misses.",
                        "teachingRule":  "Every other unit names the specific duty its own activity triggers - a safe work method statement before high-risk work, a principal contractor duty on a notifiable incident - and cites CPCCBC4002 for the Act, the regulator and the penalty structure.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states the duty the WHS Act places on the person conducting the business and on the worker, names the organisational policy that gives effect to it, and describes the reporting path including notifiable incidents that go to the regulator.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4002",
@@ -32,31 +38,40 @@
                                           }
                                       ],
                        "appliedNotTaught":  [
+                                                "CPCCBC4012",
+                                                "CPCCBC4014",
                                                 "CPCCBC4004",
                                                 "CPCCBC4005",
-                                                "CPCCBC4010",
-                                                "CPCCBC4012",
                                                 "CPCCBC4021",
-                                                "CPCCBC4014",
-                                                "CPCCBC4007",
-                                                "CPCCBC4008",
-                                                "CPCCBC4009",
+                                                "CPCCBC4010",
                                                 "CPCCBC4053",
-                                                "CPCCBC4006"
+                                                "CPCCBC4009",
+                                                "CPCCBC4007",
+                                                "CPCCBC4006",
+                                                "CPCCBC4008"
                                             ],
                        "families":  [
                                         "F02",
                                         "F04"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T02",
                        "name":  "Industry structure and the subcontractor system",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Twelve of the nineteen units assume the learner knows how a building job is resourced. Subject matter points at CPCCBC4007 Plan building and construction work, and that was the original ruling - but the draft timetable delivers CPCCBC4007 in weeks 9-10 and CPCCBC4001 in weeks 3-4, with CPCCBC4053 and CPCCBC4009 also ahead of it. A learner cannot recall a concept they have not met, so it is introduced in the earliest unit that needs it.",
                        "teachingRule":  "CPCCBC4001 introduces the parties and the contractual chain in the terms the Code needs - who certifies, who is responsible for compliance. CPCCBC4007 in weeks 9-10 then teaches resourcing and procurement against that structure, which is genuinely new, and does not re-describe the industry.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer describes how a project is contracted through head contractor and subcontractors, where responsibility for the work and for safety sits at each level, and how that structure affects coordination and payment.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -65,30 +80,39 @@
                                           }
                                       ],
                        "appliedNotTaught":  [
+                                                "CPCCBC4053",
+                                                "CPCCBC4009",
                                                 "CPCCBC4007",
+                                                "CPCCBC4012",
+                                                "CPCCBC4014",
                                                 "CPCCBC4004",
                                                 "CPCCBC4005",
+                                                "CPCCBC4006",
                                                 "CPCCBC4008",
-                                                "CPCCBC4009",
-                                                "CPCCBC4010",
-                                                "CPCCBC4053",
-                                                "CPCCBC4012",
                                                 "CPCCBC4021",
-                                                "CPCCBC4014",
-                                                "CPCCBC4006"
+                                                "CPCCBC4010"
                                             ],
                        "families":  [
                                         "F01"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T03",
                        "name":  "Organisational policies and procedures governing project work",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4009",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Six units require work done in accordance with organisational policy. The original ruling used the TAS unit-table order and picked CPCCBC4004; the draft timetable delivers CPCCBC4009 Apply legal requirements in weeks 7-8, twelve weeks earlier, and it is the first unit in the family a learner meets.",
                        "teachingRule":  "Estimating, site and quality units name the policy that governs their own output - a tender approval, a variation authority, a dispute escalation - and do not re-teach what a policy is or why it binds.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer names the policy that governs the activity, states what it requires, and identifies the record that shows it was followed.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4009",
@@ -99,22 +123,31 @@
                        "appliedNotTaught":  [
                                                 "CPCCBC4004",
                                                 "CPCCBC4005",
+                                                "CPCCBC4024",
                                                 "CPCCBC4010",
-                                                "BSBPMG422",
-                                                "CPCCBC4024"
+                                                "BSBPMG422"
                                             ],
                        "families":  [
                                         "F03"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T04",
                        "name":  "Using project plans, drawings and specifications as the source of project information",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Eight units draw information out of the same drawing set. The original ruling picked CPCCBC4007; the timetable delivers CPCCBC4001 in weeks 3-4 and CPCCBC4053 in weeks 5-6, both ahead of it, and both must read a drawing to apply a Code provision to it. IMPORTANT: CPCCBC4012 Read and interpret plans and specifications, in weeks 15-16, owns the READING SKILL itself - projection, scale, symbols, cross-referencing - and its content overlapped with nothing, so it is taught there in full and is not in this register. This topic is about treating the documents as the authority, not about how to read them.",
                        "teachingRule":  "Codes, estimating and contract units extract what they need and state which document governs where two disagree. Drawing conventions belong to CPCCBC4012 and are not taught earlier.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer takes dimensions, materials and methods from the drawings and specification rather than from assumption, states which document governs where they conflict, and identifies the revision it is working to.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -123,27 +156,39 @@
                                           }
                                       ],
                        "appliedNotTaught":  [
-                                                "CPCCBC4007",
-                                                "CPCCBC4010",
                                                 "CPCCBC4053",
+                                                "CPCCBC4007",
                                                 "CPCCBC4006",
-                                                "CPCCBC4003",
+                                                "CPCCBC4010",
                                                 "CPCCBC4004",
-                                                "CPCCBC4005"
+                                                "CPCCBC4005",
+                                                "CPCCBC4003"
                                             ],
                        "families":  [
                                         "F05",
                                         "F11"
-                                    ]
+                                    ],
+                       "citations":  [
+                                         {
+                                             "unit":  "CPCCBC4012",
+                                             "status":  "owns-another-topic-here"
+                                         }
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T05",
                        "name":  "Digital tools for research, communication and collaboration",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4002",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Three families - digital tools for communicating and collaborating, digital technology for accessing and compiling information, and digital research of environmental guidelines - are one capability described three ways. CPCCBC4002 is the first unit in the table to require it.",
                        "teachingRule":  "Later units name the specific source they interrogate - the NCC online, an EPA guideline, a manufacturer specification - and are assessed on finding the right answer, not on using a browser.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer selects the tool appropriate to the audience and the record required, and states how project information is stored, shared and version-controlled so the current document is the one in use.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4002",
@@ -158,25 +203,34 @@
                                       ],
                        "appliedNotTaught":  [
                                                 "CPCCBC4003",
+                                                "CPCCBC4024",
                                                 "CPCCBC4021",
                                                 "CPCSUS4002",
-                                                "CPCCBC4024",
                                                 "CPCCBC4006"
                                             ],
                        "families":  [
                                         "F06",
                                         "F07",
                                         "F21"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T06",
                        "name":  "The National Construction Code: structure, building classes and types of construction",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Classification is the first thing the Code asks of a building, and CPCCBC4001 Apply building codes and standards for Class 1 and 10 buildings is where a learner meets it. CPCCBC4053 covers Class 2 to 9 Type C, which is the same competency applied to different classes.",
                        "teachingRule":  "CPCCBC4053 does not re-teach how the Code is structured or what a class is. It teaches the DELTA between Class 1 and 10 and Class 2 to 9 - fire resistance, egress, sound transmission and the provisions that only apply above a certain rise.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer classifies the building correctly, identifies its type of construction, and states which NCC volume and section govern it. It explains why classification determines the requirements that follow.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -193,16 +247,25 @@
                        "families":  [
                                         "F13",
                                         "F15"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T07",
                        "name":  "Building defects: causes, implications and remedial work",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Defects arising from failure to apply codes and standards, and the extent of remedial work they demand, are one subject and are the consequence argument that makes the codes units matter.",
                        "teachingRule":  "CPCCBC4053 and CPCCBC4010 cite defects specific to their own scope - a Class 2 fire-separation failure, a structural overload - and do not restate the general taxonomy.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer traces the defect to the code or standard that was not met, states the consequence for the structure and for the occupant, and describes the extent of remedial work and who bears it.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -216,22 +279,31 @@
                                           }
                                       ],
                        "appliedNotTaught":  [
-                                                "CPCCBC4010",
-                                                "CPCCBC4053"
+                                                "CPCCBC4053",
+                                                "CPCCBC4010"
                                             ],
                        "families":  [
                                         "F08",
                                         "F09"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T08",
                        "name":  "Properties and limitations of building materials, and evidence of suitability",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "What a material can do, and the certification that proves it may lawfully be used, are one topic. CPCCBC4001 needs both to apply the Code to a Class 1 building.",
                        "teachingRule":  "CPCCBC4006 Select, procure and store construction materials teaches procurement and storage, which is new. It cites this topic for material properties rather than restating them.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states the property that makes the material fit for the application and the limitation that constrains it, and identifies the evidence of suitability accepted under the NCC for that product.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -251,16 +323,25 @@
                        "families":  [
                                         "F10",
                                         "F14"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T09",
                        "name":  "Performance Solutions and Assessment Methods under the NCC",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "The distinction between a Deemed-to-Satisfy provision and a Performance Solution is explained once, where the Code is introduced.",
                        "teachingRule":  "CPCCBC4053 identifies where a Performance Solution is likely to be needed in a Class 2 to 9 building and cites the method rather than re-deriving it.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer distinguishes a Deemed-to-Satisfy solution from a Performance Solution, names the Assessment Method used to demonstrate compliance, and states what documentation the Performance Solution requires.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -273,16 +354,25 @@
                                             ],
                        "families":  [
                                         "F18"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T10",
                        "name":  "Quality systems and best-practice approaches",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Compliance and quality are taught together because a code requirement and a quality standard are checked the same way.",
                        "teachingRule":  "BSBPMG422 Apply project quality management techniques builds the project quality plan, which is its own new content, and does not re-teach what a quality system is.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer describes how quality is specified, checked and recorded on the project, and what triggers rectification.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -295,16 +385,28 @@
                                             ],
                        "families":  [
                                         "F23"
-                                    ]
+                                    ],
+                       "citations":  [
+                                         {
+                                             "unit":  "BSBPMG422",
+                                             "status":  "outside-the-register - carries this as a requirement unique to it, so no ruling was needed"
+                                         }
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T11",
                        "name":  "Building design principles and structural behaviour under load",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Stress, strain, compression, bending and combined actions appear in both codes units as the reasoning behind a provision. CPCCBC4010 Apply structural principles carries the deeper structural content, but that content overlapped with nothing and so is taught there in full without needing a ruling.",
                        "teachingRule":  "CPCCBC4053 cites this topic. CPCCBC4010 extends it to member sizing and load paths, which is genuinely new.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer identifies the actions on the element - compression, tension, bending, shear or a combination - describes how the member resists them, and states what failure would look like.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -317,16 +419,28 @@
                                             ],
                        "families":  [
                                         "F24"
-                                    ]
+                                    ],
+                       "citations":  [
+                                         {
+                                             "unit":  "CPCCBC4010",
+                                             "status":  "outside-the-register - carries this as a requirement unique to it, so no ruling was needed"
+                                         }
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T12",
                        "name":  "Environmental requirements and sustainability principles",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4001",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "The Code\u0027s energy-efficiency and environmental provisions are introduced with the Code itself.",
                        "teachingRule":  "CPCSUS4002 Use building science principles to construct energy efficient buildings owns the building-science content - thermal performance, glazing, insulation, condensation - which is new and substantial. It cites this topic for the regulatory frame.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer names the environmental requirement that applies to the work, states how it is met on site, and identifies the record or approval that demonstrates it.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4001",
@@ -339,16 +453,28 @@
                                             ],
                        "families":  [
                                         "F25"
-                                    ]
+                                    ],
+                       "citations":  [
+                                         {
+                                             "unit":  "CPCSUS4002",
+                                             "status":  "outside-the-register - carries this as a requirement unique to it, so no ruling was needed"
+                                         }
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T13",
                        "name":  "Building and construction methods and terminology",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4012",
-                       "ownerCluster":  null,
+                       "ownerCluster":  2,
                        "rationale":  "CPCCBC4012 Read and interpret plans and specifications is where the vocabulary is needed first, because a drawing cannot be read without it.",
-                       "teachingRule":  "CPCCBC4021 and CPCCBC4014 use the terminology and are not assessed on defining it.",
+                       "teachingRule":  "CPCCBC4021 and CPCCBC4014 restate in a line or two the terms their own subject needs, prompt the learner to define two of them from memory, then teach their own method content in full. Neither re-explains the vocabulary from scratch. Both still assess the terminology in their own tool - applied, inside a question about their own subject rather than as a definition question, against the owner\u0027s benchmark.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer uses the correct term for the element or method and applies it consistently to drawings, specifications and site instructions, so that the same component is named the same way by every party.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4012",
@@ -357,21 +483,30 @@
                                           }
                                       ],
                        "appliedNotTaught":  [
-                                                "CPCCBC4021",
-                                                "CPCCBC4014"
+                                                "CPCCBC4014",
+                                                "CPCCBC4021"
                                             ],
                        "families":  [
                                         "F12"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T14",
                        "name":  "Computer-aided design and building information modelling",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4012",
-                       "ownerCluster":  null,
+                       "ownerCluster":  2,
                        "rationale":  "CAD drawings and BIM models are two forms of the same digital documentation, and CPCCBC4012 is the unit that reads them.",
                        "teachingRule":  "CPCCBC4014 Prepare simple building sketches and drawings produces documentation rather than consuming it, and teaches sketching convention and annotation, which is new.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer extracts dimensions and quantities from CAD or BIM output, states what the model does and does not carry, and identifies the revision and level of development it is working to.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4012",
@@ -390,16 +525,25 @@
                        "families":  [
                                         "F19",
                                         "F20"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T15",
                        "name":  "Contour site plans and reading site levels",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4012",
-                       "ownerCluster":  null,
+                       "ownerCluster":  2,
                        "rationale":  "The original ruling gave this to CPCCBC4010 Apply structural principles on the reasoning that it needs the ground profile before it can size a footing. The timetable delivers CPCCBC4010 in weeks 37-40 and CPCCBC4012 in weeks 15-16, so the plans unit meets the contour drawing twenty weeks first and must be able to read it.",
                        "teachingRule":  "CPCCBC4010 uses the levels to reason about footings and cut and fill, which is new. CPCCBC4018 in weeks 41-42 generates levels by survey, which is its own content.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer reads contours, datum and reduced levels off the site plan, calculates a level difference or fall, and states what that means for cut, fill and drainage.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4012",
@@ -412,16 +556,28 @@
                                             ],
                        "families":  [
                                         "F22"
-                                    ]
+                                    ],
+                       "citations":  [
+                                         {
+                                             "unit":  "CPCCBC4018",
+                                             "status":  "outside-the-register - carries this as a requirement unique to it, so no ruling was needed"
+                                         }
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T16",
                        "name":  "Site waste and environmental practice as a legal duty",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4002",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Waste and environmental obligations appear in CPCCBC4002 and CPCCBC4009 as duties that attach to the builder. CPCCBC4021 Minimise waste on the building and construction site owns the METHODOLOGY - waste hierarchy, quantification, reduction planning - which overlapped with nothing and is taught there in full.",
                        "teachingRule":  "CPCCBC4009 names the environmental legislation that creates the duty. CPCCBC4021 assumes the duty and teaches how to discharge it.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer separates and disposes of waste to the requirement that governs it, states the legal duty behind that requirement, and identifies the record kept.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4002",
@@ -434,16 +590,28 @@
                                             ],
                        "families":  [
                                         "F16"
-                                    ]
+                                    ],
+                       "citations":  [
+                                         {
+                                             "unit":  "CPCCBC4021",
+                                             "status":  "outside-the-register - carries this as a requirement unique to it, so no ruling was needed"
+                                         }
+                                     ]
                    },
                    {
                        "id":  "CPC40120-T17",
                        "name":  "Plant and equipment on a building site",
                        "kind":  "shared-scaffold",
                        "owner":  "CPCCBC4002",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Plant appears as a hazard in CPCCBC4002 and as a resource in CPCCBC4007. The equipment is the same and is described once, in the unit responsible for its risk.",
                        "teachingRule":  "CPCCBC4007 schedules plant as a cost and a program constraint, and cites CPCCBC4002 for the controls that govern its use.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states the licence or competency required to operate the plant, the pre-start check, the exclusion zone or spotter arrangement, and what stops the plant being used.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "CPCCBC4002",
@@ -456,7 +624,10 @@
                                             ],
                        "families":  [
                                         "F17"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    }
                ],
     "unitTopicIndex":  {
@@ -659,7 +830,7 @@
                                                                        "CPC40120-T05"
                                                                    ]
                                           },
-                           "BSBESB401":  {
+                           "BSBESB407":  {
                                              "owns":  [
 
                                                       ],
@@ -668,5 +839,6 @@
                                                                   ]
                                          }
                        },
-    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed.",
+    "assessmentNote":  "ASSESSMENT IS PER UNIT. A ruling never removes a requirement from an applying unit\u0027s assessment tool - every unit is separately certified and evidences its own requirements in full, on its own mapped line, with no line naming another unit as its evidence. assessmentDepth governs DEPTH and FORM only: \"applied\" means assessed inside a question about this unit\u0027s own subject or carried by an observation item, against the owner\u0027s benchmark; \"full\" means this unit teaches and assesses its own subject matter in full. The register exists to keep those benchmarks consistent across the units that share a requirement, which is what Standard 1.5 validation tests."
 }

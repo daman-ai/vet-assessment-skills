@@ -5,7 +5,11 @@
     produced a .docx.
 
     This file does not author content. It opens a finished document, updates its
-    fields, exports a PDF, and reports on what Word actually put on the page.
+    fields, and reports on what Word actually put on the page.
+
+    THE PACK SHIPS .docx ONLY - RTO decision, 9 September 2026. Nothing here
+    exports a PDF, so there is no second artefact to keep in step with the
+    document and no stale-PDF delivery failure to guard against.
 
     WHY IT IS SEPARATE. Everything in Build-FromTemplate.ps1 is deterministic XML
     editing that needs no Word installed. Everything here needs Word, and needs it
@@ -31,7 +35,6 @@ $script:Doc  = $null
 $wdNumberOfPagesInDoc = 4
 $wdGoToPage           = 1
 $wdGoToAbsolute       = 1
-$wdExportFormatPDF    = 17
 $wdStatisticPages     = 2
 $wdStatisticWords     = 0
 $wdVerticalPositionRelativeToPage = 6
@@ -161,15 +164,6 @@ function Update-Fields {
     $script:Doc.Repaginate()
 }
 
-function Export-DocumentPdf {
-    [CmdletBinding()]
-    param([string] $Path)
-    if ($null -eq $script:Doc) { throw 'No document open.' }
-    if (-not $Path) { $Path = [System.IO.Path]::ChangeExtension($script:Doc.FullName, '.pdf') }
-    $script:Doc.ExportAsFixedFormat($Path, $wdExportFormatPDF)
-    Write-Verbose "Exported PDF: $Path"
-    return $Path
-}
 
 function Get-DocumentStats {
     if ($null -eq $script:Doc) { throw 'No document open.' }
@@ -502,7 +496,6 @@ function Invoke-DocumentVerification {
         [Parameter(Mandatory)] $Branding,
         [switch] $AssessorVersion,
         [switch] $SkipCoverSheet,
-        [switch] $NoPdf,
         [switch] $KeepWordOpen      # pack mode: leave WINWORD running for the next document; the caller owns the final Close-Word
     )
 
@@ -513,7 +506,6 @@ function Invoke-DocumentVerification {
         CoverSheet = $null
         Sweeps     = $null
         LongSentences = @()
-        Pdf        = $null
         Ok         = $false
         Error      = $null
     }
@@ -540,7 +532,6 @@ function Invoke-DocumentVerification {
         if (-not $SkipCoverSheet) { $r.CoverSheet = Test-CoverSheet -Branding $Branding }
         $r.Sweeps        = Invoke-RenderedSweeps -Branding $Branding -AssessorVersion:$AssessorVersion
         $r.LongSentences = Get-LongSentence -Profile $prof
-        if (-not $NoPdf) { $r.Pdf = Export-DocumentPdf }
 
         $r.Ok = $r.PageFlow.Ok -and $r.Sweeps.Ok -and ($SkipCoverSheet -or $r.CoverSheet.Ok)
     }

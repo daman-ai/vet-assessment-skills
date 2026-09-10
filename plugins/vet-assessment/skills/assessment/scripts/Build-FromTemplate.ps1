@@ -18,7 +18,7 @@
     writes.
 
     Companion: Verify-Document.ps1 carries the Word COM verification layer
-    (field update, PDF export, page-flow inspection). Nothing in this file
+    (field update, page-flow inspection). Nothing in this file
     needs Word to be installed.
 #>
 

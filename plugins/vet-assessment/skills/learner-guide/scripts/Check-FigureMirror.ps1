@@ -647,7 +647,7 @@ foreach ($g in $grids) {
     if ($rt.Kind -eq 'numbered') { $g.Numbered = $true }
     $g.Subjects = @($rt.Subjects)
     $g.ItemAliases = $rt.ItemAliases
-    if (@($g.Subjects).Count -gt 0) { $gridsWithSubjects++ }
+    if ((Get-GateCount -Value $g.Subjects) -gt 0) { $gridsWithSubjects++ }
 }
 
 if (-not $Quiet) {
@@ -845,7 +845,7 @@ foreach ($t in $tables) {
                 $ln0 = ConvertTo-GateNormal ([string]$cells[0])
                 if (-not $ln0 -or ($myHeads -contains $ln0)) { continue }
                 $names = ($g.Labels -contains $ln0) -or $g.ItemAliases.Contains($ln0)
-                if (-not $names -and @($g.Subjects).Count -gt 0) {
+                if (-not $names -and (Get-GateCount -Value $g.Subjects) -gt 0) {
                     foreach ($st in (Get-RowSubjectText -Cells $cells -BlankTokens $blanks)) { if (Test-SubjectMatch -Text $st -Subjects $g.Subjects) { $names = $true; break } }
                 }
                 if ($names) { $named++ }
@@ -888,7 +888,7 @@ foreach ($t in $tables) {
             #  name one of the register's assessed subjects. No subjects in
             #  the register: every filled row counts, and that is printed.
             if ($headOnly -and $g.Numbered) {
-                if (@($g.Subjects).Count -gt 0) {
+                if ((Get-GateCount -Value $g.Subjects) -gt 0) {
                     $about = $false
                     foreach ($st in (Get-RowSubjectText -Cells $cells -BlankTokens $blanks)) { if (Test-SubjectMatch -Text $st -Subjects $g.Subjects) { $about = $true; break } }
                     if (-not $about) { $unassessed++; continue }
@@ -1095,10 +1095,47 @@ catch {
     #  printed so a runner can see which arm starved. Anything else is a gate
     #  defect and is re-thrown as one.
     $m = $_.Exception.Message
+
+    #  ASK THE FILESYSTEM BEFORE YOU BELIEVE THE THROW. This try body writes the
+    #  table channel, so a caught exception is not by itself evidence that no
+    #  report exists: the throw may have landed BEFORE the write (both typed
+    #  refusals do - the roster and the check-sets are taken first), leaving the
+    #  PREVIOUS run's report on disk, stamped pass, for a reader who was never
+    #  told this run refused. Read the file, say what is actually there, and say
+    #  whether it is this run's. The verdict below is unchanged by what we find:
+    #  a report on disk never converts a refusal into a content pass - that is
+    #  how a gate defect gets laundered into a green band.
+    $channelPath = $ReportPath
+    if (-not $channelPath -and $BuildDir) { $channelPath = Join-Path $BuildDir 'figure-mirror-report.json' }
+    $channelSays = 'no report path resolved'
+    if ($channelPath) {
+        if (Test-Path -LiteralPath $channelPath) {
+            $fi = Get-Item -LiteralPath $channelPath
+            if ($fi.Length -le 0) {
+                $channelSays = ("{0} exists but is 0 byte(s) - not a readable channel" -f $channelPath)
+            }
+            else {
+                $stamp = ''
+                try { $stamp = [string]((Get-Content -LiteralPath $channelPath -Raw | ConvertFrom-Json).spineFingerprint) } catch { $stamp = '' }
+                if ($stamp) {
+                    $channelSays = ("{0} exists ({1} byte(s), stamped {2}) and was NOT rewritten by this run - it is the previous run's verdict, do not read it as this one's" -f $channelPath, $fi.Length, $stamp)
+                }
+                else {
+                    $channelSays = ("{0} exists ({1} byte(s)) but carries no spineFingerprint - it is not a well-formed table channel" -f $channelPath, $fi.Length)
+                }
+            }
+        }
+        else {
+            $channelSays = ("no report at {0}" -f $channelPath)
+        }
+    }
+
     if ($m -match '^(CHECK-SET EMPTY|ARMS INCOMPLETE)') {
         Write-Host ("  X {0}: {1}" -f $GATE, $m) -ForegroundColor Red
+        Write-Host ("  table channel on disk: {0}" -f $channelSays) -ForegroundColor Yellow
         try { [void](Write-GateArmRoster) } catch { }
         exit 2
     }
+    Write-Host ("  table channel on disk: {0}" -f $channelSays) -ForegroundColor Yellow
     throw
 }

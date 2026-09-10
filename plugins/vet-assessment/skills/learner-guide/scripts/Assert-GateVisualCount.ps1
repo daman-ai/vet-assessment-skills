@@ -84,7 +84,11 @@ function Invoke-VcGate {
     Register-GateArm -Name 'cover' -Blocking
     $visualPlan = Get-GateProp -Object $contract -Names @('visualPlan') -Default $null
     $slotTable = if ($null -ne $visualPlan) { Get-GateProp -Object $visualPlan -Names @('slots') -Default $null } else { $null }
-    $hasRoutePlan = ($null -ne $slotTable) -and (@($slotTable.PSObject.Properties.Name).Count -gt 0)
+    #  Get-GateCount, not @(...).Count: @($null).Count is 1 in PS 5.1, so an
+    #  EMPTY visualPlan.slots object - which yields no property names at all -
+    #  counted as one and armed the blocking route-plan arm over a route plan
+    #  that declares nothing.
+    $hasRoutePlan = ($null -ne $slotTable) -and ((Get-GateCount -Value $slotTable.PSObject.Properties.Name) -gt 0)
     if ($hasRoutePlan) { Register-GateArm -Name 'route-plan' -Blocking }
 
     # ---- arm 1: the declared plan. Nothing here is defaulted.

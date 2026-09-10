@@ -13,7 +13,15 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHCCC023",
                        "rationale":  "Eleven units restate safe operational practices using essential functions and features of equipment, and ten carry the element about preparing food safely with selected equipment. SITHCCC023 Use food preparation equipment in Theme 2 is the unit whose subject it is, and it is delivered before the whole patisserie stream.",
-                       "teachingRule":  "Each Theme 4 unit names the equipment its own products need and the settings peculiar to them - a dough sheeter gauge, a deck oven with steam injection, a tempering machine curve - and does not re-teach assembly or safe operation. ONE EXCEPTION, AND IT IS AN ARTEFACT: SITXFSA006 sits in Theme 1, ahead of the owner, and cannot recall what it has not met. The detector chained it into this family on its element Prepare food safely, which is about safe HANDLING rather than equipment operation. SITXFSA006 teaches its own food-safety content in full, including the thermometers and sanitising equipment food safety needs, and nothing here is withheld from it."
+                       "teachingRule":  "Each Theme 4 unit names the equipment its own products need and the settings peculiar to them - a dough sheeter gauge, a deck oven with steam injection, a tempering machine curve - and does not re-teach assembly or safe operation. ONE EXCEPTION, AND IT IS AN ARTEFACT: SITXFSA006 sits in Theme 1, ahead of the owner, and cannot recall what it has not met. The detector chained it into this family on its element Prepare food safely, which is about safe HANDLING rather than equipment operation. SITXFSA006 teaches its own food-safety content in full, including the thermometers and sanitising equipment food safety needs, and nothing here is withheld from it.",
+                       "excludeUnits":  [
+                                            {
+                                                "unit":  "SITXFSA006",
+                                                "reason":  "SITXFSA006 is not part of this topic: it teaches its own temperature probe procedures and its own cleaning, sanitising and pest-control equipment in full."
+                                            }
+                                        ],
+                       "ownerBenchmark":  "A satisfactory answer selects the equipment for the task, states the pre-use check and the manufacturer instruction that governs its safe operation, and describes assembly, safe use, shutdown and cleaning. It states what makes the equipment unsafe to use and what is done then.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -23,7 +31,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHCCC023",
                        "rationale":  "The meaning and role of mise en place is stated in SITHCCC023 and again in SITHCCC027. It is one idea and belongs where a learner first organises a workstation.",
-                       "teachingRule":  "Later units plan their own mise en place and are assessed on the plan working, not on defining the term."
+                       "teachingRule":  "Later units plan their own mise en place and are assessed on the plan working, not on defining the term.",
+                       "ownerBenchmark":  "A satisfactory answer defines mise en place as everything prepared and positioned before service so the cook works without interruption, and gives the consequence of poor mise en place on quality, timing and safety during service.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -33,7 +43,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHCCC027",
                        "rationale":  "Eight units carry the element Portion and prepare ingredients. SITHCCC027 Prepare dishes using basic methods of cookery opens Theme 3 and is the first cookery unit. Accurate scaling matters more in patisserie than anywhere else, which is why it is taught before Theme 4 rather than inside it.",
-                       "teachingRule":  "Theme 4 units scale their own formulas and are assessed on accuracy, not on how to weigh."
+                       "teachingRule":  "Theme 4 units scale their own formulas and are assessed on accuracy, not on how to weigh.",
+                       "ownerBenchmark":  "A satisfactory answer weighs and measures to the standard recipe rather than by eye, portions to the specified yield, and states what the recipe requires in trimming and preparation before cooking. It states the cost and consistency consequence of portioning off-standard.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -46,7 +58,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITXINV006",
                        "rationale":  "Four families - date codes and rotation labels in nine units, storage conditions in eight, shelf life in eight and freshness indicators in seven - are one topic and the subject of SITXINV006 Receive, store and maintain stock in Theme 2. Thirty-two restatements of how to store food, almost all of them in the seven Theme 4 units saying it about their own product.",
-                       "teachingRule":  "A patisserie unit states only what is SPECIFIC to its product - that a cream-filled item is a potentially hazardous food, that a baked meringue is hygroscopic, that marzipan is wrapped against drying - and cites SITXINV006 for the storage system and the labelling."
+                       "teachingRule":  "A patisserie unit states only what is SPECIFIC to its product - that a cream-filled item is a potentially hazardous food, that a baked meringue is hygroscopic, that marzipan is wrapped against drying - and cites SITXINV006 for the storage system and the labelling.",
+                       "ownerBenchmark":  "A satisfactory answer reads a date code, applies stock rotation so oldest saleable stock is used first, states the storage condition the item requires - temperature, humidity, covering, separation from raw - and names the freshness indicators that decide whether it is used or discarded.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -56,7 +70,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITXFSA005",
                        "rationale":  "SITXFSA005 Use hygienic practices for food safety is delivered in Theme 1 precisely because most later units name it as a prerequisite.",
-                       "teachingRule":  "SITXFSA006 follows the procedure and is assessed on following it."
+                       "teachingRule":  "SITXFSA006 follows the procedure and is assessed on following it.",
+                       "ownerBenchmark":  "A satisfactory answer states what the organisation hygiene and food safety procedures require of the individual - personal hygiene, hand washing, dress, reporting illness, handling practices - and what is done when a procedure cannot be followed.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -66,7 +82,9 @@
                        "kind":  "regulatory-recall",
                        "owner":  "SITXFSA005",
                        "rationale":  "One account of the Code, of contaminants and potentially hazardous foods, and of the regulator.",
-                       "teachingRule":  "SITXFSA006 and SITXINV006 name the specific requirement governing their activity and cite the clause rather than re-summarising the Code."
+                       "teachingRule":  "SITXFSA006 and SITXINV006 name the specific requirement governing their activity and cite the clause rather than re-summarising the Code.",
+                       "ownerBenchmark":  "A satisfactory answer defines a contaminant, contamination and a potentially hazardous food in the terms the Food Standards Code uses, names the Code and the state Food Act as the instruments, and states the role of the local enforcement agency.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -76,7 +94,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITXFSA006",
                        "rationale":  "Dairy, eggs and other high-risk types are named in SITXFSA006 Participate in safe food handling practices and again in SITHCCC023. Patisserie runs on cream, custard and egg, so this is load-bearing for the whole qualification.",
-                       "teachingRule":  "SITHCCC023 handles those foods with the equipment it teaches and cites the handling rules."
+                       "teachingRule":  "SITHCCC023 handles those foods with the equipment it teaches and cites the handling rules.",
+                       "ownerBenchmark":  "A satisfactory answer states the handling requirement for each high-risk food type - dairy, eggs, meat, poultry, seafood, smallgoods, prepared fruit and vegetables - the temperature control each needs, and the cross-contamination risk between them.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -90,7 +110,9 @@
                        "kind":  "regulatory-recall",
                        "owner":  "SITXWHS005",
                        "rationale":  "Five families covering the Act, the duties, the hazards and the penalty are one body of law. SITXWHS005 Participate in safe work practices opens Theme 1.",
-                       "teachingRule":  "SITXWHS006 teaches the DELTA - risk assessment, hierarchy of control, monitoring - which is new work. The food safety units cite SITXWHS005 for duty, breach and penalty and name the Food Act as their own instrument."
+                       "teachingRule":  "SITXWHS006 teaches the DELTA - risk assessment, hierarchy of control, monitoring - which is new work. The food safety units cite SITXWHS005 for duty, breach and penalty and name the Food Act as their own instrument.",
+                       "ownerBenchmark":  "A satisfactory answer states the duty the WHS Act places on the employer and on the worker, identifies the hazards of the kitchen and the control for each, and names the consequence of failure for the worker, the business and the individual - including prosecution and penalty.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -100,7 +122,9 @@
                        "kind":  "progressive-depth",
                        "owner":  "SITXFSA005",
                        "rationale":  "The original ruling gave this to SITHKOP009 Clean kitchen premises and equipment, which carries the deeper content. But SITXFSA005 is delivered in Theme 1 and SITHKOP009 in Theme 2, and SITXFSA005 cannot explain why a surface must be sanitised without naming what sanitises it. A learner cannot recall a chemical they have not met, so the introduction belongs to the earlier unit.",
-                       "teachingRule":  "SITXFSA005 introduces cleaning and sanitising at the level food safety requires - what a sanitiser is, why contact time matters, and that a chemical carries a safety data sheet. SITHKOP009 in Theme 2 then teaches the DELTA, which is substantial and genuinely new: the full product range, dilution ratios, chemical storage and segregation, the PPE each product demands, and reading an SDS end to end."
+                       "teachingRule":  "SITXFSA005 introduces cleaning and sanitising at the level food safety requires - what a sanitiser is, why contact time matters, and that a chemical carries a safety data sheet. SITHKOP009 in Theme 2 then teaches the DELTA, which is substantial and genuinely new: the full product range, dilution ratios, chemical storage and segregation, the PPE each product demands, and reading an SDS end to end.",
+                       "ownerBenchmark":  "A satisfactory answer states why a surface must be cleaned and then sanitised, selects the product for the surface, and states the dilution, contact time and PPE the product requires and where it is stored.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -110,7 +134,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHKOP009",
                        "rationale":  "Separation, recycling and disposal of broken service-ware are the cleaning unit\u0027s own ground in Theme 2.",
-                       "teachingRule":  "SITXINV006 disposes of out-of-date stock to that procedure and cites it."
+                       "teachingRule":  "SITXINV006 disposes of out-of-date stock to that procedure and cites it.",
+                       "ownerBenchmark":  "A satisfactory answer separates waste by stream - organic, recyclable, oil, broken service-ware - and states the disposal method and the reason each is handled separately.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -120,7 +146,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHKOP010",
                        "rationale":  "SITHKOP010 Plan and cost recipes opens Theme 2 and carries the element Identify customer preferences.",
-                       "teachingRule":  "SITHCCC042 reads a preference or restriction and acts on it."
+                       "teachingRule":  "SITHCCC042 reads a preference or restriction and acts on it.",
+                       "ownerBenchmark":  "A satisfactory answer states how customer preference and dietary information is gathered, and uses it as an input to the recipe rather than an afterthought.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -132,7 +160,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHCCC042",
                        "rationale":  "Three families - food allergy types, the health and legal consequences of failing to address a requirement, and the culinary terms for substitute ingredients - are one topic. SITHCCC042 in Theme 3 is delivered before the whole patisserie stream, which matters because gluten, dairy, egg and nut are the four allergens patisserie is built on.",
-                       "teachingRule":  "SITHPAT016 teaches the dessert-specific substitutions and cites SITHCCC042 for the allergy knowledge and the legal consequence. SITHCCC034 applies it during service."
+                       "teachingRule":  "SITHPAT016 teaches the dessert-specific substitutions and cites SITHCCC042 for the allergy knowledge and the legal consequence. SITHCCC034 applies it during service.",
+                       "ownerBenchmark":  "A satisfactory answer distinguishes a food allergy from an intolerance by mechanism and severity, names the substitute ingredient for the requirement, and states the health, legal and reputational consequence of failing to address it - including that cross-contact alone can cause a reaction.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -142,7 +172,9 @@
                        "kind":  "commodity-parallel",
                        "owner":  "SITHCCC038",
                        "rationale":  "Seven units require the terms for THEIR OWN ingredients. The vocabulary of yeast doughs is not the vocabulary of petits fours. Only the idea that a trade name, a convenience product and a classical term can name one thing is set once, in the earliest unit to require it.",
-                       "teachingRule":  "Every unit teaches its own product vocabulary in full and is assessed on it."
+                       "teachingRule":  "Every unit teaches its own product vocabulary in full and is assessed on it.",
+                       "ownerBenchmark":  "A satisfactory answer uses the correct culinary term for the ingredient and preparation, and recognises that a classical term, a trade name and a convenience-product name can denote the same ingredient.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -156,7 +188,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT016",
                        "rationale":  "Five families covering the same hand skills appear in six units in identical words. SITHPAT016 Produce desserts opens Theme 4 and is where a learner first performs them. This is the largest single duplication in the patisserie stream: five techniques restated up to six times each.",
-                       "teachingRule":  "Each later Theme 4 unit applies the techniques and teaches only what its own product adds - gluten development in SITHPAT014, sugar work in SITHPAT015, tempering and modelling in SITHPAT017."
+                       "teachingRule":  "Each later Theme 4 unit applies the techniques and teaches only what its own product adds - gluten development in SITHPAT014, sugar work in SITHPAT015, tempering and modelling in SITHPAT017.",
+                       "ownerBenchmark":  "A satisfactory answer performs and explains each technique - sifting, stirring, aerating, whisking, folding, piping, spreading and mould preparation - and states what each does to the mixture and what over- or under-working produces.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -166,7 +200,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT011",
                        "rationale":  "Scaling, tin preparation, oven pre-heating and ingredient temperature are one preparation routine across five units. SITHPAT011 Produce cakes is the first Theme 4 unit after SITHPAT016 to require it at production scale.",
-                       "teachingRule":  "Later Theme 4 units set up for their own product and are assessed on the setup being right, not on the routine."
+                       "teachingRule":  "Later Theme 4 units set up for their own product and are assessed on the setup being right, not on the routine.",
+                       "ownerBenchmark":  "A satisfactory answer sequences the mise en place for cake, sponge and filling production - scaling, tin preparation, oven pre-heat, ingredient temperature - and states why each is done before mixing begins.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -176,7 +212,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT011",
                        "rationale":  "Glazing, docking, scoring, seeding and egg-washing before bake is one set of techniques shared by five units.",
-                       "teachingRule":  "SITHPAT013 and SITHPAT014 apply the finish their own product needs and cite the technique."
+                       "teachingRule":  "SITHPAT013 and SITHPAT014 apply the finish their own product needs and cite the technique.",
+                       "ownerBenchmark":  "A satisfactory answer selects and applies the pre-bake finish or decoration for the product and states how it behaves during baking.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -186,7 +224,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT011",
                        "rationale":  "The vocabulary a pastry chef uses to judge a finished product is one vocabulary, restated in six units.",
-                       "teachingRule":  "Each unit states the characteristics expected of ITS OWN products against that vocabulary. The vocabulary itself is taught once."
+                       "teachingRule":  "Each unit states the characteristics expected of ITS OWN products against that vocabulary. The vocabulary itself is taught once.",
+                       "ownerBenchmark":  "A satisfactory answer states the expected appearance, texture, crumb, colour and flavour for the product, judges the finished item against them, and identifies the fault that produced a deviation.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -196,7 +236,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT011",
                        "rationale":  "Why a temperature is chosen, what a hot oven does to a batter and how doneness is tested is one body of theory appearing in four units.",
-                       "teachingRule":  "Each unit states the temperature and time for its own products and cites the theory."
+                       "teachingRule":  "Each unit states the temperature and time for its own products and cites the theory.",
+                       "ownerBenchmark":  "A satisfactory answer states the baking temperature and time for the product, the indicators used to judge doneness, and what an oven that runs hot or cold does to the result.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -206,7 +248,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT011",
                        "rationale":  "Depositing the right amount of batter for a desired height, crumb and bake is one skill named in four units.",
-                       "teachingRule":  "Later units deposit to their own product specification."
+                       "teachingRule":  "Later units deposit to their own product specification.",
+                       "ownerBenchmark":  "A satisfactory answer scales the batter to the tin and the desired characteristics of the finished product, and states what under- or over-filling produces.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -216,7 +260,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT011",
                        "rationale":  "The element Decorate, present and store appears in four Theme 4 units. The sequence - cool, fill, coat, decorate, present, store - is one sequence.",
-                       "teachingRule":  "SITHPAT012 Produce specialised cakes teaches the DELTA: advanced decoration, structural assembly and the finishes a specialised cake demands. It does not restate the sequence."
+                       "teachingRule":  "SITHPAT012 Produce specialised cakes teaches the DELTA: advanced decoration, structural assembly and the finishes a specialised cake demands. It does not restate the sequence.",
+                       "ownerBenchmark":  "A satisfactory answer decorates and presents to specification and stores the finished product at the temperature and humidity it requires, covered and dated.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -226,7 +272,9 @@
                        "kind":  "commodity-parallel",
                        "owner":  "SITHPAT011",
                        "rationale":  "Four units require the origins of their own products. The history of a Sachertorte is not the history of a croissant. Only the expectation - that a pastry chef can place a product in its tradition - is set once.",
-                       "teachingRule":  "Each unit covers the origins of the products in its own performance evidence."
+                       "teachingRule":  "Each unit covers the origins of the products in its own performance evidence.",
+                       "ownerBenchmark":  "A satisfactory answer places the product in its tradition, names its origin and the features that identify it.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -237,7 +285,9 @@
                        "kind":  "commodity-parallel",
                        "owner":  "SITHPAT011",
                        "rationale":  "SITHPAT011 Produce cakes and SITHPAT012 Produce specialised cakes name the cakes and sponges in their own performance evidence and both carry the element Cook cakes and sponges. The two repertoires are deliberately different - that difference is why the qualification carries both units.",
-                       "teachingRule":  "No consolidation. SITHPAT011 teaches the standard repertoire and SITHPAT012 the specialised one, each in full."
+                       "teachingRule":  "No consolidation. SITHPAT011 teaches the standard repertoire and SITHPAT012 the specialised one, each in full.",
+                       "ownerBenchmark":  "A satisfactory answer produces the cakes and sponges its own performance evidence specifies, to the expected characteristics and within production time.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -247,7 +297,9 @@
                        "kind":  "commodity-parallel",
                        "owner":  "SITHPAT013",
                        "rationale":  "SITHPAT013 Produce pastries and SITHPAT014 Produce yeast-based bakery products each name the products in their own performance evidence. Short, choux, puff and filo are not brioche, sourdough and enriched doughs.",
-                       "teachingRule":  "Each unit teaches its own repertoire in full."
+                       "teachingRule":  "Each unit teaches its own repertoire in full.",
+                       "ownerBenchmark":  "A satisfactory answer produces the pastries and yeast products its own performance evidence specifies, to the expected characteristics and within production time.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -257,7 +309,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT013",
                        "rationale":  "Keeping fat firm and gluten relaxed by working cold is one technique that decides whether laminated and short pastes work at all. SITHPAT013 Produce pastries is where it matters first and most.",
-                       "teachingRule":  "SITHPAT014 applies it to laminated yeast doughs and teaches the difference - that a yeast dough must stay cold enough to laminate and warm enough to prove."
+                       "teachingRule":  "SITHPAT014 applies it to laminated yeast doughs and teaches the difference - that a yeast dough must stay cold enough to laminate and warm enough to prove.",
+                       "ownerBenchmark":  "A satisfactory answer states why ingredients and surfaces are chilled for pastry work, what happens to the fat and the gluten when they are not, and the temperature the work requires.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    },
                    {
                        "families":  [
@@ -267,7 +321,9 @@
                        "kind":  "shared-scaffold",
                        "owner":  "SITHPAT012",
                        "rationale":  "Cigarette paste and the stencilled and piped decoration built from it appear in SITHPAT012 Produce specialised cakes and SITHPAT015 Produce petits fours. SITHPAT012 is delivered first in Theme 4.",
-                       "teachingRule":  "SITHPAT015 applies the technique at petit-four scale and teaches what changes at that size."
+                       "teachingRule":  "SITHPAT015 applies the technique at petit-four scale and teaches what changes at that size.",
+                       "ownerBenchmark":  "A satisfactory answer prepares cigarette paste to the correct consistency and applies the decoration technique to the specified pattern and thickness, and states what a paste that is too warm or too stiff produces.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
                    }
                ]
 }

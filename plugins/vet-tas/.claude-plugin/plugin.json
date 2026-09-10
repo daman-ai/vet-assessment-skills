@@ -1,6 +1,6 @@
 {
   "name": "vet-tas",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "The curriculum registry that sits above the other plugins: which institute delivers which qualification, which units each course carries, how they are sequenced, and WHICH UNIT OWNS EACH SHARED TOPIC so a concept is taught once rather than in every unit that mentions it. Reads the delivered unit list, the elective selection and the delivery order from each course's own Training and Assessment Strategy, sources every unit live from the training.gov.au REST API, detects mechanically where two units in one course cover the same ground, and records an authored ruling - with a written reason - on who owns it. Distinguishes real duplication from commodity-parallel content that must not be collapsed, flags superseded units and packaging mismatches, and serves the assessment and learner-guide skills a per-unit brief saying what to teach in full, what to recall instead, and what should stop the build.",
   "author": {
     "name": "Meridian Vocational College / Adelaide Culinary Institute"

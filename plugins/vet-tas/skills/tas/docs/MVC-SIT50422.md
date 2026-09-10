@@ -20,34 +20,48 @@ Learners arrive from **MVC-SIT40521**; units marked *credit-transfer* below are 
 
 | # | Code | Title | Core/Elective | Delivery | Cluster | Prerequisite |
 |---:|---|---|---|---|---|---|
-| 1 | SITXFIN010 | Prepare and monitor budgets | Core | delivered |  |  |
-| 2 | SITXCCS016 | Develop and manage quality customer service practices | Core | delivered |  |  |
-| 3 | SITXGLC002 | Identify and manage legal risks and comply with law | Core | delivered |  |  |
-| 4 | SITXMGT005 | Establish and conduct business relationships | Core | delivered |  |  |
-| 5 | SITXCCS015 | Enhance customer service experiences | Core | delivered |  |  |
-| 6 | SITHCCC029 | Prepare stocks, sauces and soups | Elective | credit-transfer |  | SITXFSA005 |
-| 7 | SITHCCC030 | Prepare vegetable, fruit, eggs and farinaceous dishes | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
-| 8 | SITHCCC028 | Prepare appetisers and salads | Elective | credit-transfer |  | SITXFSA005 |
-| 9 | SITHCCC023 | Use food preparation equipment | Elective | credit-transfer |  | SITXFSA005 |
-| 10 | SITHCCC027 | Prepare dishes using basic methods of cookery | Elective | credit-transfer |  | SITXFSA005 |
-| 11 | SITHCCC035 | Prepare poultry dishes | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
-| 12 | SITHCCC042 | Prepare food to meet special dietary requirements | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
-| 13 | SITHCCC043 | Work effectively as a cook | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
-| 14 | SITHCCC041 | Produce cakes, pastries and breads | Elective | credit-transfer |  | SITXFSA005 |
-| 15 | SITHCCC036 | Prepare meat dishes | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
-| 16 | SITHCCC037 | Prepare seafood dishes | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
+| 1 | SITXFIN010 | Prepare and monitor budgets | Core | delivered | 1 Budgets and service standards |  |
+| 2 | SITXCCS016 | Develop and manage quality customer service practices | Core | delivered | 1 Budgets and service standards |  |
+| 3 | SITXGLC002 | Identify and manage legal risks and comply with law | Core | delivered | 2 Compliance, partnerships and the guest experience |  |
+| 4 | SITXMGT005 | Establish and conduct business relationships | Core | delivered | 2 Compliance, partnerships and the guest experience |  |
+| 5 | SITXCCS015 | Enhance customer service experiences | Core | delivered | 2 Compliance, partnerships and the guest experience |  |
+| 6 | SITXCOM010 | Manage conflict | Core | credit-transfer |  |  |
+| 7 | SITXFIN009 | Manage finances within a budget | Core | credit-transfer |  |  |
+| 8 | SITXHRM008 | Roster staff | Core | credit-transfer |  |  |
+| 9 | SITXHRM009 | Lead and manage people | Core | credit-transfer |  |  |
+| 10 | SITXMGT004 | Monitor work operations | Core | credit-transfer |  |  |
+| 11 | SITXWHS007 | Implement and monitor work health and safety practices | Core | credit-transfer |  |  |
+| 12 | SITHKOP013 | Plan cooking operations | Elective | credit-transfer |  | SITXFSA005 |
+| 13 | BSBTWK501 | Lead diversity and inclusion | Elective | credit-transfer |  |  |
+| 14 | SITXFSA005 | Use hygienic practices for food safety | Elective | credit-transfer |  |  |
+| 15 | SITXFSA006 | Participate in safe food handling practices | Elective | credit-transfer |  |  |
+| 16 | SITXINV006 | Receive, store and maintain stock | Elective | credit-transfer |  | SITXFSA005 |
 | 17 | SITHPAT016 | Produce desserts | Elective | credit-transfer |  | SITXFSA005 |
-| 18 | SITXHRM009 | Lead and manage people | Core | credit-transfer |  |  |
-| 19 | SITXMGT004 | Monitor work operations | Core | credit-transfer |  |  |
-| 20 | SITXHRM008 | Roster staff | Core | credit-transfer |  |  |
-| 21 | SITXCOM010 | Manage conflict | Core | credit-transfer |  |  |
-| 22 | SITXFIN009 | Manage finances within a budget | Core | credit-transfer |  |  |
-| 23 | SITXWHS007 | Implement and monitor work health and safety practices | Core | credit-transfer |  |  |
-| 24 | SITXFSA006 | Participate in safe food handling practices | Elective | credit-transfer |  |  |
-| 25 | SITXINV006 | Receive, store and maintain stock | Elective | credit-transfer |  | SITXFSA005 |
-| 26 | SITXFSA005 | Use hygienic practices for food safety | Elective | credit-transfer |  |  |
-| 27 | SITHKOP013 | Plan cooking operations | Elective | credit-transfer |  | SITXFSA005 |
-| 28 | BSBTWK501 | Lead diversity and inclusion | Elective | credit-transfer |  |  |
+| 18 | SITHCCC023 | Use food preparation equipment | Elective | credit-transfer |  | SITXFSA005 |
+| 19 | SITHCCC027 | Prepare dishes using basic methods of cookery | Elective | credit-transfer |  | SITXFSA005 |
+| 20 | SITHCCC028 | Prepare appetisers and salads | Elective | credit-transfer |  | SITXFSA005 |
+| 21 | SITHCCC029 | Prepare stocks, sauces and soups | Elective | credit-transfer |  | SITXFSA005 |
+| 22 | SITHCCC030 | Prepare vegetable, fruit, eggs and farinaceous dishes | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
+| 23 | SITHCCC035 | Prepare poultry dishes | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
+| 24 | SITHCCC036 | Prepare meat dishes | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
+| 25 | SITHCCC037 | Prepare seafood dishes | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
+| 26 | SITHCCC041 | Produce cakes, pastries and breads | Elective | credit-transfer |  | SITXFSA005 |
+| 27 | SITHCCC042 | Prepare food to meet special dietary requirements | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
+| 28 | SITHCCC043 | Work effectively as a cook | Elective | credit-transfer |  | SITHCCC027, SITXFSA005 |
+
+## Themes
+
+**1. Budgets and service standards** (weeks 1-12)
+
+Prepare and monitor a venue budget and set the customer service standards the team works to.
+
+`SITXFIN010`, `SITXCCS016`
+
+**2. Compliance, partnerships and the guest experience** (weeks 13-30)
+
+Keep the venue legally compliant, manage supplier and partner relationships and lift the guest experience.
+
+`SITXGLC002`, `SITXMGT005`, `SITXCCS015`
 
 ## Topic map &mdash; who teaches what, once
 
@@ -55,10 +69,10 @@ Learners arrive from **MVC-SIT40521**; units marked *credit-transfer* below are 
 
 | Topic | Kind | Taught in full by | Applied, not taught, in |
 |---|---|---|---|
-| **Professional service standards and the attributes expected of service personnel** | shared-scaffold | $(@{id=SIT50422-T01; name=Professional service standards and the attributes expected of service personnel; kind=shared-scaffold; owner=SITXCCS016; ownerCluster=; rationale=SITXCCS016 Develop and manage quality customer service practices is the unit that WRITES the standard, and it is delivered second. SITXCCS015 Enhance customer service experiences, delivered fifth, works to that standard. The two detected families - professional service standards, and the attitudes and attributes expected by the industry - are one topic: what good service looks like and who is expected to deliver it.; teachingRule=SITXCCS015 opens by naming the standard set in SITXCCS016 and moves immediately to its own ground: reading an individual customer, anticipating a need, and recovering a service failure in the moment.; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]}.owner) | `SITXCCS015` |
-| **Organisational and management restructures as a planning input** | shared-scaffold | $(@{id=SIT50422-T02; name=Organisational and management restructures as a planning input; kind=shared-scaffold; owner=SITXFIN010; ownerCluster=; rationale=Delivered first, SITXFIN010 Prepare and monitor budgets must treat a restructure as a factor that moves a budget. SITXCCS016 later treats the same restructure as a factor that dates a customer service policy. The event is one thing and is explained once.; teachingRule=SITXCCS016 refers back in a line and teaches only the consequence peculiar to it - that a restructure invalidates the service standards written for the old structure.; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]}.owner) | `SITXCCS016` |
-| **Complaint and dispute management** | shared-scaffold | $(@{id=SIT50422-T03; name=Complaint and dispute management; kind=shared-scaffold; owner=SITXCCS016; ownerCluster=; rationale=The complaint system - how complaints are captured, escalated, resolved and fed back into policy - is designed in SITXCCS016. SITXCCS015 handles the complaint in front of the learner.; teachingRule=SITXCCS015 teaches the interaction, not the system: acknowledging, taking ownership, offering a remedy inside delegation. It cites the SITXCCS016 escalation path rather than restating it.; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]}.owner) | `SITXCCS015` |
-| **Consulting staff when developing customer service policy** | shared-scaffold | $(@{id=SIT50422-T04; name=Consulting staff when developing customer service policy; kind=shared-scaffold; owner=SITXCCS016; ownerCluster=; rationale=Consultation is part of writing the policy, which is SITXCCS016's own work. SITXCCS015 contributes suggestions rather than running the consultation.; teachingRule=In SITXCCS015 this is a single line about where a frontline observation goes. The consultation method itself is not repeated.; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]}.owner) | `SITXCCS015` |
+| **Professional service standards and the attributes expected of service personnel** | shared-scaffold | $(@{id=SIT50422-T01; name=Professional service standards and the attributes expected of service personnel; kind=shared-scaffold; owner=SITXCCS016; ownerCluster=1; rationale=SITXCCS016 Develop and manage quality customer service practices is the unit that WRITES the standard, and it is delivered second. SITXCCS015 Enhance customer service experiences, delivered fifth, works to that standard. The two detected families - professional service standards, and the attitudes and attributes expected by the industry - are one topic: what good service looks like and who is expected to deliver it.; teachingRule=SITXCCS015 opens by naming the standard set in SITXCCS016 and moves immediately to its own ground: reading an individual customer, anticipating a need, and recovering a service failure in the moment.; assessmentDepth=applied; ownerBenchmark=A satisfactory answer states the service standard the organisation sets, the attitudes and attributes expected of service personnel, and how each is observable in practice rather than asserted.; benchmarkProvenance=draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert; excludedUnits=System.Object[]; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]; citations=System.Object[]}.owner) | `SITXCCS015` |
+| **Organisational and management restructures as a planning input** | shared-scaffold | $(@{id=SIT50422-T02; name=Organisational and management restructures as a planning input; kind=shared-scaffold; owner=SITXFIN010; ownerCluster=1; rationale=Delivered first, SITXFIN010 Prepare and monitor budgets must treat a restructure as a factor that moves a budget. SITXCCS016 later treats the same restructure as a factor that dates a customer service policy. The event is one thing and is explained once.; teachingRule=SITXCCS016 refers back in a line and teaches only the consequence peculiar to it - that a restructure invalidates the service standards written for the old structure.; assessmentDepth=applied; ownerBenchmark=A satisfactory answer states how a restructure changes resourcing, reporting and cost, and reflects those changes in the plan or budget being prepared.; benchmarkProvenance=draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert; excludedUnits=System.Object[]; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]; citations=System.Object[]}.owner) | `SITXCCS016` |
+| **Complaint and dispute management** | shared-scaffold | $(@{id=SIT50422-T03; name=Complaint and dispute management; kind=shared-scaffold; owner=SITXCCS016; ownerCluster=1; rationale=The complaint system - how complaints are captured, escalated, resolved and fed back into policy - is designed in SITXCCS016. SITXCCS015 handles the complaint in front of the learner.; teachingRule=SITXCCS015 teaches the interaction, not the system: acknowledging, taking ownership, offering a remedy inside delegation. It cites the SITXCCS016 escalation path rather than restating it.; assessmentDepth=applied; ownerBenchmark=A satisfactory answer takes the complaint, acknowledges it, resolves it within delegation or escalates it, records it, and identifies what the complaint indicates about the service that produced it.; benchmarkProvenance=draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert; excludedUnits=System.Object[]; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]; citations=System.Object[]}.owner) | `SITXCCS015` |
+| **Consulting staff when developing customer service policy** | shared-scaffold | $(@{id=SIT50422-T04; name=Consulting staff when developing customer service policy; kind=shared-scaffold; owner=SITXCCS016; ownerCluster=1; rationale=Consultation is part of writing the policy, which is SITXCCS016's own work. SITXCCS015 contributes suggestions rather than running the consultation.; teachingRule=In SITXCCS015 this is a single line about where a frontline observation goes. The consultation method itself is not repeated.; assessmentDepth=applied; ownerBenchmark=A satisfactory answer states how staff suggestions are sought and used in developing customer service policy, and why the people delivering the service are the ones who can see where it fails.; benchmarkProvenance=draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert; excludedUnits=System.Object[]; tgaAnchors=System.Object[]; appliedNotTaught=System.Object[]; families=System.Object[]; citations=System.Object[]}.owner) | `SITXCCS015` |
 
 ### The rulings in full
 
@@ -123,5 +137,5 @@ Anchored to training.gov.au:
 
 ---
 
-Unit list and sequencing from $(@{schemaVersion=2.0; courseId=MVC-SIT50422; qualificationCode=SIT50422; qualificationTitle=Diploma of Hospitality Management; productType=qualification; aqfLevel=Diploma; provider=MVC; brandVariant=; institute=Meridian Vocational College; siblingCourse=ACI-SIT50422; durationWeeks=30; packagingRule=; unitCount=28; deliveredCount=5; priorCourse=MVC-SIT40521; sequencing=; units=System.Object[]; supersededUnits=System.Object[]; titleCorrections=System.Object[]; unitsNotInCache=System.Object[]; source=; notes=System.Object[]; openItems=System.Object[]}.source.tasFile) (SHA256 $(@{schemaVersion=2.0; courseId=MVC-SIT50422; qualificationCode=SIT50422; qualificationTitle=Diploma of Hospitality Management; productType=qualification; aqfLevel=Diploma; provider=MVC; brandVariant=; institute=Meridian Vocational College; siblingCourse=ACI-SIT50422; durationWeeks=30; packagingRule=; unitCount=28; deliveredCount=5; priorCourse=MVC-SIT40521; sequencing=; units=System.Object[]; supersededUnits=System.Object[]; titleCorrections=System.Object[]; unitsNotInCache=System.Object[]; source=; notes=System.Object[]; openItems=System.Object[]}.source.tasSha256)). Unit titles, prerequisites and currency from training.gov.au. Generated 2026-09-08 &mdash; do not edit.
+Unit list and sequencing from $(@{schemaVersion=2.0; courseId=MVC-SIT50422; qualificationCode=SIT50422; qualificationTitle=Diploma of Hospitality Management; productType=qualification; aqfLevel=Diploma; provider=MVC; brandVariant=; institute=Meridian Vocational College; siblingCourse=ACI-SIT50422; durationWeeks=30; packagingRule=; unitCount=28; deliveredCount=5; priorCourse=MVC-SIT40521; sequencing=; units=System.Object[]; supersededUnits=System.Object[]; titleCorrections=System.Object[]; unitsNotInCache=System.Object[]; source=; notes=System.Object[]; openItems=System.Object[]; pathway=}.source.tasFile) (SHA256 $(@{schemaVersion=2.0; courseId=MVC-SIT50422; qualificationCode=SIT50422; qualificationTitle=Diploma of Hospitality Management; productType=qualification; aqfLevel=Diploma; provider=MVC; brandVariant=; institute=Meridian Vocational College; siblingCourse=ACI-SIT50422; durationWeeks=30; packagingRule=; unitCount=28; deliveredCount=5; priorCourse=MVC-SIT40521; sequencing=; units=System.Object[]; supersededUnits=System.Object[]; titleCorrections=System.Object[]; unitsNotInCache=System.Object[]; source=; notes=System.Object[]; openItems=System.Object[]; pathway=}.source.tasSha256)). Unit titles, prerequisites and currency from training.gov.au. Generated 2026-09-09 &mdash; do not edit.
 

@@ -14,7 +14,7 @@ That is what keeps the styles, the palette, the header logo, the footer fields a
 | `scripts/Docx-Blocks-House.ps1` | No | The house block builders — banners, tables, callouts, answer boxes, assessor panels, indicator tables. Measured, not invented. |
 | `scripts/Build-Pack.ps1` | No | **The assembler.** Splices a generated body into a template, fills the cover sheet and the placeholders, writes document control, runs the gate, repacks. |
 | `scripts/Test-HouseRules.ps1` | No | **The blocking gate.** Schema child order, colour band, day counts, line spacing, table width, font floor, model-answer form and colour, page-break targets. |
-| `scripts/Verify-Document.ps1` | Yes | Open the finished file, update fields, export PDF, check page flow and run the rendered sweeps. |
+| `scripts/Verify-Document.ps1` | Yes | Open the finished file, update fields, check page flow and run the rendered sweeps. No PDF is exported. |
 
 Dot-source what you need. `Verify-Document.ps1` and `Test-HouseRules.ps1` both call helpers from `Build-FromTemplate.ps1`, so source that first.
 
@@ -105,7 +105,7 @@ Every one of these produced a wrong document that passed its gates, or a failure
 
 ### Word COM is fragile
 
-Field update, repagination, page counting and PDF export must run in **one uninterrupted session**. Do not kill `WINWORD` while a job is in flight — that produces RPC failures that look like document corruption and are not.
+Field update, repagination and page counting must run in **one uninterrupted session**. Do not kill `WINWORD` while a job is in flight — that produces RPC failures that look like document corruption and are not.
 
 ---
 
@@ -256,7 +256,6 @@ Run in this order. Every step is a gate, not a report.
    - `Test-CoverSheet` — one page, every clause present
    - `Invoke-RenderedSweeps` — placeholders, guidance markers, brand crossover, assessor-only leakage, oral questioning
    - `Get-LongSentence` — candidates over the profile's `writing.maxSentenceWords` (20), for a human to read
-   - PDF export
 5. Open the file in Word once, by hand, and confirm it does not prompt to repair
 
 Step 5 is not redundant. A package that validates can still be one Word rejects; only Word settles that.

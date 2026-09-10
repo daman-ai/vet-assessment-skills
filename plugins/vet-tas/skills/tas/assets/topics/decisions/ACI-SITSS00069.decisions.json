@@ -1,31 +1,43 @@
-{
-  "_comment": "AUTHORED OWNERSHIP DECISIONS for the SITSS00069 Food Safety Supervision skill set. Every family in families/ACI-SITSS00069.families.json appears exactly once below.",
-  "courseId": "ACI-SITSS00069",
-  "_deliveredNote": "A SKILL SET, NOT A QUALIFICATION - two units over four weeks, delivered in the order SITXFSA005 then SITXFSA006, issuing a Statement of Attainment. Both units are delivered; there is no credit transfer. With only two units the whole question is simple: SITXFSA005 comes first, so it owns everything the two share.",
-  "topics": [
-    {
-      "families": ["F01"],
-      "name": "Food safety law, the Food Standards Code and the meaning of contamination",
-      "kind": "regulatory-recall",
-      "owner": "SITXFSA005",
-      "rationale": "Both units carry the same account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the role of the local regulator. In a two-unit skill set delivered over four weeks a learner would meet that account twice in a month.",
-      "teachingRule": "SITXFSA006 names the specific requirement governing the handling task in front of the learner - a temperature, a holding time, a record - and cites the Code clause rather than re-summarising the Code."
-    },
-    {
-      "families": ["F02"],
-      "name": "Consequences of failing to observe food safety law",
-      "kind": "regulatory-recall",
-      "owner": "SITXFSA005",
-      "rationale": "Prosecution, closure, licence conditions and the personal liability of a food safety supervisor are one account of consequence. It belongs with the law it follows from.",
-      "teachingRule": "SITXFSA006 states the consequence attaching to its own specific breach and cites this topic for the general structure."
-    },
-    {
-      "families": ["F03"],
-      "name": "Organisational hygiene and food safety procedures",
-      "kind": "shared-scaffold",
-      "owner": "SITXFSA005",
-      "rationale": "What the organisation's own hygiene and food safety procedures contain is the subject matter of SITXFSA005, and it is delivered first.",
-      "teachingRule": "SITXFSA006 follows the procedure and is assessed on following it, not on reciting what it contains."
-    }
-  ]
+﻿{
+    "_comment":  "AUTHORED OWNERSHIP DECISIONS for the SITSS00069 Food Safety Supervision skill set. Every family in families/ACI-SITSS00069.families.json appears exactly once below.",
+    "courseId":  "ACI-SITSS00069",
+    "_deliveredNote":  "A SKILL SET, NOT A QUALIFICATION - two units over four weeks, delivered in the order SITXFSA005 then SITXFSA006, issuing a Statement of Attainment. Both units are delivered; there is no credit transfer. With only two units the whole question is simple: SITXFSA005 comes first, so it owns everything the two share.",
+    "topics":  [
+                   {
+                       "families":  [
+                                        "F01"
+                                    ],
+                       "name":  "Food safety law, the Food Standards Code and the meaning of contamination",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXFSA005",
+                       "rationale":  "Both units carry the same account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the role of the local regulator. In a two-unit skill set delivered over four weeks a learner would meet that account twice in a month.",
+                       "teachingRule":  "SITXFSA006 names the specific requirement governing the handling task in front of the learner - a temperature, a holding time, a record - and cites the Code clause rather than re-summarising the Code.",
+                       "ownerBenchmark":  "A satisfactory answer defines a contaminant, contamination and a potentially hazardous food in the terms the Food Standards Code uses, names the Code and the state Food Act as the instruments, and states the role of the local enforcement agency.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F02"
+                                    ],
+                       "name":  "Consequences of failing to observe food safety law",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXFSA005",
+                       "rationale":  "Prosecution, closure, licence conditions and the personal liability of a food safety supervisor are one account of consequence. It belongs with the law it follows from.",
+                       "teachingRule":  "SITXFSA006 states the consequence attaching to its own specific breach and cites this topic for the general structure.",
+                       "ownerBenchmark":  "A satisfactory answer states the consequence for the customer, the business and the individual - food-borne illness, enforcement action, prosecution, penalty, closure and loss of reputation.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F03"
+                                    ],
+                       "name":  "Organisational hygiene and food safety procedures",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA005",
+                       "rationale":  "What the organisation\u0027s own hygiene and food safety procedures contain is the subject matter of SITXFSA005, and it is delivered first.",
+                       "teachingRule":  "SITXFSA006 follows the procedure and is assessed on following it, not on reciting what it contains.",
+                       "ownerBenchmark":  "A satisfactory answer states what the organisation hygiene and food safety procedures require of the individual - personal hygiene, hand washing, dress, reporting illness, handling practices - and what is done when a procedure cannot be followed.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   }
+               ]
 }

@@ -149,6 +149,12 @@ param(
     #  How the pack labels an assessed item. Derived from the contract's
     #  referenceConvention otherwise, then the documented default set.
     [string[]] $ItemLabel,
+    #  How the pack labels a PART inside an assessed item. Derived from the
+    #  contract's referenceConvention.partPattern otherwise, then a default
+    #  that recognises BOTH shipped conventions - "(a)" and "Part a." - through
+    #  named groups <p> and <rest>. A pattern with plain groups still works:
+    #  group 1 is the letter and group 2 the remainder of the stem.
+    [string] $PartRx,
     #  Token overlap at or above which two stems are the same question.
     [double] $StemOverlap,
     #  Also run the numeral arm within a single document. Off by default; the
@@ -166,6 +172,25 @@ $GATE = 'Assert-PackSelfConsistency'
 $script:Self = $PSCommandPath
 
 $DEFAULT_ITEM_LABEL  = @('Task', 'Question', 'Item', 'Activity', 'Observation')
+
+#  HOW A PACK LABELS A PART, and why this is a set rather than one pattern.
+#
+#  The item LABEL is derived from the contract's referenceConvention. The part
+#  form was not: it was hard-coded to '(a)' with no parameter to override it,
+#  and an RTO whose packs write 'Part a.' therefore parsed ZERO parts. That
+#  matters more than it sounds, because Read-PackDocument drops any item that
+#  carries no part - so on such a pack every item was dropped, itemsCompared
+#  came out 0, and the three family arms (question-text, missing-item,
+#  mapping) refused as a starved check-set. A blocking gate that cannot read
+#  an entire RTO's document family checks nothing for it.
+#
+#  Both forms are recognised now, through named groups so the alternation
+#  cannot renumber what the caller reads. This BROADENS what the gate can
+#  parse, which makes it stricter rather than looser: more parts found means
+#  more stems compared across the learner and assessor copies of a question.
+#  A pack that uses a third convention declares it in the contract at
+#  referenceConvention.partPattern, or passes -PartRx.
+$DEFAULT_PART_RX = '^\s*(?:\((?<p>[a-z])\)|Part\s+(?<p>[a-z])\s*[.):])\s*(?<rest>.*)$'
 $DEFAULT_STEM_OVERLAP = 0.85
 $MIN_MASK_WORDS      = 8      # a masked sentence shorter than this is not a claim
 $MIN_NOTE_CHARS      = 20     # a disposition note shorter than this is not a decision
@@ -333,9 +358,14 @@ function Read-PackDocument {
             elseif ($ln -match '(?i)\bknowledge evidence\s+(\d+)\b') { $cur.Ke.Add('KE' + $Matches[1]) }
         }
         if ($ln -match $PartRx) {
-            $p = $Matches[1].ToLowerInvariant()
+            #  NAMED groups, so an alternation across part conventions cannot
+            #  renumber what is read here. A caller supplying its own -PartRx
+            #  with plain groups still works: fall back to 1 and 2.
+            $pRaw = if ($Matches.Contains('p')) { $Matches['p'] } else { $Matches[1] }
+            $rest = if ($Matches.Contains('rest')) { $Matches['rest'] } else { $Matches[2] }
+            $p = "$pRaw".ToLowerInvariant()
             $acc = New-Object System.Collections.Generic.List[string]
-            $acc.Add($Matches[2])
+            $acc.Add($rest)
             $cur.Parts[$p] = [pscustomobject]@{ Part = $p; Line = $i + 1; Acc = $acc }
             continue
         }
@@ -810,7 +840,21 @@ else {
 }
 $labelSet = @($labels.ToArray() | Sort-Object -Unique)
 $itemRx = '^\s*(' + ((@($labelSet | ForEach-Object { [regex]::Escape($_) })) -join '|') + ')\s*(\d+)\b'
-$partRx = '^\s*\(([a-z])\)\s*(.*)$'
+
+# --- how the pack labels a PART, derived the same way the label is
+$partRx = $DEFAULT_PART_RX
+$partFrom = 'skill default (both the "(a)" and the "Part a." conventions)'
+if ($PSBoundParameters.ContainsKey('PartRx') -and $PartRx) {
+    $partRx = $PartRx
+    $partFrom = 'parameter'
+}
+elseif ($null -ne $contract) {
+    $rcp = Get-GateProp -Object $contract -Names @('referenceConvention')
+    if ($null -ne $rcp) {
+        $declared = Get-GateProp -Object $rcp -Names @('partPattern')
+        if ($declared) { $partRx = "$declared"; $partFrom = 'contract referenceConvention.partPattern' }
+    }
+}
 $respRx = '(?i)^\s*(?:student|learner)\s+response\b'
 
 $stemFloor = $DEFAULT_STEM_OVERLAP
@@ -868,9 +912,27 @@ if ($null -ne $grids) {
     foreach ($g in $gl) {
         if ($null -eq $g) { continue }
         $gd = [string](Get-GateProp -Object $g -Names @('doc', 'document') -Default '')
-        $gr = [string](Get-GateProp -Object $g -Names @('ref', 'id') -Default '')
-        $m = [regex]::Match($gr, '(\d+)\s*\(([a-z])\)')
-        if (-not $m.Success) { continue }
+        #  TRY BOTH NAMES, do not stop at the first that is non-empty.
+        #
+        #  Get-GateProp returns the FIRST name it resolves, so `ref` always won
+        #  and `id` was never read. A grid whose ref follows the pack's own
+        #  citation convention - "Task 2, Part a" here - then matched nothing,
+        #  every grid was skipped, and the count-vs-grid arm refused with
+        #  "grids.json carries no grid with a row count" over a file holding 31
+        #  of them. The id on the very same object reads
+        #  "SITHPAT020_UAT1_Knowledge Task 2(a)" and matches.
+        #
+        #  Neither field is the authority on the other; the arm just needs a
+        #  task number and a part letter, and it takes them from whichever
+        #  field carries them.
+        $m = $null
+        foreach ($nm in @('ref', 'id')) {
+            $cand = [string](Get-GateProp -Object $g -Names @($nm) -Default '')
+            if (-not $cand) { continue }
+            $try = [regex]::Match($cand, '(\d+)\s*\(([a-z])\)')
+            if ($try.Success) { $m = $try; break }
+        }
+        if ($null -eq $m -or -not $m.Success) { continue }
         $n = @(Get-GateProp -Object $g -Names @('labels', 'rows', 'items') -Default @()).Count
         if ($n -le 0) { continue }
         $gridRows[('{0}|{1}|{2}' -f (ConvertTo-GateNormal $gd), $m.Groups[1].Value, $m.Groups[2].Value.ToLowerInvariant())] = $n
@@ -1330,6 +1392,12 @@ if (-not $Quiet) {
     Write-Host ("  corpus : {0}  (classified from {1})" -f $corpusPath, $corpus.ClassifiedFrom) -ForegroundColor DarkGray
     Write-GateCheckSet -What 'pack documents' -Count $parsed.Count -DerivedFrom 'Lib-GateCommon Get-GateCorpusDocs'
     Write-GateCheckSet -What ('item label word(s): ' + ($labelSet -join ', ')) -Count $labelSet.Count -DerivedFrom $labelFrom
+    #  Print the PART convention beside the label convention. A gate that reads
+    #  zero parts drops every item and then refuses as a starved check-set,
+    #  which reads as "this pack has no questions" rather than "this gate
+    #  cannot parse this pack". Saying which pattern was used, and how many
+    #  parts it found, makes those two states tell themselves apart in the log.
+    Write-GateCheckSet -What ('part pattern: ' + $partRx) -Count 1 -DerivedFrom $partFrom
     Write-Host ("  families: {0}" -f ((@($families.ToArray() | ForEach-Object { '{0} [{1} doc(s)]' -f $_.Name, $_.Members.Count })) -join '; ')) -ForegroundColor DarkGray
     foreach ($o in $orphans) { Write-Host ("  ! {0} is assessor-facing and pairs with no learner-facing tool; nothing in the corpus can be compared against it." -f $o.Name) -ForegroundColor Yellow }
     Write-Host ("  stem overlap floor {0:P0} ({1}); grids: {2}; knowledge map: {3}" -f $stemFloor, $stemFrom, $gridsFrom, $keFrom) -ForegroundColor DarkGray

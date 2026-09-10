@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "MVC-BSB60420",
     "qualificationCode":  "BSB60420",
@@ -19,12 +19,48 @@
                       },
     "unitCount":  10,
     "deliveredCount":  10,
-    "priorCourse":  null,
+    "priorCourse":  "MVC-BSB50420",
     "sequencing":  {
-                       "model":  "sequence",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB60420 - Advanced Diploma of Leadership and Management.docx",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "Business planning and leadership practice",
+                                            "focus":  "Develop and implement a business plan while leading workplace communication and your own professional development.",
+                                            "weeks":  "1-16",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBOPS601",
+                                                          "BSBPEF501",
+                                                          "BSBXCM501"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Workforce and corporate responsibility strategy",
+                                            "focus":  "Contribute to learning and development, workforce planning and corporate social responsibility strategy for the organisation.",
+                                            "weeks":  "17-32",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBHRM613",
+                                                          "BSBSUS601",
+                                                          "BSBHRM614"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Innovation, change and organisational leadership",
+                                            "focus":  "Solve complex problems, drive innovation and continuous improvement, and lead organisational change from the top.",
+                                            "weeks":  "33-52",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBCRT611",
+                                                          "BSBSTR601",
+                                                          "BSBLDR601",
+                                                          "BSBLDR602"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
 
@@ -36,7 +72,7 @@
                       "title":  "Develop and implement business plans",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
@@ -51,7 +87,7 @@
                       "title":  "Manage personal and professional development",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
@@ -66,7 +102,7 @@
                       "title":  "Lead communication in the workplace",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
@@ -81,7 +117,7 @@
                       "title":  "Contribute to the development of learning and development strategies",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
@@ -96,7 +132,7 @@
                       "title":  "Lead corporate social responsibility",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
@@ -111,7 +147,7 @@
                       "title":  "Contribute to strategic workforce planning",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
@@ -126,7 +162,7 @@
                       "title":  "Apply critical thinking for complex problem solving",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  7,
                       "weeks":  null,
                       "prerequisites":  [
@@ -141,7 +177,7 @@
                       "title":  "Manage innovation and continuous improvement",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  8,
                       "weeks":  null,
                       "prerequisites":  [
@@ -156,7 +192,7 @@
                       "title":  "Lead and manage organisational change",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  9,
                       "weeks":  null,
                       "prerequisites":  [
@@ -171,7 +207,7 @@
                       "title":  "Provide leadership across the organisation",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  3,
                       "sequence":  10,
                       "weeks":  null,
                       "prerequisites":  [
@@ -221,15 +257,28 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS BSB60420 - Advanced Diploma of Leadership and Management.docx",
-                   "tasSha256":  "1520B83E0E9FFD6239969DEE11BA38D094883982669296F3DECEDD4B3CADDF49",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\MVC-BSB60420.docx",
+                   "tasSha256":  "5537E98C4A8C807142B930EF0917AE527811433CBBD029BE8ECD51BD6F30292C",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:44Z"
+                   "generatedUtc":  "2026-09-08T00:41:44Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "52 weeks including 4 weeks term break. All 10 units delivered."
               ],
     "openItems":  [
 
-                  ]
+                  ],
+    "pathway":  {
+                    "role":  "addOn",
+                    "priorCourses":  [
+                                         "MVC-BSB50420"
+                                     ],
+                    "leadsTo":  [
+
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

@@ -817,7 +817,10 @@ function Invoke-TrmScan {
     if ($null -ne $Contract -and $null -ne (Get-GateProp -Object $Contract -Names @('terminology'))) { $lockedDeclaredIn.Add('contract.json terminology') }
     if ($null -ne $RtoProfile -and $null -ne (Get-GateProp -Object $RtoProfile -Names @('lockedTerminology'))) { $lockedDeclaredIn.Add('the RTO profile lockedTerminology block') }
     $lockedInput = if ($lockedDeclaredIn.Count -gt 0) { ($lockedDeclaredIn.ToArray() -join ' + ') } else { 'contract.json terminology / rto-profile lockedTerminology (neither is declared)' }
-    $lockedFrom = if (@($locked.Sources).Count -gt 0) { (@($locked.Sources) -join ' + ') } else { 'no locked-terminology source was readable' }
+    #  Get-GateCount, not @($x).Count: @($null).Count is 1 in PS 5.1, so an
+    #  absent Sources property counted 1 and this printed an empty join as the
+    #  provenance of the locked terms - a source line that named nothing.
+    $lockedFrom = if ((Get-GateCount -Value $locked.Sources) -gt 0) { (@($locked.Sources) -join ' + ') } else { 'no locked-terminology source was readable' }
 
     if ($Announce -and -not $Quiet) {
         Write-Host ''
@@ -1024,7 +1027,11 @@ function Invoke-TrmScan {
     # -- 6. truncation and chip counts ---------------------------------------
     foreach ($c in $cells) {
         $txt = [string]$c.Text
-        if ($txt -match '(?i)\band\s+\d+\s+more\b' -or $txt -match '\.\.\.\s*$' -or $txt -match ('[\u' + '2026]\s*$')) {
+        #  The ellipsis is tested as a CHARACTER, not as a regex assembled at
+        #  run time from two string halves: a pattern built by concatenation is
+        #  invisible to every static reader of this file, and [char]0x2026 is
+        #  how the rest of this scripts folder names a non-ASCII character.
+        if ($txt -match '(?i)\band\s+\d+\s+more\b' -or $txt -match '\.\.\.\s*$' -or $txt.TrimEnd().EndsWith([string][char]0x2026)) {
             Add-TrmFinding -Rule 'truncation' -Level 'BLOCK' -Cell $c -Detail 'a truncation pattern reached the page'
         }
     }
@@ -1209,7 +1216,11 @@ function Invoke-TrmScan {
     #  reports 0 findings over a non-empty set is distinguishable from an arm
     #  that never looked.
     $all = $script:Findings.ToArray()
-    function Get-TrmArmFindings { param([string[]] $Rules) return @($all | Where-Object { $r = [string]$_.Rule; @($Rules | Where-Object { $r -eq $_ -or $r -like ($_ + '/*') }).Count -gt 0 }).Count }
+    #  A sub-rule is 'owner/detail', so the prefix test is a literal StartsWith
+    #  on 'owner/' rather than a -like whose wildcard the rule name itself gets
+    #  to write: a rule named with a [ or a * would have decided what this arm
+    #  counted, and an arm's finding count is what a runner reports.
+    function Get-TrmArmFindings { param([string[]] $Rules) return @($all | Where-Object { $r = [string]$_.Rule; @($Rules | Where-Object { $r -eq $_ -or $r.StartsWith(($_ + '/'), [System.StringComparison]::OrdinalIgnoreCase) }).Count -gt 0 }).Count }
 
     Complete-GateArm -Name 'spine-cells' -State 'ran' -Size $cells.Count -Findings $all.Count
     if ($naLocked) { Complete-GateArm -Name 'locked-terms' -State 'declared-n-a' -Reason $naLocked }

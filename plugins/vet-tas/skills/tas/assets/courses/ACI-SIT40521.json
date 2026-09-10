@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "ACI-SIT40521",
     "qualificationCode":  "SIT40521",
@@ -18,13 +18,50 @@
                           "elective":  6
                       },
     "unitCount":  33,
-    "deliveredCount":  10,
+    "deliveredCount":  11,
     "priorCourse":  "ACI-SIT30821",
     "sequencing":  {
-                       "model":  "sequence",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\Training-and-Assessment-Strategy SIT40521 Certificate IV in Kitchen Management.docx",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "Leading a diverse kitchen team",
+                                            "focus":  "Lead and develop a mixed brigade, build an inclusive section culture and handle conflict.",
+                                            "weeks":  "1-8",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "BSBTWK501",
+                                                          "SITXHRM009",
+                                                          "SITXCOM010"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Operations, budgets and rostering",
+                                            "focus":  "Monitor day-to-day operations, work to a wage and food budget, build rosters and keep WHS practices in place.",
+                                            "weeks":  "9-18",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXWHS007",
+                                                          "SITXFIN009",
+                                                          "SITXMGT004",
+                                                          "SITXHRM008"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  3,
+                                            "name":  "Food safety, menus and special diets",
+                                            "focus":  "Write and monitor a food safety program, plan cooking operations, design and cost a menu, and develop recipes for special dietary requirements.",
+                                            "weeks":  "19-30",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXFSA008",
+                                                          "SITHKOP012",
+                                                          "SITHKOP013",
+                                                          "SITHKOP015"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
 
@@ -238,8 +275,8 @@
                       "title":  "Develop recipes for special dietary requirements",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
-                      "sequence":  8,
+                      "cluster":  3,
+                      "sequence":  9,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITHCCC027",
@@ -256,8 +293,8 @@
                       "title":  "Plan cooking operations",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
-                      "sequence":  9,
+                      "cluster":  3,
+                      "sequence":  10,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITXFSA005"
@@ -271,8 +308,8 @@
                       "title":  "Design and cost menus",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
-                      "sequence":  10,
+                      "cluster":  3,
+                      "sequence":  11,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITHKOP010"
@@ -301,7 +338,7 @@
                       "title":  "Manage conflict",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
@@ -316,7 +353,7 @@
                       "title":  "Manage finances within a budget",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
@@ -361,8 +398,8 @@
                       "title":  "Develop and implement a food safety program",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
-                      "sequence":  7,
+                      "cluster":  3,
+                      "sequence":  8,
                       "weeks":  null,
                       "prerequisites":  [
                                             "SITXFSA005",
@@ -377,8 +414,8 @@
                       "title":  "Roster staff",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
-                      "sequence":  1,
+                      "cluster":  2,
+                      "sequence":  7,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -392,7 +429,7 @@
                       "title":  "Lead and manage people",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  1,
                       "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
@@ -422,7 +459,7 @@
                       "title":  "Monitor work operations",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
@@ -437,7 +474,7 @@
                       "title":  "Implement and monitor work health and safety practices",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
@@ -496,21 +533,6 @@
                       "releaseCurrency":  "current"
                   },
                   {
-                      "code":  "SITXHRM007",
-                      "title":  "Coach others in job skills",
-                      "designation":  "Elective",
-                      "deliveryStatus":  "credit-transfer",
-                      "cluster":  null,
-                      "sequence":  null,
-                      "weeks":  null,
-                      "prerequisites":  [
-
-                                        ],
-                      "status":  "current",
-                      "statusLabel":  "Current",
-                      "releaseCurrency":  "current"
-                  },
-                  {
                       "code":  "SITXWHS006",
                       "title":  "Identify hazards, assess and control safety risks",
                       "designation":  "Elective",
@@ -526,15 +548,30 @@
                       "releaseCurrency":  "current"
                   },
                   {
-                      "code":  "SITHCCC025",
-                      "title":  "Prepare and present sandwiches",
+                      "code":  "BSBTWK501",
+                      "title":  "Lead diversity and inclusion",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "delivered",
+                      "cluster":  1,
+                      "sequence":  1,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXINV007",
+                      "title":  "Purchase goods",
                       "designation":  "Elective",
                       "deliveryStatus":  "credit-transfer",
                       "cluster":  null,
                       "sequence":  null,
                       "weeks":  null,
                       "prerequisites":  [
-                                            "SITXFSA005"
+
                                         ],
                       "status":  "current",
                       "statusLabel":  "Current",
@@ -551,16 +588,29 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\Training-and-Assessment-Strategy SIT40521 Certificate IV in Kitchen Management.docx",
-                   "tasSha256":  "7586FDE8DEDBF177B92930DE852A6B94CFC88FBD8E7DE3CF048E7F49C16D4134",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\ACI-SIT40521.docx",
+                   "tasSha256":  "B3C89A4759DF9D7435C10516A4A51C6C6BDF7F16C33999815AF26F1AB222B3A4",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:43Z"
+                   "generatedUtc":  "2026-09-08T00:41:43Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "TEN OF THE THIRTY-THREE UNITS ARE DELIVERED. The other 23 arrive by credit transfer from SIT30821, which the TAS states learners hold on entry along with 48 completed service periods.",
                   "ACI AND MERIDIAN DISAGREE ON THE ELECTIVES HERE. ACI carries SITHCCC025, SITHKOP012 and SITXHRM007; Meridian carries BSBTWK501 and SITXINV007 instead. That is why the two institutes hold separate records - a different elective set changes which unit owns a shared topic."
               ],
     "openItems":  [
-
-                  ]
+                      "HARMONISED TO MERIDIAN, 8 SEPTEMBER 2026 - RTO DECISION: where a qualification is delivered by both institutes the unit set follows Meridian, and only the branding differs. This course dropped SITXHRM007 Coach others in job skills and SITHCCC025 Prepare and present sandwiches, and took on BSBTWK501 Lead diversity and inclusion (delivered) and SITXINV007 Purchase goods (credit transfer). CONFIRM BSBTWK501 AND SITXINV007 ARE ON RTO 45797 SCOPE OF REGISTRATION before the next intake, and correct the TAS unit table. BSBTWK501 is delivered, so it needs an assessment tool and learner guide."
+                  ],
+    "pathway":  {
+                    "role":  "addOn",
+                    "priorCourses":  [
+                                         "ACI-SIT30821"
+                                     ],
+                    "leadsTo":  [
+                                    "ACI-SIT50422"
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

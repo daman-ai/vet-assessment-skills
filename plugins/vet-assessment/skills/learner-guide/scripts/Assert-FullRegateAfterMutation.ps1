@@ -1271,8 +1271,13 @@ if (-not $OutPath) { $OutPath = Join-Path $BuildDir 'full-regate-report.json' }
 Write-Report -Result $result -Path $OutPath -BuildDir $BuildDir
 Write-Line ("  report: {0}" -f $OutPath)
 
-if (@($result.Blocking).Count -gt 0) {
-    Write-Line ("FULL RE-GATE FAIL - {0} blocking finding(s)" -f @($result.Blocking).Count) 'Red'
+#  Get-GateCount, not @($result.Blocking).Count: @($null).Count is 1 in PS
+#  5.1, so a result object that never carried a Blocking property would count
+#  ONE blocking finding and this gate would fail a clean build with nothing to
+#  name. Counted once, and the count printed is the count that decided.
+$blockingCount = Get-GateCount -Value $result.Blocking
+if ($blockingCount -gt 0) {
+    Write-Line ("FULL RE-GATE FAIL - {0} blocking finding(s)" -f $blockingCount) 'Red'
     exit 1
 }
 Write-Line 'FULL RE-GATE PASS - every implemented gate in the 7c set postdates the last mutation, and every planned slot carries exactly one caption' 'Green'

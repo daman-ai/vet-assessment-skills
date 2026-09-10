@@ -306,7 +306,18 @@ function Get-UtcNow { return (Get-Date).ToUniversalTime().ToString('o') }
 #    fixtures harness's verdict on it (discrimination proof)
 # ---------------------------------------------------------------------------
 
-$script:ValidGateStages = @('1', '2', '3c', '4', '7c')
+#  The stages a GATE HEADER may name. This is the vocabulary of the whole
+#  pipeline, not the set of bands THIS runner drives - the two are different
+#  and conflating them turned a correct header into a reported problem.
+#
+#  '0' is a real stage with a real runner: Invoke-Stage0 plans
+#  Assert-GateFixtures as a Stage 0 member, so that gate's header rightly
+#  declares stages=0,1,2,3c,4,7c. Reading '0' as unknown printed a header
+#  problem against a correct declaration on every single band run.
+#
+#  Run-SpineGates still only ACCEPTS -Stage 1, 2 or 3c; '0' is parsed and
+#  understood here so a header can be honest about a band another runner owns.
+$script:ValidGateStages = @('0', '1', '2', '3c', '4', '7c')
 
 function Get-GateHeader {
     <#  Parse the one header line a gate script carries, exactly:
@@ -639,8 +650,12 @@ function New-GateEntry {
             if (-not $header.Found) { $reports += 'no GATE header (treated as stages=3c until the header lands)' }
             else {
                 foreach ($p in @($header.Problems)) { $reports += ("GATE header problem: {0} (header: '{1}')" -f $p, $header.Raw) }
-                if ($RosterMember -and $Stage -eq '3c' -and @($header.Stages).Count -gt 0 -and @($header.Stages) -notcontains '3c') {
-                    $Refused = ("GATE header declares stages={0} without 3c, but this runner's 3c roster names it. A member cannot leave the band by editing its own header - reconcile the roster or the header." -f (@($header.Stages) -join ','))
+                #  TWO statements, never `$x = if (..) { @(..) }`: a one-element
+                #  array on the output of an if unrolls to the element itself.
+                $headerStages = @()
+                if ($null -ne $header.Stages) { $headerStages = @($header.Stages) }
+                if ($RosterMember -and $Stage -eq '3c' -and $headerStages.Count -gt 0 -and $headerStages -notcontains '3c') {
+                    $Refused = ("GATE header declares stages={0} without 3c, but this runner's 3c roster names it. A member cannot leave the band by editing its own header - reconcile the roster or the header." -f ($headerStages -join ','))
                 }
                 foreach ($n in (Get-HeaderRequirement -Header $header -Stage $Stage)) { if ($must -notcontains $n) { $must += $n } }
             }
@@ -798,8 +813,32 @@ function New-SpineGatePlan {
     function Existing { param([string] $p) if ($p -and (Test-Path -LiteralPath $p)) { return $p } return $null }
 
     if ($stage -ne '3c') {
+        $seedFixturesDir = Join-Path $In.BuildDir 'fixtures'
         foreach ($n in (Get-HeaderDeclaredMember -SkillDir $In.SkillDir -Stage $stage)) {
             $looked = @{}
+
+            #  THE FIXTURES HARNESS IS WIRED THE SAME WAY IN EVERY BAND.
+            #
+            #  gates.md's stage table declares it a member of 0, 1, 2, 3c, 4
+            #  and 7c, and its own header says so too - but only the 3c plan
+            #  below hand-wired the three inputs it needs. A seed band handed
+            #  it New-GenericWant and -Must BuildDir instead, which is wrong
+            #  twice over: it has no -BuildDir want to give (and must not,
+            #  because -BuildDir is what starts the plant channel, a background
+            #  job that is never a band member), and it never threaded
+            #  -StaticOnly, which the gate requires. So the member was REFUSED
+            #  by name and the whole Stage 1 band FAILED on it - over a gate
+            #  whose two real members had both just passed.
+            #
+            #  Same want, same must, same reasoning as the 3c entry: a copy
+            #  without -StaticOnly is refused, because a full run inside a band
+            #  would enumerate the band again.
+            if ($n -eq 'Assert-GateFixtures') {
+                $wf = [ordered]@{ SkillDir = $In.SkillDir; StaticOnly = $true; ResultDir = $seedFixturesDir }
+                $plan.Add((New-GateEntry -Name $n -Title ("GATE FIXTURES, static arms (stage {0} seed arm)" -f $stage) -Script (S $n) -Phase 1 -Want $wf -Must @('SkillDir', 'StaticOnly', 'ResultDir') -Stage $stage -Looked $looked))
+                continue
+            }
+
             $w = New-GenericWant -In $In -Name $n -Stage $stage -Looked $looked
             $plan.Add((New-GateEntry -Name $n -Title ("{0} (stage {1} seed arm)" -f $n.ToUpperInvariant(), $stage) -Script (S $n) -Phase 1 -Want $w -Must @('BuildDir') -Stage $stage -Looked $looked))
         }
@@ -997,7 +1036,9 @@ function Get-ThreadedParameterLine {
         $parts = @()
         foreach ($k in $e.Args.Keys) { $parts += ("-{0}={1}" -f $k, (Format-ArgValue $e.Args[$k])) }
         $line = "{0}: {1}" -f $e.Name, ($parts -join ' ')
-        if (@($e.Dropped).Count -gt 0) { $line += ("   [not accepted by this copy, dropped: {0}]" -f (@($e.Dropped) -join ', ')) }
+        $dropped = @()
+        if ($null -ne $e.Dropped) { $dropped = @($e.Dropped) }
+        if ($dropped.Count -gt 0) { $line += ("   [not accepted by this copy, dropped: {0}]" -f ($dropped -join ', ')) }
         $out.Add($line)
     }
     return $out
@@ -1067,10 +1108,15 @@ function Add-ArmRosterToResult {
     $ro = ConvertFrom-ArmRosterText -Text $Result.Text -Evidence $Evidence
     $Result.Arms = @($ro.Arms)
     $Result.ArmLines = @($ro.Lines)
-    $Result.ArmsBlockingNotRun = @($ro.BlockingNotRun)
+    #  TWO statements, never `$x = if (..) { @(..) }`: a one-element array on
+    #  the output of an if unrolls to the element, and this one is written
+    #  straight back onto the result, where the shape has to stay a list.
+    $blockingNotRun = @()
+    if ($null -ne $ro.BlockingNotRun) { $blockingNotRun = @($ro.BlockingNotRun) }
+    $Result.ArmsBlockingNotRun = $blockingNotRun
     $Result.ArmProblems = @($ro.Problems)
-    if (@($ro.BlockingNotRun).Count -gt 0) {
-        $why = ("arm not run: {0}" -f (@($ro.BlockingNotRun) -join ', '))
+    if ($blockingNotRun.Count -gt 0) {
+        $why = ("arm not run: {0}" -f ($blockingNotRun -join ', '))
         $Result.Ok = $false
         $Result.Reason = $(if ($Result.Reason) { $Result.Reason + '; ' + $why } else { $why })
     }
@@ -2296,9 +2342,9 @@ $plantLine = switch ($plantPlan.Action) {
 }
 Write-Host ("  {0}" -f $plantLine) -ForegroundColor $(if ($plantPlan.Action -eq 'start' -and -not $plantStart.Started) { 'Red' } else { 'DarkGray' })
 if ($proof.Found -and $unproven.Count -gt 0) { Write-Host ("  UNPROVEN by the fixtures report: {0}" -f ($unproven -join ', ')) -ForegroundColor Yellow }
-$armFails = @($gateRecords | Where-Object { @($_.armsBlockingNotRun).Count -gt 0 })
+$armFails = @($gateRecords | Where-Object { (Get-GateCount -Value $_.armsBlockingNotRun) -gt 0 })
 foreach ($g in $armFails) { Write-Host ("  X {0}: blocking arm(s) never ran: {1}" -f $g.name, (@($g.armsBlockingNotRun) -join ', ')) -ForegroundColor Red }
-foreach ($g in ($gateRecords | Where-Object { @($_.armProblems).Count -gt 0 })) { foreach ($p in @($g.armProblems)) { Write-Host ("  ! {0}: {1}" -f $g.name, $p) -ForegroundColor Yellow } }
+foreach ($g in ($gateRecords | Where-Object { (Get-GateCount -Value $_.armProblems) -gt 0 })) { foreach ($p in @($g.armProblems)) { Write-Host ("  ! {0}: {1}" -f $g.name, $p) -ForegroundColor Yellow } }
 if ($slowest) {
     Write-Host ("  slowest gate: {0} at {1}s" -f $slowest.name, $slowest.seconds) -ForegroundColor DarkGray
     Write-Host ("  band wall clock {0}s against {1}s if the gates had run one after another ({2} of the sum)" -f $wall, [math]::Round($sumSeconds, 1), $(if ($sumSeconds -gt 0) { ('{0:P0}' -f ($wall / $sumSeconds)) } else { 'n/a' })) -ForegroundColor DarkGray

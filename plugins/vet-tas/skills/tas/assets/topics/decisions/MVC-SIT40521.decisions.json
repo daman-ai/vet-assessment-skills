@@ -1,39 +1,55 @@
-{
-  "_comment": "AUTHORED OWNERSHIP DECISIONS for the Meridian delivery of SIT40521. Every family in families/MVC-SIT40521.families.json appears exactly once below.",
-  "courseId": "MVC-SIT40521",
-  "_deliveredNote": "Ten units delivered on advanced standing, in the order BSBTWK501, SITXHRM009, SITXCOM010, SITXWHS007, SITXFIN009, SITXMGT004, SITXHRM008, SITXFSA008, SITHKOP013, SITHKOP015. The rest arrive by credit transfer from SIT30821. MERIDIAN AND ACI DIVERGE HERE: Meridian delivers BSBTWK501 Lead diversity and inclusion, which does not appear anywhere in ACI's 33-unit list, and ACI delivers SITHKOP012 Develop recipes for special dietary requirements, which Meridian does not. The two registers are genuinely different documents, not copies.",
-  "topics": [
-    {
-      "families": ["F02"],
-      "name": "Organisational diversity policy",
-      "kind": "shared-scaffold",
-      "owner": "BSBTWK501",
-      "rationale": "BSBTWK501 Lead diversity and inclusion opens the course and is the unit whose entire subject this is. SITXHRM009 Lead and manage people, delivered second, needs the same policy as the frame for recruitment, rostering and performance conversations. THIS TOPIC EXISTS ONLY IN THE MERIDIAN REGISTER - ACI does not carry BSBTWK501 at all, so its kitchen-management learners meet diversity policy nowhere in this qualification.",
-      "teachingRule": "SITXHRM009 applies the policy to a team situation - allocating work fairly, adjusting for a cultural or religious requirement, handling a complaint of exclusion - and cites BSBTWK501 for the policy itself and the legislation behind it."
-    },
-    {
-      "families": ["F01"],
-      "name": "Consequences of failing to observe WHS and food safety law",
-      "kind": "regulatory-recall",
-      "owner": "SITXWHS007",
-      "rationale": "SITXWHS007 Implement and monitor work health and safety practices is delivered fourth and carries the legislative frame - duty of care, penalties, prosecution, the regulator. SITXFSA008 restates the same consequence structure for food safety law four units later. One account of what happens when a duty holder fails is also one account an auditor has to reconcile.",
-      "teachingRule": "SITXFSA008 names the Food Standards Code and the state food authority as its own instrument and regulator, and cites SITXWHS007 for the general structure of duty, breach and penalty."
-    },
-    {
-      "families": ["F03"],
-      "name": "Food production records",
-      "kind": "shared-scaffold",
-      "owner": "SITXFSA008",
-      "rationale": "SITXFSA008 Develop and implement a food safety program is delivered eighth and SITHKOP013 Plan cooking operations ninth. The record is the same document; in the food safety program it is evidence of control, in cooking operations it is a planning input. It is designed once, where it is designed.",
-      "teachingRule": "SITHKOP013 does not re-teach the record's format or its retention period. It teaches reading yesterday's record to plan today's production."
-    },
-    {
-      "families": ["F04"],
-      "name": "Hazard identification and control at critical control points",
-      "kind": "shared-scaffold",
-      "owner": "SITXFSA008",
-      "rationale": "HACCP is the subject matter of SITXFSA008 and nothing else in this course teaches it. SITHKOP013 schedules production around the control points that unit establishes.",
-      "teachingRule": "SITHKOP013 assumes the critical control points are known and teaches sequencing production so cooling, holding and reheating windows are not breached."
-    }
-  ]
+﻿{
+    "_comment":  "AUTHORED OWNERSHIP DECISIONS for the Meridian delivery of SIT40521. Every family in families/MVC-SIT40521.families.json appears exactly once below.",
+    "courseId":  "MVC-SIT40521",
+    "_deliveredNote":  "Ten units delivered on advanced standing, in the order BSBTWK501, SITXHRM009, SITXCOM010, SITXWHS007, SITXFIN009, SITXMGT004, SITXHRM008, SITXFSA008, SITHKOP013, SITHKOP015. The rest arrive by credit transfer from SIT30821. MERIDIAN AND ACI DIVERGE HERE: Meridian delivers BSBTWK501 Lead diversity and inclusion, which does not appear anywhere in ACI\u0027s 33-unit list, and ACI delivers SITHKOP012 Develop recipes for special dietary requirements, which Meridian does not. The two registers are genuinely different documents, not copies.",
+    "topics":  [
+                   {
+                       "families":  [
+                                        "F02"
+                                    ],
+                       "name":  "Organisational diversity policy",
+                       "kind":  "shared-scaffold",
+                       "owner":  "BSBTWK501",
+                       "rationale":  "BSBTWK501 Lead diversity and inclusion opens the course and is the unit whose entire subject this is. SITXHRM009 Lead and manage people, delivered second, needs the same policy as the frame for recruitment, rostering and performance conversations. THIS TOPIC EXISTS ONLY IN THE MERIDIAN REGISTER - ACI does not carry BSBTWK501 at all, so its kitchen-management learners meet diversity policy nowhere in this qualification.",
+                       "teachingRule":  "SITXHRM009 applies the policy to a team situation - allocating work fairly, adjusting for a cultural or religious requirement, handling a complaint of exclusion - and cites BSBTWK501 for the policy itself and the legislation behind it.",
+                       "ownerBenchmark":  "A satisfactory answer states what the diversity policy requires of the team, how it is applied in allocating work and in recruitment, and what behaviour breaches it.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F01"
+                                    ],
+                       "name":  "Consequences of failing to observe WHS and food safety law",
+                       "kind":  "regulatory-recall",
+                       "owner":  "SITXWHS007",
+                       "rationale":  "SITXWHS007 Implement and monitor work health and safety practices is delivered fourth and carries the legislative frame - duty of care, penalties, prosecution, the regulator. SITXFSA008 restates the same consequence structure for food safety law four units later. One account of what happens when a duty holder fails is also one account an auditor has to reconcile.",
+                       "teachingRule":  "SITXFSA008 names the Food Standards Code and the state food authority as its own instrument and regulator, and cites SITXWHS007 for the general structure of duty, breach and penalty.",
+                       "ownerBenchmark":  "A satisfactory answer states the consequence of failure for the worker, the customer, the business and the individual manager - including illness, enforcement action, prosecution, penalty and loss of licence.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F03"
+                                    ],
+                       "name":  "Food production records",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA008",
+                       "rationale":  "SITXFSA008 Develop and implement a food safety program is delivered eighth and SITHKOP013 Plan cooking operations ninth. The record is the same document; in the food safety program it is evidence of control, in cooking operations it is a planning input. It is designed once, where it is designed.",
+                       "teachingRule":  "SITHKOP013 does not re-teach the record\u0027s format or its retention period. It teaches reading yesterday\u0027s record to plan today\u0027s production.",
+                       "ownerBenchmark":  "A satisfactory answer identifies the production records the food safety programme requires, states what each captures and how often, and what is done when a record shows a deviation.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   },
+                   {
+                       "families":  [
+                                        "F04"
+                                    ],
+                       "name":  "Hazard identification and control at critical control points",
+                       "kind":  "shared-scaffold",
+                       "owner":  "SITXFSA008",
+                       "rationale":  "HACCP is the subject matter of SITXFSA008 and nothing else in this course teaches it. SITHKOP013 schedules production around the control points that unit establishes.",
+                       "teachingRule":  "SITHKOP013 assumes the critical control points are known and teaches sequencing production so cooling, holding and reheating windows are not breached.",
+                       "ownerBenchmark":  "A satisfactory answer identifies the hazard at each step, determines which steps are critical control points, states the critical limit and the monitoring for each, and the corrective action when a limit is breached.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert"
+                   }
+               ]
 }

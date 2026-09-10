@@ -149,12 +149,78 @@ if (-not $BrandingDir -or -not (Test-Path -LiteralPath $BrandingDir)) {
 # 2. Derive the forbidden set
 # ---------------------------------------------------------------------------
 
+function Get-IdentityFieldName {
+    <#  THE IDENTITY FIELD NAMES, READ OFF THE SCHEMA THAT DECLARES THEM.
+
+        assets\rto-profile.schema.json holds identityFields - the buckets
+        (required, optional) whose members are every identity string a
+        delivered artefact can carry, and therefore every string another
+        brand's profile makes forbidden in this one. Lib-RtoProfile derives
+        the same set from the same place, so the validator and this sweep
+        cannot disagree about what an identity string IS.
+
+        The buckets are ENUMERATED rather than named one by one: a bucket
+        added to the schema is swept here without editing this file. A list of
+        field names typed into a gate is a second source of truth, and three of
+        nine palette hexes typed by hand is how a sweep printed "no crossover"
+        over 766 live occurrences.
+
+        Returns All (every bucket, de-duplicated, in schema order), Required
+        (the bucket a package must actually CARRY) and Path.  #>
+    [CmdletBinding()]
+    param([Parameter(Mandatory)][string] $SchemaPath)
+
+    $schema = Get-GateJson -Path $SchemaPath
+    if ($null -eq $schema) {
+        throw ("$GATE`: no RTO profile schema at {0}. The identity field names are DERIVED from its identityFields declaration; a gate that fell back on its own typed list would be free to drift from the validator that uses the schema." -f $SchemaPath)
+    }
+    $decl = Get-GateProp -Object $schema -Names @('identityFields') -Required -What 'identity field list (identityFields)'
+    $all = New-Object System.Collections.Generic.List[string]
+    foreach ($bucket in @($decl.PSObject.Properties)) {
+        if ($bucket.Name -like '_*') { continue }
+        foreach ($n in @($bucket.Value)) {
+            $nm = "$n".Trim()
+            if ($nm -and -not $all.Contains($nm)) { $all.Add($nm) }
+        }
+    }
+    $req = New-Object System.Collections.Generic.List[string]
+    foreach ($n in @(Get-GateProp -Object $decl -Names @('required') -Required -What 'required identity field list (identityFields.required)')) {
+        $nm = "$n".Trim()
+        if ($nm -and -not $req.Contains($nm)) { $req.Add($nm) }
+    }
+    return [pscustomobject]@{ All = $all.ToArray(); Required = $req.ToArray(); Path = $SchemaPath }
+}
+
+$schemaPath = Join-Path $SkillDir 'assets\rto-profile.schema.json'
+$idFields = Get-IdentityFieldName -SchemaPath $schemaPath
+
+#  THE MARKS A DELIVERED ARTEFACT ACTUALLY PRINTS - the trading name and the
+#  two provider codes, which is what a cover, a running head, a footer and a
+#  title slide carry. A package free of every brand is a swap that never ran,
+#  and this is the set that proves it did.
+#
+#  THIS IS NOT identityFields.required AND MUST NOT BE DERIVED FROM IT. That
+#  bucket declares what a BRANDING PROFILE must contain for the pack to
+#  validate; it is not a claim about what a document prints. It carries
+#  legalEntity, whose value for this brand is a Pty Ltd trading-as name that
+#  appears in no delivered guide and on no slide. Deriving this set from it was
+#  tried on 10 September 2026 and this gate's own self-test failed at exit 3 -
+#  "this package does not carry the build brand at all" - over a deck
+#  Set-DeckBrand had just normalised correctly. No file on disk carries the
+#  set "identity strings a delivered artefact must print", so this one is the
+#  gate's own, and it is recorded as a refutation against GH02 in
+#  assets\gate-hygiene.reclassified.json rather than derived from a set that
+#  means something else.
+$presenceFields = @('tradingName', 'rtoCode', 'cricosCode')
+
 function Get-IdentityString {
-    <# Every identity string an object carries, under any of the known names. #>
+    <#  Every identity string an object carries, under any of the known names.
+        The names come from the schema (see Get-IdentityFieldName), never from
+        a list typed here.  #>
     param($Rto)
     $out = New-Object System.Collections.Generic.List[string]
     if ($null -eq $Rto) { return $out }
-    foreach ($n in @('tradingName', 'legalEntity', 'rtoCode', 'cricosCode', 'website', 'domain', 'email', 'address', 'phone', 'shortName')) {
+    foreach ($n in $idFields.All) {
         $v = Get-GateProp -Object $Rto -Names @($n)
         if ($v -and "$v".Trim().Length -ge 4) { $out.Add("$v".Trim()) }
     }
@@ -252,6 +318,14 @@ Register-GateArm -Name 'palette-hexes' -Blocking:(-not $ciNa.ContainsKey('palett
 Register-GateArm -Name 'artefacts' -Blocking
 
 try {
+    #  BOTH DERIVED SETS SAY WHERE THEY CAME FROM AND HOW BIG THEY ARE, and
+    #  they print on every run, quiet or not. The field names below are what
+    #  the word half of this sweep reads out of every profile on disk, and the
+    #  required half is what every delivered package must still carry: a hex
+    #  or a field name typed into a gate is the second source of truth that
+    #  printed "no crossover" over 766 live occurrences.
+    Write-GateCheckSet -What 'identity field name(s) read from every brand profile' -Count @($idFields.All).Count -DerivedFrom ('identityFields in ' + (Split-Path -Leaf $idFields.Path)) -Blocking -Input ($idFields.Path + ' - identityFields declares no field name, so every profile on disk would be read for nothing and the forbidden word set would be empty')
+    Write-GateCheckSet -What 'identity field(s) every delivered package must PRINT' -Count @($presenceFields).Count -DerivedFrom "this gate's own cover/footer identity set - see the note at its declaration for why it is NOT identityFields.required" -Blocking -Input 'the presence set: with no field in it a package could be free of every brand and still pass, which is a swap that never ran'
     if ($ciNa.ContainsKey('identity-strings')) { Complete-GateArm -Name 'identity-strings' -State 'declared-n-a' -Reason $ciNa['identity-strings'] }
     else {
         Write-GateCheckSet -What 'identity strings' -Count $forbidWords.Count -DerivedFrom ("{0} brand profile(s) in {1}, minus every string this brand carries" -f $profilesRead, (Split-Path $BrandingDir -Leaf)) -Blocking -Input ('the brand profiles under {0}: no OTHER brand''s identity string could be derived, so the word half of this sweep would examine nothing' -f $BrandingDir)
@@ -373,7 +447,7 @@ foreach ($file in $Path) {
         # --- THIS brand, where it must be. A package can be free of the other
         #     brand by being free of every brand: that is a swap that never ran.
         $wanted = @()
-        foreach ($n in @('tradingName', 'rtoCode', 'cricosCode')) {
+        foreach ($n in $presenceFields) {
             $v = $null
             if ($Variant -and $branding.variants -and $branding.variants.PSObject.Properties.Name -contains $Variant) {
                 $v = Get-GateProp -Object $branding.variants.$Variant -Names @($n)

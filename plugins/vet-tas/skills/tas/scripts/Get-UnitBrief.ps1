@@ -83,11 +83,27 @@ if ($course.priorCourse) {
 }
 
 $blockers = @()
-if ($rec.status -ne 'current') { $blockers += "$Unit is $($rec.statusLabel) on training.gov.au. Do not build against it - transition to the superseding unit first." }
+$deferred = @()
+# A superseded unit normally stops the build. The exception is a unit the QUALIFICATION
+# still names in its packaging rules, where a decision to keep delivering it is recorded
+# on the unit and has not yet lapsed - then the build proceeds against the superseded
+# unit, which is what the qualification requires, and the brief says so out loud.
+if ($rec.status -ne 'current') {
+    $sup = $cu.supersession
+    $live = $sup -and $sup.decision -eq 'continue-delivery' -and $sup.reviewBy -and
+            ([datetime]::Parse($sup.reviewBy) -ge (Get-Date).Date)
+    if ($live) {
+        $deferred += "$Unit is $($rec.statusLabel) on training.gov.au, equivalent to $($sup.equivalentTo), BUT $($course.qualificationCode) still names $Unit in its packaging rules ($($sup.qualificationRelease)). BUILD AGAINST $Unit - that is what the qualification requires. Decision recorded $($sup.decidedOn), review by $($sup.reviewBy). Never deliver it as a standalone enrolment."
+    } else {
+        $blockers += "$Unit is $($rec.statusLabel) on training.gov.au. Do not build against it - transition to the superseding unit first." +
+                     $(if ($sup) { " The decision to keep delivering it lapsed on $($sup.reviewBy)." } else { "" })
+    }
+}
 if ($cu.deliveryStatus -ne 'delivered') { $blockers += "$Unit is $($cu.deliveryStatus) in $($course.courseId) - it is not taught here, so no learner guide or assessment tool is built for it in this course." }
 if ($course.sequencing.model -eq 'none') { $blockers += "$($course.courseId) has no usable delivery sequence. Topic ownership was decided on subject matter alone - see openItems in the course record." }
 foreach ($oi in $course.openItems) { if ($oi -match '^BLOCKING') { $blockers += $oi } }
 $caveats = @()
+foreach ($d in $deferred) { $caveats += $d }
 if ($course.siblingCourse) {
     $caveats += "The same qualification is delivered by the other institute under $($course.siblingCourse), from its OWN Training and Assessment Strategy and with its own elective selection. This brief is for $($course.institute) only - never carry a ruling across."
 }
@@ -114,8 +130,9 @@ $brief = [ordered]@{
     sequence         = $cu.sequence
     prerequisitesNotInCourse = $missingPre
     prerequisites    = @($rec.prerequisites | ForEach-Object { "$($_.code) $($_.title)" })
-    doNotReTeach     = @($applies | ForEach-Object { [ordered]@{ id=$_.id; name=$_.name; kind=$_.kind; ownedBy=$_.owner; teachingRule=$_.teachingRule } })
-    teachInFull      = @($owns | ForEach-Object { [ordered]@{ id=$_.id; name=$_.name; kind=$_.kind; alsoAppearsIn=$_.appliedNotTaught; anchors=$_.tgaAnchors } })
+    doNotReTeach     = @($applies | ForEach-Object { [ordered]@{ id=$_.id; name=$_.name; kind=$_.kind; ownedBy=$_.owner; teachingRule=$_.teachingRule; assessmentDepth=$_.assessmentDepth; ownerBenchmark=$_.ownerBenchmark } })
+    teachInFull      = @($owns | ForEach-Object { [ordered]@{ id=$_.id; name=$_.name; kind=$_.kind; alsoAppearsIn=$_.appliedNotTaught; anchors=$_.tgaAnchors; assessmentDepth='foundation'; ownerBenchmark=$_.ownerBenchmark } })
+    assessmentRule   = 'Assessment is PER UNIT. This unit''s tool evidences every one of this unit''s requirements in full, including every doNotReTeach topic. No assess-once register line may name another unit as its evidence. doNotReTeach governs TEACHING depth and assessment FORM only - assess it applied, inside a question about this unit''s own subject or by an observation item, against ownerBenchmark so the standard matches the owning unit''s.'
     assumedPriorInThisCourse = $assumedPrior
     priorCourse      = $course.priorCourse
     priorCourseUnits = $priorCourseUnits
@@ -159,12 +176,16 @@ foreach ($t in $owns) {
 }
 Write-Host ""
 
-Write-Host "DO NOT RE-TEACH OR RE-ASSESS - a sibling unit owns these ($($applies.Count))"
+Write-Host "TEACH BY RECALL - a sibling unit owns the TEACHING of these ($($applies.Count))"
+Write-Host "  Assessment is per unit and is NOT reduced: this unit's tool still evidences every" -ForegroundColor DarkGray
+Write-Host "  one of these requirements in full, on its own mapped line. Never cite another unit" -ForegroundColor DarkGray
+Write-Host "  as the evidence. These rulings govern teaching depth and assessment FORM only." -ForegroundColor DarkGray
 if (-not $applies) { Write-Host "  (none)" }
 foreach ($t in $applies) {
     Write-Host ("  {0}  [{1}]  {2}" -f $t.id, $t.kind, $t.name)
-    Write-Host ("       owned by {0}" -f $t.owner)
+    Write-Host ("       owned by {0}   assess: {1}" -f $t.owner, $t.assessmentDepth)
     Write-Host ("       {0}" -f $t.teachingRule)
+    if ($t.ownerBenchmark) { Write-Host ("       benchmark anchor: {0}" -f $t.ownerBenchmark) }
 }
 Write-Host ""
 

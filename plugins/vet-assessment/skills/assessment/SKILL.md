@@ -74,7 +74,7 @@ Plus `[UNIT]_Compliance_Report.md` either way.
 
 The split exists because a recipe workbook needs its own book. Where there is no recipe workbook there is nothing to split off.
 
-Each assessor guide mirrors its learner document exactly and adds. Never remove or renumber learner content. Deliver `.docx` and `.pdf` together and regenerate both — never leave a stale PDF beside a fresh document.
+Each assessor guide mirrors its learner document exactly and adds. Never remove or renumber learner content. **The pack ships Word documents only — no PDF is produced for any document.** RTO decision, 9 September 2026.
 
 ## What to read, and when
 
@@ -297,18 +297,18 @@ Detail: `references/recipe-workbook.md` section 12.
 
 **No earlier stage renders, verifies or exports anything.** Stages 4, 4b and 7 each re-assemble, so a verification run before the last of them is void. This stage runs once, after the final re-assembly, and nothing ships without it.
 
-- `Invoke-DocumentVerification` on every document — it updates fields, saves, and exports the PDF in one uninterrupted Word session
+- `Invoke-DocumentVerification` on every document — it updates fields and saves in one uninterrupted Word session. **It exports no PDF; nothing in this skill does**
 - **`Update-Fields` is what populates the table of contents.** Skip it and every document ships showing the field's placeholder text instead of a contents list
 - `Test-CoverSheet` — one page, every clause present
 - `Test-PageFlow` — no blank pages, no thin pages
 - `Invoke-RenderedSweeps` — placeholders, guidance markers, brand crossover, assessor leakage
 - Open each file in Word once by hand and confirm it does not prompt to repair
 
-**Deliver the `.docx` and the `.pdf` together, regenerated in the same pass.** A PDF older than the document beside it is a delivery defect.
+**Deliver the `.docx` and nothing else.** The pack is Word documents only, so there is no second artefact to regenerate and no stale companion file to check for.
 
-**CHECK THE FOLDER AFTER COPYING, BEFORE REPORTING DELIVERY.** For every `.docx` in the delivery folder, confirm a `.pdf` exists beside it and is no older. This is not a formality: a copy that hits a locked file throws on that one file and **succeeds on the rest**, so the folder ends up half new and half old - a fresh `.docx` next to a stale `.pdf` - and the build reads as delivered. It happened on 27 August 2026 and the user found it, not the gate.
+**CHECK THE FOLDER AFTER COPYING, BEFORE REPORTING DELIVERY.** For every document the build produced, confirm the file in the delivery folder is the one this build wrote - compare its timestamp against the build output, not against its neighbours. This is not a formality: a copy that hits a locked file throws on that one file and **succeeds on the rest**, so the folder ends up half new and half old - a stale document sitting among fresh ones - and the build reads as delivered. It happened on 27 August 2026 and the user found it, not the gate. Dropping the PDF removes the *symptom* that exposed it that day; the partial-copy failure itself is unchanged.
 
-**Where a file is locked, say so and stop.** Do not write a second copy under another name and leave both. Name the file and the process holding it. `WINWORD` left running from an earlier verification is the usual culprit; a PDF viewer is the other.
+**Where a file is locked, say so and stop.** Do not write a second copy under another name and leave both. Name the file and the process holding it. `WINWORD` left running from an earlier verification is the usual culprit.
 
 Full procedure: `references/template-build.md`, *Delivery gate*.
 

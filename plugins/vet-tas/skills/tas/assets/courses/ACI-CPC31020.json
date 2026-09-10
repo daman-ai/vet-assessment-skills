@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "ACI-CPC31020",
     "qualificationCode":  "CPC31020",
@@ -17,99 +17,72 @@
                       },
     "unitCount":  20,
     "deliveredCount":  20,
-    "priorCourse":  null,
+    "priorCourse":  "",
     "sequencing":  {
-                       "model":  "cluster",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC31020 Certificate III in Solid Plastering (2).docx",
                        "clusters":  [
                                         {
                                             "number":  1,
-                                            "name":  "Core Industry Induction \u0026 WHS",
-                                            "focus":  "White card, working effectively, sustainability, safety awareness",
-                                            "weeks":  null,
+                                            "name":  "Site safety and workplace communication",
+                                            "focus":  "Enter and work safely on a construction site, plan daily work and communicate with the site team.",
+                                            "weeks":  "1-12",
                                             "nominalHours":  null,
                                             "units":  [
                                                           "CPCWHS1001",
                                                           "CPCCOM1012",
-                                                          "CPCCWHS2001"
+                                                          "CPCCWHS2001",
+                                                          "CPCCOM1013",
+                                                          "CPCCOM1014"
                                                       ]
                                         },
                                         {
                                             "number":  2,
-                                            "name":  "Work Planning \u0026 Communication",
-                                            "focus":  "Planning tasks, workplace communication, reading plans, measurements",
-                                            "weeks":  null,
+                                            "name":  "Plans, levelling and safe access",
+                                            "focus":  "Read plans and specifications, set out levels and measurements, and erect restricted height scaffold to work safely above ground.",
+                                            "weeks":  "13-24",
                                             "nominalHours":  null,
                                             "units":  [
-                                                          "CPCCOM1013",
-                                                          "CPCCOM1014",
                                                           "CPCCOM2001",
-                                                          "CPCCOM1015"
-                                                      ]
-                                        },
-                                        {
-                                            "number":  3,
-                                            "name":  "Site Setup \u0026 Access",
-                                            "focus":  "Levelling, scaffold erection, working at heights",
-                                            "weeks":  null,
-                                            "nominalHours":  null,
-                                            "units":  [
+                                                          "CPCCOM1015",
                                                           "CPCCCM2006",
                                                           "CPCCCM2008",
                                                           "CPCCCM2012"
                                                       ]
                                         },
                                         {
-                                            "number":  4,
-                                            "name":  "Materials \u0026 Tools Competency",
-                                            "focus":  "Handling plastering materials, using tools",
-                                            "weeks":  null,
+                                            "number":  3,
+                                            "name":  "Plastering tools, materials and surface preparation",
+                                            "focus":  "Select, mix and handle plastering materials and prepare masonry and framed surfaces ready for coating.",
+                                            "weeks":  "25-32",
                                             "nominalHours":  null,
                                             "units":  [
+                                                          "CPCCSP2002",
                                                           "CPCCSP2001",
-                                                          "CPCCSP2002"
+                                                          "CPCCSP2003"
                                                       ]
                                         },
                                         {
-                                            "number":  5,
-                                            "name":  "Solid Plastering Applications",
-                                            "focus":  "Preparing surfaces, float and render, set coats, texture finishes",
-                                            "weeks":  null,
+                                            "number":  4,
+                                            "name":  "Render, set and texture finishes",
+                                            "focus":  "Float and render straight and curved surfaces, apply set and trowelled texture coats, and restore existing solid plasterwork.",
+                                            "weeks":  "33-44",
                                             "nominalHours":  null,
                                             "units":  [
-                                                          "CPCCSP2003",
                                                           "CPCCSP3001",
                                                           "CPCCSP3002",
-                                                          "CPCCSP3003"
-                                                      ]
-                                        },
-                                        {
-                                            "number":  6,
-                                            "name":  "Restoration \u0026 Renovation Skills",
-                                            "focus":  "Restoring damaged plasterwork",
-                                            "weeks":  null,
-                                            "nominalHours":  null,
-                                            "units":  [
+                                                          "CPCCSP3003",
                                                           "CPCCSP3004"
                                                       ]
                                         },
                                         {
-                                            "number":  7,
-                                            "name":  "Related Trade Skills",
-                                            "focus":  "Basic concreting for site preparation",
-                                            "weeks":  null,
+                                            "number":  5,
+                                            "name":  "Concreting and business start-up",
+                                            "focus":  "Place concrete to simple forms and cost, finance and plan a small plastering business.",
+                                            "weeks":  "45-52",
                                             "nominalHours":  null,
                                             "units":  [
-                                                          "CPCCCO2013"
-                                                      ]
-                                        },
-                                        {
-                                            "number":  8,
-                                            "name":  "Small Business Skills",
-                                            "focus":  "Business opportunity investigation, managing finances",
-                                            "weeks":  null,
-                                            "nominalHours":  null,
-                                            "units":  [
+                                                          "CPCCCO2013",
                                                           "BSBESB301",
                                                           "BSBESB407"
                                                       ]
@@ -125,8 +98,8 @@
                       "title":  "Apply basic levelling procedures",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  3,
-                      "sequence":  1,
+                      "cluster":  2,
+                      "sequence":  8,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -140,8 +113,8 @@
                       "title":  "Erect and dismantle restricted height scaffolding",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  3,
-                      "sequence":  2,
+                      "cluster":  2,
+                      "sequence":  9,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -171,7 +144,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  4,
+                      "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -185,8 +158,8 @@
                       "title":  "Plan and organise work",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  2,
-                      "sequence":  5,
+                      "cluster":  1,
+                      "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -200,8 +173,8 @@
                       "title":  "Conduct workplace communication",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  2,
-                      "sequence":  6,
+                      "cluster":  1,
+                      "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -231,7 +204,7 @@
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
                       "cluster":  2,
-                      "sequence":  8,
+                      "sequence":  6,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -245,8 +218,8 @@
                       "title":  "Handle solid plastering materials",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  4,
-                      "sequence":  9,
+                      "cluster":  3,
+                      "sequence":  12,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -260,8 +233,8 @@
                       "title":  "Use solid plastering tools and equipment",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  4,
-                      "sequence":  10,
+                      "cluster":  3,
+                      "sequence":  11,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -275,8 +248,8 @@
                       "title":  "Prepare surfaces for plastering",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  5,
-                      "sequence":  11,
+                      "cluster":  3,
+                      "sequence":  13,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -290,8 +263,8 @@
                       "title":  "Apply float and render to straight and curved surfaces",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  5,
-                      "sequence":  12,
+                      "cluster":  4,
+                      "sequence":  14,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -305,8 +278,8 @@
                       "title":  "Apply set coats",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  5,
-                      "sequence":  13,
+                      "cluster":  4,
+                      "sequence":  15,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -320,8 +293,8 @@
                       "title":  "Apply trowelled texture coat finishes",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  5,
-                      "sequence":  14,
+                      "cluster":  4,
+                      "sequence":  16,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -335,8 +308,8 @@
                       "title":  "Restore and renovate solid plasterwork",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  6,
-                      "sequence":  15,
+                      "cluster":  4,
+                      "sequence":  17,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -350,8 +323,8 @@
                       "title":  "Investigate business opportunities",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  8,
-                      "sequence":  16,
+                      "cluster":  5,
+                      "sequence":  19,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -365,8 +338,8 @@
                       "title":  "Manage finances for new business ventures",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  8,
-                      "sequence":  17,
+                      "cluster":  5,
+                      "sequence":  20,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -380,8 +353,8 @@
                       "title":  "Work safely at heights",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  3,
-                      "sequence":  18,
+                      "cluster":  2,
+                      "sequence":  10,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -395,8 +368,8 @@
                       "title":  "Carry out concreting to simple forms",
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
-                      "cluster":  7,
-                      "sequence":  19,
+                      "cluster":  5,
+                      "sequence":  18,
                       "weeks":  null,
                       "prerequisites":  [
                                             "CPCCWHS2001"
@@ -411,7 +384,7 @@
                       "designation":  "Elective",
                       "deliveryStatus":  "delivered",
                       "cluster":  1,
-                      "sequence":  20,
+                      "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -436,15 +409,28 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\TAS CPC31020 Certificate III in Solid Plastering (2).docx",
-                   "tasSha256":  "FA4759A556596C4E38DE51124346DB9A0187385A07E08DB1BB444C18BE3EB804",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\ACI-CPC31020.docx",
+                   "tasSha256":  "0B30F6E4175E40B76B0D7D58FC48E6E18999FD941334090A75F53725243DEDD0",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:43Z"
+                   "generatedUtc":  "2026-09-08T00:41:43Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "The TAS states WHS is not isolated to Cluster 1 - every cluster reapplies safe work practice during practical tasks. That is reinforcement of an OWNED topic, not re-teaching, and the topic register records it as applied-not-taught."
               ],
     "openItems":  [
 
-                  ]
+                  ],
+    "pathway":  {
+                    "role":  "entry",
+                    "priorCourses":  [
+
+                                     ],
+                    "leadsTo":  [
+
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

@@ -1,12 +1,12 @@
 ﻿{
-    "schemaVersion":  "1.0",
+    "schemaVersion":  "1.1",
     "courseId":  "MVC-SIT40521",
     "qualificationCode":  "SIT40521",
     "qualificationTitle":  "Certificate IV in Kitchen Management",
     "provider":  "MVC",
     "brandVariant":  null,
     "priorCourse":  "MVC-SIT30821",
-    "generatedUtc":  "2026-09-08T00:35:56Z",
+    "generatedUtc":  "2026-09-09T07:05:42Z",
     "method":  {
                    "unitSource":  "training.gov.au REST API",
                    "overlapDetection":  "assets/topics/families/MVC-SIT40521.families.json",
@@ -21,9 +21,15 @@
                        "name":  "Organisational diversity policy",
                        "kind":  "shared-scaffold",
                        "owner":  "BSBTWK501",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "BSBTWK501 Lead diversity and inclusion opens the course and is the unit whose entire subject this is. SITXHRM009 Lead and manage people, delivered second, needs the same policy as the frame for recruitment, rostering and performance conversations. THIS TOPIC EXISTS ONLY IN THE MERIDIAN REGISTER - ACI does not carry BSBTWK501 at all, so its kitchen-management learners meet diversity policy nowhere in this qualification.",
                        "teachingRule":  "SITXHRM009 applies the policy to a team situation - allocating work fairly, adjusting for a cultural or religious requirement, handling a complaint of exclusion - and cites BSBTWK501 for the policy itself and the legislation behind it.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states what the diversity policy requires of the team, how it is applied in allocating work and in recruitment, and what behaviour breaches it.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "BSBTWK501",
@@ -36,16 +42,25 @@
                                             ],
                        "families":  [
                                         "F02"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "SIT40521-T02",
                        "name":  "Consequences of failing to observe WHS and food safety law",
                        "kind":  "regulatory-recall",
                        "owner":  "SITXWHS007",
-                       "ownerCluster":  null,
+                       "ownerCluster":  2,
                        "rationale":  "SITXWHS007 Implement and monitor work health and safety practices is delivered fourth and carries the legislative frame - duty of care, penalties, prosecution, the regulator. SITXFSA008 restates the same consequence structure for food safety law four units later. One account of what happens when a duty holder fails is also one account an auditor has to reconcile.",
                        "teachingRule":  "SITXFSA008 names the Food Standards Code and the state food authority as its own instrument and regulator, and cites SITXWHS007 for the general structure of duty, breach and penalty.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states the consequence of failure for the worker, the customer, the business and the individual manager - including illness, enforcement action, prosecution, penalty and loss of licence.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXWHS007",
@@ -58,16 +73,25 @@
                                             ],
                        "families":  [
                                         "F01"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "SIT40521-T03",
                        "name":  "Food production records",
                        "kind":  "shared-scaffold",
                        "owner":  "SITXFSA008",
-                       "ownerCluster":  null,
+                       "ownerCluster":  3,
                        "rationale":  "SITXFSA008 Develop and implement a food safety program is delivered eighth and SITHKOP013 Plan cooking operations ninth. The record is the same document; in the food safety program it is evidence of control, in cooking operations it is a planning input. It is designed once, where it is designed.",
                        "teachingRule":  "SITHKOP013 does not re-teach the record\u0027s format or its retention period. It teaches reading yesterday\u0027s record to plan today\u0027s production.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer identifies the production records the food safety programme requires, states what each captures and how often, and what is done when a record shows a deviation.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXFSA008",
@@ -80,16 +104,25 @@
                                             ],
                        "families":  [
                                         "F03"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "SIT40521-T04",
                        "name":  "Hazard identification and control at critical control points",
                        "kind":  "shared-scaffold",
                        "owner":  "SITXFSA008",
-                       "ownerCluster":  null,
+                       "ownerCluster":  3,
                        "rationale":  "HACCP is the subject matter of SITXFSA008 and nothing else in this course teaches it. SITHKOP013 schedules production around the control points that unit establishes.",
                        "teachingRule":  "SITHKOP013 assumes the critical control points are known and teaches sequencing production so cooling, holding and reheating windows are not breached.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer identifies the hazard at each step, determines which steps are critical control points, states the critical limit and the monitoring for each, and the corrective action when a limit is breached.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXFSA008",
@@ -102,7 +135,10 @@
                                             ],
                        "families":  [
                                         "F04"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    }
                ],
     "unitTopicIndex":  {
@@ -187,7 +223,16 @@
                                               "appliedNotTaught":  [
 
                                                                    ]
+                                          },
+                           "SITHKOP012":  {
+                                              "owns":  [
+
+                                                       ],
+                                              "appliedNotTaught":  [
+
+                                                                   ]
                                           }
                        },
-    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed.",
+    "assessmentNote":  "ASSESSMENT IS PER UNIT. A ruling never removes a requirement from an applying unit\u0027s assessment tool - every unit is separately certified and evidences its own requirements in full, on its own mapped line, with no line naming another unit as its evidence. assessmentDepth governs DEPTH and FORM only: \"applied\" means assessed inside a question about this unit\u0027s own subject or carried by an observation item, against the owner\u0027s benchmark; \"full\" means this unit teaches and assesses its own subject matter in full. The register exists to keep those benchmarks consistent across the units that share a requirement, which is what Standard 1.5 validation tests."
 }

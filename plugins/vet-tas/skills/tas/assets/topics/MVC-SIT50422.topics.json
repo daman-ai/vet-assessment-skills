@@ -1,12 +1,12 @@
 ﻿{
-    "schemaVersion":  "1.0",
+    "schemaVersion":  "1.1",
     "courseId":  "MVC-SIT50422",
     "qualificationCode":  "SIT50422",
     "qualificationTitle":  "Diploma of Hospitality Management",
     "provider":  "MVC",
     "brandVariant":  null,
-    "priorCourse":  "ACI-SIT40521",
-    "generatedUtc":  "2026-09-07T06:12:10Z",
+    "priorCourse":  "MVC-SIT40521",
+    "generatedUtc":  "2026-09-09T07:05:42Z",
     "method":  {
                    "unitSource":  "training.gov.au REST API",
                    "overlapDetection":  "assets/topics/families/MVC-SIT50422.families.json",
@@ -21,9 +21,15 @@
                        "name":  "Professional service standards and the attributes expected of service personnel",
                        "kind":  "shared-scaffold",
                        "owner":  "SITXCCS016",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "SITXCCS016 Develop and manage quality customer service practices is the unit that WRITES the standard, and it is delivered second. SITXCCS015 Enhance customer service experiences, delivered fifth, works to that standard. The two detected families - professional service standards, and the attitudes and attributes expected by the industry - are one topic: what good service looks like and who is expected to deliver it.",
                        "teachingRule":  "SITXCCS015 opens by naming the standard set in SITXCCS016 and moves immediately to its own ground: reading an individual customer, anticipating a need, and recovering a service failure in the moment.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states the service standard the organisation sets, the attitudes and attributes expected of service personnel, and how each is observable in practice rather than asserted.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXCCS016",
@@ -42,16 +48,25 @@
                        "families":  [
                                         "F01",
                                         "F03"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "SIT50422-T02",
                        "name":  "Organisational and management restructures as a planning input",
                        "kind":  "shared-scaffold",
                        "owner":  "SITXFIN010",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Delivered first, SITXFIN010 Prepare and monitor budgets must treat a restructure as a factor that moves a budget. SITXCCS016 later treats the same restructure as a factor that dates a customer service policy. The event is one thing and is explained once.",
                        "teachingRule":  "SITXCCS016 refers back in a line and teaches only the consequence peculiar to it - that a restructure invalidates the service standards written for the old structure.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states how a restructure changes resourcing, reporting and cost, and reflects those changes in the plan or budget being prepared.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXFIN010",
@@ -64,16 +79,25 @@
                                             ],
                        "families":  [
                                         "F02"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "SIT50422-T03",
                        "name":  "Complaint and dispute management",
                        "kind":  "shared-scaffold",
                        "owner":  "SITXCCS016",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "The complaint system - how complaints are captured, escalated, resolved and fed back into policy - is designed in SITXCCS016. SITXCCS015 handles the complaint in front of the learner.",
                        "teachingRule":  "SITXCCS015 teaches the interaction, not the system: acknowledging, taking ownership, offering a remedy inside delegation. It cites the SITXCCS016 escalation path rather than restating it.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer takes the complaint, acknowledges it, resolves it within delegation or escalates it, records it, and identifies what the complaint indicates about the service that produced it.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXCCS016",
@@ -86,16 +110,25 @@
                                             ],
                        "families":  [
                                         "F04"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "SIT50422-T04",
                        "name":  "Consulting staff when developing customer service policy",
                        "kind":  "shared-scaffold",
                        "owner":  "SITXCCS016",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Consultation is part of writing the policy, which is SITXCCS016\u0027s own work. SITXCCS015 contributes suggestions rather than running the consultation.",
                        "teachingRule":  "In SITXCCS015 this is a single line about where a frontline observation goes. The consultation method itself is not repeated.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states how staff suggestions are sought and used in developing customer service policy, and why the people delivering the service are the ones who can see where it fails.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXCCS016",
@@ -108,7 +141,10 @@
                                             ],
                        "families":  [
                                         "F05"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    }
                ],
     "unitTopicIndex":  {
@@ -157,5 +193,6 @@
                                                                    ]
                                           }
                        },
-    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed.",
+    "assessmentNote":  "ASSESSMENT IS PER UNIT. A ruling never removes a requirement from an applying unit\u0027s assessment tool - every unit is separately certified and evidences its own requirements in full, on its own mapped line, with no line naming another unit as its evidence. assessmentDepth governs DEPTH and FORM only: \"applied\" means assessed inside a question about this unit\u0027s own subject or carried by an observation item, against the owner\u0027s benchmark; \"full\" means this unit teaches and assesses its own subject matter in full. The register exists to keep those benchmarks consistent across the units that share a requirement, which is what Standard 1.5 validation tests."
 }

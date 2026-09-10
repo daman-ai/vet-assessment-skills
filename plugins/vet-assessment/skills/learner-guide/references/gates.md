@@ -64,6 +64,7 @@ Sections 1 to 11 are the original five gates and are unchanged. Sections 12 onwa
 | 7c | FULL re-gate after the last mutation | `scripts\Assert-FullRegateAfterMutation.ps1` (landed 4 Sep 2026; derives the 7c set from the runner plan, gates.md and SKILL.md Stage 7c) | yes | 33 |
 | 7c | Placed drawings: alt text, figure numbering, caption-to-slot | `scripts\Check-Figures.ps1` | yes | 33 |
 | 7d | Confirming audit read, scoped to what placement changed, images re-checked against final content | judgement, with a verdict | yes | 30.3, 31 |
+| 7e | Deck restyle changed no text - a sorted multiset per SHAPE, plus the slide count against the SOURCE deck, speaker notes verbatim and still present, every image relationship resolving, nothing off the slide, and every typeface one the restyle sets | `scripts\Test-DeckStyle.ps1` | yes | 8b |
 | 8 | Ledger integrity, staleness proved from files, figure sheet current | `Test-StageLedger`; `scripts\Assert-RenderDelta.ps1` + `Test-StageLedger` per-topic rule | yes | 34 |
 
 ---
@@ -87,6 +88,12 @@ These five are not gates. They are the conditions under which a gate's green res
 ## What none of these gates can see
 
 **Sections 1 to 8 are all structural.** Widths, ordering, numbering, counts, cross-references, package validity. They read XML, not meaning.
+
+**And "structural" is narrower than it sounds: no gate reads the deck's APPEARANCE.** Grep every `Test-`, `Assert-`, `Check-` and `Run-` script for `srgbClr`, `solidFill`, `sz=` and `a:off`, and the only hits are in `Test-DeckStyle.ps1`. That gate guarantees exactly what section 8b names: text preserved as a sorted multiset per shape, the slide count against the source, speaker notes verbatim and present, every image relationship resolving, nothing off the slide, and every typeface one of the two the restyle sets. It reads no fill and no type size.
+
+Everything else in `references\deck-style.md` — the eight palette hexes, the ground-by-slide-role map, `FA984C` never being a card fill, the whole type ladder including the 9.5 pt footer, the card depth caps, minimum height, padding and the 0.45 content position, the outline weight, the corner radii and jitter, the picture column widths and gutter, the card floor, chip baseline and footer baseline — is **enforced by construction in `Restyle-Deck.ps1` and by no gate at all.** Those constants exist in exactly one place, that script; change one and nothing in this file fails. (`Check-Identity`'s palette-hexes arm does not close this: it is derived from the brand role map and proves another RTO's hexes are ABSENT, never that these are present or correct.) The one exception is the animation contract, where `Add-DeckAnimations.ps1` reopens the saved deck and fails the run unless PowerPoint reports `EntryEffect` 3954 on every slide.
+
+Whether to close the rest of that gap is a separate decision. What is not optional is that the blind-spot list say so.
 
 **A fabricated fact passes every one of them.** A temperature no source supports, a legal duty that does not exist, a real figure lifted from the wrong category of food — each is well-formed XML in a correctly sized table with valid numbering, and every gate in this file reports it clean.
 
@@ -240,9 +247,27 @@ Section 7's rule applies here four times over. Each of these inputs carries a bl
 | `-TemplatePath` | Residual placeholder sweep | `placeholder sweep skipped - no -TemplatePath given` into **info**, and PASS. The vocabulary is harvested from the template, so with no template there is no vocabulary and the sweep compares against nothing |
 | `-Plan` | Speaker notes, assessment chips, and the 15-slides-per-Topic floor | `per-topic count and chip rules skipped - no -Plan given` into **info**, and PASS. Nothing knows which slide is a teaching slide, so three rules pass on nothing and a trainer finds out in front of a class |
 | `-NumberSlotByLayout`, **with** `-Plan` | The printed slide number | Fell back to guessing that the **last text shape** holds the number, on a template where **two layouts legitimately have none** — so it could report a correct thank-you slide as a defect and miss a real wrong number in a slot that is not last. A rule running on a guess is not the rule |
-| `-Rto`, `-Cricos` | Document-property identity | `document properties name RTO nnnnn - confirm it is this RTO (pass -Rto to make this blocking)`. A gate that asks the caller to confirm it themselves is not a gate. The approved template was cloned from another RTO and still carried that RTO's code in `docProps`, where nothing on a slide shows it and every exported PDF carries it |
+| `-Rto`, `-Cricos` | Document-property identity | `document properties name RTO nnnnn - confirm it is this RTO (pass -Rto to make this blocking)`. A gate that asks the caller to confirm it themselves is not a gate. The approved template was cloned from another RTO and still carried that RTO's code in `docProps`, where nothing on a slide shows it and it travels with the file wherever it goes |
 
 All four now fail, naming the parameter, unless `-AllowPartial` records the omission. **The stage that runs the complete gate set threads every one of them**, from the RTO profile pack — `-TemplatePath $rtoProfile.DeckTemplate`, `-NumberSlotByLayout (Get-DeckNumberSlotMap -Profile $rtoProfile.DeckLayouts)`, `-Rto $rtoProfile.RtoCode`, `-Cricos $rtoProfile.CricosCode` — and so does the 7c re-gate, which is the same call with `-AfterArtwork` on the guide side. See SKILL.md Stage 4 and Stage 7c.
+
+---
+
+## 8b. Deck restyle content preservation - blocking
+
+`scripts\Test-DeckStyle.ps1`. Invoked directly at Stage 7e, which has **no runner**, so it carries no `# GATE:` header and appears in no runner plan - the same arrangement `Assert-EnumerateBeforeFix.ps1` and `Test-Finding.ps1` already use. Run it yourself, twice, and the second run is the one that counts.
+
+`Assert-GateFixtures` therefore reports a blocking NO-HEADER for it, as it does for those two and for both runners. **Do not close that by adding a header.** `# GATE: stages=7e` was tried: `7e` is outside `Run-SpineGates`' vocabulary (1, 2, 3c, 4, 7c) and `$script:LedgerStages` in `scripts\Stage-Ledger.ps1` has no `7e` row, so the header turns one finding into two - an unknown-stage HEADER and a PLAN finding for a band no runner will ever pick up. The real fix is a `7e` row in the ledger stage table, which SKILL.md already writes records against; until that exists, the honest state is a blocking gate the reconciler cannot place.
+
+**Not one word may change.** The restyle moves shapes, recolours them, resizes type and changes z-order over content that has already passed the pack's gates and the two-way question reconciliation. Text is compared as a sorted multiset **per shape**, not per run: PowerPoint merges identically-formatted runs on save, and a run-level comparison reports five lost and one added on every footer.
+
+`-Source` is the untouched `render\` copy of what `Invoke-Render` wrote; `-Sample` is the restyled deck. Without the copy there is nothing to compare against. It runs before the animation pass and again after it, because the animation pass is a PowerPoint round-trip and a round-trip rewrites the package from PowerPoint's own model.
+
+Every rule it carries is blocking, including the two that were not: the slide count is measured against the **source** deck (taken from the sample it was the sample compared with itself, and could never differ), and a shape hanging off the slide **fails** rather than warning. `-EdgeTolerance` declares any slack explicitly and defaults to 0.
+
+`-AllowRemoved` is its only relaxation. It names exact lines the caller authorised for deletion, must be identical to what `Restyle-Deck.ps1 -DropCoverLines` was given, and the gate prints each one on every run so the deletion stays visible rather than becoming invisible. It lives as a parameter default rather than in a versioned register, which rule 3 above would prefer.
+
+**`-SelfTest` plants the defect before you believe the pass.** It builds minimal packages in temp and proves the gate turns red on each rule: a changed run, a dropped slide, dropped speaker notes, a shape off the right edge, a shape off the top edge, a table off the bottom edge, an unexpected typeface, and an unauthorised deletion. Run it after any change to the gate.
 
 ---
 

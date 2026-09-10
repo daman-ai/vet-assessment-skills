@@ -119,7 +119,11 @@ function Resolve-DigestInput {
     if (-not $BuildDir) { return $null }
     $cleanroom = Join-Path $BuildDir 'cleanroom'
     if (Test-Path -LiteralPath $cleanroom) {
-        $cands = @(Get-ChildItem -LiteralPath $cleanroom -File | Where-Object { $_.Name -match ('^' + $Stem + '_r(\d+)\.txt$') } |
+        #  -Stem is a DOMAIN VALUE (a document stem such as 'guide' or a unit
+        #  code), so it is escaped before it reaches the regex engine: a dot or
+        #  a bracket in a stem would otherwise change what this pattern means
+        #  and pick a different revision file. The ^ and $ already anchor it.
+        $cands = @(Get-ChildItem -LiteralPath $cleanroom -File | Where-Object { $_.Name -match ('^' + [regex]::Escape($Stem) + '_r(\d+)\.txt$') } |
                    Sort-Object { [int]([regex]::Match($_.Name, '_r(\d+)\.txt$').Groups[1].Value) } -Descending)
         if ($cands.Count -gt 0) { return $cands[0].FullName }
     }
@@ -533,7 +537,12 @@ function Invoke-ClaimsDigestSelfTest {
         $rc = Invoke-ClaimsDigest -GuidePath $gp -DeckPath $dp -ContractPath $cp -PlanPath $pp -OutPath (Join-Path $root 'digest-values.txt') -MaxLocations 12 -Categories @('num', 'clock') -Quiet
         $tc = Get-GateFileText -Path (Join-Path $root 'digest-values.txt')
         Assert-True ($tc.Contains('CATEGORY FILTER: num, clock') -and $tc.Contains('-- num (') -and -not $tc.Contains('-- instr (') -and -not $tc.Contains('Regulations 2017 apply.') -and $tc.Contains('Freeze at minus 18 degrees C')) '-Categories num,clock keeps value sentences and drops a citation-only sentence and the citation index'
-        Assert-True ($rc.FilteredOut -ge 1 -and $tc -match ('with none of them are not in this digest')) 'the filter reports how many sentences it excluded'
+        #  A LITERAL PHRASE IS CHECKED LITERALLY. -match hands this sentence to
+        #  the regex engine, where a punctuation mark added to the header later
+        #  would change what is being asserted; .Contains asks the only
+        #  question this assertion means to ask, the same way the assertions
+        #  around it do.
+        Assert-True ($rc.FilteredOut -ge 1 -and $tc.Contains('with none of them are not in this digest')) 'the filter reports how many sentences it excluded'
         $threw = $false
         try { Invoke-ClaimsDigest -GuidePath $gp -DeckPath $dp -OutPath (Join-Path $root 'digest-bad.txt') -MaxLocations 12 -Categories @('numbers') -Quiet | Out-Null } catch { $threw = $true }
         Assert-True $threw 'an unknown category name is refused'

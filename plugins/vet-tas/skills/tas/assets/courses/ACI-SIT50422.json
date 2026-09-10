@@ -1,4 +1,4 @@
-﻿{
+{
     "schemaVersion":  "2.0",
     "courseId":  "ACI-SIT50422",
     "qualificationCode":  "SIT50422",
@@ -21,10 +21,32 @@
     "deliveredCount":  5,
     "priorCourse":  "ACI-SIT40521",
     "sequencing":  {
-                       "model":  "sequence",
+                       "model":  "theme",
                        "source":  "C:\\Users\\ACI-Admin\\Downloads\\Training-and-Assessment-Strategy SIT50422 Diploma of hospitality.docx",
                        "clusters":  [
-
+                                        {
+                                            "number":  1,
+                                            "name":  "Budgets and service standards",
+                                            "focus":  "Prepare and monitor a venue budget and set the customer service standards the team works to.",
+                                            "weeks":  "1-12",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXFIN010",
+                                                          "SITXCCS016"
+                                                      ]
+                                        },
+                                        {
+                                            "number":  2,
+                                            "name":  "Compliance, partnerships and the guest experience",
+                                            "focus":  "Keep the venue legally compliant, manage supplier and partner relationships and lift the guest experience.",
+                                            "weeks":  "13-30",
+                                            "nominalHours":  null,
+                                            "units":  [
+                                                          "SITXGLC002",
+                                                          "SITXMGT005",
+                                                          "SITXCCS015"
+                                                      ]
+                                        }
                                     ],
                        "order":  [
 
@@ -36,7 +58,7 @@
                       "title":  "Enhance customer service experiences",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  5,
                       "weeks":  null,
                       "prerequisites":  [
@@ -51,8 +73,8 @@
                       "title":  "Develop and manage quality customer service practices",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
-                      "sequence":  3,
+                      "cluster":  1,
+                      "sequence":  2,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -66,8 +88,8 @@
                       "title":  "Prepare and monitor budgets",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
-                      "sequence":  2,
+                      "cluster":  1,
+                      "sequence":  1,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -81,8 +103,8 @@
                       "title":  "Identify and manage legal risks and comply with law",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
-                      "sequence":  1,
+                      "cluster":  2,
+                      "sequence":  3,
                       "weeks":  null,
                       "prerequisites":  [
 
@@ -96,7 +118,7 @@
                       "title":  "Establish and conduct business relationships",
                       "designation":  "Core",
                       "deliveryStatus":  "delivered",
-                      "cluster":  null,
+                      "cluster":  2,
                       "sequence":  4,
                       "weeks":  null,
                       "prerequisites":  [
@@ -243,21 +265,6 @@
                       "releaseCurrency":  "current"
                   },
                   {
-                      "code":  "SITHCCC025",
-                      "title":  "Prepare and present sandwiches",
-                      "designation":  "Elective",
-                      "deliveryStatus":  "credit-transfer",
-                      "cluster":  null,
-                      "sequence":  null,
-                      "weeks":  null,
-                      "prerequisites":  [
-                                            "SITXFSA005"
-                                        ],
-                      "status":  "current",
-                      "statusLabel":  "Current",
-                      "releaseCurrency":  "current"
-                  },
-                  {
                       "code":  "SITHCCC027",
                       "title":  "Prepare dishes using basic methods of cookery",
                       "designation":  "Elective",
@@ -305,38 +312,6 @@
                   {
                       "code":  "SITHCCC030",
                       "title":  "Prepare vegetable, fruit, eggs and farinaceous dishes",
-                      "designation":  "Elective",
-                      "deliveryStatus":  "credit-transfer",
-                      "cluster":  null,
-                      "sequence":  null,
-                      "weeks":  null,
-                      "prerequisites":  [
-                                            "SITHCCC027",
-                                            "SITXFSA005"
-                                        ],
-                      "status":  "current",
-                      "statusLabel":  "Current",
-                      "releaseCurrency":  "current"
-                  },
-                  {
-                      "code":  "SITHCCC031",
-                      "title":  "Prepare vegetarian and vegan dishes",
-                      "designation":  "Elective",
-                      "deliveryStatus":  "credit-transfer",
-                      "cluster":  null,
-                      "sequence":  null,
-                      "weeks":  null,
-                      "prerequisites":  [
-                                            "SITHCCC027",
-                                            "SITXFSA005"
-                                        ],
-                      "status":  "current",
-                      "statusLabel":  "Current",
-                      "releaseCurrency":  "current"
-                  },
-                  {
-                      "code":  "SITHCCC032",
-                      "title":  "Produce cook-chill and cook-freeze foods",
                       "designation":  "Elective",
                       "deliveryStatus":  "credit-transfer",
                       "cluster":  null,
@@ -399,22 +374,6 @@
                       "releaseCurrency":  "current"
                   },
                   {
-                      "code":  "SITHCCC038",
-                      "title":  "Produce and serve food for buffets",
-                      "designation":  "Elective",
-                      "deliveryStatus":  "credit-transfer",
-                      "cluster":  null,
-                      "sequence":  null,
-                      "weeks":  null,
-                      "prerequisites":  [
-                                            "SITHCCC027",
-                                            "SITXFSA005"
-                                        ],
-                      "status":  "current",
-                      "statusLabel":  "Current",
-                      "releaseCurrency":  "current"
-                  },
-                  {
                       "code":  "SITHCCC041",
                       "title":  "Produce cakes, pastries and breads",
                       "designation":  "Elective",
@@ -446,16 +405,75 @@
                       "releaseCurrency":  "current"
                   },
                   {
-                      "code":  "SITHCCC044",
-                      "title":  "Prepare specialised food items",
+                      "code":  "SITHKOP013",
+                      "title":  "Plan cooking operations",
                       "designation":  "Elective",
                       "deliveryStatus":  "credit-transfer",
                       "cluster":  null,
                       "sequence":  null,
                       "weeks":  null,
                       "prerequisites":  [
-                                            "SITHCCC027",
-                                            "SITXFSA005"
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "BSBTWK501",
+                      "title":  "Lead diversity and inclusion",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXFSA006",
+                      "title":  "Participate in safe food handling practices",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITXINV006",
+                      "title":  "Receive, store and maintain stock",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
+                                        ],
+                      "status":  "current",
+                      "statusLabel":  "Current",
+                      "releaseCurrency":  "current"
+                  },
+                  {
+                      "code":  "SITHPAT016",
+                      "title":  "Produce desserts",
+                      "designation":  "Elective",
+                      "deliveryStatus":  "credit-transfer",
+                      "cluster":  null,
+                      "sequence":  null,
+                      "weeks":  null,
+                      "prerequisites":  [
+
                                         ],
                       "status":  "current",
                       "statusLabel":  "Current",
@@ -472,16 +490,30 @@
 
                         ],
     "source":  {
-                   "tasFile":  "C:\\Users\\ACI-Admin\\Downloads\\Training-and-Assessment-Strategy SIT50422 Diploma of hospitality.docx",
-                   "tasSha256":  "A6998312512D73B1210B3DF912C38DDF85CA155ADBE4F131BC48DF32A81B1DAE",
+                   "tasFile":  "C:\\Users\\admis\\TAS-source\\original\\ACI-SIT50422.docx",
+                   "tasSha256":  "5D49ECA8782050E684BA5EE112FAF12F0559CF325603BEB9163536117CAE1A28",
                    "unitSource":  "training.gov.au REST API, harvested to assets/units/",
-                   "generatedUtc":  "2026-09-08T00:41:44Z"
+                   "generatedUtc":  "2026-09-08T00:41:44Z",
+                   "tasVerifiedUtc":  "2026-09-08T06:15:00Z"
                },
     "notes":  [
                   "FIVE OF THE TWENTY-EIGHT UNITS ARE DELIVERED, on an advanced-standing pathway. The other 23 arrive by credit transfer.",
-                  "The five delivered units are the same five Meridian delivers, but IN A DIFFERENT ORDER - ACI opens with SITXGLC002, Meridian with SITXFIN010 - and the 28-unit sets differ: ACI carries SITHCCC025, SITHCCC031, SITHCCC032, SITHCCC038 and SITHCCC044 where Meridian carries BSBTWK501, SITHKOP013, SITHPAT016, SITXFSA006 and SITXINV006."
+                  "HARMONISED TO MERIDIAN, 8 SEPTEMBER 2026. Both institutes now carry the identical 28 units and deliver the identical five, in the identical order. Only the branding differs."
               ],
     "openItems":  [
+                      "HARMONISED TO MERIDIAN, 8 SEPTEMBER 2026 - RTO DECISION: the unit set follows Meridian. This course dropped SITHCCC025, SITHCCC031, SITHCCC032, SITHCCC038 and SITHCCC044, and took on SITHKOP013, BSBTWK501, SITXFSA006, SITXINV006 and SITHPAT016, all as credit transfer. Every one of them is credit-transferred rather than taught, so no new assessment tool is needed, but THE TAS UNIT TABLE MUST BE CORRECTED and the credit-transfer source qualification must actually contain them.",
                       "The TAS names the credit-transfer source as SIT40516 Certificate IV in Commercial Cookery. That qualification code is SUPERSEDED - the current code is SIT40521 Certificate IV in Kitchen Management, which is what ACI actually delivers. Correct the reference."
-                  ]
+                  ],
+    "pathway":  {
+                    "role":  "addOn",
+                    "priorCourses":  [
+                                         "ACI-SIT40521"
+                                     ],
+                    "leadsTo":  [
+
+                                ],
+                    "directEntry":  false,
+                    "recordedOn":  "2026-09-09",
+                    "source":  "RTO instruction, 9 September 2026"
+                }
 }

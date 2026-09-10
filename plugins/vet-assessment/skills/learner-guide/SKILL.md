@@ -31,7 +31,7 @@ The assessment skill carries a standing rule: *never fact-check an assessment ag
 2. `[UNIT]_Delivery_PowerPoint.pptx` - the trainer-facing deck
 3. `[UNIT]_Resource_Report.md` - counts, cross-reference reconciliation, open questions
 
-Deliver `.docx`/`.pptx` **and their PDFs together**, regenerated in the same pass. A PDF older than the file beside it is a delivery defect.
+Deliver the `.docx` and the `.pptx`. Those two files are the artefacts; nothing in this pipeline renders them into another format.
 
 ## The one idea this skill is built on
 
@@ -77,6 +77,7 @@ Brand resolution, the trading-name rules and the logo/palette/identity swap all 
 | `references/content-agent-brief.md` - the template every content agent is handed | Stage 3 |
 | `references/learner-guide.md` | Stage 3 |
 | `references/powerpoint.md` | Stage 3 |
+| `references/deck-style.md` **in full** - the delivered deck FORMAT: the canvas constants, the eight palette hexes and the ground-by-slide-role map, the type ladder, the container radii and jitter, the card and picture measures, the figure rule, the animation timings and the furniture treatments, every one as an exact value | Stage 7e |
 | The assessment skill's `references/house-style.md` and `references/readability.md` | Stage 3 |
 | `references/visuals.md` | Stage 3b |
 | `references/gates.md` again, for the spine band | Stage 3c |
@@ -545,7 +546,7 @@ The plan runs in three phases: 1 fan-out (both extracts, the guide, deck, readab
 
 `Assert-GateFixtures -StaticOnly` is a phase-1 member of the Stage 4 and Stage 7c bands. The full plant channel is started by Run-Gates as a DETACHED background process, keyed on the hash of `scripts\*.ps1`, and nothing waits for it: the next run reads the `gate-fixtures.<hash>.json` it leaves and prints UNPROVEN beside every member that report did not prove. A fixtures verdict is a report in this band, never a band verdict.
 
-**Pass every one of those parameters, every run.** Each carries a blocking rule, and the rule does not run without it. `-QuestionsInPack` is the two-way cross-reference; `-TemplatePath` is the residual-placeholder vocabulary, harvested from the template rather than listed; `-Plan` with `-NumberSlotByLayout` is the printed slide number, the speaker-notes rule, the chip rule and the 15-slides-per-Topic floor; `-Rto` and `-Cricos` are the document-property identity check, which is invisible on the page and shows in every exported PDF.
+**Pass every one of those parameters, every run.** Each carries a blocking rule, and the rule does not run without it. `-QuestionsInPack` is the two-way cross-reference; `-TemplatePath` is the residual-placeholder vocabulary, harvested from the template rather than listed; `-Plan` with `-NumberSlotByLayout` is the printed slide number, the speaker-notes rule, the chip rule and the 15-slides-per-Topic floor; `-Rto` and `-Cricos` are the document-property identity check, which is invisible on the page and travels with the file wherever it goes.
 
 **Omitting one now FAILS the gate**, naming the parameter. It used to write a line into the info list - "assessment cross-reference skipped - no `-QuestionsInPack` given" - and return a clean PASS, which is a gate believed because it was green over a rule that never ran. Where an input genuinely cannot be supplied yet, pass **`-AllowPartial`**: each unrunnable rule becomes a loud PARTIAL RUN warning, comes back on `.Partial`, and **must be recorded** - `Add-StageRecord -Partial $gr.Partial -Note '<why>'`. The ledger rejects a partial record with no note, and the build report has to carry it. An omission is then a decision somebody signed, not an absence nobody saw.
 
@@ -754,17 +755,73 @@ What that plan covers, so a reader can see the claim rather than take it:
 
 **It is also where every placed image is re-checked against the final content** - no lettering, no faces, no logos, and **nothing contradicting what the page now says.** The background review at 7b-i judged each image against the content as it stood at generation time, hours before remediation; this is the read that judges it against the document being delivered. A slot that fails here is regenerated, re-reviewed and re-placed, and the round is not closed until it passes.
 
-## Stage 8 - Deliver (blocking, hardened)
+## Stage 7e - Restyle and animate the deck (blocking, ledgered)
 
-Runs once, after the final re-render, the full post-placement re-gate and the confirming read. Before the Stage 8 record, `Run-Gates.ps1 -BuildDir <dir> -RequireFresh` must exit 0.
+**Consumes:** the gated, artwork-placed deck. **Produces:** the deck that is actually delivered. **Detail: `references/deck-style.md`, in full, before touching this stage.** That file is the FORMAT, not a description of it: every canvas constant, palette hex, type size, corner radius, jitter, card and picture measure, animation duration and furniture rule is stated there as an exact value. A deck that departs from any of them has drifted, whatever it looks like.
+
+`Invoke-Render` writes a *correct* deck. It does not write the *delivered* deck. Between the two sits this stage: every container redrawn in the house visual language, a picture on every slide that can hold one, figures set on the line of the words they lead, and the whole thing animated. **The rendered deck is an intermediate. Nobody presents it.**
+
+It runs here, after every Stage 4 and 7c gate has passed on the rendered deck, for one reason: those gates were written against the renderer's slot names and geometry, and this stage changes both. Restyling earlier means judging the deck with gates that no longer address it.
 
 ```powershell
-& "$SkillDir\scripts\Finish-Documents.ps1" -ExportPdfs -Guide $guidePath -Deck $deckPath -ExtractDir $extractDir
+# 0. once per machine. NOT optional - see below.
+& "$SkillDir\scripts\Install-DeckFonts.ps1"
+
+# 1. keep an untouched copy of what the renderer wrote - the gate compares to it
+New-Item -ItemType Directory -Force -Path "$out\render" | Out-Null
+Copy-Item "$out\out\${code}_Delivery_PowerPoint.pptx" "$out\render\${code}_Delivery_PowerPoint.pptx" -Force
+
+# 2. WHICH slide gets a photograph, an illustration, or nothing. This reads the
+#    slide XML to count each slide's cards, so it is the only step that can
+#    honestly promise "every guide photograph used exactly once, and all used".
+& "$SkillDir\scripts\New-DeckPicturePlan.ps1" -Deck "$out\render\${code}_Delivery_PowerPoint.pptx" `
+    -PlanJson "$out\deckplan.json" -GuideImgDir "$out\images" -Out "$out\picture-plan.json"
+
+# 3. one scene illustration per slide the plan says needs one. Subjects are
+#    AUTHORED - build\doodles.json, written from what each slide teaches - and
+#    -PicturePlan REFUSES if a slide the plan asks for has no subject. Author
+#    them against the plan, never against a hand-picked list: a subject list one
+#    slide off leaves those slides with no picture and nothing reported.
+& "$SkillDir\scripts\New-DeckDoodles.ps1" -SubjectsPath "$out\doodles.json" `
+    -PicturePlan "$out\picture-plan.json" -OutDir "$out\doodles"
+
+# 4. redraw every slide
+& "$SkillDir\scripts\Restyle-Deck.ps1" -In "$out\out\${code}_Delivery_PowerPoint.pptx" `
+    -PlanJson "$out\deckplan.json" -GuideImgDir "$out\images" `
+    -PicturePlan "$out\picture-plan.json" -DoodleDir "$out\doodles"
+
+# 5. the content gate, BEFORE animating, so a failure is cheap to read
+& "$SkillDir\scripts\Test-DeckStyle.ps1" -Source "$out\render\${code}_Delivery_PowerPoint.pptx" `
+    -Sample "$out\out\${code}_Delivery_PowerPoint.pptx"
+
+# 6. animation, and the font embedding that rides on the same save
+& "$SkillDir\scripts\Add-DeckAnimations.ps1" -Deck "$out\out\${code}_Delivery_PowerPoint.pptx"
+
+# 7. gate AGAIN - step 4 is a PowerPoint round-trip, and a round-trip rewrites
+#    the package from PowerPoint's own model
+& "$SkillDir\scripts\Test-DeckStyle.ps1" -Source "$out\render\${code}_Delivery_PowerPoint.pptx" `
+    -Sample "$out\out\${code}_Delivery_PowerPoint.pptx"
 ```
 
-Stage 8 opens both artefacts **READ-ONLY** and exports; it cannot mutate either. Before it opens anything it proves freshness: `-ExtractDir` names the directory holding the 7c text extracts, whose `SOURCE:` line carries the sha256 of the package bytes the gate read, and Stage 8 recomputes that hash and **refuses by name** when it differs. `-ExtractDir` is required - without it this script can export a PDF but cannot say the PDF is of the document the gates passed, which is the only claim Stage 8 exists to make. There is deliberately no mode that updates the Contents and exports in one pass; the Contents was built at 7b, before the gate that judged the document.
+**Not one word may change.** The deck's content has passed the pack's gates and the two-way reconciliation. This stage moves shapes, recolours them, resizes type and changes z-order - and must not alter a single text run. `Test-DeckStyle` reads the finished file back and compares text as a sorted multiset **per shape**, not per run, because PowerPoint merges identically-formatted runs on save and a run-level comparison reports five lost and one added on every footer. **If it fails, the restyle is wrong, not the check** - never relax it to make a build pass. The one exception is `-AllowRemoved`: pass the same list to both scripts, and the gate prints each authorised deletion on every run so it stays visible rather than becoming invisible.
 
-The verdict is still taken from the FILESYSTEM (PDF newer than its source, header, %%EOF, page-tree count equal to what the application measured) rather than from the COM exception, because on the reference machine Word completes the export and then dies at teardown, and believing the exception discarded a correct 383-page PDF twice. After the export both artefacts are hashed again and must still match the 7c extracts.
+**Run the gate twice, and the second run is the one that counts.** The animation pass opens the deck in PowerPoint and saves it.
+
+**`Install-DeckFonts.ps1` is a prerequisite, not a nicety.** The deck carries its two typefaces inside the file, and PowerPoint does that embedding itself on the animation save - `SaveAs($path, 24, -1)`, an **argument**, not a property. Setting it as a property throws, and because that happens before the save the whole animation pass is lost with no file written. PowerPoint can only embed a font it has installed; without them every heading silently falls back to the body face and the deck loses the serif/sans contrast the design rests on, with nothing reported.
+
+**Ledger it like any other stage.** `Add-StageRecord -Stage '7e' -Name 'Deck restyle and animation' -Status pass -Verdict '<gate result, effect count, slide count, Morph EntryEffect 3954 on N of N slides>'`. Record the doodle count and name any slide that took neither a photograph nor an illustration.
+
+## Stage 8 - Deliver (blocking, hardened)
+
+Runs once, after the final re-render, the full post-placement re-gate, the confirming read **and the deck restyle at 7e**. Before the Stage 8 record, `Run-Gates.ps1 -BuildDir <dir> -RequireFresh` must exit 0.
+
+```powershell
+& "$SkillDir\scripts\Finish-Documents.ps1" -VerifyDelivery -Guide $guidePath -Deck $deckPath -ExtractDir $extractDir
+```
+
+Stage 8 opens both artefacts **READ-ONLY** and measures them; it cannot mutate either. Before it opens anything it proves freshness: `-ExtractDir` names the directory holding the 7c text extracts, whose `SOURCE:` line carries the sha256 of the package bytes the gate read, and Stage 8 recomputes that hash and **refuses by name** when it differs. `-ExtractDir` is required - without it this script can report pages, words and slides but cannot say those numbers describe the document the gates passed, which is the only claim Stage 8 exists to make. There is deliberately no mode that updates the Contents and verifies in one pass; the Contents was built at 7b, before the gate that judged the document.
+
+The verdict is still taken from the FILESYSTEM - the artefact exists, carries bytes, and still opens as an OOXML package with its main part - rather than from the COM exception, because on the reference machine Word completes its work and then dies at teardown, and believing the exception once discarded a correct 383-page result twice. Where Word or PowerPoint dies after measuring, Stage 8 reports the measurement it got and says so. After the read both artefacts are hashed again and must still match the 7c extracts.
 
 - **`Assert-Staleness` first, and it is proven from FILES and hashes, not from clock order in a ledger** - because on one build the ledger was the thing that lied. **Delivery fails if any delivered artefact is older than the newest spine file, registry file or render input.** That build shipped a guide 50 minutes older than the spine it renders, beside a report claiming its counts were taken from the delivered files after the last remediation round. **Status: NOT YET IMPLEMENTED** - performed today by: the delivery-staleness rules implemented inside `Test-StageLedger` in `scripts\Stage-Ledger.ps1`. It recomputes each delivered artefact's sha256 against the newest 4/7c results payload and names both hashes on a mismatch, names an artefact whose last write postdates the run that judged it, names a payload that stamps no `artefacts[]` at all, and holds the spine fingerprint against `3c-results.json`.
 - **`Assert-LedgerIntegrity`.** **Two records in different stages sharing a timestamp to the second is rejected** as the mechanical signature of retroactive batch-writing - one build flushed seventeen records in eight writes, with three sharing each of three timestamps, and had no Stage 8 record at all. Record **sub-second** start **and** end so genuinely adjacent stages stay distinguishable; the carve-out for stages that really do complete within one second of each other is declared, not assumed. **Status: NOT YET IMPLEMENTED** - performed today by: the span and same-second rules implemented inside `Test-StageLedger` in `scripts\Stage-Ledger.ps1`. It reports a legacy utc-only record, names a record written with neither `-Started` nor `-Ended`, refuses a blocking stage whose started equals its ended, and names any two DIFFERENT stages that end in the same second unless both spans are known and do not overlap.
@@ -779,12 +836,12 @@ The verdict is still taken from the FILESYSTEM (PDF newer than its source, heade
 - **Each stage record must enumerate which mandated sweeps actually ran**, and a substituted script must record what it does **not** cover.
 - **No report may state measured counts unless it postdates the final gate run and every artefact it describes.**
 - `Assert-BrandCrossover` once more, on the delivered files: `scripts\Check-Identity.ps1 -Path <guide> <deck> -Brand $brand`, both artefacts in one call.
-- Both PDFs come from `Finish-Documents.ps1 -ExportPdfs` above, which opens each artefact READ-ONLY. **The Contents was populated at 7b by `Finish-Documents.ps1 -UpdateContents`**, because updating it saves the document and Stage 8 may not write to a file the 7c gates have already judged. A guide that reaches Stage 8 still showing the Contents field placeholder is sent back to 7b, never fixed here.
-- Open each exported file once by hand to confirm neither prompts to repair.
+- Stage 8 opens each artefact READ-ONLY and **writes nothing**. **The Contents was populated at 7b by `Finish-Documents.ps1 -UpdateContents`**, because updating it saves the document and Stage 8 may not write to a file the 7c gates have already judged. A guide that reaches Stage 8 still showing the Contents field placeholder is sent back to 7b, never fixed here.
+- Open each delivered file once by hand to confirm neither prompts to repair.
 - `Test-PageFlow` on the guide - no blank pages, no thin pages.
 - Confirm the deck's printed slide numbers match their deck positions. They are **literal text, not fields**; the reference deck prints the wrong number on 19 of its 39 slides.
 
-Deliver `.docx`/`.pptx` **and their PDFs together**, regenerated in the same pass. A PDF older than the file beside it is a delivery defect, and the staleness check above is what now says so mechanically.
+Deliver the `.docx` and the `.pptx`. What Stage 8 guarantees mechanically is that each delivered artefact is byte-identical to the bytes the 7c gates judged - proved by sha256 against the 7c extracts before the read and again after it.
 
 ---
 

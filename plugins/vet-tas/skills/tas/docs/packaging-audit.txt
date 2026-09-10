@@ -1,0 +1,56 @@
+Course records checked against national packaging rules, 2026-09-08 14:13
+
+=== BSB50420   national rule: total not parsed;  core units found: 6
+  MVC-BSB50420  [Meridian Vocational College]
+      - not named in the qualification (check the free-elective clause): BSBTEC404
+
+=== BSB60420   national rule: total not parsed;  core units found: 5
+  MVC-BSB60420  ok
+
+=== BSB80120   national rule: total not parsed;  core units found: 3
+  MVC-BSB80120  ok
+
+=== CPC20220   national rule: total not parsed;  core units found: 5
+  ACI-CPC20220  [Adelaide Construction Institute]
+      - not named in the qualification (check the free-elective clause): CPCWHS1001
+
+=== CPC31020   national rule: total not parsed;  core units found: 15
+  ACI-CPC31020  ok
+
+=== CPC40120   national rule: total not parsed;  core units found: 11
+  ACI-CPC40120  [Adelaide Construction Institute]
+      - not named in the qualification (check the free-elective clause): BSBESB401
+
+=== CPC50220   national rule: total not parsed;  core units found: 24
+  ACI-CPC50220  ok
+
+=== MSF30322   national rule: total not parsed;  core units found: 0
+  ACI-MSF30322  ok
+
+=== SIT20421   national rule: 13 units;  core units found: 7
+  ACI-SIT20421  ok
+
+=== SIT30821   national rule: 25 units;  core units found: 20
+  ACI-SIT30821  ok
+  MVC-SIT30821  ok
+
+=== SIT31021   national rule: 21 units;  core units found: 15
+  MVC-SIT31021  ok
+
+=== SIT40521   national rule: 33 units;  core units found: 27
+  ACI-SIT40521  [Adelaide Culinary Institute]
+      - not named in the qualification (check the free-elective clause): SITXHRM007, SITHCCC025
+  MVC-SIT40521  [Meridian Vocational College]
+      - records 32 units, national rule states 33
+      - MISSING CORE UNIT(S): SITHKOP012
+
+=== SIT50422   national rule: 28 units;  core units found: 11
+  ACI-SIT50422  ok
+  MVC-SIT50422  ok
+
+=== SIT60322   national rule: 33 units;  core units found: 14
+  MVC-SIT60322  ok
+
+=== SITSS00069   national rule: total not parsed;  core units found: 0
+  ACI-SITSS00069  ok
+

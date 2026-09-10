@@ -72,20 +72,43 @@ if ($shared) {
     [void]$idx.AppendLine('')
 }
 
+# A superseded unit the QUALIFICATION still names is not a blocker while a decision
+# to keep delivering it is recorded and unexpired - see the supersession block on the
+# unit. Past reviewBy the deferral has lapsed and it is a blocker again.
+function Get-LiveSupersession {
+    param($course, [string]$code)
+    $u = $course.units | Where-Object { $_.code -eq $code } | Select-Object -First 1
+    $s = $u.supersession
+    if (-not $s -or $s.decision -ne 'continue-delivery' -or -not $s.reviewBy) { return $null }
+    if ([datetime]::Parse($s.reviewBy) -lt (Get-Date).Date) { return $null }
+    return $s
+}
+
 # open items across the registry
 $allOpen = @()
 foreach ($c in $courses) {
-    foreach ($oi in $c.openItems) { $allOpen += [pscustomobject]@{ Course=$c.courseId; Item=$oi; Blocking=($oi -match '^BLOCKING') } }
-    foreach ($s in $c.supersededUnits) { $allOpen += [pscustomobject]@{ Course=$c.courseId; Item="$s is SUPERSEDED on training.gov.au and is still listed as a delivered unit."; Blocking=$true } }
+    foreach ($oi in $c.openItems) {
+        $rank = if ($oi -match '^BLOCKING') { 0 } elseif ($oi -match '^WATCH') { 1 } else { 2 }
+        $allOpen += [pscustomobject]@{ Course=$c.courseId; Item=$oi; Rank=$rank }
+    }
+    foreach ($s in $c.supersededUnits) {
+        $live = Get-LiveSupersession -course $c -code $s
+        if ($live) { continue }   # the authored watch item carries it
+        $allOpen += [pscustomobject]@{
+            Course = $c.courseId
+            Item   = "$s is SUPERSEDED on training.gov.au and is still listed as a delivered unit."
+            Rank   = 0
+        }
+    }
 }
 if ($allOpen) {
+    $tags = @{ 0 = '**BLOCKING**'; 1 = '**WATCH**'; 2 = 'Open' }
     [void]$idx.AppendLine('## Open items')
     [void]$idx.AppendLine('')
-    [void]$idx.AppendLine('Everything the registry found that someone has to decide or fix. Blocking items stop a build.')
+    [void]$idx.AppendLine('Everything the registry found that someone has to decide or fix. Blocking items stop a build. A watch is a decision already taken, carrying the date it must be revisited.')
     [void]$idx.AppendLine('')
-    foreach ($o in ($allOpen | Sort-Object { -[int]$_.Blocking })) {
-        $tag = if ($o.Blocking) { '**BLOCKING**' } else { 'Open' }
-        [void]$idx.AppendLine("- $tag &middot; **$($o.Course)** &mdash; $($o.Item)")
+    foreach ($o in ($allOpen | Sort-Object Rank, Course)) {
+        [void]$idx.AppendLine("- $($tags[$o.Rank]) &middot; **$($o.Course)** &mdash; $($o.Item)")
     }
     [void]$idx.AppendLine('')
 }
@@ -117,7 +140,14 @@ foreach ($c in $courses) {
     if ($c.openItems -or $c.supersededUnits) {
         [void]$m.AppendLine('## Open items')
         [void]$m.AppendLine('')
-        foreach ($s in $c.supersededUnits) { [void]$m.AppendLine("- **BLOCKING** &mdash; $s is SUPERSEDED on training.gov.au and is still a delivered unit.") }
+        foreach ($s in $c.supersededUnits) {
+            $live = Get-LiveSupersession -course $c -code $s
+            if ($live) {
+                [void]$m.AppendLine("- **WATCH** &mdash; $s is superseded on training.gov.au, equivalent to $($live.equivalentTo). It is still named in the qualification's packaging rules, so delivery continues under a decision recorded on $($live.decidedOn). Review by **$($live.reviewBy)**.")
+            } else {
+                [void]$m.AppendLine("- **BLOCKING** &mdash; $s is SUPERSEDED on training.gov.au and is still a delivered unit.")
+            }
+        }
         foreach ($oi in $c.openItems) { [void]$m.AppendLine("- $oi") }
         [void]$m.AppendLine('')
     }

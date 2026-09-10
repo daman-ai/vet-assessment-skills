@@ -1,12 +1,12 @@
 ﻿{
-    "schemaVersion":  "1.0",
+    "schemaVersion":  "1.1",
     "courseId":  "ACI-SITSS00069",
     "qualificationCode":  "SITSS00069",
     "qualificationTitle":  "Food Safety Supervision Skill Set",
     "provider":  "ACI",
     "brandVariant":  "culinary",
-    "priorCourse":  null,
-    "generatedUtc":  "2026-09-08T00:35:18Z",
+    "priorCourse":  "",
+    "generatedUtc":  "2026-09-09T07:05:42Z",
     "method":  {
                    "unitSource":  "training.gov.au REST API",
                    "overlapDetection":  "assets/topics/families/ACI-SITSS00069.families.json",
@@ -21,9 +21,15 @@
                        "name":  "Food safety law, the Food Standards Code and the meaning of contamination",
                        "kind":  "regulatory-recall",
                        "owner":  "SITXFSA005",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Both units carry the same account of the Australia New Zealand Food Standards Code, of what a contaminant and a potentially hazardous food are, and of the role of the local regulator. In a two-unit skill set delivered over four weeks a learner would meet that account twice in a month.",
                        "teachingRule":  "SITXFSA006 names the specific requirement governing the handling task in front of the learner - a temperature, a holding time, a record - and cites the Code clause rather than re-summarising the Code.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer defines a contaminant, contamination and a potentially hazardous food in the terms the Food Standards Code uses, names the Code and the state Food Act as the instruments, and states the role of the local enforcement agency.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXFSA005",
@@ -36,16 +42,25 @@
                                             ],
                        "families":  [
                                         "F01"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "SITSS00069-T02",
                        "name":  "Consequences of failing to observe food safety law",
                        "kind":  "regulatory-recall",
                        "owner":  "SITXFSA005",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "Prosecution, closure, licence conditions and the personal liability of a food safety supervisor are one account of consequence. It belongs with the law it follows from.",
                        "teachingRule":  "SITXFSA006 states the consequence attaching to its own specific breach and cites this topic for the general structure.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states the consequence for the customer, the business and the individual - food-borne illness, enforcement action, prosecution, penalty, closure and loss of reputation.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXFSA005",
@@ -58,16 +73,25 @@
                                             ],
                        "families":  [
                                         "F02"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    },
                    {
                        "id":  "SITSS00069-T03",
                        "name":  "Organisational hygiene and food safety procedures",
                        "kind":  "shared-scaffold",
                        "owner":  "SITXFSA005",
-                       "ownerCluster":  null,
+                       "ownerCluster":  1,
                        "rationale":  "What the organisation\u0027s own hygiene and food safety procedures contain is the subject matter of SITXFSA005, and it is delivered first.",
                        "teachingRule":  "SITXFSA006 follows the procedure and is assessed on following it, not on reciting what it contains.",
+                       "assessmentDepth":  "applied",
+                       "ownerBenchmark":  "A satisfactory answer states what the organisation hygiene and food safety procedures require of the individual - personal hygiene, hand washing, dress, reporting illness, handling practices - and what is done when a procedure cannot be followed.",
+                       "benchmarkProvenance":  "draft 2026-09-09 - authored from the training.gov.au anchor, NOT yet validated by a subject matter expert",
+                       "excludedUnits":  [
+
+                                         ],
                        "tgaAnchors":  [
                                           {
                                               "unit":  "SITXFSA005",
@@ -80,7 +104,10 @@
                                             ],
                        "families":  [
                                         "F03"
-                                    ]
+                                    ],
+                       "citations":  [
+
+                                     ]
                    }
                ],
     "unitTopicIndex":  {
@@ -105,5 +132,6 @@
                                                                    ]
                                           }
                        },
-    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed."
+    "unownedTopicsNote":  "A requirement not appearing here overlapped nothing: it is unique to its unit, that unit teaches it, and no ruling was needed.",
+    "assessmentNote":  "ASSESSMENT IS PER UNIT. A ruling never removes a requirement from an applying unit\u0027s assessment tool - every unit is separately certified and evidences its own requirements in full, on its own mapped line, with no line naming another unit as its evidence. assessmentDepth governs DEPTH and FORM only: \"applied\" means assessed inside a question about this unit\u0027s own subject or carried by an observation item, against the owner\u0027s benchmark; \"full\" means this unit teaches and assesses its own subject matter in full. The register exists to keep those benchmarks consistent across the units that share a requirement, which is what Standard 1.5 validation tests."
 }
