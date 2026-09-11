@@ -35,6 +35,7 @@ In Claude Code:
 /plugin install vet-marking@vet-skills
 /plugin install vet-compliance@vet-skills
 /plugin install vet-tas@vet-skills
+/plugin install vet-resource-production@vet-skills
 ```
 
 **Zero-command for a whole team:** commit this to a shared project's `.claude/settings.json` and everyone who opens that project gets the plugin automatically:
@@ -44,7 +45,7 @@ In Claude Code:
   "extraKnownMarketplaces": {
     "vet-skills": { "source": { "source": "github", "repo": "daman-ai/vet-assessment-skills" } }
   },
-  "enabledPlugins": { "vet-assessment@vet-skills": true, "vet-marking@vet-skills": true, "vet-compliance@vet-skills": true, "vet-tas@vet-skills": true }
+  "enabledPlugins": { "vet-assessment@vet-skills": true, "vet-marking@vet-skills": true, "vet-compliance@vet-skills": true, "vet-tas@vet-skills": true, "vet-resource-production@vet-skills": true }
 }
 ```
 
@@ -133,6 +134,16 @@ plugins/vet-tas/
                         Distinguishes real duplication from commodity-parallel content that must
                         not be collapsed. Serves assessment and learner-guide a per-unit brief:
                         what to teach in full, what to recall, and what should stop the build
+plugins/vet-resource-production/
+  skills/resource-production/
+                        the command that runs the resource production loop end to end from a unit
+                        code and a college: tas brief, assessment pack, learner guide and deck, a
+                        clean-room AI verification against training.gov.au with a bounded rebuild
+                        loop, a staging package to Google Drive, and every row of the three
+                        compliance registers - written as the build proceeds and as named people
+                        review, approve and publish. Never approves, never uploads to eSkilled,
+                        never edits an approved document. Requires vet-tas and vet-assessment
+
 plugins/vet-compliance/
   skills/auditor/       the compliance architect: registers the RTO's documents, builds one gap
                         analysis row per requirement of the 2025 Standards and the ESOS framework,

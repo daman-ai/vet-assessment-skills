@@ -1,0 +1,20 @@
+{
+  "_comment": "The reviewing-trainer roster the work order can pick from when --trainer is not given. The head of training fills it from the credential matrix and the PD register; the skill never invents an entry. A trainer with no currencyEvidence is not offered - a review without currency on file is an opinion, not consultation. departments map to training-package prefixes.",
+  "departments": {
+    "hospitality": ["SIT"],
+    "patisserie": ["SITHPAT", "SIT"],
+    "construction": ["CPC", "MSF", "MSM"],
+    "leadership": ["BSB"]
+  },
+  "trainers": [
+    {
+      "_example": true,
+      "name": "<trainer name as on the credential matrix>",
+      "colleges": ["MVC"],
+      "department": "hospitality",
+      "units": ["SITHCCC035"],
+      "currencyEvidence": "<PD register row id and date>",
+      "credentialMatrix": "<credential matrix row id>"
+    }
+  ]
+}

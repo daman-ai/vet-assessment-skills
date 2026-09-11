@@ -1,0 +1,36 @@
+{
+  "_comment": "Resource production loop (P-01). Edit the names, the AI-use dates and the key path; the ids point at the Registers folder on Google Drive. Paths may use ~ for the user's home.",
+  "buildRoot": "~/Desktop/Rana Automation/builds",
+  "registerMirror": "~/Desktop/Rana Automation/registers/mirror",
+  "serviceAccountKey": "~/.claude/skills/resource-production/config/service-account.json",
+  "drive": {
+    "registersFolderId": "1VQ5TjY4vF5vMLULLD8VVwr0isvMbad8s",
+    "stagingFolderId": "181o1TQt0BqYWpiutMuSZRi6thXMWCH8F",
+    "sheets": {
+      "tools": "18qYZvxxzFNLEZmTm3sOZGjL3VyOV0MMILyPDgFidKKI",
+      "preuse": "1lHE2scZ5_iGHyWupyn0T8IoIKfZqhri-LE_H6VEHfPo",
+      "consult": "1C4Km8oxAMFkHi4a2HN_4Ar5UP1ilEHowpQy-7Elu7CM"
+    }
+  },
+  "skills": {
+    "tas": "~/.claude/skills/tas",
+    "assessment": "~/.claude/skills/assessment",
+    "learnerGuide": "~/.claude/skills/learner-guide"
+  },
+  "people": {
+    "_comment": "Defaults the work order offers. Every name is overridable per run. The builder is whoever runs the command.",
+    "headOfTraining": "",
+    "approverWhenDamanBuilds": "",
+    "approverOtherwise": "D. Rana",
+    "publisher": ""
+  },
+  "aiUses": [
+    { "id": "AI-USE-01", "use": "Curriculum registry (tas skill)", "tier": 1, "registeredOn": "", "reviewDue": "", "owner": "ICT & AI" },
+    { "id": "AI-USE-02", "use": "Assessment drafting (assessment skill)", "tier": 1, "registeredOn": "", "reviewDue": "", "owner": "ICT & AI" },
+    { "id": "AI-USE-03", "use": "Learner-resource drafting (learner-guide skill)", "tier": 1, "registeredOn": "", "reviewDue": "", "owner": "ICT & AI" },
+    { "id": "AI-USE-04", "use": "Artwork generation (docx-images, OpenAI, offshore)", "tier": 1, "registeredOn": "", "reviewDue": "", "owner": "ICT & AI" },
+    { "id": "AI-USE-05", "use": "Clean-room verification agent", "tier": 1, "registeredOn": "", "reviewDue": "", "owner": "ICT & AI" }
+  ],
+  "verification": { "maxRounds": 3 },
+  "versions": { "firstApproval": "1.0" }
+}

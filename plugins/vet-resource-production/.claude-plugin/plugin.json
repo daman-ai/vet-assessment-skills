@@ -1,0 +1,8 @@
+{
+  "name": "vet-resource-production",
+  "version": "1.0.0",
+  "description": "The command that runs the resource production loop end to end from a unit code and a college: the tas registry brief, the assessment pack, the learner guide and delivery deck, a clean-room AI verification against training.gov.au with a bounded rebuild loop, a staging package to Google Drive, and every row of the three compliance registers - assessment tool register, pre-use tool review record, industry consultation register - written as the build proceeds and as named people review, approve and publish. Never approves, never numbers a version 1.0, never uploads to eSkilled, never edits an approved document, never runs an unregistered AI use silently. Requires the vet-tas and vet-assessment plugins.",
+  "author": {
+    "name": "Meridian Vocational College / Adelaide Culinary Institute"
+  }
+}
