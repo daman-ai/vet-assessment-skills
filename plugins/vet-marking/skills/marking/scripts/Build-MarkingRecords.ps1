@@ -28,6 +28,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'Lib-Docx.ps1')
+. (Join-Path $PSScriptRoot 'Lib-Text.ps1')
 
 $AssetRoot = Join-Path $PSScriptRoot '..\assets'
 $BOX_E = [char]0x2610
@@ -423,7 +424,12 @@ function Build-Amrr {
 
             $shift = $tools.Count - $cols.toolColumns    # columns after the tool block move right
             [void](Set-CellText -Cell $rc[$cols.overall         - 1 + $shift] -Ns $ns -Value $s.overall)
-            [void](Set-CellText -Cell $rc[$cols.feedbackGiven   - 1 + $shift] -Ns $ns -Value $L.dates.feedbackGivenText)
+            # A consolidated group ledger carries each learner's own feedback-given
+            # date from the run that marked them (Merge-MarkingLedgers publishes
+            # it per student); a single run's ledger does not, and the run date
+            # applies to every row.
+            $fbGiven = if ($s.PSObject.Properties.Name -contains 'feedbackGivenText' -and $s.feedbackGivenText) { $s.feedbackGivenText } else { $L.dates.feedbackGivenText }
+            [void](Set-CellText -Cell $rc[$cols.feedbackGiven   - 1 + $shift] -Ns $ns -Value $fbGiven)
             [void](Set-CellText -Cell $rc[$cols.resubmissionDue - 1 + $shift] -Ns $ns -Value $s.resubmissionDueText)
             [void](Set-CellText -Cell $rc[$cols.invoiceRaised   - 1 + $shift] -Ns $ns -Value $(if ($s.invoiceRaised) { "$BOX_T" } else { "$BOX_E" }))
             [void](Set-CellText -Cell $rc[$cols.comments        - 1 + $shift] -Ns $ns -Value $s.comment)
@@ -546,6 +552,30 @@ function Build-Feedback {
         }
         Assert-Filled (Set-Placeholder -Node $tNext -Ns $ns -Name 'Insert trainer / assessor name' -Value $L.assessor) 'foot assessor'
         Assert-Filled (Set-Placeholder -Node $tNext -Ns $ns -Name 'dd / mm / yyyy' -Value $L.dates.markingDateText) 'foot date'
+
+        # ---- the withheld-result notice --------------------------------------
+        # A student who is RW and has no marked copy coming back reads their
+        # result here and nowhere else. Without this the Overall result cell
+        # says RW and the page never says what RW means, or what they can do
+        # about it — and the prerequisite they may already hold elsewhere is
+        # exactly the thing they could act on. Same wording as page one of a
+        # marked copy, built by the same function. Outside the two-comma rule by
+        # design — see Lib-Text.ps1.
+        if ($Student.overall -eq 'RW') {
+            $notice = Build-WithheldNotice -Student $Student -Ledger $L -Rto $Rto
+            $anchor = $tNext
+            $first  = $true
+            foreach ($line in ($notice -split "`r?`n")) {
+                if (-not $line.Trim()) { continue }
+                $para = if ($first) {
+                    New-TextParagraph -Doc $pkg.Xml -Text $line -Color $Rto.styling.resultWithheldColor -Bold -SizeHalfPoints 22 -SpaceBefore 160 -SpaceAfter 60
+                } else {
+                    New-TextParagraph -Doc $pkg.Xml -Text $line -Color '000000' -SizeHalfPoints 20 -SpaceBefore 0 -SpaceAfter 40
+                }
+                $anchor = Add-ParagraphAfter -Anchor $anchor -NewParagraph $para
+                $first  = $false
+            }
+        }
 
         $dest = Join-Path $OutDir $Student.feedbackFile
         [void](Save-Docx -Package $pkg -Destination $dest)

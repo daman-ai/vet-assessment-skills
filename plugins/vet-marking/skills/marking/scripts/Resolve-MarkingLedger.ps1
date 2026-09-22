@@ -226,6 +226,54 @@ foreach ($s in @($L.students)) {
     $attempt = if ($s.PSObject.Properties.Name.Contains('attempt') -and $s.attempt) { [int]$s.attempt } else { 1 }
     if ($attempt -lt 1) { Fail "$who has attempt $attempt; attempts start at 1." }
 
+    # AN ATTEMPT THAT FOLLOWS A NON-SUBMISSION HAS NO EARLIER MARKED COPY.
+    # Attempt 2 normally builds on the file marked at attempt 1, so that
+    # attempt's feedback page and outcome lines travel forward with it. Where
+    # the student submitted nothing at attempt 1 there is no such file — the
+    # record of that attempt is the standalone Student Feedback Sheet issued at
+    # the time — and demanding one would either block the build or push the
+    # assessor into marking a resit as though it were a first attempt, which
+    # loses the resit for invoicing and re-enrolment. Stated in the ledger,
+    # never inferred: a missing priorMarkedCopy on its own still fails.
+    $priorNotSubmitted = ($s.PSObject.Properties.Name.Contains('priorAttemptNotSubmitted') -and $s.priorAttemptNotSubmitted)
+    if ($priorNotSubmitted -and $attempt -lt 2) {
+        Fail "$who declares priorAttemptNotSubmitted at attempt $attempt. It describes the attempt before this one, so it says nothing until attempt 2."
+    }
+    # THE EARLIER ATTEMPT WAS MARKED, BUT THIS ATTEMPT ARRIVED AS A FRESH FILE.
+    # A student who resubmits a new copy of the pack rather than writing into
+    # the marked copy they were handed leaves nothing to stack: the earlier
+    # attempt's page and lines sit in a separate document that stays on file
+    # beside this one. Saying so here keeps that record honest — it is not a
+    # non-submission, and it is not a first attempt. Mechanically it behaves
+    # like priorAttemptNotSubmitted: one feedback page, unprefixed lines.
+    $priorSeparate = ($s.PSObject.Properties.Name.Contains('priorMarkedCopySeparate') -and $s.priorMarkedCopySeparate)
+    if ($priorSeparate -and $attempt -lt 2) {
+        Fail "$who declares priorMarkedCopySeparate at attempt $attempt. It describes the attempt before this one, so it says nothing until attempt 2."
+    }
+    if ($priorSeparate -and $priorNotSubmitted) {
+        Fail "$who declares both priorAttemptNotSubmitted and priorMarkedCopySeparate. The earlier attempt was either not submitted or marked into a separate file; it cannot be both."
+    }
+    $freshFile = ($priorNotSubmitted -or $priorSeparate)
+    # AN EARLIER ATTEMPT WHOSE RECORD IS NOT IN THIS FILE, at attempt 3 or
+    # later. A student whose attempt 1 was a non-submission stacks attempt 3
+    # onto the attempt-2 copy, and that copy carries one feedback page, not
+    # two. The ledger names those attempts ('attemptsNotInFile': [1]) so the
+    # gate expects the pages the file can actually hold and does not demand an
+    # attempt-1 page that was never written. Each must be an attempt before
+    # this one; the two flags above already describe the attempt immediately
+    # before, so this list is for anything earlier than that.
+    $notInFile = @()
+    if ($s.PSObject.Properties.Name.Contains('attemptsNotInFile') -and $null -ne $s.attemptsNotInFile) {
+        foreach ($a in @($s.attemptsNotInFile)) {
+            $n = 0
+            if (-not [int]::TryParse("$a", [ref]$n) -or $n -lt 1 -or $n -ge $attempt) {
+                Fail "${who}: attemptsNotInFile names '$a', which is not an attempt before attempt $attempt."
+            } elseif ($n -eq ($attempt - 1) -and -not $freshFile) {
+                Fail "${who}: attemptsNotInFile names attempt $n, the attempt immediately before this one. Say that with priorAttemptNotSubmitted or priorMarkedCopySeparate instead."
+            } else { $notInFile += $n }
+        }
+    }
+
     # --- per-tool judgements ------------------------------------------------
     $byTool = @{}
     foreach ($r in @($s.results)) { if ($r.toolId) { $byTool[$r.toolId] = $r } }
@@ -274,6 +322,21 @@ foreach ($s in @($L.students)) {
 
         $items = @()
         if ($r.PSObject.Properties.Name.Contains('items') -and $r.items) { $items = @($r.items) }
+
+        # ONE ITEM MAY ANSWER FOR SEVERAL QUESTIONS. Where the same fault runs
+        # through a run of questions — twenty answers copied from one source,
+        # say — twenty rows saying the same thing push every other item past
+        # the sheet's ten-row cap, and the student never sees the ones that
+        # differ. So an item may carry 'questionNos', the refs it covers, with
+        # 'questionNo' as the label the sheet prints. A question is matched to
+        # an item by its questionNo OR by membership of its questionNos.
+        function Test-ItemCovers([object]$item, [string]$ref) {
+            if ("$($item.questionNo)" -eq $ref) { return $true }
+            if ($item.PSObject.Properties.Name.Contains('questionNos') -and $item.questionNos) {
+                foreach ($x in @($item.questionNos)) { if ("$x".Trim() -eq $ref) { return $true } }
+            }
+            return $false
+        }
 
         # A non-submission is NYS, so the student gets a feedback sheet — and a
         # sheet with no rows tells them nothing. There is no question to fix
@@ -326,6 +389,27 @@ foreach ($s in @($L.students)) {
         # disagreeing, handed to the student and the auditor at once.
         $questions = @()
         if ($r.PSObject.Properties.Name.Contains('questions') -and $r.questions) { $questions = @($r.questions) }
+        # A question the student DELETED from their copy has no response box, so
+        # its outcome cannot be stamped anywhere — the builder places each line
+        # inside the box holding the answer, and the gate rejects one placed
+        # outside. 'absentQuestions' names those refs. They are the reason the
+        # tool is NYS, they must each be listed on the feedback sheet, and they
+        # carry no anchor because there is nothing in the file to anchor to.
+        $absentQ = @()
+        if ($r.PSObject.Properties.Name.Contains('absentQuestions') -and $r.absentQuestions) { $absentQ = @($r.absentQuestions) }
+        foreach ($aq in $absentQ) {
+            $aqRef = "$aq".Trim()
+            if (-not $aqRef) { Fail "$who / '$($t.name)': an entry in 'absentQuestions' is empty."; continue }
+            if ($result -ne 'NYS') {
+                Fail "$who / '$($t.name)': question '$aqRef' is missing from the submission but the tool is $result. A question the student did not answer cannot leave the tool Satisfactory."
+            }
+            if (-not (@($items | Where-Object { Test-ItemCovers $_ $aqRef }).Count)) {
+                Fail "$who / '$($t.name)': question '$aqRef' is missing from the submission but has no item on the feedback sheet. It is the reason the tool is NYS, so the student has to be told to complete it."
+            }
+            if (@($questions | Where-Object { "$($_.ref)" -eq $aqRef }).Count) {
+                Fail "$who / '$($t.name)': question '$aqRef' is in both 'questions' and 'absentQuestions'. A question is either in the submission and stamped, or missing from it and listed."
+            }
+        }
         if ($questions.Count -gt 0) {
             $seenRef = @{}
             foreach ($q in $questions) {
@@ -338,13 +422,13 @@ foreach ($s in @($L.students)) {
             if ($qNys.Count -gt 0 -and $result -ne 'NYS') {
                 Fail "$who / '$($t.name)': $($qNys.Count) question(s) marked NYS but the tool is $result. The marked copy and the SAR would disagree."
             }
-            if ($qNys.Count -eq 0 -and $result -eq 'NYS' -and $submitted) {
-                Fail "$who / '$($t.name)': the tool is NYS but every question is marked S. Say which question was not satisfactory."
+            if ($qNys.Count -eq 0 -and $result -eq 'NYS' -and $submitted -and $absentQ.Count -eq 0) {
+                Fail "$who / '$($t.name)': the tool is NYS but every question is marked S. Say which question was not satisfactory, or name the question missing from the submission in 'absentQuestions'."
             }
             # every NYS question should have a matching feedback item, or the
             # marked copy sends the student to a sheet that does not mention it
             foreach ($q in $qNys) {
-                if (-not (@($items | Where-Object { "$($_.questionNo)" -eq "$($q.ref)" }).Count)) {
+                if (-not (@($items | Where-Object { Test-ItemCovers $_ "$($q.ref)" }).Count)) {
                     Fail "$who / '$($t.name)': question '$($q.ref)' is NYS on the marked copy but has no item on the feedback sheet. The red line tells the student to refer to a sheet that does not mention it."
                 }
             }
@@ -362,9 +446,12 @@ foreach ($s in @($L.students)) {
         }
         $isObservationTool = ($t.PSObject.Properties.Name.Contains('isObservation') -and $t.isObservation)
 
-        if ($attempt -ge 2 -and $submitted -and
+        if ($attempt -ge 2 -and $submitted -and -not $freshFile -and
             -not ($r.PSObject.Properties.Name.Contains('priorMarkedCopy') -and $r.priorMarkedCopy)) {
-            Fail "$who / '$($t.name)': this is attempt $attempt, so the ledger must name 'priorMarkedCopy' — the file already marked at the previous attempt. Marking the raw submission again would lose that attempt's feedback page and its outcome lines, which are the audit trail."
+            Fail "$who / '$($t.name)': this is attempt $attempt, so the ledger must name 'priorMarkedCopy' — the file already marked at the previous attempt. Marking the raw submission again would lose that attempt's feedback page and its outcome lines, which are the audit trail. Where the earlier attempt was a non-submission there is no such file: say so with 'priorAttemptNotSubmitted': true on the student. Where it was marked but the student resubmitted a fresh copy of the pack, say so with 'priorMarkedCopySeparate': true — the earlier marked copy stays on file beside this one."
+        }
+        if ($freshFile -and $submitted -and ($r.PSObject.Properties.Name.Contains('priorMarkedCopy') -and $r.priorMarkedCopy)) {
+            Fail "$who / '$($t.name)': names a priorMarkedCopy while the student says nothing stacks (priorAttemptNotSubmitted or priorMarkedCopySeparate). One or the other."
         }
         # An observation tool needs the assessor's record of what was observed —
         # unless what arrived was another unit's assessment, in which case there
@@ -373,15 +460,20 @@ foreach ($s in @($L.students)) {
         if ($isObservationTool -and $submitted -and -not $wrongAssessment -and $observations.Count -eq 0) {
             Fail "$who / '$($t.name)': this is an observation tool, so it needs a brief point-form observation record. Add 'observations' to this result — one short point per thing you observed."
         }
+        # THREE POINTS, MINIMUM. The RTO's rule of 8 September 2026: where the
+        # sheet gives room, fill it — a notes cell carrying one line records
+        # that somebody watched rather than what they saw. The observation
+        # standard already asks for three specifics from the student's own work,
+        # and this is that rule at the point it can be enforced.
+        if ($isObservationTool -and $submitted -and -not $wrongAssessment -and $observations.Count -gt 0 -and $observations.Count -lt 3) {
+            Fail "$who / '$($t.name)': the observation record has $($observations.Count) point(s). Write at least three, each naming something specific to this student's own work."
+        }
         if ($observations.Count -gt 0 -and -not $submitted) {
             Fail "$who / '$($t.name)': nothing was submitted or observed, so there can be no observation record. Remove 'observations'."
         }
         foreach ($point in $observations) {
             foreach ($h in @(Test-FeedbackStyle -Text "$point" -Where "$who / '$($t.name)' / observation point")) {
                 Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
-            }
-            foreach ($h in @(Test-LearnerPronouns -Text "$point" -Where "$who / '$($t.name)' / observation point")) {
-                Fail ("{0}: the word '{1}' - the RTO does not call a learner he or she. {2} - `"{3}`"" -f $h.where, $h.word, $h.fix, $h.near)
             }
         }
 
@@ -449,106 +541,7 @@ foreach ($s in @($L.students)) {
                     if (-not $fld.label) { Fail "$who / '$($t.name)': an observationSheet field has no label." }
                     if (-not $fld.PSObject.Properties.Name.Contains('value') -or "$($fld.value)".Trim() -eq '') {
                         Fail "$who / '$($t.name)': observationSheet field '$($fld.label)' has no value. A field left blank on a signed observation sheet reads as nobody filled it in."
-                        foreach ($h in @(Test-LearnerPronouns -Text $text -Where "$who / '$($t.name)' / criterion comment $($ci + 1)")) {
-                            Fail ("{0}: the word '{1}' - the RTO does not call a learner he or she. {2} - `"{3}`"" -f $h.where, $h.word, $h.fix, $h.near)
-                        }
                     }
-                }
-
-                # snsChecklists — one per S / NS tick-box grid in the
-                # submission, in document order. A practical tool observed on
-                # two occasions carries two grids, and each needs its own
-                # outcomes, its own overall outcome and its own comments box.
-                # Same floor as the observation record, because that box IS the
-                # record for that occasion.
-                $sns = @()
-                if ($sheet.PSObject.Properties.Name.Contains('snsChecklists') -and $sheet.snsChecklists) {
-                    $sns = @($sheet.snsChecklists)
-                }
-                $snsSeen = @{}
-                # A checklist split across two tables carries its outcome and
-                # its comments on the second of them, so the record is required
-                # once per TOOL rather than once per grid.
-                $snsRecorded = $false
-                for ($si = 0; $si -lt $sns.Count; $si++) {
-                    $cl = $sns[$si]
-                    $n  = $si + 1
-                    # 'outcome' and 'comments' are both optional, because the
-                    # small-table instrument records its overall outcome and its
-                    # commentary somewhere other than beside each grid. What is
-                    # never optional is the per-criterion judgement.
-                    if ("$($cl.outcome)" -ne '' -and "$($cl.outcome)" -notin @('S','NS')) {
-                        Fail "$who / '$($t.name)': observation checklist $n outcome must be 'S' or 'NS', got '$($cl.outcome)'."
-                    }
-                    if ("$($cl.outcome)" -eq 'NS' -and $result -ne 'NYS') {
-                        Fail "$who / '$($t.name)': observation checklist $n is Not Satisfactory but the tool is $result. The checklist and the SAR would disagree."
-                    }
-                    # 'decision' answers the task decision line printed after
-                    # this grid, where the instrument prints one. It is allowed
-                    # to be Satisfactory under an NYS tool - a practical the
-                    # assessor watched and accepted stays accepted when the
-                    # tool fails on written evidence - but an NS decision under
-                    # a Satisfactory tool would contradict the SAR.
-                    if ("$($cl.decision)" -ne '' -and "$($cl.decision)" -notin @('S','NS')) {
-                        Fail "$who / '$($t.name)': observation checklist $n decision must be 'S' or 'NS', got '$($cl.decision)'."
-                    }
-                    if ("$($cl.decision)" -eq 'NS' -and $result -ne 'NYS') {
-                        Fail "$who / '$($t.name)': observation checklist $n records a Not Yet Satisfactory task decision but the tool is $result. The marked copy and the SAR would disagree."
-                    }
-                    $cn = @()
-                    if ($cl.PSObject.Properties.Name.Contains('notes') -and $cl.notes) { $cn = @($cl.notes) }
-                    if ($cn.Count -gt 0 -and $cn.Count -ne @($cl.outcomes).Count) {
-                        Fail "$who / '$($t.name)': observation checklist $n gives $($cn.Count) note(s) for $(@($cl.outcomes).Count) criterion outcome(s). Give one per row, blank where there is nothing to add."
-                    }
-                    foreach ($nt in $cn) {
-                        if ("$nt".Trim() -eq '') { continue }
-                        foreach ($h in @(Test-FeedbackStyle -Text "$nt" -Where "$who / '$($t.name)' / observation checklist $n note")) {
-                            Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
-                        }
-                        foreach ($h in @(Test-LearnerPronouns -Text "$nt" -Where "$who / '$($t.name)' / observation checklist $n note")) {
-                            Fail ("{0}: the word '{1}' - the RTO does not call a learner he or she. {2} - `"{3}`"" -f $h.where, $h.word, $h.fix, $h.near)
-                        }
-                    }
-                    $co = @($cl.outcomes)
-                    if ($co.Count -eq 0) { Fail "$who / '$($t.name)': observation checklist $n has no per-criterion outcomes." }
-                    foreach ($o in $co) {
-                        if ("$o" -notin @('S','NS')) { Fail "$who / '$($t.name)': observation checklist $n outcomes must each be 'S' or 'NS', got '$o'." }
-                    }
-                    if ("$($cl.outcome)" -eq 'S' -and @($co | Where-Object { "$_" -eq 'NS' }).Count -gt 0) {
-                        Fail "$who / '$($t.name)': observation checklist $n is Satisfactory overall but has a criterion marked NS."
-                    }
-                    if ("$($cl.outcome)" -eq 'NS' -and @($co | Where-Object { "$_" -eq 'NS' }).Count -eq 0) {
-                        Fail "$who / '$($t.name)': observation checklist $n is Not Satisfactory overall but every criterion is marked S. Say which behaviour was not met."
-                    }
-                    if (@($cn | Where-Object { "$_".Trim() -ne '' }).Count -gt 0) { $snsRecorded = $true }
-                    $cp = @((("$($cl.comments)") -split "`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
-                    if ($cp.Count -eq 0) { continue }
-                    $snsRecorded = $true
-                    if (-not $cl.assessor)  { Fail "$who / '$($t.name)': observation checklist $n has no assessor name for its sign-off line." }
-                    if (-not $cl.dateText)  { Fail "$who / '$($t.name)': observation checklist $n has no dateText for its sign-off line." }
-                    if ($cp.Count -lt 2) {
-                        Fail "$who / '$($t.name)': observation checklist $n comments run to $($cp.Count) paragraph(s); the RTO requires at least 2. Separate them with a newline."
-                    }
-                    for ($pi = 0; $pi -lt $cp.Count; $pi++) {
-                        $wc = @(($cp[$pi] -split '\s+') | Where-Object { $_ -ne '' }).Count
-                        if ($wc -lt 25) {
-                            Fail "$who / '$($t.name)': observation checklist $n, comment paragraph $($pi + 1) is $wc word(s); the RTO requires at least 25. Say what you saw this student do."
-                        }
-                    }
-                    $key = (("$($cl.comments)") -replace '\s+', ' ').Trim().ToLowerInvariant()
-                    if ($snsSeen.ContainsKey($key)) {
-                        Fail "$who / '$($t.name)': observation checklist $n repeats checklist $($snsSeen[$key]) word for word. Each occasion is a different project and needs its own record."
-                    }
-                    $snsSeen[$key] = $n
-                    foreach ($h in @(Test-FeedbackStyle -Text "$($cl.comments)" -Where "$who / '$($t.name)' / observation checklist $n")) {
-                        Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
-                    }
-                    foreach ($h in @(Test-LearnerPronouns -Text "$($cl.comments)" -Where "$who / '$($t.name)' / observation checklist $n")) {
-                        Fail ("{0}: the word '{1}' - the RTO does not call a learner he or she. {2} - `"{3}`"" -f $h.where, $h.word, $h.fix, $h.near)
-                    }
-                }
-                if ($sns.Count -gt 0 -and -not $snsRecorded) {
-                    Fail "$who / '$($t.name)': the observation checklists carry no comments and no notes, so nothing on them records what was observed."
                 }
                 if ($sheet.PSObject.Properties.Name.Contains('feedback') -and $sheet.feedback) {
                     if (-not $sheet.feedbackAnchor) { Fail "$who / '$($t.name)': observationSheet.feedback was written but there is no feedbackAnchor saying where it goes." }
@@ -709,6 +702,10 @@ foreach ($s in @($L.students)) {
             aiFlagged      = $aiFlagged
             evidence       = $(if ($r.PSObject.Properties.Name.Contains('evidence')) { $r.evidence } else { $null })
             questions      = $questions
+            # Named so the record shows WHY the tool is NYS when no question
+            # carries a red line. The builder never anchors these: the question
+            # is not in the file.
+            absentQuestions = $absentQ
             observations   = $observations
             # RESUBMISSIONS STACK. At attempt 2 the marked copy is built FROM
             # the file marked at attempt 1, so that attempt's feedback page and
@@ -718,6 +715,9 @@ foreach ($s in @($L.students)) {
             isObservation  = [bool]$isObservationTool
             observationSheet = $(if ($sheetInSubmission) { $sheet } else { $null })
             questionsEndAnchor = $(if ($r.PSObject.Properties.Name.Contains('questionsEndAnchor')) { $r.questionsEndAnchor } else { $null })
+            # An end anchor matched as a whole paragraph rather than a
+            # substring, for a heading the pack also quotes in prose before it.
+            questionsEndAnchorExact = $(if ($r.PSObject.Properties.Name.Contains('questionsEndAnchorExact')) { [bool]$r.questionsEndAnchorExact } else { $false })
             # THE TASKS HAVE TO REACH THE BUILDER. They were validated above and
             # then dropped here, so a ledger naming three activities produced a
             # marked copy with no judgement on any of them â€” and the gate agreed,
@@ -726,6 +726,7 @@ foreach ($s in @($L.students)) {
             # check reports as a pass.
             tasks          = $taskList
             tasksEndAnchor = $(if ($r.PSObject.Properties.Name.Contains('tasksEndAnchor')) { $r.tasksEndAnchor } else { $null })
+            tasksEndAnchorExact = $(if ($r.PSObject.Properties.Name.Contains('tasksEndAnchorExact')) { [bool]$r.tasksEndAnchorExact } else { $false })
             checklistMarker = $(if ($r.PSObject.Properties.Name.Contains('checklistMarker')) { $r.checklistMarker } else { $null })
             items          = $items
         }
@@ -843,6 +844,20 @@ foreach ($s in @($L.students)) {
         fullName            = "$($s.firstName) $($s.surname)"
         studentId           = $s.studentId
         attempt             = $attempt
+        priorAttemptNotSubmitted = [bool]$priorNotSubmitted
+        priorMarkedCopySeparate  = [bool]$priorSeparate
+        # True where nothing stacks — this attempt's file carries no earlier
+        # page or outcome line of ours, for either of the two reasons above.
+        # The builder and the gate read this one field.
+        freshFile           = [bool]$freshFile
+        attemptsNotInFile   = @($notInFile)
+        # A CLERICAL CORRECTION TO THE STUDENT'S OWN COVER SHEET, label by
+        # label. The builder leaves anything the student wrote alone, which is
+        # right for their answers and wrong for a student ID that belongs to
+        # somebody else — that one is the RTO's own record and a wrong one files
+        # the assessment against another learner. Named here so the correction
+        # is in the ledger rather than in someone's memory of the day.
+        coverSheetCorrections = @($(if ($s.PSObject.Properties.Name.Contains('coverSheetCorrections')) { $s.coverSheetCorrections } else { @() }))
         results             = $resolvedResults
         overall             = $overall
         comment             = $comment
@@ -993,6 +1008,12 @@ foreach ($rs in $resolvedStudents) {
             # earlier attempt's feedback page travels forward intact.
             priorMarkedCopy = @(@($g.results | ForEach-Object { $_.priorMarkedCopy } | Where-Object { $_ }))[0]
             attempt   = $rs.attempt
+            # Attempt 2 after a non-submission carries one feedback page, not
+            # two: there was no marked copy at attempt 1 to carry forward.
+            priorAttemptNotSubmitted = $rs.priorAttemptNotSubmitted
+            priorMarkedCopySeparate  = $rs.priorMarkedCopySeparate
+            freshFile = $rs.freshFile
+            attemptsNotInFile = @($rs.attemptsNotInFile)
             toolIds   = $toolIds
             toolNames = @($g.results | ForEach-Object { $_.toolName })
         }

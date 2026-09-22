@@ -78,9 +78,9 @@ foreach ($lf in $ledgers) {
     $lbl = ($lbl -replace '[\\/:*?"<>|]', '-').Trim()
     foreach ($s in @($peek.students)) {
         $nm = (($s.fullName -replace '[\\/:*?"<>|]', ' ') -replace '\s+', ' ').Trim()
-        $folder = "{0:00} {1} ({2})" -f [int]$s.serial, $nm, $s.studentId
-        $docs = @($s.sarFile) + @($s.markedCopyFiles)
-        if ($s.needsFeedbackSheet) { $docs += $s.feedbackFile }
+        $folder = "{0} ({1})" -f $nm, $s.studentId
+        $docs = @($s.sarFile -replace '\.docx$', '.pdf') + @($s.markedCopyFiles)
+        if ($s.needsFeedbackSheet) { $docs += ($s.feedbackFile -replace '\.docx$', '.pdf') }
         foreach ($d in $docs) {
             if (-not $d) { continue }
             $len = $outFull.Length + 1 + $lbl.Length + 1 + $folder.Length + 1 + $d.Length
@@ -119,8 +119,14 @@ foreach ($lf in $ledgers) {
     $folders++
 
     # ---- the group's own record ------------------------------------------
+    # A GROUP OF ONE HAS NO CLASS RECORD. The marking record is not built for a
+    # class of one (a resubmission run for a single learner is the usual case),
+    # so its absence there is not a missing document.
     $rec = Join-Path $RecordDir $L.amrrFile
-    if (-not (Test-Path -LiteralPath $rec)) {
+    if (@($L.students).Count -lt 2) {
+        if (-not $Quiet) { Write-Output ("  {0}: one student, so no class record is expected" -f $L.group.name) }
+    }
+    elseif (-not (Test-Path -LiteralPath $rec)) {
         [void]$missing.Add("$($L.group.name): marking record $($L.amrrFile) is not in $RecordDir")
     } else {
         Copy-Item -LiteralPath $rec -Destination (Join-Path $groupDir $L.amrrFile) -Force
@@ -135,21 +141,28 @@ foreach ($lf in $ledgers) {
         }
         $placed[$s.studentId] = $label
 
+        # NAME AND ID, and no serial. The serial is a row number on the class
+        # record and it changes whenever that record is rebuilt — a learner
+        # withdrawn from a group renumbers everybody below them, and folders
+        # that rename themselves are folders somebody has to re-file.
         $safeName = ($s.fullName -replace '[\\/:*?"<>|]', ' ') -replace '\s+', ' '
-        $stuDir = Join-Path $groupDir ("{0:00} {1} ({2})" -f [int]$s.serial, $safeName.Trim(), $s.studentId)
+        $stuDir = Join-Path $groupDir ("{0} ({1})" -f $safeName.Trim(), $s.studentId)
         New-Item -ItemType Directory -Force -Path $stuDir | Out-Null
 
         $prefer = @()
         if ($s.PSObject.Properties.Name -contains 'sourceDir' -and $s.sourceDir) { $prefer += $s.sourceDir }
 
+        # THE RTO'S RULE, 10 September 2026: the SAR and the standalone feedback
+        # sheet go in as PDF and the Word original does not go in at all. The
+        # marked assessment stays in Word — it is the student's own document
+        # going back to them, and their resubmission is written into it.
         $want = New-Object System.Collections.ArrayList
-        [void]$want.Add(@{ kind = 'SAR'; name = $s.sarFile; required = $true })
+        [void]$want.Add(@{ kind = 'SAR'; name = ($s.sarFile -replace '\.docx$', '.pdf'); required = $true })
         foreach ($mc in @($s.markedCopyFiles)) {
             if ($mc) { [void]$want.Add(@{ kind = 'MARKED'; name = $mc; required = $true }) }
         }
         if ($s.needsFeedbackSheet) {
-            [void]$want.Add(@{ kind = 'FEEDBACK'; name = $s.feedbackFile; required = $true })
-            [void]$want.Add(@{ kind = 'FEEDBACK'; name = ($s.feedbackFile -replace '\.docx$', '.pdf'); required = $false })
+            [void]$want.Add(@{ kind = 'FEEDBACK'; name = ($s.feedbackFile -replace '\.docx$', '.pdf'); required = $true })
         }
 
         foreach ($w in $want) {

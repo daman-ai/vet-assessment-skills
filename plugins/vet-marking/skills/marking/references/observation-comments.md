@@ -1,4 +1,4 @@
-# Writing the assessor comments on an observation sheet
+﻿# Writing the assessor comments on an observation sheet
 
 This is the house standard for the prose that goes into an **Assessor comments**
 area on a practical observation sheet. It is narrower and stricter than the
@@ -87,6 +87,26 @@ applies it wherever `observationSheet.layout` is `columns`.
 Include the assessment date **once**, and only if the comments area itself
 requires it. Where the sheet has its own date field, leave it out — a date
 written twice is a date that can disagree with itself.
+
+## The notes cell, and what never goes in it
+
+**Settled by the RTO on 8 September 2026.** The observation record written into
+a sheet's notes cell carries the assessor's account of watching this student and
+nothing else.
+
+- **No banner.** `ASSESSOR OBSERVATION RECORD` is not written above it. The
+  sheet already says whose record it is.
+- **No completion line.** `Observation completed by the assessor on …` is not
+  written under it. The sheet's sign-off row carries the date.
+- **At least three points**, and more wherever the cell has room. The resolver
+  refuses fewer than three. A notes cell holding one line records that somebody
+  watched rather than what they saw.
+- **Write what the learner did**, naming their own choices — the time they
+  started, the person they allocated, the figure they quoted, the contingency
+  they planned for. Cover the name and the record must still say whose it is.
+- **The sign-off row is filled too**: the assessor's name against the signature
+  label and the date of assessment against the date label. No box the trainer
+  owns comes back empty.
 
 ## Uniqueness — the rule that matters most
 

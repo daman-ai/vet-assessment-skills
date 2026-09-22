@@ -1,4 +1,4 @@
-{
+﻿{
     "_comment":  "Adelaide Culinary Institute. MEASURED — three templates supplied and measured with Measure-Template.ps1 on 2026-09-01. Same legal entity as Adelaide Construction Institute (Bush Tukka Pty Ltd, RTO 45797, CRICOS 03978F) trading under a second name, but the two sets of templates are NOT the same files: different placeholder colour, different RTO row treatment, different document numbers. They are registered separately and deliberately. REVISED 2 September 2026: the STUDENT FEEDBACK SHEET is now one layout and one palette across all three brands (accent 234B8C, fills F0F2F7 / F7F9FC, rules C3CBDA, unfilled-field grey 8E96A3), on the RTO instruction. The three feedback templates differ only in the RTO row. The SAR and the marking record are still each brand\u0027s own document.",
     "key":  "aci-culinary",
     "rto":  {
@@ -169,10 +169,10 @@
                                                                             1480,
                                                                             1480,
                                                                             1180,
-                                                                            1620,
-                                                                            1620,
+                                                                            1400,
+                                                                            1400,
                                                                             1080,
-                                                                            1130,
+                                                                            1570,
                                                                             1520,
                                                                             1030,
                                                                             2122
@@ -264,10 +264,10 @@
                              "overallNotCompetentText":  "Overall result: Not Yet Competent",
                              "overallWithheldText":  "Overall result: Result Withheld",
                              "referralText":  "See the feedback on this page for the items to correct and the resubmission date.",
-                             "observationHeading":  "ASSESSOR OBSERVATION RECORD",
+                             "observationHeading":  "",
                              "taskCommentHeading":  "ASSESSOR COMMENT",
                              "observationBullet":  "•",
-                             "observationCompletedText":  "Observation completed by the assessor on",
+                             "observationCompletedText":  "",
                              "feedbackPage":  {
                                                   "title":  "Student Feedback Sheet",
                                                   "detailsHeading":  "Student and Unit Details",

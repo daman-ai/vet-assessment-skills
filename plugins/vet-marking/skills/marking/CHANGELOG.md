@@ -1,44 +1,68 @@
-# Changelog
+﻿# Changelog
 
-## v2.8.0 — 9 September 2026
+## v2.9.0 — 8 September 2026
 
-The 7 and 8 September fixes from the CPCCCM2008, CPCCSP2002 and CPCCSP2003
-marking runs, merged onto v2.7.0. That work was done on the machine against the
-pre-v2.6.0 line, so this is a merge in both directions: its fixes came across,
-and nothing v2.7.0 carried was taken back out.
+### What the student left blank is now found, not noticed
 
-### S / NS checklist grids
+`Test-SubmissionBlanks.ps1` reads every submission in a cohort together and
+reports unanswered questions, blank signature and date lines, and empty cells
+above the floor the layout itself leaves. Template text is what several copies
+share, so what is left inside a question block is the student's own answer.
 
-A third observation-sheet shape: criteria down the rows, bare boxes under **S**
-and **NS** headings, no `Yes`/`No` words anywhere. `snsChecklists` takes one
-entry per grid in document order, each with its own `outcomes`, and where the
-instrument provides them an `outcome`, a `comments` box, a per-row `notes`
-column and a `decision` answering the task decision line printed after the grid.
-A count that does not match the grids found is a hard failure.
+**The RTO's rule, given the same day: a task left unanswered, a record left
+undated, a signature line left empty is a requirement not demonstrated, and the
+tool is NYS for it.** Stage 3b of SKILL.md runs the check; the assessor reads
+the finding and marks it.
 
-Three spellings of the pair are in circulation — `S`/`NS`, `S`/`NYS` and
-`Satisfactory`/`Not yet` — and the not-satisfactory heading is matched first, or
-`Not yet` is claimed by the satisfactory pattern and both columns address one
-cell. Two characters are used for an empty box, WHITE SQUARE and BALLOT BOX.
+On SITXMGT004 it found what four readings had missed: 36 unsigned or undated
+role-play records across four submissions, from two on the tidiest copy to
+sixteen on another. It also demonstrated why the empty-cell count is a pointer
+and not a verdict — one learner typed her whole workflow plan into a single cell,
+leaving 36 grid cells empty behind complete work.
 
-### The learner is not called he or she
+### Trainer and assessor details, everywhere they appear
 
-`Test-LearnerPronouns` refuses a gendered pronoun in assessor prose — observation
-records, criterion comments, checklist comments and notes. Feedback written *to*
-the student is second person and is not checked.
+A cover-sheet field may now name `"onRule": true`, which writes the value onto a
+printed rule of underscores inside a cell that also carries the RTO's own
+instructions — `Date Pre-requisite assessed ____/____/____` was the box that
+could not be filled without deleting the paragraph beside it.
+## v2.8.0 — 8 September 2026
 
-### Three silent writers
+Four rulings from the RTO, taken on SITXMGT004.
 
-- **A paragraph's own mark carries a colour, and it is read before the run's.**
-  `w:pPr/w:rPr/w:color` tints only the pilcrow, so it changes nothing a reader
-  sees, but it is the first `w:color` in the paragraph. Three green Satisfactory
-  lines were reported as black. `Set-CellText` and `Add-CellLine` now clear it.
-- **A submission with no table at all** — one arrived as fifty-three page images
-  and nothing else — now reports its content box on the text margin rather than
-  returning `$null`, so the front block and the feedback sheet are sized to the
-  same box the gate measures.
-- **`Test-AiFlag` unrolled a single-object JSON file into nothing.** It now
-  appends element by element.
+### The outcome follows the answer, never sits between question and answer
+
+`Get-OutcomeTargetIndex` skipped back over a short run of the next question's
+table to avoid landing among its heading rows. Where a question's stem, the
+student's answer and the next stem all sat in ONE table — the workbook's
+"Feedback on the daily tasks" block does — every paragraph between them belonged
+to that table, so the skip walked back over the answer and printed the outcome
+between the question and the answer it judged. The skip is now applied only
+where the next question opens a table of its own.
+
+### No banner and no completion line in the notes cell
+
+`observationHeading` and `observationCompletedText` are empty in all three RTO
+profiles, and an empty string prints nothing. The record in the notes cell is
+the assessor's account of what the learner did, and the sheet already says
+whose record it is. The gate no longer counts bullets between two markers that
+are gone: where the heading is suppressed it matches each observation point by
+its own words, which is the stronger test.
+
+### The sign-off row is filled
+
+`Set-SheetSignOff` writes the assessor's name against the signature label and
+the date of assessment against the date label, into the cell beside the label
+where the sheet gives one and onto a new line inside the label's own cell where
+it does not. A cell the trainer filled on the day is left alone.
+
+### At least three observation points, and several cover blocks
+
+The resolver refuses an observation record of fewer than three points — where
+the sheet gives room, fill it. And `coverSheet` now takes an array as well as a
+single block, because a pack that prints its identity block twice left the
+second one blank: `Write-CoverSheet` fills every block the ledger names and
+`CoverSheetFilled` checks every one.
 ## v2.7.0 — 7 September 2026
 
 Merged the 6 September group-packaging branch onto v2.6.0. That branch was cut

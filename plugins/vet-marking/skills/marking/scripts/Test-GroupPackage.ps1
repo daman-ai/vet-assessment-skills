@@ -15,6 +15,9 @@
     StudentFolderPerRow     one folder per student on the ledger, named for them
     StudentInOneGroupOnly   no student ID appears under two group folders
     NoDuplicateDocument     no document appears twice in the package
+    RecordsArePdf           the SAR and the feedback sheet are PDFs, and the
+                            Word original of neither is in the package - a Word
+                            record is an editable record
     SarAndMarkedPresent     every student folder holds that student's SAR, and
                             their marked copy where the run produced one
     FeedbackWhereIssued     a standalone feedback sheet where the run issued one
@@ -67,7 +70,7 @@ Add-Check 'GroupFolderPerLedger' ($probs.Count -eq 0) `
     $(if ($probs.Count) { ($probs | Select-Object -First 4) -join ' · ' } else { "$($expected.Count) group folder(s), one per ledger" })
 
 # ------------------------------- 2-8. per group, per student ----------------
-$recProbs = @(); $listProbs = @(); $folderProbs = @(); $sarProbs = @(); $fbProbs = @(); $extraProbs = @()
+$recProbs = @(); $listProbs = @(); $folderProbs = @(); $sarProbs = @(); $fbProbs = @(); $extraProbs = @(); $pdfProbs = @()
 $seenStudent = @{}; $crossProbs = @()
 $fileCount = @{}
 $studentFolders = 0
@@ -79,7 +82,11 @@ foreach ($label in ($expected.Keys | Sort-Object)) {
 
     # ---- the record ------------------------------------------------------
     $rec = Join-Path $gDir $L.amrrFile
-    if (-not (Test-Path -LiteralPath $rec)) {
+    if (@($L.students).Count -lt 2) {
+        # a group of one has no class record — it is not built for a class of one
+        if (Test-Path -LiteralPath $rec) { $recProbs += "$label : $($L.amrrFile) is present for a group of one; no class record is built for one student" }
+    }
+    elseif (-not (Test-Path -LiteralPath $rec)) {
         $recProbs += "$label : $($L.amrrFile) missing"
     } else {
         $fileCount[$L.amrrFile] = 1 + ($(if ($fileCount.ContainsKey($L.amrrFile)) { $fileCount[$L.amrrFile] } else { 0 }))
@@ -99,7 +106,7 @@ foreach ($label in ($expected.Keys | Sort-Object)) {
     $subs = @(Get-ChildItem -LiteralPath $gDir -Directory | ForEach-Object { $_.Name })
     foreach ($s in @($L.students)) {
         $safeName = ($s.fullName -replace '[\\/:*?"<>|]', ' ') -replace '\s+', ' '
-        $want = "{0:00} {1} ({2})" -f [int]$s.serial, $safeName.Trim(), $s.studentId
+        $want = "{0} ({1})" -f $safeName.Trim(), $s.studentId
         if ($subs -notcontains $want) { $folderProbs += "$label : no folder '$want'"; continue }
         $studentFolders++
 
@@ -112,23 +119,32 @@ foreach ($label in ($expected.Keys | Sort-Object)) {
         $files = @(Get-ChildItem -LiteralPath $sDir -File | ForEach-Object { $_.Name })
         foreach ($f in $files) { $fileCount[$f] = 1 + ($(if ($fileCount.ContainsKey($f)) { $fileCount[$f] } else { 0 })) }
 
-        if ($files -notcontains $s.sarFile) { $sarProbs += "$($s.studentId): SAR $($s.sarFile) not in their folder" }
+        # THE RTO'S RULE, 10 September 2026: the SAR and the standalone feedback
+        # sheet leave as PDF, never as Word — a Word record is an editable
+        # record. The marked assessment stays in Word, because it is the
+        # student's own document going back to them.
+        $sarPdf = ($s.sarFile -replace '\.docx$', '.pdf')
+        $fbPdf  = ($s.feedbackFile -replace '\.docx$', '.pdf')
+        if ($files -notcontains $sarPdf) { $sarProbs += "$($s.studentId): no PDF Student Assessment Record ($sarPdf) in their folder" }
+        if ($files -contains $s.sarFile) { $pdfProbs += "$($s.studentId): the SAR is in the package as Word. It leaves as PDF." }
         foreach ($mc in @($s.markedCopyFiles)) {
             if ($mc -and ($files -notcontains $mc)) { $sarProbs += "$($s.studentId): marked copy $mc not in their folder" }
         }
-        if ($s.needsFeedbackSheet -and ($files -notcontains $s.feedbackFile)) {
-            $fbProbs += "$($s.studentId): feedback sheet $($s.feedbackFile) not in their folder"
+        if ($s.needsFeedbackSheet) {
+            if ($files -notcontains $fbPdf) { $fbProbs += "$($s.studentId): no PDF feedback form ($fbPdf) in their folder" }
+            if ($files -contains $s.feedbackFile) { $pdfProbs += "$($s.studentId): the feedback sheet is in the package as Word. It leaves as PDF." }
         }
 
-        # every file in the folder is one this student's ledger row names
-        $named = @($s.sarFile) + @($s.markedCopyFiles)
-        if ($s.needsFeedbackSheet) { $named += $s.feedbackFile; $named += ($s.feedbackFile -replace '\.docx$', '.pdf') }
+        # every file in the folder is one this student's ledger row names, and
+        # nothing else — no ledger, no judgement file, no working copy
+        $named = @($sarPdf) + @($s.markedCopyFiles)
+        if ($s.needsFeedbackSheet) { $named += $fbPdf }
         foreach ($f in $files) {
             if ($named -notcontains $f) { $extraProbs += "$($s.studentId): '$f' is not a document this student's record names" }
         }
     }
     foreach ($sub in $subs) {
-        $known = @($L.students | ForEach-Object { "{0:00} {1} ({2})" -f [int]$_.serial, ((($_.fullName -replace '[\\/:*?"<>|]', ' ') -replace '\s+',' ').Trim()), $_.studentId })
+        $known = @($L.students | ForEach-Object { "{0} ({1})" -f ((($_.fullName -replace '[\\/:*?"<>|]', ' ') -replace '\s+',' ').Trim()), $_.studentId })
         if ($known -notcontains $sub) { $extraProbs += "$label : folder '$sub' matches no student on the ledger" }
     }
 }
@@ -139,6 +155,7 @@ Add-Check 'StudentFolderPerRow'  ($folderProbs.Count -eq 0) $(if ($folderProbs.C
 Add-Check 'StudentInOneGroupOnly' ($crossProbs.Count -eq 0) $(if ($crossProbs.Count)  { ($crossProbs  | Select-Object -First 4) -join ' · ' } else { "$($seenStudent.Count) student(s), each under exactly one group" })
 Add-Check 'SarAndMarkedPresent'  ($sarProbs.Count    -eq 0) $(if ($sarProbs.Count)    { ($sarProbs    | Select-Object -First 4) -join ' · ' } else { 'every student folder holds the SAR and the marked copy of the student it is named for' })
 Add-Check 'FeedbackWhereIssued'  ($fbProbs.Count     -eq 0) $(if ($fbProbs.Count)     { ($fbProbs     | Select-Object -First 4) -join ' · ' } else { 'a standalone feedback sheet wherever the run issued one' })
+Add-Check 'RecordsArePdf'        ($pdfProbs.Count    -eq 0) $(if ($pdfProbs.Count)    { ($pdfProbs    | Select-Object -First 4) -join ' · ' } else { 'every SAR and feedback sheet leaves as PDF, and only the marked copy is Word' })
 Add-Check 'EveryDocumentAccounted' ($extraProbs.Count -eq 0) $(if ($extraProbs.Count) { ($extraProbs  | Select-Object -First 4) -join ' · ' } else { 'nothing in the package that the group ledgers do not name' })
 
 # --------------------------------------------- 9. no document copied twice --

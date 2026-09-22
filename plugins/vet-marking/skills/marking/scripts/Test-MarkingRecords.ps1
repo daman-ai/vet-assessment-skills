@@ -30,7 +30,6 @@
     MarkedCopyInAnswerSpace  every outcome line sits in the answer it judges
     MarkedCopyDeclarationPage the declaration is a page of its own, before the student's
     MarkedCopyObservationSheet the observation record is in the sheet, not bolted on the front
-    MarkedCopySnsChecklist   every S/NS grid is ticked, signed and commented as the ledger judges it
     MarkedCopyFrontBlockAligned  the front block sits on the content's own edges
     NoBannedWord             the RTO's banned word appears in no issued document
     NoMojibake               no double-encoded characters
@@ -384,7 +383,9 @@ for ($i = 0; $i -lt [Math]::Min($amrrRows.Count, $L.students.Count); $i++) {
 
     $o = 4 + $nTools
     if ($c[$o].Trim()     -ne $s.overall)                    { $agree += "row $($i+1): overall '$($c[$o].Trim())' vs ledger '$($s.overall)'" }
-    if ($c[$o+1].Trim()   -ne $L.dates.feedbackGivenText)    { $agree += "row $($i+1): Feedback Given '$($c[$o+1].Trim())' is not the marking date" }
+    # a consolidated group ledger carries each learner's own feedback-given date
+    $fbWant = if ($s.PSObject.Properties.Name -contains 'feedbackGivenText' -and $s.feedbackGivenText) { $s.feedbackGivenText } else { $L.dates.feedbackGivenText }
+    if ($c[$o+1].Trim()   -ne $fbWant)                       { $agree += "row $($i+1): Feedback Given '$($c[$o+1].Trim())' is not the marking date ($fbWant)" }
     if ($c[$o+2].Trim()   -ne $s.resubmissionDueText)        { $agree += "row $($i+1): Resubmission Due '$($c[$o+2].Trim())' vs expected '$($s.resubmissionDueText)'" }
     $invoiceShown = ($c[$o+3].Trim() -eq "$BOX_T")
     if ($invoiceShown -ne [bool]$s.invoiceRaised)            { $agree += "row $($i+1): Invoice Raised is $invoiceShown, rule gives $($s.invoiceRaised)" }
@@ -626,21 +627,42 @@ if ($L.PSObject.Properties.Name.Contains('coverSheet') -and $L.coverSheet) {
         try {
             $ns    = $pkg.Ns
             $paras = @(Get-BodyParagraphs $pkg)
+            # EVERY BLOCK THE LEDGER NAMES. 'coverSheet' may be one block or an
+            # array of them — a pack that prints its identity block twice needs
+            # both filled, and both checked.
+            foreach ($cover in @($L.coverSheet)) {
             $startAt = -1
             for ($i = 0; $i -lt $paras.Count; $i++) {
-                if ((Get-RunText $paras[$i] $ns).IndexOf("$($L.coverSheet.anchor)", [StringComparison]::OrdinalIgnoreCase) -ge 0) { $startAt = $i; break }
+                if ((Get-RunText $paras[$i] $ns).IndexOf("$($cover.anchor)", [StringComparison]::OrdinalIgnoreCase) -ge 0) { $startAt = $i; break }
             }
-            if ($startAt -lt 0) { $coverProbs += "${name}: no cover sheet at '$($L.coverSheet.anchor)'"; continue }
+            if ($startAt -lt 0) { $coverProbs += "${name}: no cover sheet at '$($cover.anchor)'"; continue }
 
             $endAt = $paras.Count
-            if ($L.coverSheet.PSObject.Properties.Name.Contains('endAnchor') -and $L.coverSheet.endAnchor) {
+            if ($cover.PSObject.Properties.Name.Contains('endAnchor') -and $cover.endAnchor) {
                 for ($i = $startAt + 1; $i -lt $paras.Count; $i++) {
-                    if ((Get-RunText $paras[$i] $ns).IndexOf("$($L.coverSheet.endAnchor)", [StringComparison]::OrdinalIgnoreCase) -ge 0) { $endAt = $i; break }
+                    if ((Get-RunText $paras[$i] $ns).IndexOf("$($cover.endAnchor)", [StringComparison]::OrdinalIgnoreCase) -ge 0) { $endAt = $i; break }
                 }
             }
 
             $pIndex = @{}
             for ($i = 0; $i -lt $paras.Count; $i++) { $pIndex[$paras[$i]] = $i }
+
+            # A LABEL DOES NOT ALWAYS END IN A COLON. The trailing colon is the
+            # only way to tell a label from a value on a sheet the ledger has
+            # not described, so it stays. But MVC's BSBOPS601 cover sheet writes
+            # its labels bare — 'Student Name', 'Student ID', 'Trainer /
+            # Assessor' — and on that sheet the colon rule found nothing at all,
+            # reported 'nothing could be checked', and blocked eleven marked
+            # copies whose fields were in fact all filled.
+            #
+            # So the labels the LEDGER NAMES count as labels too. This only ever
+            # adds cells to the check: every colon-ending cell is still checked,
+            # and a label the ledger names but the sheet does not carry is
+            # already a hard failure in the builder.
+            $declared = @{}
+            foreach ($fld in @($cover.fields)) {
+                if ($fld -and "$($fld.label)".Trim()) { $declared["$($fld.label)".Trim()] = $true }
+            }
 
             $ownTable = Get-ParagraphTable $paras[$startAt]
             $seenRow  = $false
@@ -656,7 +678,7 @@ if ($L.PSObject.Properties.Name.Contains('coverSheet') -and $L.coverSheet) {
                     $cells = @(Get-Cells $tr $ns)
                     $texts = @($cells | ForEach-Object { ((("$($_.InnerText)") -replace '\s+', ' ').Trim()) })
                     for ($i = 0; $i -lt $texts.Count; $i++) {
-                        if (-not $texts[$i].EndsWith(':')) { continue }
+                        if (-not ($texts[$i].EndsWith(':') -or $declared.ContainsKey($texts[$i]))) { continue }
                         $seenRow = $true
                         if ($i -lt ($texts.Count - 1)) {
                             if (-not $texts[$i + 1]) { $coverProbs += "${name}: '$($texts[$i])' has no value" }
@@ -667,6 +689,7 @@ if ($L.PSObject.Properties.Name.Contains('coverSheet') -and $L.coverSheet) {
                 }
             }
             if (-not $seenRow) { $coverProbs += "${name}: the cover sheet carries no labelled field, so nothing could be checked" }
+            }
         } finally { Close-Docx $pkg }
     }
 }
@@ -674,15 +697,41 @@ Add-Check 'CoverSheetFilled' ($coverProbs.Count -eq 0) `
     $(if ($coverProbs.Count) { ($coverProbs | Select-Object -First 5) -join ' · ' } else { $(if ($L.coverSheet) { "every field on every returned cover sheet carries a value" } else { 'the ledger names no cover sheet, so none was filled or checked' }) })
 
 # ---- the withheld-result notice --------------------------------------------
+#
+# CHECKED ON BOTH DOCUMENTS A STUDENT IS HANDED. The notice used to be checked
+# on marked copies alone, so a student who is RW and submitted nothing was
+# issued a feedback sheet whose Overall result cell read RW with no explanation
+# anywhere on the page, and the gate passed. Whichever document comes back to
+# that student is the one that has to carry the reason.
 $rwProbs = @()
 $noticeHead = 'ASSESSMENT OUTCOME: RESULT WITHHELD'
-foreach ($name in $markedExpected.Keys) {
+$noticeTargets = @{}
+foreach ($k in $markedExpected.Keys)   { $noticeTargets[$k] = $markedExpected[$k].student }
+foreach ($k in $feedbackExpected.Keys) { $noticeTargets[$k] = $feedbackExpected[$k] }
+$noticeTitle = if ($Rto.markedAssessment -and $Rto.markedAssessment.feedbackPage -and $Rto.markedAssessment.feedbackPage.title) { "$($Rto.markedAssessment.feedbackPage.title)" } else { 'ASSESSMENT FEEDBACK' }
+foreach ($name in $noticeTargets.Keys) {
     if (-not $textOf.ContainsKey($name)) { continue }
-    $s    = $markedExpected[$name].student
+    $s    = $noticeTargets[$name]
     $blob = $textOf[$name]
+    # A STACKED COPY KEEPS THE EARLIER ATTEMPT'S PAGE, notice and all: a learner
+    # withheld at attempt 1 and released at attempt 2 still carries attempt 1's
+    # RESULT WITHHELD page beneath the new one, and that page is the audit
+    # trail. Only the page on top — this attempt's — says what the result is
+    # now, so the notice is looked for there alone: the text before the second
+    # feedback-page title (current or legacy wording).
+    if ($markedExpected.ContainsKey($name)) {
+        $mcN = $markedExpected[$name].copy
+        $attN = if ($mcN.attempt) { [int]$mcN.attempt } else { 1 }
+        $freshN = ($mcN.PSObject.Properties.Name.Contains('freshFile') -and $mcN.freshFile) -or $mcN.priorAttemptNotSubmitted
+        if ($attN -ge 2 -and -not $freshN) {
+            $titleRx = '(?:' + [regex]::Escape($noticeTitle) + '|ASSESSMENT FEEDBACK|MARKED ASSESSMENT)'
+            $mm = [regex]::Matches($blob, $titleRx)
+            if ($mm.Count -ge 2) { $blob = $blob.Substring(0, $mm[1].Index) }
+        }
+    }
     $has  = ($blob -like "*$noticeHead*")
     if ($s.overall -eq 'RW') {
-        if (-not $has) { $rwProbs += "$name is an RW student's copy but carries no withheld-result notice" }
+        if (-not $has) { $rwProbs += "$name goes to an RW student but carries no withheld-result notice" }
         else {
             foreach ($p in @($s.prerequisitesNotMet)) {
                 if ($blob -notlike "*$($p.code)*") { $rwProbs += "$name notice does not name the prerequisite $($p.code)" }
@@ -712,11 +761,33 @@ foreach ($name in $markedExpected.Keys) {
     # the audit trail of that attempt. So a page counts under the current title
     # or under the one it replaced.
     $anyTitle = '(?:' + [regex]::Escape($fbPageTitle) + '|ASSESSMENT FEEDBACK)'
+    # A resit that follows a NON-SUBMISSION has no earlier marked copy to build
+    # on, so it carries this attempt's page alone. That attempt's own record is
+    # the standalone feedback sheet issued at the time, not a page in this file.
+    # ... and so does a resit the student handed in as a FRESH copy of the pack
+    # rather than writing into the marked copy: the earlier attempt's page is in
+    # that earlier file, on record beside this one. The resolver says 'freshFile'
+    # for either reason; older resolved ledgers carry only the first flag.
+    $priorNone = ($mc.PSObject.Properties.Name.Contains('freshFile') -and $mc.freshFile) -or
+                 ($mc.PSObject.Properties.Name.Contains('priorAttemptNotSubmitted') -and $mc.priorAttemptNotSubmitted)
+    # ... and an attempt further back whose record is not in this file — a
+    # non-submission at attempt 1 under a stacked attempt 3 — is named by the
+    # ledger in attemptsNotInFile, and no page is expected for it.
+    $notInFile = @()
+    if ($mc.PSObject.Properties.Name.Contains('attemptsNotInFile') -and $null -ne $mc.attemptsNotInFile) { $notInFile = @($mc.attemptsNotInFile | ForEach-Object { [int]$_ }) }
+    $wantPages = if ($priorNone) { 1 } else { $att - $notInFile.Count }
     $pages = ([regex]::Matches($textOf[$name], ($anyTitle + ' — Attempt \d+'))).Count
-    if ($pages -ne $att) {
-        $stackProbs += "$name is attempt $att but carries $pages feedback page(s); each attempt keeps its own"
+    # A LEGACY ATTEMPT-1 PAGE. Copies marked before the page title carried its
+    # attempt number open 'MARKED ASSESSMENT' over a bare 'Student Feedback
+    # Sheet' line. That page is attempt 1's record and counts as one page; the
+    # bare title is required at end of line so the current page's own
+    # 'Student Feedback Sheet — Attempt N' is not counted twice.
+    $legacyPages = ([regex]::Matches($textOf[$name], 'MARKED ASSESSMENT\r?\nStudent Feedback Sheet\r?\n')).Count
+    $pages += $legacyPages
+    if ($pages -ne $wantPages) {
+        $stackProbs += "$name is attempt $att but carries $pages feedback page(s), where $wantPages was expected; each marked attempt keeps its own"
     }
-    if ($att -ge 2 -and $textOf[$name] -notmatch ($anyTitle + ' — Attempt 1')) {
+    if ($att -ge 2 -and -not $priorNone -and $legacyPages -eq 0 -and ($notInFile -notcontains 1) -and $textOf[$name] -notmatch ($anyTitle + ' — Attempt 1')) {
         $stackProbs += "$name is attempt $att but the attempt 1 page is missing"
     }
 }
@@ -789,16 +860,22 @@ if ($M) {
         # attempt. So this check counts only what THIS attempt wrote, which the
         # builder prefixes for exactly that purpose.
         $att = if ($exp.copy.attempt) { [int]$exp.copy.attempt } else { 1 }
-        $pfx = if ($att -ge 2) { "Attempt ${att}: " } else { '' }
+        # A resit that follows a non-submission writes into a file with no
+        # earlier attempt in it, so its lines carry no attempt prefix — see
+        # Build-MarkedAssessment.ps1.
+        $freshCopy = ($exp.copy.PSObject.Properties.Name.Contains('freshFile') -and $exp.copy.freshFile) -or $exp.copy.priorAttemptNotSubmitted
+        $pfx = if ($att -ge 2 -and -not $freshCopy) { "Attempt ${att}: " } else { '' }
 
         # Summed ACROSS EVERY TOOL in the file. One document carrying UAT 1 and
         # UAT 2 gets one marked copy, so the counts it must show are both tools'
         # counts added together — checking either alone passes a copy that is
         # missing half its marking.
         $wantObs = 0; $wantS = 0; $wantNys = 0; $wantObsBlocks = 0
+        $wantObsTexts = @()
         foreach ($res in @($exp.results)) {
             $o = Get-Count $res.observations
             $wantObs += $o
+            foreach ($pt in @($res.observations)) { $wantObsTexts += "$pt" }
             $wantS   += (Get-Count @($res.questions | Where-Object { $_.outcome -eq 'S' }))
             $wantNys += (Get-Count @($res.questions | Where-Object { $_.outcome -eq 'NYS' }))
             # A TASK carries its own outcome line, the same way a question does.
@@ -865,7 +942,11 @@ if ($M) {
                 elseif ($txt -eq ($pfx + $M.notSatisfactoryText) -and $col -eq $M.notSatisfactoryColor) {
                     $gotNys++
                 }
-                elseif ($txt -eq $M.overallCompetentText -or $txt -eq $M.overallNotCompetentText -or ($M.overallWithheldText -and $txt -eq $M.overallWithheldText)) {
+                # FIRST WINS. A stacked copy carries one page per attempt,
+                # newest first, and each page opens with its own overall result.
+                # The front page is the first one; the attempt-1 page beneath it
+                # records an earlier outcome and must not overwrite this.
+                elseif (-not $overallSeen -and ($txt -eq $M.overallCompetentText -or $txt -eq $M.overallNotCompetentText -or ($M.overallWithheldText -and $txt -eq $M.overallWithheldText))) {
                     $overallSeen =
                         if     ($txt -eq $M.overallCompetentText) { 'C' }
                         elseif ($M.overallWithheldText -and $txt -eq $M.overallWithheldText) { 'RW' }
@@ -905,7 +986,20 @@ if ($M) {
                 $markProbs += "${name}: the overall result is aligned '$overallAlign', not right"
             }
 
-            if ($wantObs -gt 0) {
+            if ($wantObs -gt 0 -and -not $M.observationHeading) {
+                # NO BANNER TO COUNT BETWEEN. Where the profile suppresses the
+                # heading and the completed-on line — the RTO's rule of
+                # 8 September 2026 — the observation points are matched by their
+                # own words instead. That is the stronger test: it says every
+                # point the ledger records reached the document, not merely that
+                # the right number of bullets did.
+                $allObsText = (@($pkg.Body.SelectNodes('.//w:p', $pkg.Ns)) | ForEach-Object { (Get-RunText $_ $pkg.Ns).Trim() }) -join "`n"
+                $missingObs = @($wantObsTexts | Where-Object { $allObsText.IndexOf($_, [StringComparison]::Ordinal) -lt 0 })
+                if ($missingObs.Count -gt 0) {
+                    $markProbs += "${name}: $($missingObs.Count) of $wantObs observation point(s) are missing from the document — first: '$($missingObs[0])'"
+                }
+            }
+            elseif ($wantObs -gt 0) {
                 if ($obsHeading -ne $wantObsBlocks) { $markProbs += "${name}: $obsHeading observation heading(s), ledger has $wantObsBlocks observation tool(s)" }
                 if ($obsPoints -ne $wantObs)        { $markProbs += "${name}: $obsPoints observation point(s), ledger has $wantObs" }
                 if ($obsCompleted -ne $wantObsBlocks) { $markProbs += "${name}: $obsCompleted of $wantObsBlocks observation record(s) state the date the assessor completed them" }
@@ -1042,12 +1136,22 @@ if ($M) {
         $path = Join-Path $dirFull $name
         if (-not (Test-Path -LiteralPath $path)) { continue }
 
+        # ONLY THIS ATTEMPT'S LINES. A stacked copy still carries the earlier
+        # attempts' lines, and the student has since edited the answers above
+        # them — a resubmission that leaves a blank paragraph between the old
+        # answer and attempt 1's line is the student's edit, not this build's
+        # placement. This attempt's lines carry its prefix; those are the ones
+        # this build put there and the ones judged here.
+        $spCopy = $markedExpected[$name].copy
+        $spAtt  = if ($spCopy.attempt) { [int]$spCopy.attempt } else { 1 }
+        $spFresh = ($spCopy.PSObject.Properties.Name.Contains('freshFile') -and $spCopy.freshFile) -or $spCopy.priorAttemptNotSubmitted
+        $spPfx  = if ($spAtt -ge 2 -and -not $spFresh) { "Attempt ${spAtt}: " } else { '' }
         $pkg = Open-Docx -Path $path
         try {
             $paras = @(Get-BodyParagraphs $pkg)
             for ($i = 0; $i -lt $paras.Count; $i++) {
                 $txt = (Get-RunText $paras[$i] $pkg.Ns).Trim()
-                if ($txt -ne $M.satisfactoryText -and $txt -ne $M.notSatisfactoryText) { continue }
+                if ($txt -ne ($spPfx + $M.satisfactoryText) -and $txt -ne ($spPfx + $M.notSatisfactoryText)) { continue }
                 # Same rule as the outcome count above: a line this build
                 # inserted carries the outcome colour, so the same words in any
                 # other colour are the submission's own — a checklist column
@@ -1238,7 +1342,10 @@ if ($M) {
                     $found = $false
                     for ($i = $hits[0] + 1; $i -lt $paras.Count; $i++) {
                         $ptxt = (Get-RunText -Node $paras[$i] -Ns $pkg.Ns)
-                        if ("$ptxt".Trim() -like "*$wantText*") {
+                        # -clike, case-sensitive: the assessor comment above this
+                        # line may itself say a task 'remains satisfactory', and
+                        # -like read that black paragraph as the outcome line.
+                        if ("$ptxt".Trim() -clike "*$wantText*") {
                             $col = $paras[$i].SelectSingleNode('.//w:r/w:rPr/w:color', $pkg.Ns)
                             $got = if ($col) { "$($col.GetAttribute('val', $wNs))" } else { '' }
                             if ($got -ne $wantCol) {
@@ -1650,151 +1757,6 @@ if ($foreignProbs.Count -eq 0 -and $foreignMeta.Count -gt 0) {
     Add-Check 'NoForeignRtoIdentity' ($foreignProbs.Count -eq 0) `
         $(if ($foreignProbs.Count) { (($foreignProbs | Select-Object -Unique | Select-Object -First 4) -join ' · ') } else { "no record names a provider other than $($Rto.rto.tradingName), headers and footers included" })
 }
-
-# ------------------------------ 11b-ii. the S / NS observation grids ---------
-#
-# The same distrust, applied to the third sheet shape. The grids are found in
-# the DELIVERED file and re-paired against the ledger here, rather than trusting
-# the build's own count: two of this skill's worst defects were writers that
-# found nothing and ticked nothing without raising anything. A blank grid under
-# a signed outcome is the failure that looks most like success.
-
-$snsProbs = @()
-foreach ($name in $markedExpected.Keys) {
-    $path = Join-Path $dirFull $name
-    if (-not (Test-Path -LiteralPath $path)) { continue }
-    $exp = $markedExpected[$name]
-    $want = @()
-    foreach ($res in @($exp.results)) {
-        if ($res.observationSheet -and $res.observationSheet.PSObject.Properties.Name.Contains('snsChecklists')) {
-            foreach ($cl in @($res.observationSheet.snsChecklists)) { if ($cl) { $want += $cl } }
-        }
-    }
-    if ($want.Count -eq 0) { continue }
-
-    $pkg = Open-Docx -Path $path
-    try {
-        $ns = $pkg.Ns
-        $grids = @(); $gmaps = @()
-        foreach ($tbl in @($pkg.Body.SelectNodes('./w:tbl', $ns))) {
-            $trs = @($tbl.SelectNodes('./w:tr', $ns))
-            if ($trs.Count -lt 2) { continue }
-            for ($k = 0; $k -lt [math]::Min(4, $trs.Count); $k++) {
-                $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
-                if ($cells.Count -lt 3) { continue }
-                $hdr = @($cells | ForEach-Object { (($_.SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim() })
-                # These four patterns must stay word for word the same as the
-                # ones in Write-SnsChecklist. A gate that finds a different set
-                # of grids from the writer reports a file as unmarked when it is
-                # marked, or passes one that is not. The NOT-satisfactory column
-                # is tested first so 'Not yet' cannot be claimed as 'S'.
-                $sc = -1; $nc = -1
-                for ($c = 0; $c -lt $hdr.Count; $c++) {
-                    if ($nc -lt 0 -and $hdr[$c] -match '^(NS|NYS)(\s|$)')     { $nc = $c; continue }
-                    if ($nc -lt 0 -and $hdr[$c] -match '^Not\s*[Yy]et')       { $nc = $c; continue }
-                    if ($sc -lt 0 -and $hdr[$c] -match '^S(\s|$)')            { $sc = $c; continue }
-                    if ($sc -lt 0 -and $hdr[$c] -match '^Satisfactory(\s|$)') { $sc = $c }
-                }
-                if ($sc -lt 0 -or $nc -lt 0) { continue }
-                $grids += $tbl
-                $gmaps += [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $sc; ns = $nc }
-                break
-            }
-        }
-        if ($grids.Count -ne $want.Count) {
-            $snsProbs += "${name}: the delivered file holds $($grids.Count) S/NS grid(s), the ledger judges $($want.Count)"
-        } else {
-            for ($g = 0; $g -lt $grids.Count; $g++) {
-                $gm   = $gmaps[$g]
-                $rows = @()
-                $trs  = @($grids[$g].SelectNodes('./w:tr', $ns))
-                for ($k = $gm.header + 1; $k -lt $trs.Count; $k++) {
-                    $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
-                    if ($cells.Count -ne $gm.cols) { continue }
-                    $c0 = (($cells[0].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
-                    if ($c0 -eq '') { continue }
-                    $rows += ,$cells
-                }
-                $wo = @($want[$g].outcomes)
-                if ($rows.Count -ne $wo.Count) {
-                    $snsProbs += "${name}: grid $($g + 1) holds $($rows.Count) criterion row(s), the ledger judges $($wo.Count)"
-                    continue
-                }
-                for ($r = 0; $r -lt $rows.Count; $r++) {
-                    $sTxt = (($rows[$r][$gm.s].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
-                    $nTxt = (($rows[$r][$gm.ns].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
-                    # A box the build ticked reads BALLOT BOX WITH X. A box that
-                    # was already marked when the submission arrived is left
-                    # alone by design, and it commonly reads BALLOT BOX WITH
-                    # CHECK, so both count as marked. Only the box that carries
-                    # no mark at all is unmarked.
-                    $sOn  = ($sTxt -eq [string]$BOX_T -or $sTxt -eq [string][char]0x2611)
-                    $nOn  = ($nTxt -eq [string]$BOX_T -or $nTxt -eq [string][char]0x2611)
-                    $wantS = ("$($wo[$r])" -eq 'S')
-                    if ($sOn -ne $wantS -or $nOn -eq $wantS) {
-                        $snsProbs += "${name}: grid $($g + 1) row $($r + 1) should read $($wo[$r]) but reads S='$sTxt' NS='$nTxt'"
-                    }
-                }
-            }
-        }
-
-        # every comments box carries its record, and the sign-off line names the
-        # assessor and the date. Read off the DOM already open here — Get-DocxText
-        # takes a PATH and would reopen the file from scratch.
-        $body = (($pkg.Body.SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '')
-        foreach ($cl in $want) {
-            $first = @((("$($cl.comments)") -split "`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })[0]
-            if ($first) {
-                if ($body.IndexOf($first, [StringComparison]::OrdinalIgnoreCase) -lt 0) {
-                    $snsProbs += "${name}: an observation checklist's comments are not in the delivered file"
-                }
-                if ($body.IndexOf("Assessor name: $($cl.assessor)", [StringComparison]::OrdinalIgnoreCase) -lt 0) {
-                    $snsProbs += "${name}: an observation checklist sign-off line does not name $($cl.assessor)"
-                }
-            }
-            foreach ($nt in @($cl.notes)) {
-                if ("$nt".Trim() -eq '') { continue }
-                if ($body.IndexOf("$nt".Trim(), [StringComparison]::OrdinalIgnoreCase) -lt 0) {
-                    $snsProbs += "${name}: an observation note is not in the delivered file"
-                    break
-                }
-            }
-        }
-    } finally { Close-Docx $pkg }
-}
-Add-Check 'MarkedCopySnsChecklist' ($snsProbs.Count -eq 0) `
-    $(if ($snsProbs.Count) { ($snsProbs | Select-Object -First 4) -join ' · ' } else { 'every S/NS observation grid is ticked, signed and commented as the ledger judges it' })
-
-# ------------------------------- 11b2. the task decision lines ---------------
-#
-# A decision line that carries both boxes on one paragraph is not a grid, so the
-# check above never reaches it. One learner's workbook printed the line as
-# '[] satisfactory' in lower case, the writer's match was case sensitive, and
-# the box went out empty under a signed result with every other check green.
-# What is asserted here is only what can be asserted without the ledger: the
-# line resolves to exactly one marked box and one empty one.
-
-$decProbs = @()
-$MARK_T = [string][char]0x2612
-$MARK_C = [string][char]0x2611
-foreach ($name in $markedExpected.Keys) {
-    $path = Join-Path $dirFull $name
-    if (-not (Test-Path -LiteralPath $path)) { continue }
-    $pkg = Open-Docx -Path $path
-    try {
-        foreach ($p in @($pkg.Body.SelectNodes('.//w:p', $pkg.Ns))) {
-            $t = (Get-RunText $p $pkg.Ns).Trim()
-            if ($t -notmatch '(Assessor decision for |Task\s+\d+\s+result\s*:)') { continue }
-            $marked = ([regex]::Matches($t, "[$MARK_T$MARK_C]")).Count
-            $empty  = ([regex]::Matches($t, '[□☐]')).Count
-            if ($marked -ne 1 -or $empty -ne 1) {
-                $decProbs += "${name}: a task decision line carries $marked marked and $empty empty box(es)"
-            }
-        }
-    } finally { Close-Docx $pkg }
-}
-Add-Check 'MarkedCopyTaskDecision' ($decProbs.Count -eq 0) `
-    $(if ($decProbs.Count) { ($decProbs | Select-Object -First 4) -join ' · ' } else { 'every task decision line resolves to one marked box and one empty one' })
 
 # ------------------------------------------- 11c. the RTO's word ban ---------
 #

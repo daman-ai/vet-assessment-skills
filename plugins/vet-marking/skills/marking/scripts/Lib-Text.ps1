@@ -122,8 +122,93 @@ If you would like to discuss this or believe our records are incorrect, contact 
 Assessor: {ASSESSOR} | Date: {DATE}
 '@
 
-function Get-WithheldNoticeTemplate { $script:WITHHELD_NOTICE }
+# THE SAME NOTICE FOR A STUDENT WHO SUBMITTED NOTHING. The wording above says
+# the submission has been received, marked and retained, and that no further
+# attempt is required. Sent to a student who submitted nothing, every one of
+# those sentences is false, and the student is told they need do nothing while
+# their assessment is still outstanding. This variant withholds the result for
+# the same reason and still asks for the work.
+$script:WITHHELD_NOTICE_NOSUB = @'
+ASSESSMENT OUTCOME: RESULT WITHHELD — PREREQUISITE NOT YET MET
+
+No assessment has been received from you for {UNIT}, so there is no evidence to mark. The items above tell you what to submit and by when.
+
+Your result also cannot be finalised or recorded at this stage because {UNIT} has a mandatory prerequisite unit, {PREREQS}, and our records do not show {THISUNIT} as completed. This prerequisite is set by the training package and applies to all students; {PROVIDER} is not able to record, report or issue a result for this unit until it is met.
+
+What you need to do — both of the following:
+
+1. Submit your completed assessment for {UNITCODE} by the resubmission date shown above.
+2. Complete {PREREQCODES} with {PROVIDER}, or apply for credit transfer where you have already completed {PREREQCODES} with another registered training organisation. Credit transfer needs a Statement of Attainment, qualification testamur, or authenticated USI/VET transcript. We are not able to accept other forms of evidence. Contact {ADMINNAME} to arrange either.
+
+What happens next: Once your assessment has been submitted and marked, and the prerequisite is recorded as achieved, your result for {UNITCODE} will be released.
+
+Please note the withheld outcome is not a "not yet competent" outcome. It records that we cannot yet release a result, whatever your evidence shows.
+
+If you would like to discuss this or believe our records are incorrect, contact {ADMINFULL}. You may also request a review under {PROVIDER}'s Complaints and Appeals Policy.
+
+Assessor: {ASSESSOR} | Date: {DATE}
+'@
+
+function Get-WithheldNoticeTemplate {
+    # -NoSubmission picks the variant that does not claim work was received.
+    param([switch]$NoSubmission)
+    if ($NoSubmission) { $script:WITHHELD_NOTICE_NOSUB } else { $script:WITHHELD_NOTICE }
+}
 function Get-WithheldNoticeHeading  { 'ASSESSMENT OUTCOME: RESULT WITHHELD' }
+
+function Build-WithheldNotice {
+    <#
+      The approved notice with its fields filled, as one string of lines.
+
+      IT IS BUILT IN ONE PLACE because it goes to a student in two: page one of
+      a marked copy where work comes back, and the standalone Student Feedback
+      Sheet where none does. A student whose result is withheld and who
+      submitted nothing would otherwise read the letters RW and no reason for
+      them, which is the one thing on the page they could act on.
+    #>
+    param(
+        [Parameter(Mandatory)]$Student,
+        [Parameter(Mandatory)]$Ledger,
+        [Parameter(Mandatory)]$Rto
+    )
+    $notMet = @($Student.prerequisitesNotMet)
+    if ($notMet.Count -eq 0) {
+        throw "$($Student.fullName): overall is RW but no unmet prerequisite is recorded, so the withheld notice cannot name one."
+    }
+    $contact = $Rto.studentAdminContact
+    if (-not $contact -or -not $contact.name) {
+        throw "RTO profile declares no studentAdminContact. The withheld notice names it twice and a student must have someone to ask."
+    }
+
+    $unitFull    = "{0} – {1}" -f $Ledger.unit.code, $Ledger.unit.title
+    $prereqFull  = (@($notMet | ForEach-Object { "{0} – {1}" -f $_.code, $_.title }) -join ', ')
+    $prereqCodes = (@($notMet | ForEach-Object { $_.code }) -join ' and ')
+    $thisUnit    = if ($notMet.Count -eq 1) { 'this unit' } else { 'these units' }
+    # Join only the parts that exist. An RTO that supplies no phone number
+    # should not have the notice print a comma hanging off the end of it.
+    $adminFull   = (@($contact.name, $contact.email, $contact.phone) |
+                    Where-Object { "$_".Trim() -ne '' }) -join ', '
+
+    # Which wording depends on whether anything was actually submitted. A
+    # student who submitted nothing must not be told their work is on file and
+    # that no further attempt is required.
+    $submitted = @($Student.results | Where-Object { $_.submitted -ne $false }).Count
+    $notice = Get-WithheldNoticeTemplate -NoSubmission:($submitted -eq 0)
+    $notice = $notice.Replace('{UNITCODE}',   $Ledger.unit.code).
+                      Replace('{UNIT}',       $unitFull).
+                      Replace('{PREREQCODES}',$prereqCodes).
+                      Replace('{PREREQS}',    $prereqFull).
+                      Replace('{THISUNIT}',   $thisUnit).
+                      Replace('{PROVIDER}',   $Rto.rto.tradingName).
+                      Replace('{ADMINNAME}',  $contact.name).
+                      Replace('{ADMINFULL}',  $adminFull).
+                      Replace('{ASSESSOR}',   $Ledger.assessor).
+                      Replace('{DATE}',       $Ledger.dates.markingDateText)
+    if ($notice -match '\{[A-Z]+\}') {
+        throw "$($Student.fullName): the withheld notice still carries an unfilled field."
+    }
+    $notice
+}
 
 function Test-NoticeExempt {
     <#
@@ -134,7 +219,8 @@ function Test-NoticeExempt {
     param([Parameter(Mandatory)][AllowEmptyString()][string]$Line)
     $probe = (("$Line" -replace '\s+', ' ')).Trim()
     if (-not $probe) { return $false }
-    foreach ($tl in ($script:WITHHELD_NOTICE -split "`r?`n")) {
+    $skeleton = ($script:WITHHELD_NOTICE + "`n" + $script:WITHHELD_NOTICE_NOSUB)
+    foreach ($tl in ($skeleton -split "`r?`n")) {
         $t = ($tl -replace '\{[A-Z]+\}', '') -replace '\s+', ' '
         $t = $t.Trim()
         if ($t.Length -lt 25) { continue }
@@ -345,36 +431,6 @@ function Test-ObservationRowNoteStyle {
         if ("$body" -cmatch $rx) { $out += "${Where}: contains $rx — these notes are past tense and third person." }
     }
     @($out)
-}
-
-function Test-LearnerPronouns {
-    <#
-      The RTO's rule: an assessment record does not call a learner he or she.
-      Everything written ABOUT a learner says 'the learner'. Returns the
-      offending words, or an empty array.
-
-      This applies to prose written about the learner — observation records,
-      criterion comments, checklist comments and notes. It does NOT apply to
-      feedback written TO them, which is second person and mentions no third
-      party at all.
-    #>
-    param(
-        [Parameter(Mandatory)][AllowEmptyString()][string]$Text,
-        [string]$Where = 'assessor prose'
-    )
-    if (-not $Text) { return @() }
-    $hits = @()
-    foreach ($m in [regex]::Matches($Text, '\b(he|she|his|her|him|hers|himself|herself)\b', 'IgnoreCase')) {
-        $from = [math]::Max(0, $m.Index - 40)
-        $len  = [math]::Min($Text.Length - $from, 90)
-        $hits += [pscustomobject]@{
-            where = $Where
-            word  = $m.Value
-            near  = ($Text.Substring($from, $len) -replace '\s+', ' ')
-            fix   = "Write 'the learner'. Name the learner once in the sentence and use plain articles after it."
-        }
-    }
-    $hits
 }
 
 function Get-FeedbackMaxCommas { $script:FEEDBACK_MAX_COMMAS }

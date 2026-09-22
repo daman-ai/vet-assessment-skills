@@ -1,4 +1,4 @@
-{
+﻿{
     "_comment":  "Meridian Vocational College. MEASURED — the three approved templates were supplied and measured with Measure-Template.ps1 on 2026-09-01. Every index, row text, cell number and label below is a measurement, not an assumption. If a template is revised, RE-MEASURE and update this file in the same change: a stale map fills the wrong cell. REVISED 2 September 2026: the STUDENT FEEDBACK SHEET is now one layout and one palette across all three brands (accent 234B8C, fills F0F2F7 / F7F9FC, rules C3CBDA, unfilled-field grey 8E96A3), on the RTO instruction. The three feedback templates differ only in the RTO row. The SAR and the marking record are still each brand\u0027s own document.",
     "key":  "mvc",
     "rto":  {
@@ -173,10 +173,10 @@
                                                                             1480,
                                                                             1480,
                                                                             1180,
-                                                                            1620,
-                                                                            1620,
+                                                                            1400,
+                                                                            1400,
                                                                             1080,
-                                                                            1130,
+                                                                            1570,
                                                                             1520,
                                                                             1030,
                                                                             2122
@@ -278,10 +278,10 @@
                              "overallNotCompetentText":  "Overall result: Not Yet Competent",
                              "overallWithheldText":  "Overall result: Result Withheld",
                              "referralText":  "See the feedback on this page for the items to correct and the resubmission date.",
-                             "observationHeading":  "ASSESSOR OBSERVATION RECORD",
+                             "observationHeading":  "",
                              "taskCommentHeading":  "ASSESSOR COMMENT",
                              "observationBullet":  "•",
-                             "observationCompletedText":  "Observation completed by the assessor on",
+                             "observationCompletedText":  "",
                              "feedbackPage":  {
                                                   "title":  "Student Feedback Sheet",
                                                   "detailsHeading":  "Student and Unit Details",

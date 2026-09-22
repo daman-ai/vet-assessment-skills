@@ -153,22 +153,6 @@ function Get-RunText {
     $sb.ToString()
 }
 
-function Clear-ParagraphMarkColor {
-    <#
-      Drops the colour carried by a paragraph's own MARK (w:pPr/w:rPr/w:color).
-      It tints only the pilcrow, so it changes nothing a reader sees — but it
-      is the first w:color in the paragraph, and a gate that asks "what colour
-      is this line" finds it before the run's. Three marked copies reported a
-      green Satisfactory line as black for exactly that reason: the cell whose
-      paragraph was cloned carried a black mark colour.
-    #>
-    param($Node, $Ns)
-    foreach ($c in @($Node.SelectNodes('w:pPr/w:rPr/w:color', $Ns))) {
-        [void]$c.ParentNode.RemoveChild($c)
-    }
-    $Node
-}
-
 function Set-RunAnswerStyle {
     <#
       A placeholder run is italic and grey. Filled content must not be: a
@@ -556,7 +540,6 @@ function Set-CellText {
     $ts[0].InnerText = $Value
     Set-XmlSpacePreserve $ts[0]
     Set-RunAnswerStyle -Run $run -Ns $Ns -Color $Color
-    [void](Clear-ParagraphMarkColor -Node $p -Ns $Ns)
     $Cell
 }
 
@@ -630,21 +613,7 @@ function Get-BodyContentBox {
     } else {
         $tbl = $Pkg.Body.SelectSingleNode('.//w:tbl', $ns)
     }
-    # A submission with no table at all — one arrived as fifty-three page
-    # IMAGES and nothing else — has its content box on the text margin. Saying
-    # so beats returning $null: the caller then sizes the front block AND the
-    # feedback sheet it inserts to the margin, and the gate, which measures the
-    # first table in the delivered file, measures that same box. Returning
-    # $null left the block on the margin and the sheet at its default width, so
-    # the two disagreed and the gate refused a correctly aligned document.
-    if (-not $tbl) {
-        return [pscustomobject]@{
-            IndentLeft  = 0
-            IndentRight = 0
-            TextWidth   = $textW
-            TableWidth  = $textW
-        }
-    }
+    if (-not $tbl) { return $null }
 
     $indNode = $tbl.SelectSingleNode('w:tblPr/w:tblInd', $ns)
     $left = 0
@@ -1153,6 +1122,26 @@ function Find-ParagraphIndex {
     @($hits)
 }
 
+function Find-ParagraphIndexExact {
+    <#
+      Finds the paragraphs whose WHOLE text is $Text (whitespace collapsed,
+      case-insensitive). Used where an end anchor is a section heading that the
+      pack also mentions in prose — 'record what they see on the Assessor
+      Evidence Review and Observation Checklist' sits inside the last task's own
+      scenario, so a substring match closed the task before the student's work
+      and the comment landed above the answer. An exact match cannot hit the
+      prose. Returns every match, like Find-ParagraphIndex.
+    #>
+    param([object[]]$Paragraphs, $Ns, [string]$Text)
+    $want = ([regex]::Replace($Text, '\s+', ' ')).Trim()
+    $hits = @()
+    for ($i = 0; $i -lt $Paragraphs.Count; $i++) {
+        $have = ([regex]::Replace((Get-RunText $Paragraphs[$i] $Ns), '\s+', ' ')).Trim()
+        if ([string]::Equals($have, $want, [StringComparison]::OrdinalIgnoreCase)) { $hits += $i }
+    }
+    @($hits)
+}
+
 function Add-CellLine {
     <#
       Appends a further paragraph to a cell, cloning the last one so it keeps the
@@ -1183,7 +1172,6 @@ function Add-CellLine {
     $ts[0].InnerText = $Value
     Set-XmlSpacePreserve $ts[0]
     Set-RunAnswerStyle -Run $runs[0] -Ns $Ns -Color $Color
-    [void](Clear-ParagraphMarkColor -Node $p -Ns $Ns)
     $p
 }
 
