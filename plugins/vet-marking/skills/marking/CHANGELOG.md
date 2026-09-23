@@ -1,5 +1,73 @@
 ﻿# Changelog
 
+## v2.10.0 — 23 September 2026
+
+Two lines of this skill had been running apart since early September and are
+merged here. Neither was ahead of the other: the machine copy carried the
+CPCCCM2008 / CPCCSP2002 / CPCCSP2003 work and the repository copy carried the
+SITXMGT004 rulings and everything the RTO settled on 8 and 10 September.
+
+**Both lines called their release v2.8.0.** The entry below dated 8 September is
+the repository's; the machine's v2.8.0 of 9 September is folded into this one.
+
+### Brought across from the CPCC line
+
+- **S / NS checklist grids.** The third observation-sheet shape — criteria down
+  the rows, bare boxes under `S` and `NS`, no Yes/No words anywhere.
+  `snsChecklists` takes one entry per grid in document order, each with its own
+  `outcomes` and, where the instrument provides them, an `outcome`, a `comments`
+  box, a per-row `notes` column and a `decision` answering the task decision
+  line printed after the grid. A count that does not match the grids found is a
+  hard failure. Three spellings of the pair are in circulation and the
+  not-satisfactory heading is matched first; two characters are used for an
+  empty box. `Write-SnsChecklist`, `Write-VerificationTable`, `Set-BoxAtIndex`,
+  `New-CommentsBox` and `Get-SnsCellText`, gated by `MarkedCopySnsChecklist` and
+  `MarkedCopyTaskDecision`.
+- **`Test-LearnerPronouns`** refuses a gendered pronoun in assessor prose —
+  observation records, criterion comments, checklist comments and notes.
+  Feedback written *to* the student is second person and is not checked.
+- **A paragraph's own mark carries a colour, and it is read before the run's.**
+  `w:pPr/w:rPr/w:color` tints only the pilcrow, so it changes nothing a reader
+  sees, but it is the first `w:color` in the paragraph. Three green Satisfactory
+  lines were reported as black. `Set-CellText` and `Add-CellLine` now clear it.
+- **A submission with no table at all** — one arrived as fifty-three page images
+  and nothing else — now reports its content box on the text margin rather than
+  returning `$null`.
+- **`Test-AiFlag` unrolled a single-object JSON file into nothing.** It now
+  appends element by element.
+
+### Three defects the merge itself uncovered
+
+All three were splices left by the earlier hand-merge onto the pre-v2.6.0 line.
+Each passed a parse and each was silently wrong, so each is fixed here rather
+than carried across as it stood.
+
+1. **The S / NS writers ran once per student instead of once per tool.**
+   `Write-VerificationTable` and `Write-SnsChecklist` sat *outside* both the
+   `if ($sheet)` block and the per-tool loop, reading `$sheet`, `$sns`, `$res`
+   and `$obs` left over from the final iteration. On a student with more than
+   one tool, every tool but the last had its grids left untouched. They are now
+   inside the loop, beside `Write-ObservationSheet`.
+2. **The criterion-comment pronoun check had never run.** It was placed inside
+   the `observationSheet` blank-field branch and tested `$text`, a variable that
+   appears exactly once in the file and is never assigned. It now runs in the
+   comment loop it belongs to, against `$cmText` and `$ci`.
+3. **`references/ledger.md` documented `snsChecklists` inside another comment.**
+   The block had been spliced into the middle of a sentence about `anchorAfter`,
+   outside the `observationSheet` object it describes. The sentence is whole
+   again and the example sits inside the object.
+
+### Where the two lines touched the same code
+
+- `-SkipRecord` is kept, but skips **only** the notes-cell record. The sign-off
+  row and the student feedback line are written either way, so the 8 September
+  sign-off rule holds on an S / NS instrument.
+- The S / NS record builder now honours the emptied `observationHeading` and
+  `observationCompletedText`, matching what `Write-ObservationSheet` already did.
+- `SKILL.md` describes three sheet shapes again, keeping the column-sheet detail
+  and all four sections the repository line added.
+
+
 ## v2.9.0 — 8 September 2026
 
 ### What the student left blank is now found, not noticed

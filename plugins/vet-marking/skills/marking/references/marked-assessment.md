@@ -464,6 +464,27 @@ sheet anchored there excludes the very table it names: no rows found, nothing
 ticked, no error. Anchor on the last body paragraph before the table and use the
 line inside it as `notesAnchor`.
 
+### The S / NS grid, and where its record goes
+
+A third shape has no `Yes` or `No` beside its boxes at all — criteria down the
+rows, bare boxes under an `S` and an `NS` heading — and often no comments column
+either. `Write-SnsChecklist` handles it from `snsChecklists`, one entry per grid
+in document order. The S and NS columns are found **by their headings**, so the
+same writer serves a four-column sheet and a five-column one with an
+`Assessor Notes` column beside them.
+
+**The record goes in the space the sheet allocates.** For this shape that is the
+one-cell table under the `Assessor comments` heading — not the body flow beneath
+that heading, which is where it lands if you anchor on the heading and stop
+thinking. Where a submission has lost that table, one is **built** by cloning a
+table already on that sheet, so the box keeps the learner's own width, borders
+and shading rather than being invented.
+
+Boxes that sit in no grid still have to be ticked. One instrument closes each
+performance task with a `SATISFACTORY (S)` / `NOT SATISFACTORY (NS)` pair of its
+own, outside every grid and every outcome table; four per learner went out empty
+under a signed result before the writer learned to reach them.
+
 ### When the submission has no sheet
 
 Say so. The resolver **refuses** an observation record with no `observationSheet`
@@ -527,6 +548,7 @@ The marked copy and the SAR are two records of one judgement. They must agree:
 | `MarkedCopyInAnswerSpace` | every outcome line follows a non-empty paragraph and sits in the same cell as it |
 | `MarkedCopyDeclarationPage` | the page break is there, the result is above it, the student's own content is below it |
 | `MarkedCopyObservationSheet` | the record is inside the sheet, every Yes/No pair matches the ledger, the sufficiency box matches, each field carries its value |
+| `MarkedCopySnsChecklist` | every S/NS grid in the delivered file is re-paired against the ledger: one mark per criterion row in the right column, the comments in the sheet, the sign-off naming the assessor |
 | `MarkedCopyFrontBlockAligned` | the declaration sits on the same left and right edge as the content below it |
 
 The tick check re-pairs the boxes from the delivered file rather than trusting
