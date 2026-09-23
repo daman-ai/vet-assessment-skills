@@ -200,9 +200,6 @@ on the run this rule came from it made two records identical again.
 
 ## The marked assessment
 
-
-## The marked assessment
-
 The student's own submission comes back marked. It carries:
 
 - a **declaration page of its own**, in front of the student's first page,
