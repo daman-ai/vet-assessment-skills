@@ -6,13 +6,8 @@
 #
 # Update later with:  & "$env:USERPROFILE\vet-assessment-skills\install.ps1" -Update
 
-# Optional: pass your own OpenAI API key once and the artwork stage just works:
-#   & .\install.ps1 -OpenAIKey "sk-..."
-# The key is written ONLY to %USERPROFILE%\.openai-key on YOUR machine. It is
-# never read from, written to, or committed into this repository.
-
 [CmdletBinding()]
-param([switch] $Update, [string] $OpenAIKey)
+param([switch] $Update)
 
 $ErrorActionPreference = 'Stop'
 $repo = $PSScriptRoot
@@ -29,14 +24,9 @@ if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest -Force | 
 
 # Skill name -> the plugin in this repo that owns it.
 $skills = [ordered] @{
-    'assessment'    = 'vet-assessment'
-    'learner-guide' = 'vet-assessment'
-    'docx-images'   = 'vet-assessment'
     'marking'       = 'vet-marking'
     'auditor'       = 'vet-compliance'
     'pd'            = 'vet-compliance'
-    'tas'           = 'vet-tas'
-    'resource-production' = 'vet-resource-production'
 }
 
 # NOTE: rto-validation-docs is versioned in this repo (plugins/vet-marking/skills)
@@ -57,22 +47,13 @@ foreach ($skill in $skills.Keys) {
 }
 $global:LASTEXITCODE = 0
 
-if ($OpenAIKey) {
-    if ($OpenAIKey -notmatch '^sk-') { throw 'That does not look like an OpenAI API key (they start with sk-). Not saved.' }
-    $keyFile = Join-Path $env:USERPROFILE '.openai-key'
-    [System.IO.File]::WriteAllText($keyFile, $OpenAIKey.Trim(), (New-Object System.Text.UTF8Encoding($false)))
-    Write-Host "OpenAI key saved to $keyFile (local to this machine only - never committed)." -ForegroundColor Green
-}
-
 Write-Host ''
-Write-Host 'Installed. Requirements to actually build packs:' -ForegroundColor Green
-Write-Host '  - Windows with Microsoft Word installed (delivery uses Word COM for fields and PDF export)'
+Write-Host 'Installed. Requirements to actually run these:' -ForegroundColor Green
+Write-Host '  - Windows with Microsoft Word installed (both skills use Word COM for fields and PDF export)'
 Write-Host '  - Windows PowerShell 5.1 (ships with Windows)'
 Write-Host '  - Claude Code, with a JavaScript-capable browser tool (training.gov.au is a JS app)'
-Write-Host '  - For recipe photography: an OpenAI API key in $env:OPENAI_API_KEY or in ~\.openai-key'
 Write-Host '  - For marking: Microsoft Excel, to read the WiseNet .xls enrolment matrix'
 Write-Host ''
-Write-Host 'Use it in Claude Code with:  /assessment <UNITCODE> <QUALIFICATION> <MVC|ACI>' -ForegroundColor Green
-Write-Host '                            /marking <UNITCODE>' -ForegroundColor Green
+Write-Host 'Use it in Claude Code with:  /marking <UNITCODE>' -ForegroundColor Green
 Write-Host '                            /auditor  - RTO and CRICOS compliance against the 2025 Standards' -ForegroundColor Green
 Write-Host '                            /pd       - a professional development session pack' -ForegroundColor Green
