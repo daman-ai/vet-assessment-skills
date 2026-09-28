@@ -147,9 +147,27 @@ function Set-XmlSpacePreserve {
 }
 
 function Get-RunText {
+    <#
+      The text a paragraph ITSELF carries.
+
+      TEXT INSIDE A FLOATING SHAPE IS NOT THE PARAGRAPH'S TEXT. A shape anchored
+      in a paragraph keeps its words in w:txbxContent underneath that paragraph,
+      so a plain .//w:t sweep returns the answer's outcome line AND everything
+      written in the note box beside it, glued together. Every caller then reads
+      a line that does not match what is printed: the outcome check stops
+      finding its own line, an empty spacer paragraph reads as full, and the
+      walk-back in Get-OutcomeTargetIndex stops on a paragraph that only looks
+      non-empty.
+
+      marked-assessment.md has carried this warning as "rule 1" of the insertion
+      logic since before there were margin notes. It belongs here instead, in
+      the one place every caller reads text through.
+    #>
     param($Node, $Ns)
     $sb = New-Object System.Text.StringBuilder
-    foreach ($t in $Node.SelectNodes('.//w:t', $Ns)) { [void]$sb.Append($t.InnerText) }
+    foreach ($t in $Node.SelectNodes('.//w:t[not(ancestor::w:txbxContent)]', $Ns)) {
+        [void]$sb.Append($t.InnerText)
+    }
     $sb.ToString()
 }
 

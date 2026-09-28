@@ -12,7 +12,7 @@ of competency**, for **one class**, on **one marking date**.
 
 | Document | How many | Purpose |
 |---|---|---|
-| **Marked assessment** | one per submitted **file** | the student's own work returned, with an outcome inside every response box, a filled cover sheet, and a **feedback page** in front carrying the overall result and the feedback |
+| **Marked assessment** | one per submitted **file** | the student's own work returned, with an outcome inside every response box, **the outcome and its feedback in a box out in the right margin beside the answer**, a filled cover sheet, and a **feedback page** in front. The paper is widened rather than the text narrowed, so nothing reflows and the document stays editable for the resubmission |
 | **Student Feedback Sheet** | one per student with **no** marked copy | the same feedback, standalone, for a student who has nothing coming back |
 | Student Assessment Record (SAR) | one per student | the individual record of that student's outcome |
 | Assessment Marking and Results Record | one per class/unit, or **one per WiseNet course-offer group** where the RTO files by group | the class-wide summary, one row per student. **Not built for a class of one** |

@@ -41,7 +41,11 @@ param(
     [Parameter(Mandatory)][string]$OutDir,
     [string]$RtoProfile,
     [string]$SubmissionRoot,
-    [switch]$Quiet
+    [switch]$Quiet,
+    # The outcome, and the feedback where there is any, goes in a box out in the
+    # right margin level with the answer it judges. -NoMarginNotes returns the
+    # plain marked copy instead.
+    [switch]$NoMarginNotes
 )
 
 $ErrorActionPreference = 'Stop'
@@ -232,6 +236,127 @@ function Get-OutcomeTargetIndex {
         }
     }
     $ti
+}
+
+function Add-MarginNote {
+    <#
+      Puts the outcome, and where there is one the feedback, in a box out in the
+      RIGHT MARGIN, level with the answer it judges.
+
+      WHY THE PAGE IS WIDENED RATHER THAN THE TEXT NARROWED. The box needs empty
+      page to sit on. Narrowing the text column to make room reflows the
+      student's document - every line break, every page break, and any table
+      wider than the new column runs off the page. Widening the PAPER and the
+      right margin by the same amount leaves the text column exactly as it was,
+      so nothing moves: the same words fall on the same lines on the same pages,
+      and the extra width is empty margin for the notes.
+
+      WHY IT IS ANCHORED, NOT POSITIONED. The box hangs off the outcome
+      paragraph with positionV relativeFrom="paragraph", so Word keeps it level
+      with that answer wherever the answer ends up. Nothing has to ask Word for
+      a coordinate, nothing has to be rendered, and the document stays fully
+      editable - the student types their resubmission into it as before.
+
+      layoutInCell="0" matters: the anchor sits in a response table's cell, and
+      without it Word confines the shape to that cell instead of letting it out
+      into the margin.
+    #>
+    param(
+        [Parameter(Mandatory)]$Doc,
+        [Parameter(Mandatory)]$Paragraph,
+        [Parameter(Mandatory)][int]$Id,
+        [Parameter(Mandatory)][string]$Label,
+        [Parameter(Mandatory)][bool]$IsNys,
+        [string]$Issue = '',
+        [string]$Action = '',
+        [Parameter(Mandatory)][int]$BoxXEmu,
+        [Parameter(Mandatory)][int]$BoxWEmu
+    )
+    $EMU_PT = 12700
+    if ($IsNys) { $fill = '1F4E79'; $ln = '14395B'; $head = 'FFFFFF'; $body = 'FFFFFF'; $note = 'DCE9F5'; $verdict = 'Not yet Satisfactory' }
+    else        { $fill = 'FFFFFF'; $ln = 'A9C7A9'; $head = '1E7B34'; $body = '1A1A1A'; $note = '404040'; $verdict = 'Satisfactory' }
+
+    $esc = {
+        param([string]$t)
+        if ($null -eq $t) { return '' }
+        $o = $t -replace '&', '&amp;' -replace '<', '&lt;' -replace '>', '&gt;' -replace '"', '&quot;'
+        return ($o -replace '[\x00-\x08\x0B\x0C\x0E-\x1F]', ' ')
+    }
+    # Height from the text, because the box must not autofit: a shape that grows
+    # on open would overlap the one below it.
+    $colPt = $BoxWEmu / [double]$EMU_PT
+    $perLine = [Math]::Max(10, [int]($colPt / 4.0))
+    $lines = 2
+    foreach ($t in @($Issue, $Action)) {
+        if ($t) { $lines += [Math]::Max(1, [int][Math]::Ceiling($t.Length / [double]$perLine)) }
+    }
+    $boxH = [int](($lines * 11.0 + 16.0) * $EMU_PT)
+
+    $sb = New-Object System.Text.StringBuilder
+    [void]$sb.Append(('<w:p><w:pPr><w:spacing w:before="0" w:after="20" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:b/><w:color w:val="{0}"/><w:sz w:val="16"/></w:rPr><w:t xml:space="preserve">{1}</w:t></w:r></w:p>' -f $head, (& $esc $Label)))
+    [void]$sb.Append(('<w:p><w:pPr><w:spacing w:before="0" w:after="40" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:b/><w:color w:val="{0}"/><w:sz w:val="18"/></w:rPr><w:t xml:space="preserve">{1}</w:t></w:r></w:p>' -f $head, $verdict))
+    if ($Issue)  { [void]$sb.Append(('<w:p><w:pPr><w:spacing w:before="0" w:after="40" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="{0}"/><w:sz w:val="15"/></w:rPr><w:t xml:space="preserve">{1}</w:t></w:r></w:p>' -f $body, (& $esc $Issue))) }
+    if ($Action) { [void]$sb.Append(('<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:i/><w:color w:val="{0}"/><w:sz w:val="15"/></w:rPr><w:t xml:space="preserve">{1}</w:t></w:r></w:p>' -f $note, (& $esc $Action))) }
+
+    $xml = @"
+<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+     xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+     xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+     xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
+  <w:drawing>
+    <wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="$($Id + 100)"
+               behindDoc="0" locked="0" layoutInCell="0" allowOverlap="1">
+      <wp:simplePos x="0" y="0"/>
+      <wp:positionH relativeFrom="page"><wp:posOffset>$BoxXEmu</wp:posOffset></wp:positionH>
+      <wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV>
+      <wp:extent cx="$BoxWEmu" cy="$boxH"/>
+      <wp:effectExtent l="0" t="0" r="0" b="0"/>
+      <wp:wrapNone/>
+      <wp:docPr id="$Id" name="Assessor note $Id" descr="$(& $esc $Label) $verdict"/>
+      <wp:cNvGraphicFramePr/>
+      <a:graphic>
+        <a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
+          <wps:wsp>
+            <wps:cNvSpPr/>
+            <wps:spPr>
+              <a:xfrm><a:off x="0" y="0"/><a:ext cx="$BoxWEmu" cy="$boxH"/></a:xfrm>
+              <a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 8000"/></a:avLst></a:prstGeom>
+              <a:solidFill><a:srgbClr val="$fill"/></a:solidFill>
+              <a:ln w="12700"><a:solidFill><a:srgbClr val="$ln"/></a:solidFill></a:ln>
+            </wps:spPr>
+            <wps:txbx><w:txbxContent>$($sb.ToString())</w:txbxContent></wps:txbx>
+            <wps:bodyPr rot="0" wrap="square" lIns="63000" tIns="36000" rIns="63000" bIns="36000" anchor="t"><a:noAutofit/></wps:bodyPr>
+          </wps:wsp>
+        </a:graphicData>
+      </a:graphic>
+    </wp:anchor>
+  </w:drawing>
+</w:r>
+"@
+    $frag = $Doc.CreateDocumentFragment()
+    $frag.InnerXml = $xml
+    [void]$Paragraph.AppendChild($frag)
+}
+
+function Expand-PageForMargin {
+    <#
+      Widens the paper and the right margin by the SAME amount, in every
+      section, so the text column is untouched and nothing in the student's
+      document reflows.
+    #>
+    param([Parameter(Mandatory)]$Doc, [Parameter(Mandatory)]$Ns, [int]$ExtraTwips)
+    $n = 0
+    foreach ($sect in $Doc.SelectNodes('//w:sectPr', $Ns)) {
+        $sz = $sect.SelectSingleNode('w:pgSz', $Ns)
+        $mar = $sect.SelectSingleNode('w:pgMar', $Ns)
+        if (-not $sz -or -not $mar) { continue }
+        $w = [int]$sz.GetAttribute('w', $Ns.LookupNamespace('w'))
+        $r = [int]$mar.GetAttribute('right', $Ns.LookupNamespace('w'))
+        $sz.SetAttribute('w', $Ns.LookupNamespace('w'), [string]($w + $ExtraTwips))
+        $mar.SetAttribute('right', $Ns.LookupNamespace('w'), [string]($r + $ExtraTwips))
+        $n++
+    }
+    return $n
 }
 
 function Find-OneParagraph {
@@ -2225,6 +2350,20 @@ foreach ($mc in @($L.markedCopies)) {
         $doc = $pkg.Xml
 
         $totalS = 0; $totalNys = 0; $totalQ = 0; $totalTasks = 0
+
+        # Margin geometry, measured from the document's OWN first section so a
+        # template with different paper or margins still lands the box just
+        # clear of the text column.
+        $marginId = 0; $marginItemUsed = @{}
+        $marginExtraTw = 4536          # 8 cm of new paper, all of it right margin
+        $__sz = $doc.SelectSingleNode('//w:sectPr/w:pgSz', $ns)
+        $__mar = $doc.SelectSingleNode('//w:sectPr/w:pgMar', $ns)
+        $__wns = $ns.LookupNamespace('w')
+        $__pgW = if ($__sz) { [int]$__sz.GetAttribute('w', $__wns) } else { 11906 }
+        $__left = if ($__mar) { [int]$__mar.GetAttribute('left', $__wns) } else { 1134 }
+        $__right = if ($__mar) { [int]$__mar.GetAttribute('right', $__wns) } else { 1134 }
+        $marginBoxX = [int](($__pgW - $__right + 142) * 635)      # just past the text column
+        $marginBoxW = [int](($marginExtraTw - 284) * 635)
         $appendObs = @()          # records with no sheet to write into
         $sheetsWritten = 0
 
@@ -2358,6 +2497,31 @@ foreach ($mc in @($L.markedCopies)) {
                 $line = New-TextParagraph -Doc $doc -Text $text -Color $col -Bold `
                                           -SpaceBefore 80 -SpaceAfter 80
                 [void](Add-ParagraphAfter -Anchor $target -NewParagraph $line)
+
+                if (-not $NoMarginNotes) {
+                    # The item that speaks for this question, if any. One item
+                    # can cover a run of questions; its words go on the first it
+                    # covers, and the rest carry the outcome alone, so a
+                    # paragraph is not repeated down ten boxes.
+                    $issue = ''; $action = ''; $label = "$($q.ref)"
+                    foreach ($item in @($res.items)) {
+                        $refs = if ($item.PSObject.Properties.Name -contains 'questionNos' -and $item.questionNos) {
+                            @($item.questionNos)
+                        } else { @("$($item.questionNo)") }
+                        if ($refs -contains "$($q.ref)") {
+                            if (-not $marginItemUsed.ContainsKey("$($item.questionNo)")) {
+                                $marginItemUsed["$($item.questionNo)"] = $true
+                                $issue = "$($item.issue)"; $action = "$($item.action)"
+                                $label = "$($item.questionNo)"
+                            }
+                            break
+                        }
+                    }
+                    $marginId++
+                    Add-MarginNote -Doc $doc -Paragraph $line -Id $marginId -Label $label `
+                        -IsNys (-not $isS) -Issue $issue -Action $action `
+                        -BoxXEmu $marginBoxX -BoxWEmu $marginBoxW
+                }
             }
 
             $totalQ   += $located.Count
@@ -2953,6 +3117,9 @@ foreach ($mc in @($L.markedCopies)) {
 
         $first = $pkg.Body.FirstChild
         foreach ($h in $header) { [void]$pkg.Body.InsertBefore($h, $first) }
+
+        # ---- widen the page so the margin notes have paper to sit on --------
+        if (-not $NoMarginNotes) { [void](Expand-PageForMargin -Doc $doc -Ns $ns -ExtraTwips $marginExtraTw) }
 
         # ---- save -----------------------------------------------------------
         $dest = Join-Path $OutDir $mc.file

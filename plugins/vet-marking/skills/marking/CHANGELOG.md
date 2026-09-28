@@ -1,5 +1,39 @@
 ﻿# Changelog
 
+## v2.12.0 — 28 September 2026
+
+- **The marked assessment now carries its outcomes in the right margin.** Every
+  question's verdict, and the feedback where there is any, sits in a box out on
+  the page beside the answer it judges — Satisfactory as a quiet green outline,
+  Not yet Satisfactory as a blue panel carrying the issue and the action.
+  `-NoMarginNotes` returns the plain copy.
+
+  - **The PAPER is widened, not the text column narrowed.** Widening the page
+    and the right margin by the same 8 cm leaves the text column identical, so
+    nothing reflows: the SITHPAT020 copy is 37 pages with the notes and 37
+    without. Narrowing the column instead would move every line break and page
+    break and push any wide table off the page.
+  - **The boxes are anchored, not positioned.** Each hangs off its own outcome
+    paragraph with `positionV relativeFrom="paragraph"`, so Word keeps it level
+    with that answer wherever the answer lands. Nothing queries a coordinate and
+    nothing is rendered, so **the document stays fully editable** — the student
+    types their resubmission into it exactly as before — and a copy builds in
+    about 5 seconds against the 10+ minutes the picture-based map took on the
+    same unit. `layoutInCell="0"` is what lets a box anchored in a response
+    table's cell out into the margin.
+  - Verified on three instruments: SITHPAT020 cookery, CPCCSP3001 construction
+    and the SITHPAT016 worked example. Marking gate 40/40 on all three.
+
+- **`Get-RunText` no longer returns the text inside a floating shape.** A shape
+  anchored in a paragraph keeps its words in `w:txbxContent` under that
+  paragraph, so a plain `.//w:t` sweep glued the note box's text onto the
+  outcome line. Every caller then read a line that does not match what is
+  printed — the gate stopped finding its own outcome lines, an empty spacer
+  paragraph reads as full, and the walk-back stops on a paragraph that only
+  looks non-empty. `marked-assessment.md` had carried this as "rule 1" of the
+  insertion logic for months; it belongs in the one place every caller reads
+  text through.
+
 ## v2.11.0 — 28 September 2026
 
 - **Rule 4 in `Get-OutcomeTargetIndex`: the outcome line must end up INSIDE the
