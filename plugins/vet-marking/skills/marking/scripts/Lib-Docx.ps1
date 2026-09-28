@@ -169,6 +169,7 @@ function Clear-ParagraphMarkColor {
     $Node
 }
 
+
 function Set-RunAnswerStyle {
     <#
       A placeholder run is italic and grey. Filled content must not be: a
@@ -645,6 +646,7 @@ function Get-BodyContentBox {
             TableWidth  = $textW
         }
     }
+
 
     $indNode = $tbl.SelectSingleNode('w:tblPr/w:tblInd', $ns)
     $left = 0
@@ -1149,6 +1151,26 @@ function Find-ParagraphIndex {
     $hits = @()
     for ($i = 0; $i -lt $Paragraphs.Count; $i++) {
         if ((Get-RunText $Paragraphs[$i] $Ns).IndexOf($Text, [StringComparison]::OrdinalIgnoreCase) -ge 0) { $hits += $i }
+    }
+    @($hits)
+}
+
+function Find-ParagraphIndexExact {
+    <#
+      Finds the paragraphs whose WHOLE text is $Text (whitespace collapsed,
+      case-insensitive). Used where an end anchor is a section heading that the
+      pack also mentions in prose — 'record what they see on the Assessor
+      Evidence Review and Observation Checklist' sits inside the last task's own
+      scenario, so a substring match closed the task before the student's work
+      and the comment landed above the answer. An exact match cannot hit the
+      prose. Returns every match, like Find-ParagraphIndex.
+    #>
+    param([object[]]$Paragraphs, $Ns, [string]$Text)
+    $want = ([regex]::Replace($Text, '\s+', ' ')).Trim()
+    $hits = @()
+    for ($i = 0; $i -lt $Paragraphs.Count; $i++) {
+        $have = ([regex]::Replace((Get-RunText $Paragraphs[$i] $Ns), '\s+', ' ')).Trim()
+        if ([string]::Equals($have, $want, [StringComparison]::OrdinalIgnoreCase)) { $hits += $i }
     }
     @($hits)
 }

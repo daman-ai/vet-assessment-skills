@@ -136,7 +136,21 @@ function Get-OutcomeTargetIndex {
         [Parameter(Mandatory)]$Ns,
         [Parameter(Mandatory)][int]$From,
         [Parameter(Mandatory)][int]$Next,
-        [int]$HeadingRunLimit = 8
+        [int]$HeadingRunLimit = 8,
+        # THE BOUND IS A SECTION HEADING, NOT THE NEXT QUESTION. Rule 3 exists
+        # to step back over the NEXT QUESTION'S heading rows. Where $Next is
+        # the questionsEndAnchor or a task's endAnchor there is no next
+        # question: everything between the answer and the bound is the
+        # answer's own space. On the ACI CPCC pack the UAT 2 heading sits in
+        # the last row of the table that holds the Q21 answer, and rule 3 then
+        # counted the eight answer paragraphs as "heading rows" and put the
+        # outcome under the 'No' box above the answer. The gate passed it,
+        # because the line sat under a non-empty paragraph in the same cell.
+        [switch]$NoHeadingSkip,
+        # How far past the question's anchor rule 4 will look for the response
+        # box. Two or three paragraphs is typical - the stem, a "Student
+        # response" label, then the box.
+        [int]$ResponseBoxLookahead = 12
     )
 
     $ti = [Math]::Max($From, $Next - 1)
@@ -146,7 +160,19 @@ function Get-OutcomeTargetIndex {
           )) { $ti-- }
 
     $nextTbl = if ($Next -lt $Paragraphs.Count) { Get-ParagraphTable $Paragraphs[$Next] } else { $null }
-    if ($nextTbl) {
+
+    # RULE 3 APPLIES ONLY WHERE THE NEXT QUESTION OPENS A TABLE OF ITS OWN.
+    # Where this question's stem, the student's answer and the next stem all sit
+    # inside ONE table, every paragraph between them belongs to $nextTbl, so the
+    # skip walks back over the answer and drops the outcome BETWEEN the question
+    # and the answer it judges. The RTO's rule, given 8 September 2026: the
+    # outcome follows the whole question and its answer, never sits between
+    # them. So where the two anchors share a table the skip is not applied and
+    # rules 1 and 2 stand, which puts the line after the last thing the student
+    # wrote.
+    $ownTbl  = if ($From -lt $Paragraphs.Count) { Get-ParagraphTable $Paragraphs[$From] } else { $null }
+    $sameTbl = ($nextTbl -is [System.Xml.XmlElement] -and $ownTbl -is [System.Xml.XmlElement] -and $nextTbl.Equals($ownTbl))
+    if ($nextTbl -and -not $sameTbl -and -not $NoHeadingSkip) {
         $ni = $ti; $headingSkips = 0
         while ($ni -gt $From -and $headingSkips -le $HeadingRunLimit) {
             $tbl = Get-ParagraphTable $Paragraphs[$ni]
@@ -156,6 +182,54 @@ function Get-OutcomeTargetIndex {
             $ni--
         }
         if ($headingSkips -gt 0 -and $headingSkips -le $HeadingRunLimit) { $ti = $ni }
+    }
+
+    # RULE 4 - THE LINE MUST END UP INSIDE THE RESPONSE BOX.
+    #
+    # Rules 1 to 3 all walk BACK from the next question, and rule 3 only engages
+    # where that next question opens a table of its own. Where it is plain body
+    # text - as every ACI CPCC task's "(a)" is, sitting under its own Task
+    # heading - nothing stops the walk-back at the box, and the verdict comes to
+    # rest on the last non-empty paragraph before the anchor: the NEXT task's
+    # "Question / instructions" line.
+    #
+    # Two things then go wrong at once, and neither shows in a build log. The
+    # student's own response box comes back EMPTY - which this skill names by
+    # name, "the student's eye goes to the box and finds nothing in it" - and a
+    # red Not yet Satisfactory prints directly above a part they passed. On the
+    # CPCCSP3001 24 September copies it hit the last sub-question of nearly
+    # every task, 12 of 43 on one student, and every gate passed because each
+    # question did carry an outcome in the right colour. Only reading WHERE it
+    # landed finds it.
+    #
+    # So: where the chosen paragraph is not in a table but this question does
+    # have a response box, the line goes after the last thing written inside
+    # that box. Where rules 1 to 3 already landed inside the box, this changes
+    # nothing at all.
+    $chosenTbl = Get-ParagraphTable $Paragraphs[$ti]
+    if (-not ($chosenTbl -is [System.Xml.XmlElement])) {
+        # The box is the first table opening after this question's anchor. The
+        # lookahead stops a question whose response is plain paragraphs from
+        # adopting the NEXT task's scenario or "Maps to" box as its own: a real
+        # response box follows its question within a line or two, while a next
+        # task's furniture only appears past the whole answer.
+        $respTbl = $null; $respStart = -1
+        $limit = [Math]::Min($Next, $From + 1 + $ResponseBoxLookahead)
+        for ($i = $From + 1; $i -lt $limit -and $i -lt $Paragraphs.Count; $i++) {
+            $t = Get-ParagraphTable $Paragraphs[$i]
+            if ($t -is [System.Xml.XmlElement]) { $respTbl = $t; $respStart = $i; break }
+        }
+        if ($respTbl -and $respStart -lt $ti) {
+            $last = -1
+            for ($i = $respStart; $i -lt $Next -and $i -lt $Paragraphs.Count; $i++) {
+                $t = Get-ParagraphTable $Paragraphs[$i]
+                if (-not ($t -is [System.Xml.XmlElement]) -or -not $t.Equals($respTbl)) { continue }
+                if (Test-ParagraphInTextBox $Paragraphs[$i]) { continue }
+                if ([string]::IsNullOrWhiteSpace((Get-RunText -Node $Paragraphs[$i] -Ns $Ns))) { continue }
+                $last = $i
+            }
+            if ($last -ge 0) { $ti = $last }
+        }
     }
     $ti
 }
@@ -319,19 +393,58 @@ function Write-CoverSheet {
             }
             if ($hit) { break }
         }
-        if (-not $hit) { throw "$Who / cover sheet: no cell reads '$label'." }
+        # A LABEL THE SHEET DOES NOT CARRY stops the build, because the usual
+        # reason for one is that the anchor found the wrong table and every
+        # value is about to go into the wrong cell. The exception is a field the
+        # ledger marks 'whenPresent': a row some revisions of the RTO's own
+        # cover sheet print and others do not — one cohort's uploads carried two
+        # revisions, only one of which has a Due Date row. Where the row exists
+        # it is still filled, and the delivered sheet is still checked label by
+        # label by CoverSheetFilled.
+        if (-not $hit) {
+            if ($fld.PSObject.Properties.Name.Contains('whenPresent') -and $fld.whenPresent) { continue }
+            throw "$Who / cover sheet: no cell reads '$label'."
+        }
+
+        # A CORRECTION NAMED IN THE LEDGER OVERWRITES WHAT THE STUDENT TYPED,
+        # and nothing else does. One learner's cover sheet carried another
+        # learner's student ID, which files the assessment against the wrong
+        # person however well it is marked. The correction is written down —
+        # student, label and value — so the record shows who changed what.
+        $correction = $null
+        foreach ($c in @($Student.coverSheetCorrections)) {
+            if ($c -and "$($c.label)" -eq $label) { $correction = $c }
+        }
+        if ($correction) { $value = "$($correction.value)" }
+
+        # A FIELD PRINTED AS A RULE INSIDE A FULL CELL. 'Date Pre-requisite
+        # assessed' is followed by '____/____/_____' and then a paragraph of the
+        # RTO's own instructions, in one cell. Replacing the cell would take the
+        # instructions with it, so the rule alone is written on, and everything
+        # around it is left exactly as the workbook prints it.
+        if ($fld.PSObject.Properties.Name.Contains('onRule') -and $fld.onRule) {
+            $target = if ($hit.at -lt ($hit.cells.Count - 1)) { $hit.cells[$hit.at + 1] } else { $hit.cells[$hit.at] }
+            $m = [regex]::Match(("$($target.InnerText)"), '_{2,}[^A-Za-z0-9]*_{0,}')
+            if (-not $m.Success) { $filled++; continue }          # no rule left to write on
+            $ruleText = [regex]::Match(("$($target.InnerText)"), '[_/\\]{3,}').Value
+            if (-not $ruleText) { $filled++; continue }
+            $n = Set-TextInNode -Node $target -Ns $ns -Find $ruleText -Replace $value -Limit 1
+            if ($n -lt 1) { throw "$Who / cover sheet: field '$label' has a rule that could not be written on." }
+            $filled++
+            continue
+        }
 
         if ($hit.at -lt ($hit.cells.Count - 1)) {
             $target  = $hit.cells[$hit.at + 1]
             $current = (("$($target.InnerText)") -replace '\s+', ' ').Trim()
-            if ($current) { $filled++; continue }            # the student filled it
+            if ($current -and -not $correction) { $filled++; continue }   # the student filled it
             [void](Set-CellText -Cell $target -Ns $ns -Value $value -Color '000000')
         }
         else {
             # The label is the last cell in its row — ACI's 'Due Date:' spans to
             # the edge — so the value goes into that same cell, after the label.
             $current = $hit.text
-            if ($current -ne $label -and $current.Length -gt $label.Length) { $filled++; continue }
+            if ($current -ne $label -and $current.Length -gt $label.Length -and -not $correction) { $filled++; continue }
             [void](Set-CellText -Cell $hit.cells[$hit.at] -Ns $ns -Value ("{0} {1}" -f $label, $value) -Color '000000')
         }
         $filled++
@@ -342,11 +455,43 @@ function Write-CoverSheet {
         $label  = "$($box.label)"
         $ticked = $false
         if ($box.PSObject.Properties.Name.Contains('whenAttempt') -and $null -ne $box.whenAttempt) {
-            $ticked = ([int]$Student.attempt -eq [int]$box.whenAttempt)
+            # whenAttempt is one attempt number or a list of them. 'Resit No.'
+            # is ticked at attempt 2 AND attempt 3, so a ledger names [2, 3];
+            # a single value still means that attempt alone.
+            $ticked = (@($box.whenAttempt | ForEach-Object { [int]$_ }) -contains [int]$Student.attempt)
         } elseif ($box.PSObject.Properties.Name.Contains('ticked')) {
             $ticked = [bool]$box.ticked
         }
-        if (-not $ticked) { continue }
+        # A STACKED COPY ARRIVES WITH ATTEMPT 1'S TICKS ON IT. The sheet was
+        # ticked 'First submission' when attempt 1 was marked, and at attempt 2
+        # the same sheet has to read 'Resit No.' instead. So a box this attempt
+        # does NOT want, found ticked, is set back to the sheet's own empty
+        # glyph; and a box it does want, found already ticked, is left alone
+        # rather than ticked twice — the fallback below would otherwise insert
+        # a second box in front of the label and the sheet would read '☒ ☒'.
+        $emptyGlyphs = @($script:BOX_EMPTY, [char]0x25A1, [char]0x25FB, [char]0x2751)
+        if (-not $ticked) {
+            if ($box.PSObject.Properties.Name.Contains('whenAttempt') -and $null -ne $box.whenAttempt) {
+                foreach ($cells in $rows) {
+                    foreach ($cell in $cells) {
+                        $t = (("$($cell.InnerText)") -replace '\s+', ' ').Trim()
+                        if ($t.IndexOf($label, [StringComparison]::OrdinalIgnoreCase) -lt 0) { continue }
+                        # the empty glyph the sibling boxes in this cell use,
+                        # so the sheet keeps one box shape throughout
+                        $sheetEmpty = $null
+                        foreach ($g in $emptyGlyphs) { if ($t.IndexOf([string]$g) -ge 0) { $sheetEmpty = [string]$g; break } }
+                        if (-not $sheetEmpty) {
+                            # each box in a cell of its own: read the glyph off the same row
+                            $all = (@(@($cells) | ForEach-Object { "$($_.InnerText)" }) -join ' ')
+                            foreach ($g in $emptyGlyphs) { if ($all.IndexOf([string]$g) -ge 0) { $sheetEmpty = [string]$g; break } }
+                        }
+                        if (-not $sheetEmpty) { $sheetEmpty = "$($script:BOX_EMPTY)" }
+                        [void](Set-TextInNode -Node $cell -Ns $ns -Find ("{0} {1}" -f $script:BOX_TICKED, $label) -Replace ("{0} {1}" -f $sheetEmpty, $label) -Limit 1)
+                    }
+                }
+            }
+            continue
+        }
 
         # The cover sheet's boxes are not the ballot boxes the rest of the
         # marking uses: ACI prints U+25A1 WHITE SQUARE. Try each glyph the
@@ -356,7 +501,12 @@ function Write-CoverSheet {
             foreach ($cell in $cells) {
                 $t = (("$($cell.InnerText)") -replace '\s+', ' ').Trim()
                 if ($t.IndexOf($label, [StringComparison]::OrdinalIgnoreCase) -lt 0) { continue }
-                foreach ($glyph in @($script:BOX_EMPTY, [char]0x25A1, [char]0x25FB, [char]0x2751)) {
+                if ($t.IndexOf(("{0} {1}" -f $script:BOX_TICKED, $label), [StringComparison]::OrdinalIgnoreCase) -ge 0) { $done = 1; break }
+                # A student who ticks the box themselves types U+2611 BALLOT BOX
+                # WITH CHECK in front of the label ('☑ Resit No. 1'). That box is
+                # ticked; putting a second one in front of it would read '☑ ☒'.
+                if ($t.IndexOf(("{0} {1}" -f [char]0x2611, $label), [StringComparison]::OrdinalIgnoreCase) -ge 0) { $done = 1; break }
+                foreach ($glyph in $emptyGlyphs) {
                     $done += Set-TextInNode -Node $cell -Ns $ns -Find ("{0} {1}" -f $glyph, $label) -Replace ("{0} {1}" -f $script:BOX_TICKED, $label) -Limit 1
                     if ($done -gt 0) { break }
                 }
@@ -730,6 +880,86 @@ function Write-VerificationRows {
     $written
 }
 
+function Set-SheetSignOff {
+    <#
+      Fills the sign-off row every observation sheet ends with: the assessor's
+      name against the signature label and the date the assessment was conducted
+      against the date label.
+
+      THE RTO'S RULE, 8 September 2026: no box the trainer is responsible for
+      comes back empty. A sheet ticked Yes throughout and signed by nobody
+      records that the observation happened and that no one owned it.
+
+      Sheets differ. Some give the label a cell and the value the next cell
+      along; the ACI checklists print 'Trainer/Assessor signatures' and 'Date' as
+      two labels in one row with nowhere beside them, so the value goes on a new
+      line INSIDE the label's own cell. Both shapes are handled, and a cell that
+      already carries a value is left alone — the trainer may have signed it on
+      the day, and that is evidence.
+    #>
+    param(
+        [Parameter(Mandatory)]$Pkg,
+        [Parameter(Mandatory)]$Sheet,
+        [Parameter(Mandatory)][string]$AssessorName,
+        [Parameter(Mandatory)][string]$DateText,
+        [Parameter(Mandatory)][string]$Who
+    )
+    $ns    = $Pkg.Ns
+    $paras = @(Get-BodyParagraphs $Pkg)
+    $start = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
+    $end   = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
+
+    $sigLabels = @('trainer/assessor signatures','trainer / assessor signatures','trainer/assessor signature',
+                   'assessor signature','trainer signature','assessor name','assessor','signature','signatures')
+    $dateLabels = @('date of assessment','date observed','date completed','date')
+    if ($Sheet.PSObject.Properties.Name.Contains('signatureLabels') -and $Sheet.signatureLabels) {
+        $sigLabels = @($Sheet.signatureLabels | ForEach-Object { "$_".ToLowerInvariant() })
+    }
+    if ($Sheet.PSObject.Properties.Name.Contains('dateLabels') -and $Sheet.dateLabels) {
+        $dateLabels = @($Sheet.dateLabels | ForEach-Object { "$_".ToLowerInvariant() })
+    }
+
+    $tables = @()
+    foreach ($i in $start..([Math]::Min($end, $paras.Count) - 1)) {
+        $tbl = Get-ParagraphTable $paras[$i]
+        if ($tbl -is [System.Xml.XmlElement] -and ($tables -notcontains $tbl)) { $tables += $tbl }
+    }
+
+    $written = 0
+    foreach ($tbl in $tables) {
+        foreach ($tr in @(Get-Rows $tbl $ns)) {
+            $cells = @(Get-Cells $tr $ns)
+            for ($c = 0; $c -lt $cells.Count; $c++) {
+                $raw  = (("$($cells[$c].InnerText)") -replace '\s+', ' ').Trim()
+                $flat = ($raw.TrimEnd(':')).Trim().ToLowerInvariant()
+                $value = $null
+                if     ($sigLabels  -contains $flat) { $value = $AssessorName }
+                elseif ($dateLabels -contains $flat) { $value = $DateText }
+                if (-not $value) { continue }
+
+                $next = if ($c + 1 -lt $cells.Count) { $cells[$c + 1] } else { $null }
+                $nextRaw = if ($next) { (("$($next.InnerText)") -replace '\s+', ' ').Trim() } else { $null }
+                $nextIsLabel = $false
+                if ($nextRaw) {
+                    $nf = ($nextRaw.TrimEnd(':')).Trim().ToLowerInvariant()
+                    $nextIsLabel = ($sigLabels -contains $nf) -or ($dateLabels -contains $nf)
+                }
+                if ($next -and -not $nextRaw) {
+                    [void](Set-CellText -Cell $next -Ns $ns -Value $value -Color '000000')
+                    $written++
+                }
+                elseif (-not $next -or $nextIsLabel) {
+                    if ($raw.IndexOf($value, [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                        [void](Add-CellLine -Cell $cells[$c] -Ns $ns -Value $value -Color '000000')
+                        $written++
+                    }
+                }
+            }
+        }
+    }
+    $written
+}
+
 function Set-BoxAtIndex {
     <#
       Ticks the single box at $CharIndex of a paragraph's flattened text,
@@ -874,7 +1104,11 @@ function Write-SnsChecklist {
         [string[]]$Observations = @(),
         [string]$Outcome = '',
         [string]$MarkingDateText = '',
-        $Marked = $null
+        $Marked = $null,
+        # Set where the tool's observationSheet is itself 'inlinePairs': that
+        # sheet's single-column table is Write-ObservationSheet's to fill, and
+        # counting it here too would change this writer's grid count.
+        [switch]$NoInlineGrids
     )
     if (@($Checklists).Count -eq 0) { return 0 }
 
@@ -887,6 +1121,21 @@ function Write-SnsChecklist {
     $EMPTIES = @([string][char]0x25A1, [string][char]0x2610)
     $EMPTYRX = '[' + $EMPTIES[0] + $EMPTIES[1] + ']'
     $TICK    = [string][char]0x2612      # BALLOT BOX WITH X
+
+    # THE INLINE SHAPE. ACI's CPCCSP3001 pack heads ONE decision column
+    # 'S / NS' and prints both boxes inside each of its cells, each with its
+    # word: '☐ S    ☐ NS'. The column finder below sees 'S' and no 'NS' and
+    # passes over it, so two occasions of 39 criteria went unfound. These three
+    # patterns are matched against whitespace-stripped cell text (the header
+    # and the pair) or the paragraph text (the outcome line), and
+    # Test-MarkingRecords.ps1 carries them word for word.
+    $INLBOXRX  = '[' + [char]0x25A1 + [char]0x2610 + [char]0x2612 + [char]0x2611 + ']'
+    $INLHDRRX  = '^S\s*/\s*(NS|NYS)$'
+    $INLPAIRRX = '^' + $INLBOXRX + 'S' + $INLBOXRX + '(NS|NYS)$'
+    $INLOUTRX  = '^\s*(?<s>' + $INLBOXRX + ')\s*Satisfactory\b.*?(?<n>' + $INLBOXRX + ')\s*Not\s+(?:Yet\s+)?Satisfactory\b'
+    # The comments box arrives holding the template's own instruction, which
+    # is not the learner's text and is replaced rather than appended to.
+    $INLPROMPTRX = '^Record\b.*\bhere\s*(…|\.\.\.)?\s*$'
 
     # -- every body node in order, so 'the table after this heading' means what
     #    it says. Addressing the outcome table or the comments box by absolute
@@ -924,7 +1173,33 @@ function Write-SnsChecklist {
             }
             if ($sc -lt 0 -or $nc -lt 0) { continue }
             $gridAt += $i
-            $gridMap[$i] = [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $sc; ns = $nc; notes = $note }
+            $gridMap[$i] = [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $sc; ns = $nc; notes = $note; inline = $false }
+            $found = $true
+        }
+        # Only a table with no separate S and NS columns anywhere in its head
+        # is tried as the inline shape, so every grid found before is found
+        # exactly as before. It counts only where at least one row below the
+        # heading carries the two boxes, so a table merely headed 'S / NS' is
+        # not a grid.
+        if ($found -or $NoInlineGrids) { continue }
+        for ($k = 0; $k -lt [math]::Min(4, $trs.Count) -and -not $found; $k++) {
+            $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+            if ($cells.Count -lt 3) { continue }
+            $hdr = @($cells | ForEach-Object { Get-SnsCellText $_ $ns })
+            $ic  = -1
+            for ($c = 0; $c -lt $hdr.Count; $c++) {
+                if ($hdr[$c] -match $INLHDRRX) { $ic = $c; break }
+            }
+            if ($ic -lt 0) { continue }
+            $inlRows = 0
+            for ($q = $k + 1; $q -lt $trs.Count; $q++) {
+                $qc = @($trs[$q].SelectNodes('./w:tc', $ns))
+                if ($qc.Count -ne $hdr.Count) { continue }
+                if (((Get-SnsCellText $qc[$ic] $ns) -replace '\s+', '') -match $INLPAIRRX) { $inlRows++ }
+            }
+            if ($inlRows -eq 0) { continue }
+            $gridAt += $i
+            $gridMap[$i] = [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $ic; ns = $ic; notes = -1; inline = $true }
             $found = $true
         }
     }
@@ -956,7 +1231,13 @@ function Write-SnsChecklist {
             $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
             if ($cells.Count -ne $gm.cols) { continue }
             if ((Get-SnsCellText $cells[0] $ns) -eq '') { continue }
+            # An inline row is one whose decision cell holds the two boxes;
+            # a note or rule row spanning the same columns is not a criterion.
+            if ($gm.inline -and (((Get-SnsCellText $cells[$gm.s] $ns) -replace '\s+', '') -notmatch $INLPAIRRX)) { continue }
             $crit += ,$cells
+        }
+        if ($gm.inline -and $notes.Count -gt 0) {
+            throw "${Who}: observation grid $($g + 1) has one 'S / NS' column and no notes column, so its notes have nowhere to go. Put the record in 'comments'. Nothing was ticked."
         }
         if ($crit.Count -ne $outcomes.Count) {
             throw "${Who}: observation grid $($g + 1) has $($crit.Count) criterion row(s) but the ledger gives $($outcomes.Count) outcome(s). Give one S or NS per row, in sheet order. Nothing was ticked."
@@ -968,6 +1249,29 @@ function Write-SnsChecklist {
             $want = "$($outcomes[$r])"
             if ($want -ne 'S' -and $want -ne 'NS') {
                 throw "${Who}: observation grid $($g + 1), row $($r + 1): outcome must be 'S' or 'NS', got '$want'."
+            }
+            if ($gm.inline) {
+                # Both boxes live in one cell. The wanted one is ticked where it
+                # stands, in whichever run holds it, so the cell's words and the
+                # symbol font survive. The same refusal as the column shape: a
+                # row arriving with the opposite box marked is not ticked beside.
+                $inlCell = $crit[$r][$gm.s]
+                $inlBx   = @([regex]::Matches((Get-RunText $inlCell $ns), $INLBOXRX))
+                if ($inlBx.Count -ne 2) {
+                    throw "${Who}: observation grid $($g + 1), row $($r + 1): the S / NS cell holds $($inlBx.Count) box(es), not two. Nothing was ticked on this row."
+                }
+                $inlWant = $(if ($want -eq 'S') { 0 } else { 1 })
+                $inlOn   = @([string]$TICK, [string][char]0x2611)
+                if ($inlOn -contains $inlBx[1 - $inlWant].Value) {
+                    throw "${Who}: observation grid $($g + 1), row $($r + 1) already carries a mark in the box opposite the '$want' judgement. Nothing was ticked on this row."
+                }
+                if ($inlOn -notcontains $inlBx[$inlWant].Value) {
+                    if (-not (Set-BoxAtIndex -Node $inlCell -Ns $ns -CharIndex $inlBx[$inlWant].Index -Tick $TICK)) {
+                        throw "${Who}: observation grid $($g + 1), row $($r + 1): the $want box was found but could not be ticked."
+                    }
+                    $filled++
+                }
+                continue
             }
             $target = $crit[$r][$gm.ns]
             $other  = $crit[$r][$gm.s]
@@ -1013,6 +1317,38 @@ function Write-SnsChecklist {
         # Optional: the small-table instrument records its outcome elsewhere,
         # so a checklist that names no overall outcome simply skips this.
         $done = ("$($cl.outcome)" -eq '')
+        # The inline shape has no Outcome table. Its occasion outcome is one
+        # printed line after the grid, box first:
+        #   '□ Satisfactory (S)          □ Not Satisfactory (NS)'
+        # The first such line after THIS grid is this grid's, and the box is
+        # ticked where it stands so the line keeps its words and spacing.
+        if ($gm.inline -and -not $done) {
+            for ($i = $start + 1; $i -lt $stop -and -not $done; $i++) {
+                $ocands = @()
+                if     ($nodes[$i].LocalName -eq 'p')   { $ocands = @($nodes[$i]) }
+                elseif ($nodes[$i].LocalName -eq 'tbl') { $ocands = @($nodes[$i].SelectNodes('.//w:p', $ns)) }
+                foreach ($onode in $ocands) {
+                    $om = [regex]::Match((Get-RunText $onode $ns), $INLOUTRX, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+                    if (-not $om.Success) { continue }
+                    $oWant = $(if ("$($cl.outcome)" -eq 'S') { $om.Groups['s'] } else { $om.Groups['n'] })
+                    $oOpp  = $(if ("$($cl.outcome)" -eq 'S') { $om.Groups['n'] } else { $om.Groups['s'] })
+                    if (@([string]$TICK, [string][char]0x2611) -contains $oOpp.Value) {
+                        throw "${Who}: observation grid $($g + 1)'s outcome line already carries a mark opposite the '$($cl.outcome)' outcome. Nothing was ticked on it."
+                    }
+                    if ($oWant.Value -ne [string]$TICK -and $oWant.Value -ne [string][char]0x2611) {
+                        if (-not (Set-BoxAtIndex -Node $onode -Ns $ns -CharIndex $oWant.Index -Tick $TICK)) {
+                            throw "${Who}: observation grid $($g + 1)'s outcome line was found but its box could not be ticked."
+                        }
+                        $filled++
+                    }
+                    $done = $true
+                    break
+                }
+            }
+            if (-not $done) {
+                throw "${Who}: observation grid $($g + 1) has no '☐ Satisfactory … ☐ Not Satisfactory' outcome line after it, so the occasion outcome cannot be recorded."
+            }
+        }
         for ($i = $start + 1; $i -lt $stop -and -not $done; $i++) {
             if ($nodes[$i].LocalName -ne 'tbl') { continue }
             $otrs = @($nodes[$i].SelectNodes('./w:tr', $ns))
@@ -1198,11 +1534,11 @@ function Write-SnsChecklist {
         # above that occasion's own comments.
         $head = @()
         if (-not $recordWritten -and $Marked -and @($Observations).Count -gt 0) {
-            $head += [pscustomobject]@{ text = $Marked.observationHeading; color = $Marked.headingColor }
+            if ($Marked.observationHeading) { $head += [pscustomobject]@{ text = $Marked.observationHeading; color = $Marked.headingColor } }
             foreach ($point in $Observations) {
                 $head += [pscustomobject]@{ text = ("{0}  {1}" -f $Marked.observationBullet, $point); color = '000000' }
             }
-            $head += [pscustomobject]@{ text = ("{0}  {1}" -f $Marked.observationCompletedText, $MarkingDateText); color = $Marked.headingColor }
+            if ($Marked.observationCompletedText) { $head += [pscustomobject]@{ text = ("{0}  {1}" -f $Marked.observationCompletedText, $MarkingDateText); color = $Marked.headingColor } }
             $oTxt = $(if ($Outcome -eq 'S') { $Marked.satisfactoryText }  else { $Marked.notSatisfactoryText })
             $oCol = $(if ($Outcome -eq 'S') { $Marked.satisfactoryColor } else { $Marked.notSatisfactoryColor })
             $head += [pscustomobject]@{ text = $oTxt; color = $oCol }
@@ -1242,6 +1578,13 @@ function Write-SnsChecklist {
         } else {
             $bcell = @($nodes[$boxAt].SelectNodes('.//w:tc', $ns))[0]
             if (-not $bcell) { throw "${Who}: the comments box under observation grid $($g + 1) has no cell." }
+            # The inline shape's box is printed holding its own instruction,
+            # 'Record overall comments for this observation occasion here…'.
+            # That is template text, not the learner's, so it is replaced; any
+            # other text in the box is still appended to, as below.
+            if ($gm.inline -and (Get-SnsCellText $bcell $ns) -match $INLPROMPTRX) {
+                [void](Set-CellText -Cell $bcell -Ns $ns -Value '' -Color '000000')
+            }
             foreach ($h in $head) {
                 if ((Get-SnsCellText $bcell $ns) -eq '') {
                     [void](Set-CellText -Cell $bcell -Ns $ns -Value $h.text -Color $h.color)
@@ -1389,6 +1732,7 @@ function Get-SnsCellText {
     param($Cell, $Ns)
     (($Cell.SelectNodes('.//w:t', $Ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
 }
+
 function Write-ObservationSheet {
     <#
       Writes the assessor's observation record INTO the observation sheet the
@@ -1411,12 +1755,14 @@ function Write-ObservationSheet {
         [Parameter(Mandatory)][string[]]$Observations,
         [Parameter(Mandatory)][string]$Outcome,
         [Parameter(Mandatory)][string]$MarkingDateText,
+        [string]$AssessorName = '',
+        [string]$AssessmentDateText = '',
         [Parameter(Mandatory)]$Marked,
         [Parameter(Mandatory)][string]$Who,
-        # Where the sheet's own notes anchor is a body heading with a comments
-        # BOX under it, the record belongs in that box, not in the body flow
-        # above it. Write-SnsChecklist puts it there; this switch stops the two
-        # of them writing the same record twice.
+        # Where an S/NS grid carries its own comments box, the tool-level
+        # record goes THERE (Write-SnsChecklist puts it there) and must not
+        # also be written into the sheet's notes cell. The sign-off row and
+        # the student feedback line are still written either way.
         [switch]$SkipRecord
     )
     $ns    = $Pkg.Ns
@@ -1516,12 +1862,31 @@ function Write-ObservationSheet {
             if ($notes.Count -ne $rows.Count) {
                 throw "$Who / observation sheet: the sheet has $($rows.Count) comments cell(s) but the ledger gives $($notes.Count) comment(s). Give one per criterion row, in sheet order."
             }
+            # A MERGED COMMENTS COLUMN. ACI's CPCC checklists draw the comments
+            # column as ONE cell per activity — w:vMerge restart on the first
+            # criterion row, continue on every row beneath. Word shows only the
+            # restart cell; text written into a continuation cell is in the file
+            # and on no page. So every note in a merge is written into the
+            # visible cell, in row order, one paragraph each. Ordinary sheets,
+            # with a cell per row, are unchanged.
+            $W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+            $visible = $null; $visibleLines = 0
             for ($i = 0; $i -lt $notes.Count; $i++) {
                 if (-not $rows[$i].comments) {
                     throw "$Who / observation sheet: criterion row $($i + 1) ('$($rows[$i].criterion)') has no comments cell to write into."
                 }
                 $noteText = if ($notes[$i] -is [string]) { "$($notes[$i])" } else { "$($notes[$i].text)" }
-                [void](Set-CellText -Cell $rows[$i].comments -Ns $ns -Value $noteText -Color '000000')
+                $cell = $rows[$i].comments
+                $vm = $cell.SelectSingleNode('w:tcPr/w:vMerge', $ns)
+                if ($vm -and $vm.GetAttribute('val', $W_NS) -eq 'restart') { $visible = $cell; $visibleLines = 0 }
+                elseif ($vm) {
+                    if (-not $visible) { throw "$Who / observation sheet: criterion row $($i + 1) sits in a merged comments cell whose first row was not found." }
+                    $cell = $visible
+                }
+                else { $visible = $null; $visibleLines = 0 }
+                if ($vm -and $visibleLines -gt 0) { [void](Add-CellLine -Cell $cell -Ns $ns -Value $noteText -Color '000000') }
+                else { [void](Set-CellText -Cell $cell -Ns $ns -Value $noteText -Color '000000') }
+                if ($vm) { $visibleLines++ }
             }
         }
         $taskCount = $rows.Count
@@ -1556,12 +1921,31 @@ function Write-ObservationSheet {
             if ($notes.Count -ne $rows.Count) {
                 throw "$Who / observation sheet: the sheet has $($rows.Count) comments cell(s) but the ledger gives $($notes.Count) comment(s). Give one per criterion row, in sheet order."
             }
+            # A MERGED COMMENTS COLUMN. ACI's CPCC checklists draw the comments
+            # column as ONE cell per activity — w:vMerge restart on the first
+            # criterion row, continue on every row beneath. Word shows only the
+            # restart cell; text written into a continuation cell is in the file
+            # and on no page. So every note in a merge is written into the
+            # visible cell, in row order, one paragraph each. Ordinary sheets,
+            # with a cell per row, are unchanged.
+            $W_NS = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main'
+            $visible = $null; $visibleLines = 0
             for ($i = 0; $i -lt $notes.Count; $i++) {
                 if (-not $rows[$i].comments) {
                     throw "$Who / observation sheet: criterion row $($i + 1) ('$($rows[$i].criterion)') has no comments cell to write into."
                 }
                 $noteText = if ($notes[$i] -is [string]) { "$($notes[$i])" } else { "$($notes[$i].text)" }
-                [void](Set-CellText -Cell $rows[$i].comments -Ns $ns -Value $noteText -Color '000000')
+                $cell = $rows[$i].comments
+                $vm = $cell.SelectSingleNode('w:tcPr/w:vMerge', $ns)
+                if ($vm -and $vm.GetAttribute('val', $W_NS) -eq 'restart') { $visible = $cell; $visibleLines = 0 }
+                elseif ($vm) {
+                    if (-not $visible) { throw "$Who / observation sheet: criterion row $($i + 1) sits in a merged comments cell whose first row was not found." }
+                    $cell = $visible
+                }
+                else { $visible = $null; $visibleLines = 0 }
+                if ($vm -and $visibleLines -gt 0) { [void](Add-CellLine -Cell $cell -Ns $ns -Value $noteText -Color '000000') }
+                else { [void](Set-CellText -Cell $cell -Ns $ns -Value $noteText -Color '000000') }
+                if ($vm) { $visibleLines++ }
             }
         }
         $taskCount = $rows.Count
@@ -1678,7 +2062,9 @@ function Write-ObservationSheet {
             if (-not $m.Success) {
                 throw "$Who / observation sheet: field '$($fld.label)' is not in a table and carries no rule of underscores to write '$($fld.value)' onto."
             }
-            $replaced = Set-TextInNode -Node $paras[$at] -Ns $ns -Find $m.Value -Replace ("{0}: {1}" -f $fld.label, $fld.value) -Limit 1
+            # The label may be given with its colon ('Date:') where the bare
+            # word would also match prose ('candidate'); one colon is printed.
+            $replaced = Set-TextInNode -Node $paras[$at] -Ns $ns -Find $m.Value -Replace ("{0}: {1}" -f "$($fld.label)".TrimEnd(':').TrimEnd(), $fld.value) -Limit 1
             if ($replaced -lt 1) {
                 throw "$Who / observation sheet: field '$($fld.label)' was found but '$($fld.value)' could not be written onto it."
             }
@@ -1694,24 +2080,35 @@ function Write-ObservationSheet {
     # --- the record itself --------------------------------------------------
     # Inserted after notesAnchor, which is inside the sheet, so it lands in the
     # sheet's own notes cell rather than in the body after the table.
-    if ($SkipRecord) { return $Pkg }
-    $paras   = @(Get-BodyParagraphs $Pkg)
-    $start   = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
-    $end     = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
-    $notesAt = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.notesAnchor -From $start -To $end -What "$Who / observation sheet notesAnchor"
-    $after   = $paras[$notesAt]
+    if (-not $SkipRecord) {
+        $paras   = @(Get-BodyParagraphs $Pkg)
+        $start   = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
+        $end     = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
+        $notesAt = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.notesAnchor -From $start -To $end -What "$Who / observation sheet notesAnchor"
+        $after   = $paras[$notesAt]
 
-    $lines = @()
-    $lines += New-TextParagraph -Doc $doc -Text $Marked.observationHeading -Color $Marked.headingColor -Bold -SpaceBefore 80 -SpaceAfter 60
-    foreach ($point in $Observations) {
-        $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationBullet, $point) -Color '000000' -SpaceBefore 0 -SpaceAfter 40
+        # THE NOTES CELL CARRIES WHAT THE ASSESSOR SAW, AND NOTHING ELSE.
+        # The RTO's rule, given 8 September 2026: no 'ASSESSOR OBSERVATION RECORD'
+        # banner and no 'observation completed by the assessor on ...' line. The
+        # sheet already says whose record it is and its sign-off row carries the
+        # date, so both lines sat between the reader and the observation. A profile
+        # that leaves either string empty prints neither.
+        $lines = @()
+        if ($Marked.observationHeading) {
+            $lines += New-TextParagraph -Doc $doc -Text $Marked.observationHeading -Color $Marked.headingColor -Bold -SpaceBefore 80 -SpaceAfter 60
+        }
+        foreach ($point in $Observations) {
+            $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationBullet, $point) -Color '000000' -SpaceBefore 0 -SpaceAfter 40
+        }
+        if ($Marked.observationCompletedText) {
+            $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationCompletedText, $MarkingDateText) -Color $Marked.headingColor -SpaceBefore 40 -SpaceAfter 60
+        }
+        $outcomeText   = if ($Outcome -eq 'S') { $Marked.satisfactoryText }  else { $Marked.notSatisfactoryText }
+        $outcomeColour = if ($Outcome -eq 'S') { $Marked.satisfactoryColor } else { $Marked.notSatisfactoryColor }
+        $lines += New-TextParagraph -Doc $doc -Text $outcomeText -Color $outcomeColour -Bold -SpaceBefore 80 -SpaceAfter 80
+
+        foreach ($line in $lines) { $after = Add-ParagraphAfter -Anchor $after -NewParagraph $line }
     }
-    $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationCompletedText, $MarkingDateText) -Color $Marked.headingColor -SpaceBefore 40 -SpaceAfter 60
-    $outcomeText   = if ($Outcome -eq 'S') { $Marked.satisfactoryText }  else { $Marked.notSatisfactoryText }
-    $outcomeColour = if ($Outcome -eq 'S') { $Marked.satisfactoryColor } else { $Marked.notSatisfactoryColor }
-    $lines += New-TextParagraph -Doc $doc -Text $outcomeText -Color $outcomeColour -Bold -SpaceBefore 80 -SpaceAfter 80
-
-    foreach ($line in $lines) { $after = Add-ParagraphAfter -Anchor $after -NewParagraph $line }
 
     # --- feedback to the student, on the sheet's own feedback line ----------
     if ($Sheet.PSObject.Properties.Name.Contains('feedback') -and $Sheet.feedback) {
@@ -1727,6 +2124,17 @@ function Write-ObservationSheet {
             $fb = New-TextParagraph -Doc $doc -Text "$($Sheet.feedback)" -Color '000000' -SpaceBefore 40 -SpaceAfter 60
             [void](Add-ParagraphAfter -Anchor $paras[$fbAt] -NewParagraph $fb)
         }
+    }
+
+    # --- the sign-off row ---------------------------------------------------
+    # The assessor's name against the signature label and the date the
+    # assessment was conducted against the date label. No box the trainer owns
+    # is left empty.
+    if ($AssessorName -or $AssessmentDateText) {
+        [void](Set-SheetSignOff -Pkg $Pkg -Sheet $Sheet `
+                                -AssessorName $AssessorName `
+                                -DateText $AssessmentDateText `
+                                -Who $Who)
     }
 
     $taskCount
@@ -1772,7 +2180,18 @@ foreach ($mc in @($L.markedCopies)) {
     # Everything this attempt writes into a file that already carries an earlier
     # attempt is prefixed, so the two can be told apart. Attempt 1 writes plain
     # text, which is what every single-attempt copy has always looked like.
-    $attemptPrefix = if ([int]$s.attempt -ge 2) { "Attempt $($s.attempt): " } else { '' }
+    #
+    # A RESIT AFTER A NON-SUBMISSION IS NOT PREFIXED EITHER. The prefix exists
+    # to separate this attempt's marks from marks already in the file, and where
+    # the first attempt was a non-submission there are none: the document is the
+    # student's own fresh submission. The attempt still shows — the feedback
+    # page is headed Attempt 2 and the cover sheet ticks the resit box.
+    # 'freshFile' is the resolver's one word for both reasons nothing stacks —
+    # a non-submission before this attempt, or an earlier marked copy that sits
+    # in a separate file because the student resubmitted a fresh pack. Ledgers
+    # resolved before 14 September 2026 carry only the first flag.
+    $freshFile = ($s.PSObject.Properties.Name.Contains('freshFile') -and $s.freshFile) -or $s.priorAttemptNotSubmitted
+    $attemptPrefix = if ([int]$s.attempt -ge 2 -and -not $freshFile) { "Attempt $($s.attempt): " } else { '' }
 
     # In the order the tools were declared, so a copy covering UAT 1 and UAT 2
     # names them in that order on its declaration page.
@@ -1812,9 +2231,19 @@ foreach ($mc in @($L.markedCopies)) {
         # ---- the assessment cover sheet --------------------------------------
         # Filled BEFORE anything is inserted, so its cells are addressed in the
         # submission as the student handed it in.
+        # ONE BLOCK OR SEVERAL. A pack that repeats its identity block — the MVC
+        # workbook prints one at the front and a second over the observation
+        # instrument — leaves the second one blank unless the ledger names it
+        # too, and a blank Student Name over a signed observation record is one
+        # of the boxes the RTO says must never come back empty. So 'coverSheet'
+        # takes either an object or an array of them.
         if ($L.PSObject.Properties.Name.Contains('coverSheet') -and $L.coverSheet) {
-            [void](Write-CoverSheet -Pkg $pkg -Cover $L.coverSheet -Student $s -Ledger $L `
-                                    -ToolNames ([string[]]@($mc.toolNames)) -Who $s.fullName)
+            $coverBlocks = @($L.coverSheet)
+            for ($cb = 0; $cb -lt $coverBlocks.Count; $cb++) {
+                $whoCover = if ($coverBlocks.Count -gt 1) { "$($s.fullName) (cover block $($cb + 1))" } else { $s.fullName }
+                [void](Write-CoverSheet -Pkg $pkg -Cover $coverBlocks[$cb] -Student $s -Ledger $L `
+                                        -ToolNames ([string[]]@($mc.toolNames)) -Who $whoCover)
+            }
         } else {
             $lastWarnings += "$($s.fullName): the ledger names no coverSheet, so the assessment cover sheet at the front of this copy was returned as the student left it. Fields the RTO completes may be blank."
         }
@@ -1890,9 +2319,11 @@ foreach ($mc in @($L.markedCopies)) {
             # outcome looks exactly like a correct one.
             $tail = $paras.Count
             $endAnchor = if ($res.PSObject.Properties.Name.Contains('questionsEndAnchor')) { $res.questionsEndAnchor } else { $null }
+            $endExact  = ($res.PSObject.Properties.Name.Contains('questionsEndAnchorExact') -and [bool]$res.questionsEndAnchorExact)
             if ($located.Count -gt 0) {
                 if ($endAnchor) {
-                    $endHits = @(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $endAnchor)
+                    $endHits = if ($endExact) { @(Find-ParagraphIndexExact -Paragraphs $paras -Ns $ns -Text $endAnchor) }
+                               else           { @(Find-ParagraphIndex      -Paragraphs $paras -Ns $ns -Text $endAnchor) }
                     $after = @($endHits | Where-Object { $_ -gt $located[$located.Count - 1].index })
                     if ($after.Count -eq 0) {
                         throw "$($s.fullName) / $($res.toolName): questionsEndAnchor '$endAnchor' was not found after the last question. Nothing was written."
@@ -1908,7 +2339,8 @@ foreach ($mc in @($L.markedCopies)) {
                 $q    = $located[$i]
                 $next = if ($i -lt $located.Count - 1) { $located[$i + 1].index } else { $tail }
 
-                $ti     = Get-OutcomeTargetIndex -Paragraphs $paras -Ns $ns -From $q.index -Next $next
+                $isLast = ($i -eq $located.Count - 1)
+                $ti     = Get-OutcomeTargetIndex -Paragraphs $paras -Ns $ns -From $q.index -Next $next -NoHeadingSkip:$isLast
                 $target = $paras[$ti]
 
                 $isS  = ($q.outcome -eq 'S')
@@ -1961,7 +2393,20 @@ foreach ($mc in @($L.markedCopies)) {
                 $rowMark = "$($res.checklistMarker)"
                 if (-not $rowMark) { $rowMark = 'Does the candidate meet the following' }
 
-                foreach ($tbl in @($pkg.Body.SelectNodes('.//w:tbl', $ns))) {
+                # WHERE THE OBSERVATION SHEET OWNS THE COMMENTS COLUMN, IT IS
+                # NOT WRITTEN HERE. A result that carries an observationSheet
+                # with 'comments' has the sheet writer fill every criterion
+                # row's comments cell with its note, and Set-CellText replaces
+                # the cell — so a per-row outcome line written here was
+                # deleted again a moment later, on every row, on every build,
+                # while the tally reported it written. The sheet's ticks and
+                # notes are that record; the task's own outcome line and
+                # comment carry the judgement. Only a task tool with no sheet
+                # notes marks its criterion rows here.
+                $sheetOwnsRows = ($res.PSObject.Properties.Name.Contains('observationSheet') -and $res.observationSheet -and
+                                  $res.observationSheet.PSObject.Properties.Name.Contains('comments') -and $res.observationSheet.comments)
+                $rowTables = if ($sheetOwnsRows) { @() } else { @($pkg.Body.SelectNodes('.//w:tbl', $ns)) }
+                foreach ($tbl in $rowTables) {
                     if ((Get-RunText $tbl $ns) -notlike "*$rowMark*") { continue }
                     foreach ($row in @($tbl.SelectNodes('w:tr', $ns))) {
                         $tc = @($row.SelectNodes('w:tc', $ns))
@@ -2007,6 +2452,16 @@ foreach ($mc in @($L.markedCopies)) {
                             if ($placed.ContainsKey($t.ref)) { continue }
                             [void]$claimed.Add($row)
                             $ps = @(Split-CommentParagraphs "$($t.comment)")
+                            # A STACKED COPY APPENDS UNDER ATTEMPT 1'S COMMENT.
+                            # The cell already holds the earlier attempt's
+                            # paragraphs and its outcome line, so this attempt's
+                            # entry opens with the attempt-prefixed heading the
+                            # body-block branch uses, and its outcome line carries
+                            # the same prefix — which is also what the gate counts.
+                            # Without the prefix the file read as attempt 1's
+                            # judgement repeated and the tally reported nothing
+                            # written for the tool.
+                            if ($attemptPrefix) { $ps = @(("{0}{1} — {2}" -f $attemptPrefix, $M.taskCommentHeading, $t.ref)) + $ps }
                             if ((Get-RunText $tc[1] $ns).Trim()) {
                                 foreach ($pp in $ps) { [void](Add-CellLine -Cell $tc[1] -Ns $ns -Value $pp) }
                             } else {
@@ -2015,9 +2470,12 @@ foreach ($mc in @($L.markedCopies)) {
                             }
                             $isS = ($t.outcome -eq 'S')
                             [void](Add-CellLine -Cell $tc[1] -Ns $ns `
-                                                -Value $(if ($isS) { $M.satisfactoryText } else { $M.notSatisfactoryText }) `
+                                                -Value ($attemptPrefix + $(if ($isS) { $M.satisfactoryText } else { $M.notSatisfactoryText })) `
                                                 -Color $(if ($isS) { $M.satisfactoryColor } else { $M.notSatisfactoryColor }))
                             $placed[$t.ref] = $true
+                            # counted, so the build's tally says what the file carries
+                            $totalTasks++
+                            if ($isS) { $totalS++ } else { $totalNys++ }
                         }
                     }
                 }
@@ -2030,10 +2488,49 @@ foreach ($mc in @($L.markedCopies)) {
                 $tProb = @()
                 foreach ($t in $tasks) {
                     $aText = if ($t.PSObject.Properties.Name.Contains('anchor') -and $t.anchor) { $t.anchor } else { $t.ref }
-                    $hits  = @(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $aText)
-                    if ($hits.Count -eq 0) { $tProb += "task '$($t.ref)': no paragraph contains '$aText'"; continue }
-                    if ($hits.Count -gt 1) { $tProb += "task '$($t.ref)': '$aText' appears $($hits.Count) times; give it a unique 'anchor' in the ledger"; continue }
-                    $tLoc += [pscustomobject]@{ ref = $t.ref; index = $hits[0]; outcome = $t.outcome; comment = "$($t.comment)" }
+                    # A pack lists its activities once up front and heads each
+                    # activity with the same words again, so a task heading is
+                    # no more unique than a question heading. 'anchorAfter'
+                    # works here exactly as it does for a question: it names
+                    # text that appears once and sits before the copy meant,
+                    # and the anchor must still be unique in what follows.
+                    $from = 0
+                    $tAfter = if ($t.PSObject.Properties.Name.Contains('anchorAfter')) { $t.anchorAfter } else { $null }
+                    if ($tAfter) {
+                        $afterHits = @(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $tAfter)
+                        if ($afterHits.Count -eq 0) { $tProb += "task '$($t.ref)': anchorAfter '$tAfter' is not in this submission"; continue }
+                        if ($afterHits.Count -gt 1) { $tProb += "task '$($t.ref)': anchorAfter '$tAfter' appears $($afterHits.Count) times; name something that appears once"; continue }
+                        $from = $afterHits[0] + 1
+                    }
+                    $hits  = @(@(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $aText) | Where-Object { $_ -ge $from })
+                    if ($hits.Count -eq 0) { $tProb += $(if ($tAfter) { "task '$($t.ref)': no paragraph after '$tAfter' contains '$aText'" } else { "task '$($t.ref)': no paragraph contains '$aText'" }); continue }
+                    if ($hits.Count -gt 1) { $tProb += $(if ($tAfter) { "task '$($t.ref)': '$aText' appears $($hits.Count) times after '$tAfter'; give it a unique 'anchor' in the ledger" } else { "task '$($t.ref)': '$aText' appears $($hits.Count) times; give it a unique 'anchor' in the ledger, or an 'anchorAfter' naming text that appears once before the copy you mean" }); continue }
+                    $tLoc += [pscustomobject]@{
+                        ref = $t.ref; index = $hits[0]; outcome = $t.outcome; comment = "$($t.comment)"
+                        # A task's own end. Where a task is followed by an
+                        # instrument the trainer owns — its performance
+                        # checklist — the block must close BEFORE that, not run
+                        # up to the next task's heading and land inside the
+                        # checklist's last cell, where the sheet writer then
+                        # overwrites it. Named per task because the same
+                        # heading closes every activity in the pack.
+                        endAnchor = $(if ($t.PSObject.Properties.Name.Contains('endAnchor')) { "$($t.endAnchor)" } else { '' })
+                        # The end anchor is a whole paragraph, not a substring.
+                        # A section heading the pack also quotes in the task's
+                        # own scenario text ('...record what they see on the
+                        # Assessor Evidence Review and Observation Checklist')
+                        # is matched by the substring rule BEFORE the student's
+                        # work, and the comment then lands above the answer.
+                        endAnchorExact = $(if ($t.PSObject.Properties.Name.Contains('endAnchorExact')) { [bool]$t.endAnchorExact } else { $false })
+                        # A task made of templates ends in a table the student
+                        # left blank, and the last non-empty paragraph before
+                        # its end is then a printed column heading inside that
+                        # table. The comment on a task is not an answer's
+                        # outcome line: it goes after the task's last table, in
+                        # the body, where the student reads it as a comment on
+                        # the activity rather than on one cell of a template.
+                        placeAfterTable = $(if ($t.PSObject.Properties.Name.Contains('placeAfterTable')) { [bool]$t.placeAfterTable } else { $false })
+                    }
                 }
                 if ($tProb.Count -gt 0) {
                     throw ("$($s.fullName) / $($res.toolName): cannot mark the tasks in this submission.`n  " + ($tProb -join "`n  ") + "`nNothing was written. Fix the anchors and run again.")
@@ -2042,7 +2539,9 @@ foreach ($mc in @($L.markedCopies)) {
                 $tLoc = @($tLoc | Sort-Object index)
                 $tTail = $paras.Count
                 if ($res.PSObject.Properties.Name.Contains('tasksEndAnchor') -and $res.tasksEndAnchor) {
-                    $endHits = @(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $res.tasksEndAnchor)
+                    $tailExact = ($res.PSObject.Properties.Name.Contains('tasksEndAnchorExact') -and [bool]$res.tasksEndAnchorExact)
+                    $endHits = if ($tailExact) { @(Find-ParagraphIndexExact -Paragraphs $paras -Ns $ns -Text $res.tasksEndAnchor) }
+                               else            { @(Find-ParagraphIndex      -Paragraphs $paras -Ns $ns -Text $res.tasksEndAnchor) }
                     $afterEnd = @($endHits | Where-Object { $_ -gt $tLoc[$tLoc.Count - 1].index })
                     if ($afterEnd.Count -eq 0) {
                         throw "$($s.fullName) / $($res.toolName): tasksEndAnchor '$($res.tasksEndAnchor)' was not found after the last task. Nothing was written."
@@ -2056,8 +2555,28 @@ foreach ($mc in @($L.markedCopies)) {
                 for ($i = $tLoc.Count - 1; $i -ge 0; $i--) {
                     $t    = $tLoc[$i]
                     $next = if ($i -lt $tLoc.Count - 1) { $tLoc[$i + 1].index } else { $tTail }
-                    $ti     = Get-OutcomeTargetIndex -Paragraphs $paras -Ns $ns -From $t.index -Next $next
+                    if ($t.endAnchor) {
+                        $eAll  = if ($t.endAnchorExact) { @(Find-ParagraphIndexExact -Paragraphs $paras -Ns $ns -Text $t.endAnchor) }
+                                 else                   { @(Find-ParagraphIndex      -Paragraphs $paras -Ns $ns -Text $t.endAnchor) }
+                        $eHits = @($eAll | Where-Object { $_ -gt $t.index })
+                        if ($eHits.Count -eq 0) {
+                            throw "$($s.fullName) / $($res.toolName): task '$($t.ref)': endAnchor '$($t.endAnchor)' was not found after the task. Nothing was written."
+                        }
+                        if ($null -ne $next -and $eHits[0] -gt $next) {
+                            throw "$($s.fullName) / $($res.toolName): task '$($t.ref)': endAnchor '$($t.endAnchor)' first appears after the next task begins, so it cannot close this one. Nothing was written."
+                        }
+                        $next = $eHits[0]
+                    }
+                    $boundIsHeading = ([bool]$t.endAnchor) -or ($i -eq $tLoc.Count - 1)
+                    $ti     = Get-OutcomeTargetIndex -Paragraphs $paras -Ns $ns -From $t.index -Next $next -NoHeadingSkip:$boundIsHeading
                     $target = $paras[$ti]
+                    if ($t.placeAfterTable) {
+                        # the OUTERMOST table the target sits in, so a nested
+                        # template table does not leave the block inside its parent
+                        $outer = $null; $n = $target.ParentNode
+                        while ($n -and $n.Name -ne 'w:body') { if ($n.LocalName -eq 'tbl') { $outer = $n }; $n = $n.ParentNode }
+                        if ($outer) { $target = $outer }
+                    }
 
                     $isS  = ($t.outcome -eq 'S')
                     $col  = if ($isS) { $M.satisfactoryColor } else { $M.notSatisfactoryColor }
@@ -2100,12 +2619,29 @@ foreach ($mc in @($L.markedCopies)) {
                     $snsHasBox = (@($sns | Where-Object { "$($_.comments)".Trim() -ne '' }).Count -gt 0)
                     [void](Write-ObservationSheet -Pkg $pkg -Sheet $sheet -Observations ([string[]]$obs) `
                                                   -Outcome $res.result -MarkingDateText $L.dates.markingDateText `
+                                                  -AssessorName "$($L.assessor)" `
+                                                  -AssessmentDateText "$($L.dates.assessmentDateText)" `
                                                   -Marked $M -Who "$($s.fullName) / $($res.toolName)" `
                                                   -SkipRecord:$snsHasBox)
                     if ($sheet.PSObject.Properties.Name.Contains('verification') -and $sheet.verification) {
                         [void](Write-VerificationRows -Pkg $pkg -Verification $sheet.verification `
                                                       -Who "$($s.fullName) / $($res.toolName)")
                     }
+                    # The third sheet shape: an S / NS tick-box grid, with its
+                    # own outcome table and one comments box, and no Yes/No
+                    # paragraph boxes or comments column for the two writers
+                    # above to find. One entry per grid in the submission. It
+                    # also carries the tool-level record, into the first box.
+                    $vts = @()
+                    if ($sheet.PSObject.Properties.Name.Contains('verificationTables') -and $sheet.verificationTables) {
+                        $vts = @($sheet.verificationTables)
+                    }
+                    [void](Write-VerificationTable -Pkg $pkg -Tables $vts -Who "$($s.fullName) / $($res.toolName)")
+                    $sheetIsInline = ($sheet.PSObject.Properties.Name.Contains('layout') -and "$($sheet.layout)".Trim() -eq 'inlinePairs')
+                    [void](Write-SnsChecklist -Pkg $pkg -Checklists $sns -Who "$($s.fullName) / $($res.toolName)" `
+                                              -Observations ([string[]]$obs) -Outcome $res.result `
+                                              -MarkingDateText $L.dates.markingDateText -Marked $M `
+                                              -NoInlineGrids:$sheetIsInline)
                     $sheetsWritten++
                 } else {
                     # The submission carries no observation sheet, which the
@@ -2117,19 +2653,6 @@ foreach ($mc in @($L.markedCopies)) {
                 if ($res.result -eq 'S') { $totalS++ } else { $totalNys++ }
             }
         }
-                    # The third sheet shape: an S / NS tick-box grid, with its
-                    # own outcome table and one comments box, and no Yes/No
-                    # paragraph boxes or comments column for the two writers
-                    # above to find. One entry per grid in the submission. It
-                    # also carries the tool-level record, into the first box.
-                    $vts = @()
-                    if ($sheet.PSObject.Properties.Name.Contains('verificationTables') -and $sheet.verificationTables) {
-                        $vts = @($sheet.verificationTables)
-                    }
-                    [void](Write-VerificationTable -Pkg $pkg -Tables $vts -Who "$($s.fullName) / $($res.toolName)")
-                    [void](Write-SnsChecklist -Pkg $pkg -Checklists $sns -Who "$($s.fullName) / $($res.toolName)" `
-                                              -Observations ([string[]]$obs) -Outcome $res.result `
-                                              -MarkingDateText $L.dates.markingDateText -Marked $M)
 
         # ---- the declaration page --------------------------------------------
         # A PAGE OF ITS OWN, not a block squeezed onto the student's cover sheet.
@@ -2391,33 +2914,9 @@ foreach ($mc in @($L.markedCopies)) {
         # Approved RTO wording, filled from the ledger and the profile. Outside
         # the two-comma rule by design — see Lib-Text.ps1.
         if ($s.overall -eq 'RW') {
-            $notMet = @($s.prerequisitesNotMet)
-            if ($notMet.Count -eq 0) { throw "$($s.fullName): overall is RW but no unmet prerequisite is recorded, so the withheld notice cannot name one." }
-            $contact = $Rto.studentAdminContact
-            if (-not $contact -or -not $contact.name) { throw "RTO profile declares no studentAdminContact. The withheld notice names it twice and a student must have someone to ask." }
-
-            $unitFull    = "{0} – {1}" -f $L.unit.code, $L.unit.title
-            $prereqFull  = (@($notMet | ForEach-Object { "{0} – {1}" -f $_.code, $_.title }) -join ', ')
-            $prereqCodes = (@($notMet | ForEach-Object { $_.code }) -join ' and ')
-            $thisUnit    = if ($notMet.Count -eq 1) { 'this unit' } else { 'these units' }
-            # Join only the parts that exist. An RTO that supplies no phone
-            # number should not have the notice print 'Student Administration,
-            # info@..., ' with a comma hanging off the end of it.
-            $adminFull   = (@($contact.name, $contact.email, $contact.phone) |
-                            Where-Object { "$_".Trim() -ne '' }) -join ', '
-
-            $notice = Get-WithheldNoticeTemplate
-            $notice = $notice.Replace('{UNITCODE}',   $L.unit.code).
-                              Replace('{UNIT}',       $unitFull).
-                              Replace('{PREREQCODES}',$prereqCodes).
-                              Replace('{PREREQS}',    $prereqFull).
-                              Replace('{THISUNIT}',   $thisUnit).
-                              Replace('{PROVIDER}',   $Rto.rto.tradingName).
-                              Replace('{ADMINNAME}',  $contact.name).
-                              Replace('{ADMINFULL}',  $adminFull).
-                              Replace('{ASSESSOR}',   $L.assessor).
-                              Replace('{DATE}',       $L.dates.markingDateText)
-            if ($notice -match '\{[A-Z]+\}') { throw "$($s.fullName): the withheld notice still carries an unfilled field." }
+            # Built by Lib-Text, so this notice and the one on a standalone
+            # feedback sheet are the same words filled the same way.
+            $notice = Build-WithheldNotice -Student $s -Ledger $L -Rto $Rto
 
             $first = $true
             foreach ($line in ($notice -split "`r?`n")) {
@@ -2434,11 +2933,14 @@ foreach ($mc in @($L.markedCopies)) {
         }
 
         foreach ($a in $appendObs) {
-            $header += New-TextParagraph -Doc $doc -Text ("{0}{1} — {2}" -f $attemptPrefix, $M.observationHeading, $a.toolName) -Color $M.headingColor -Bold -SizeHalfPoints 24 -SpaceBefore 80 -SpaceAfter 60 @fit
+            $obsTitle = if ($M.observationHeading) { "{0}{1} — {2}" -f $attemptPrefix, $M.observationHeading, $a.toolName } else { "{0}{1}" -f $attemptPrefix, $a.toolName }
+            $header += New-TextParagraph -Doc $doc -Text $obsTitle -Color $M.headingColor -Bold -SizeHalfPoints 24 -SpaceBefore 80 -SpaceAfter 60 @fit
             foreach ($point in $a.points) {
                 $header += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $M.observationBullet, $point) -Color '000000' -SizeHalfPoints 22 -SpaceBefore 0 -SpaceAfter 40 @fit
             }
-            $header += New-TextParagraph -Doc $doc -Text ("{0}{1}  {2}" -f $attemptPrefix, $M.observationCompletedText, $L.dates.markingDateText) -Color $M.headingColor -SizeHalfPoints 22 -SpaceBefore 40 -SpaceAfter 60 @fit
+            if ($M.observationCompletedText) {
+                $header += New-TextParagraph -Doc $doc -Text ("{0}{1}  {2}" -f $attemptPrefix, $M.observationCompletedText, $L.dates.markingDateText) -Color $M.headingColor -SizeHalfPoints 22 -SpaceBefore 40 -SpaceAfter 60 @fit
+            }
             $aText = ($attemptPrefix + $(if ($a.result -eq 'S') { $M.satisfactoryText }  else { $M.notSatisfactoryText }))
             $aCol  = if ($a.result -eq 'S') { $M.satisfactoryColor } else { $M.notSatisfactoryColor }
             $header += New-TextParagraph -Doc $doc -Text $aText -Color $aCol -Bold -SpaceBefore 0 -SpaceAfter 120 @fit
@@ -2489,4 +2991,3 @@ if (-not $Quiet) {
 }
 
 $built
-

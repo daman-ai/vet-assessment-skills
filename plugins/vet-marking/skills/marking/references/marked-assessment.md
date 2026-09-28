@@ -259,6 +259,31 @@ answer being marked. A heading block is a few paragraphs; an answer is many. Pas
 the bound the skip is abandoned and the position found by rules 1 and 2 is used,
 which is the end of the student's answer.
 
+### Rule 4 — and if it still is not in the box, put it in the box
+
+Rules 1 to 3 all walk **back** from the next question, and rule 3 only engages
+where that next question opens a table of its own. Where the next question is
+plain body text — as every ACI CPCC task's `(a)` is, sitting under its own Task
+heading — nothing stops the walk-back at the box, and the verdict comes to rest
+on the last non-empty paragraph before the anchor: the **next** task's
+*Question / instructions* line.
+
+Two things then go wrong at once, and neither shows in a build log. The
+student's own response box comes back **empty**, and a red *Not yet
+Satisfactory* prints directly above a part they passed. On the CPCCSP3001 24
+September copies this hit the last sub-question of nearly every task — 12 of 43
+on one student — and every gate passed it, because each question did carry an
+outcome in the right colour. Only reading *where* it landed finds it, which is
+what the annotated feedback map does.
+
+So where the chosen paragraph is **not in a table** but the question does have a
+response box, the line goes after the last thing written inside that box. Where
+rules 1 to 3 already landed inside the box this changes nothing. A lookahead
+bound (`-ResponseBoxLookahead`, 12 paragraphs) stops a question whose response
+is plain paragraphs from adopting the next task's scenario or *Maps to* box as
+its own: a real response box follows its question within a line or two, while a
+next task's furniture only appears past the whole answer.
+
 ```jsonc
 "questions": [
   { "ref": "Q1", "anchor": "Q1.", "outcome": "S"   },
@@ -484,6 +509,54 @@ Boxes that sit in no grid still have to be ticked. One instrument closes each
 performance task with a `SATISFACTORY (S)` / `NOT SATISFACTORY (NS)` pair of its
 own, outside every grid and every outcome table; four per learner went out empty
 under a signed result before the writer learned to reach them.
+
+### Two S / NS grids with both boxes in one cell
+
+ACI's CPCCSP3001 pack closes UAT 2 with **two** observation checklists, one per
+occasion, each headed `Maps to | Observable behaviour | S / NS` with `☐ S ☐ NS`
+in the decision cell. After each grid, in the body: an `Assessor comments`
+heading and a one-cell box holding *Record overall comments for this observation
+occasion here…*, an `Occasion outcome` line `□ Satisfactory (S) □ Not
+Satisfactory (NS)`, and `Assessor name: ___ Signature: ___ Date: ___`.
+
+This is **not** `layout: "inlinePairs"`. That reads one sheet, and its
+`notesAnchor` is printed twice here, so the build throws. It is `snsChecklists`,
+one entry per grid, and the writer tells the shape from the single `S / NS`
+heading:
+
+```jsonc
+"observationSheet": {
+  "anchor":         "Assessor Observation Checklist — Occasion 1 (straight wall & pier)",
+  "endAnchor":      "Assessor judgement guidance",
+  "notesAnchor":    "Assessor Observation Checklist — Occasion 1 (straight wall & pier)",
+  "perRowComments": false,               // no comments column beside the criteria
+  "snsChecklists": [
+    { "outcomes": ["S", "…"],           // 26, one per criterion row
+      "outcome":  "S",                   // ticks this occasion's outcome line
+      "comments": "…\n…\n…",             // replaces the 'Record … here…' prompt
+      "assessor": "Karan Deep SINGH", "dateText": "10 / 09 / 2026" },
+    { "outcomes": ["S", "…"], "outcome": "S", "comments": "…", "assessor": "…", "dateText": "…" }  // 13
+  ]
+}
+```
+
+- The wanted box is ticked **inside the cell**, where it stands; the other box
+  and the cell's words are left as printed. Both empty-box characters are read,
+  and a row whose opposite box is already marked is refused.
+- The comments box's prompt is template text, so it is **replaced**. Anything
+  else in the box is appended to, as on every other sheet. The tool-level
+  record goes at the head of the first box.
+- Each grid's outcome line, comments box and sign-off are the **first after
+  that grid**, so occasion 2's record cannot land in occasion 1's space. The
+  sign-off line is rewritten whole with the signature left blank.
+- `notes` are refused: the grid has no notes column.
+- `anchor` and `notesAnchor` only satisfy the resolver here; the record goes in
+  the grids' boxes. `endAnchor` keeps the sign-off search off the rest of the
+  pack.
+
+The gate re-finds the grids with the writer's patterns and, per grid, checks the
+ticks, that its own box carries its comments with the prompt gone, its outcome
+line and its sign-off line.
 
 ### When the submission has no sheet
 

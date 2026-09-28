@@ -1,4 +1,4 @@
-# The marking ledger
+﻿# The marking ledger
 
 The ledger is the single source of truth for a marking run. Every value that
 appears on a SAR, on the marking record and on a feedback sheet comes from here,
@@ -79,7 +79,10 @@ used.
     ],
     "boxes": [
       { "label": "First submission",  "whenAttempt": 1 },
-      { "label": "Resit No.",         "whenAttempt": 2 },
+      // whenAttempt is one attempt number or a list of them. A third attempt
+      // still ticks the Resit box, so a cohort with resits of resits names
+      // [2, 3]; a single value means that attempt alone.
+      { "label": "Resit No.",         "whenAttempt": [2, 3] },
       { "label": "Online submission", "ticked": true }
     ]
   },
@@ -90,6 +93,34 @@ used.
       "surname": "Okafor",
       "studentId": "MVC00318",
       "attempt": 1,                  // optional, default 1; drives invoice and re-enrol
+      // Attempt 2+ normally needs 'priorMarkedCopy' on each submitted result —
+      // the file marked last time, so that attempt's feedback page travels
+      // forward. Where the earlier attempt was a NON-SUBMISSION there is no such
+      // file, and the student says so here. Silence still fails, so a resit is
+      // never quietly recorded as a first attempt.
+      "priorAttemptNotSubmitted": false,
+      // The earlier attempt WAS marked, but the student resubmitted a fresh copy
+      // of the pack rather than writing into the marked copy they were handed.
+      // Nothing stacks: the earlier attempt's page and lines live in that
+      // earlier file, which stays on record beside this one. Not a
+      // non-submission and not a first attempt — say which it was. Behaves like
+      // priorAttemptNotSubmitted in the build: one feedback page, unprefixed
+      // outcome lines. The two are mutually exclusive.
+      "priorMarkedCopySeparate": false,
+      // AT ATTEMPT 3 OR LATER: earlier attempts whose record is NOT in this
+      // file. A learner whose attempt 1 was a non-submission stacks attempt 3
+      // onto the attempt-2 copy, and that copy holds one feedback page, not
+      // two — so the gate would otherwise demand an attempt-1 page that was
+      // never written. Name the attempts here ([1]); the two flags above still
+      // describe the attempt immediately before this one.
+      "attemptsNotInFile": [],
+      // Corrections to the student's own cover sheet, label by label. The
+      // builder leaves what a student wrote alone; this is the one exception,
+      // for a value that is the RTO's record rather than theirs — a student ID
+      // belonging to somebody else. Recorded here so the change is on file.
+      "coverSheetCorrections": [
+        { "label": "Student ID:", "value": "MVC00318", "wasReading": "MVC00381" }
+      ],
       "comment": "Recipe workbook: 2 dishes not to standard",
       "results": [
         {
@@ -121,41 +152,6 @@ used.
           // numbered questions, and give that tool 'observations' instead.
           //
           // 'anchorAfter' is for a heading the assessment prints TWICE — once
-            // snsChecklists — one per S / NS tick-box GRID in the submission,
-            // in document order. That grid has no Yes/No words beside its
-            // boxes and often no comments column, so neither of the writers
-            // above finds anything in it. Two occasions is two entries; a
-            // checklist split across two tables is also two, and the one
-            // carrying the comments box is the second. The pair of columns is
-            // found by its headings and three spellings are in circulation:
-            // S / NS, S / NYS, and Satisfactory / Not yet.
-            //   outcomes  one 'S' or 'NS' per criterion row, in sheet order
-            //   notes     optional, one per row, '' where there is nothing.
-            //             A notes cell that already carries writing is
-            //             appended to, never overwritten
-            //   outcome   optional, for the sheet's Outcome (tick one) table
-            //   decision  optional, for a task decision line printed AFTER this
-            //             grid — 'Assessor decision for Task 2 practical
-            //             erection:  [] Satisfactory   [] Not Yet Satisfactory'.
-            //             It is THIS GRID's judgement, not the tool's: a learner
-            //             whose erection was watched and accepted, and whose
-            //             dismantling record is missing, is 'S' here and 'NS' on
-            //             the next grid, under one NYS tool. Left out, the tool
-            //             result answers the line
-            //   comments  optional, for the sheet's comments box; same floor
-            //             as the observation record and unique to the learner
-            //   assessor / dateText   the sheet's own sign-off line
-            "snsChecklists": [
-              {
-                "outcomes": ["S", "S", "S"],
-                "notes":    ["", "", ""],
-                "outcome":  "S",
-                "decision": "S",
-                "comments": "The learner read the work instructions first...\nPPE changed at each stage as the work changed...",
-                "assessor": "Priya Raman",
-                "dateText": "02 / 09 / 2026"
-              }
-            ],
           // in its list of tasks and again over the task itself. It narrows the
           // search to what follows text that appears once; the anchor must
           // still match exactly once inside that.
@@ -210,6 +206,51 @@ used.
             "sufficient":       false,
             "feedbackAnchor":   "Feedback to Student",
             "feedback":         "You set up safely and followed the procedure. …",
+            // snsChecklists — one per S / NS tick-box GRID in the submission,
+            // in document order. That grid has no Yes/No words beside its
+            // boxes and often no comments column, so neither of the writers
+            // above finds anything in it. Two occasions is two entries; a
+            // checklist split across two tables is also two, and the one
+            // carrying the comments box is the second. The pair of columns is
+            // found by its headings and three spellings are in circulation:
+            // S / NS, S / NYS, and Satisfactory / Not yet.
+            //   outcomes  one 'S' or 'NS' per criterion row, in sheet order
+            //   notes     optional, one per row, '' where there is nothing.
+            //             A notes cell that already carries writing is
+            //             appended to, never overwritten
+            //   outcome   optional, for the sheet's Outcome (tick one) table
+            //   decision  optional, for a task decision line printed AFTER this
+            //             grid — 'Assessor decision for Task 2 practical
+            //             erection:  [] Satisfactory   [] Not Yet Satisfactory'.
+            //             It is THIS GRID's judgement, not the tool's: a learner
+            //             whose erection was watched and accepted, and whose
+            //             dismantling record is missing, is 'S' here and 'NS' on
+            //             the next grid, under one NYS tool. Left out, the tool
+            //             result answers the line
+            //   comments  optional, for the sheet's comments box; same floor
+            //             as the observation record and unique to the learner
+            //   assessor / dateText   the sheet's own sign-off line
+            //
+            // INLINE GRIDS take the same entry. A grid headed by ONE 'S / NS'
+            // column with '☐ S ☐ NS' in each cell (ACI CPCCSP3001, two
+            // occasions) is found by that heading: the box is ticked in the
+            // cell, 'outcome' ticks the '□ Satisfactory (S) □ Not Satisfactory
+            // (NS)' line after the grid, 'comments' replace the box's 'Record
+            // … here…' prompt, and 'notes' are refused. Wire the sheet with an
+            // anchor on the first checklist heading, an endAnchor after the
+            // last, and "perRowComments": false; no layout, no outcomes — see
+            // references/marked-assessment.md.
+            "snsChecklists": [
+              {
+                "outcomes": ["S", "S", "S"],
+                "notes":    ["", "", ""],
+                "outcome":  "S",
+                "decision": "S",
+                "comments": "The learner read the work instructions first...\nPPE changed at each stage as the work changed...",
+                "assessor": "Priya Raman",
+                "dateText": "02 / 09 / 2026"
+              }
+            ],
             "fields": [
               { "label": "Date",       "value": "02 / 09 / 2026" },
               { "label": "Start time", "value": "10:00 am" }
@@ -221,6 +262,18 @@ used.
               "questionNo": "Recipe card 2 — chocolate mousse",
               "issue": "The recipe card records no setting time…",
               "action": "Add the setting time in hours and…"
+            },
+            // ONE ITEM FOR SEVERAL QUESTIONS. Where one fault runs through a
+            // run of questions — answers copied from a single source — one row
+            // says it once, and the rest of the sheet stays visible under the
+            // ten-row cap. 'questionNo' is the label the sheet prints;
+            // 'questionNos' lists every ref it answers for, and each NYS
+            // question must be covered by one or the other.
+            {
+              "questionNo": "Q1 to Q10 and Q12 to Q21",
+              "questionNos": ["Q1", "Q2", "Q3"],
+              "issue": "…",
+              "action": "…"
             }
           ]
         }
@@ -314,6 +367,18 @@ outcome and the assessor's comment on it:
 `tasksEndAnchor` on the result bounds the last task the way `questionsEndAnchor`
 bounds the last question. Without it the build warns and marks the last task at
 the end of the document.
+
+**An end anchor is a substring, and the first paragraph after the task that
+contains it wins.** Where the pack quotes the closing heading in prose before
+the heading itself — ACI's CPCCOM2001 Task 3 scenario says *"…will record what
+they see on the Assessor Evidence Review and Observation Checklist"* five
+paragraphs before that heading — the substring match closes the task inside
+its own scenario and the comment lands above the student's work. Say
+`"tasksEndAnchorExact": true` on the result (or `"endAnchorExact": true` on the
+task, `"questionsEndAnchorExact": true` for questions) and the anchor must be
+the paragraph's **whole** text, whitespace collapsed, case-insensitive. Added
+15 September 2026, after every current-edition CPCCOM2001 copy built since
+3 September had its Task 3 comment in the scenario table.
 
 ## The pre-start verification checklist
 

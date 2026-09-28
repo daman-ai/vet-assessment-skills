@@ -144,10 +144,12 @@ try {
 # ------------------------------------------- 9b. the new v2 assets ----------
 
 $missingRef = @()
-foreach ($r in @('references\prerequisite-lookup.md', 'references\observation-comments.md')) {
+foreach ($r in @('references\prerequisite-lookup.md', 'references\observation-comments.md',
+                 'references\annotated-feedback.md',
+                 'scripts\Build-AnnotatedFeedback.ps1', 'scripts\Test-AnnotatedFeedback.ps1')) {
     if (-not (Test-Path -LiteralPath (Join-Path $root $r))) { $missingRef += $r }
 }
-if ($missingRef.Count -eq 0) { Say 'PASS' 'V2References' 'prerequisite-lookup.md and observation-comments.md present' }
+if ($missingRef.Count -eq 0) { Say 'PASS' 'V2References' 'prerequisite, observation and annotated-feedback assets present' }
 else { Say 'FAIL' 'V2References' ($missingRef -join ', ') }
 
 $cache = Join-Path $root 'assets\prerequisites.cache.json'
