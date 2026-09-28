@@ -6,7 +6,9 @@
   question's verdict, and the feedback where there is any, sits in a box out on
   the page beside the answer it judges — Satisfactory as a quiet green outline,
   Not yet Satisfactory as a blue panel carrying the issue and the action.
-  `-NoMarginNotes` returns the plain copy.
+  A pointer runs from each box back towards the answer — blue and full weight
+  for a fail, thin grey for a pass — anchored to the same paragraph, so it needs
+  no coordinate either. `-NoMarginNotes` returns the plain copy.
 
   - **The PAPER is widened, not the text column narrowed.** Widening the page
     and the right margin by the same 8 cm leaves the text column identical, so
