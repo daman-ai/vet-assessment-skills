@@ -270,7 +270,9 @@ function Add-MarginNote {
         [string]$Issue = '',
         [string]$Action = '',
         [Parameter(Mandatory)][int]$BoxXEmu,
-        [Parameter(Mandatory)][int]$BoxWEmu
+        [Parameter(Mandatory)][int]$BoxWEmu,
+        [int]$ArrowXEmu = 0,
+        [int]$ArrowWEmu = 0
     )
     $EMU_PT = 12700
     if ($IsNys) { $fill = '1F4E79'; $ln = '14395B'; $head = 'FFFFFF'; $body = 'FFFFFF'; $note = 'DCE9F5'; $verdict = 'Not yet Satisfactory' }
@@ -336,6 +338,54 @@ function Add-MarginNote {
     $frag = $Doc.CreateDocumentFragment()
     $frag.InnerXml = $xml
     [void]$Paragraph.AppendChild($frag)
+
+    # THE ARROW, anchored to the same paragraph so it stays level with the box.
+    # It runs from the note's left edge back to the text column and lands on the
+    # answer. There is no coordinate to aim at - Word places both shapes
+    # relative to this paragraph - so the arrow is a fixed span across the gap
+    # rather than a line to a measured point, and it reads the same way.
+    if ($ArrowXEmu -gt 0 -and $ArrowWEmu -gt 0) {
+        $ay = [int](6.0 * $EMU_PT)
+        $arrow = @"
+<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+     xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+     xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+     xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
+  <w:drawing>
+    <wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="$($Id + 600)"
+               behindDoc="0" locked="0" layoutInCell="0" allowOverlap="1">
+      <wp:simplePos x="0" y="0"/>
+      <wp:positionH relativeFrom="page"><wp:posOffset>$ArrowXEmu</wp:posOffset></wp:positionH>
+      <wp:positionV relativeFrom="paragraph"><wp:posOffset>$ay</wp:posOffset></wp:positionV>
+      <wp:extent cx="$ArrowWEmu" cy="0"/>
+      <wp:effectExtent l="0" t="0" r="0" b="0"/>
+      <wp:wrapNone/>
+      <wp:docPr id="$($Id + 500)" name="Note pointer $Id"/>
+      <wp:cNvGraphicFramePr/>
+      <a:graphic>
+        <a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
+          <wps:wsp>
+            <wps:cNvCnPr/>
+            <wps:spPr>
+              <a:xfrm><a:off x="0" y="0"/><a:ext cx="$ArrowWEmu" cy="0"/></a:xfrm>
+              <a:prstGeom prst="straightConnector1"><a:avLst/></a:prstGeom>
+              <a:ln w="$(if ($IsNys) { 19050 } else { 9525 })" cap="rnd">
+                <a:solidFill><a:srgbClr val="$(if ($IsNys) { '1F4E79' } else { 'A6A6A6' })"/></a:solidFill>
+                <a:headEnd type="triangle" w="med" len="med"/>
+              </a:ln>
+            </wps:spPr>
+            <wps:bodyPr/>
+          </wps:wsp>
+        </a:graphicData>
+      </a:graphic>
+    </wp:anchor>
+  </w:drawing>
+</w:r>
+"@
+        $frag2 = $Doc.CreateDocumentFragment()
+        $frag2.InnerXml = $arrow
+        [void]$Paragraph.AppendChild($frag2)
+    }
 }
 
 function Expand-PageForMargin {
@@ -2362,8 +2412,11 @@ foreach ($mc in @($L.markedCopies)) {
         $__pgW = if ($__sz) { [int]$__sz.GetAttribute('w', $__wns) } else { 11906 }
         $__left = if ($__mar) { [int]$__mar.GetAttribute('left', $__wns) } else { 1134 }
         $__right = if ($__mar) { [int]$__mar.GetAttribute('right', $__wns) } else { 1134 }
-        $marginBoxX = [int](($__pgW - $__right + 142) * 635)      # just past the text column
-        $marginBoxW = [int](($marginExtraTw - 284) * 635)
+        $marginGapTw = 900                                        # room for the pointer
+        $marginBoxX = [int](($__pgW - $__right + $marginGapTw) * 635)
+        $marginArrowX = [int](($__pgW - $__right + 110) * 635)
+        $marginArrowW = [int](($marginGapTw - 190) * 635)
+        $marginBoxW = [int](($marginExtraTw - $marginGapTw - 284) * 635)
         $appendObs = @()          # records with no sheet to write into
         $sheetsWritten = 0
 
@@ -2520,7 +2573,8 @@ foreach ($mc in @($L.markedCopies)) {
                     $marginId++
                     Add-MarginNote -Doc $doc -Paragraph $line -Id $marginId -Label $label `
                         -IsNys (-not $isS) -Issue $issue -Action $action `
-                        -BoxXEmu $marginBoxX -BoxWEmu $marginBoxW
+                        -BoxXEmu $marginBoxX -BoxWEmu $marginBoxW `
+                        -ArrowXEmu $marginArrowX -ArrowWEmu $marginArrowW
                 }
             }
 
