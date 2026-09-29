@@ -241,6 +241,37 @@ sheet says *what* to fix, and only this says *where*.
 
 `-NoMarginNotes` returns the plain marked copy.
 
+### A practical tool has nothing to pin a note to
+
+A recipe workbook or observation tool has no questions and no response boxes,
+and the observation sheet is **ticked Yes on every row** by the RTO's own
+process — the practical is run and watched before marking, with oral feedback at
+the time, so the sheet records that it happened, never that it failed. There is
+no failing row to point at.
+
+Where a practical actually fails is the workbook: *"Recipe card 2 — chocolate
+mousse: records no setting time"*. And a recipe card **is not modelled in the
+ledger** — it exists only as free text in a feedback item's label, so nothing
+anchors it.
+
+Before this, the consequence was blunt: a student opened their workbook and
+found **nothing**. Every note stopped at the end of the knowledge questions, and
+where both tools are bound into one file they stopped half way through it.
+
+So a tool that produced no margin note of its own **stacks its feedback items
+down the margin from the top of the workbook**. They say what to fix and what to
+redo, which is what a student needs from a failed practical, and they say it
+inside the document the student opens rather than only on the sheet behind it.
+
+**They carry no pointer, deliberately.** An arrow would claim to know which line
+the remark is about, and nothing here does. A workbook with nothing to fix gets
+no boxes at all.
+
+This is a deliberate floor, not the finished answer. Modelling recipe cards the
+way questions are modelled — each with an anchor into the workbook — would let
+every card carry its own note against the card itself. That is a ledger change
+and more for the assessor to record, and it has not been done.
+
 ### Widen the paper; never narrow the text
 
 The boxes need empty page to sit on. **Both the page width and the right margin

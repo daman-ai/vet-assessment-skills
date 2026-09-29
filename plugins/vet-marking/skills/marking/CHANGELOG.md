@@ -1,5 +1,32 @@
 ﻿# Changelog
 
+## v2.12.1 — 29 September 2026
+
+- **A practical tool's feedback now appears in the practical.** Margin notes had
+  one call site, in the questions loop, so a recipe workbook or observation tool
+  got **none** — verified on the worked example, where every `_kq` copy carried
+  12 notes and every `_rw` copy carried 0. A student opened their workbook and
+  found nothing, and where both tools are bound into one file the notes stopped
+  half way through it.
+
+  A practical has nothing to pin a note to: no questions, no response boxes, and
+  an observation sheet ticked Yes on every row by the RTO's own process, so there
+  is no failing row to point at. Where it actually fails is the workbook — *"Recipe
+  card 2 — chocolate mousse: records no setting time"* — and a recipe card is not
+  modelled in the ledger, existing only as free text in an item's label.
+
+  So a tool that produced no note of its own stacks its feedback items down the
+  margin from the top of the workbook: what to fix, what to redo, inside the
+  document the student opens. **No pointer** — an arrow would claim to know which
+  line the remark is about, and nothing here does. A workbook with nothing to fix
+  gets no boxes.
+
+  A deliberate floor, not the finished answer: modelling recipe cards the way
+  questions are modelled would let each card carry its own note against the card
+  itself. That is a ledger change and has not been done.
+
+  Marking gate 40/40 on the SITHPAT016 worked example and CPCCSP3001.
+
 ## v2.12.0 — 28 September 2026
 
 - **The marked assessment now carries its outcomes in the right margin.** Every

@@ -272,7 +272,8 @@ function Add-MarginNote {
         [Parameter(Mandatory)][int]$BoxXEmu,
         [Parameter(Mandatory)][int]$BoxWEmu,
         [int]$ArrowXEmu = 0,
-        [int]$ArrowWEmu = 0
+        [int]$ArrowWEmu = 0,
+        [int]$YOffsetEmu = 0
     )
     $EMU_PT = 12700
     if ($IsNys) { $fill = '1F4E79'; $ln = '14395B'; $head = 'FFFFFF'; $body = 'FFFFFF'; $note = 'DCE9F5'; $verdict = 'Not yet Satisfactory' }
@@ -310,7 +311,7 @@ function Add-MarginNote {
                behindDoc="0" locked="0" layoutInCell="0" allowOverlap="1">
       <wp:simplePos x="0" y="0"/>
       <wp:positionH relativeFrom="page"><wp:posOffset>$BoxXEmu</wp:posOffset></wp:positionH>
-      <wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV>
+      <wp:positionV relativeFrom="paragraph"><wp:posOffset>$YOffsetEmu</wp:posOffset></wp:positionV>
       <wp:extent cx="$BoxWEmu" cy="$boxH"/>
       <wp:effectExtent l="0" t="0" r="0" b="0"/>
       <wp:wrapNone/>
@@ -345,7 +346,7 @@ function Add-MarginNote {
     # relative to this paragraph - so the arrow is a fixed span across the gap
     # rather than a line to a measured point, and it reads the same way.
     if ($ArrowXEmu -gt 0 -and $ArrowWEmu -gt 0) {
-        $ay = [int](6.0 * $EMU_PT)
+        $ay = $YOffsetEmu + [int](6.0 * $EMU_PT)
         $arrow = @"
 <w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
      xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
@@ -2457,6 +2458,10 @@ foreach ($mc in @($L.markedCopies)) {
             $questions = @()
             if ($res.PSObject.Properties.Name.Contains('questions') -and $res.questions) { $questions = @($res.questions) }
 
+            # Remembered so the practical fallback below can tell whether THIS
+            # tool put any note in the margin, rather than the copy as a whole.
+            $marginIdAtResultStart = $marginId
+
             # Re-read the paragraph list for EVERY tool. A previous tool's
             # outcome lines are new paragraphs, so indices taken before them are
             # stale by exactly the number inserted above the point in question —
@@ -2593,6 +2598,53 @@ foreach ($mc in @($L.markedCopies)) {
             $totalQ   += $located.Count
             $totalS   += @($located | Where-Object { $_.outcome -eq 'S' }).Count
             $totalNys += @($located | Where-Object { $_.outcome -eq 'NYS' }).Count
+
+            # --- a practical tool's items, listed in its own margin -----------
+            #
+            # A RECIPE WORKBOOK OR OBSERVATION TOOL HAS NOTHING TO PIN A NOTE TO.
+            # There are no questions and no response boxes, and the observation
+            # sheet is ticked Yes on every row by the RTO's own process, so there
+            # is no failing row to point at either. What a failing practical has
+            # is its feedback items — "Recipe card 2 — chocolate mousse: records
+            # no setting time" — and a recipe card is not modelled in the ledger,
+            # so nothing anchors it.
+            #
+            # Without this the student opened their workbook and found NOTHING.
+            # Every note stopped at the end of the knowledge questions, and where
+            # both tools are bound into one file they stopped half way through it.
+            #
+            # So the items stack down the margin from the top of the workbook.
+            # They say what to fix and what to redo — which is what a student
+            # needs from a failed practical — and they say it inside the document
+            # the student opens, not only on the sheet behind it.
+            #
+            # THEY CARRY NO POINTER, deliberately: an arrow would claim to know
+            # which line the remark is about, and nothing here does.
+            if (-not $NoMarginNotes -and $marginId -eq $marginIdAtResultStart) {
+                $practicalItems = @($res.items)
+                if ($practicalItems.Count -gt 0) {
+                    $anchorPara = $null
+                    foreach ($pp in $paras) {
+                        if (Test-ParagraphInTextBox $pp) { continue }
+                        if ([string]::IsNullOrWhiteSpace((Get-RunText -Node $pp -Ns $ns))) { continue }
+                        $anchorPara = $pp; break
+                    }
+                    if ($anchorPara) {
+                        $stackY = 0
+                        foreach ($item in $practicalItems) {
+                            $marginId++
+                            Add-MarginNote -Doc $doc -Paragraph $anchorPara -Id $marginId `
+                                -Label "$($item.questionNo)" -IsNys $true `
+                                -Issue "$($item.issue)" -Action "$($item.action)" `
+                                -BoxXEmu $marginBoxX -BoxWEmu $marginBoxW -YOffsetEmu $stackY
+                            $lines2 = 2 +
+                                [Math]::Max(1, [int][Math]::Ceiling("$($item.issue)".Length / 34.0)) +
+                                [Math]::Max(1, [int][Math]::Ceiling("$($item.action)".Length / 34.0))
+                            $stackY += [int](($lines2 * 11.0 + 16.0) * 12700) + [int](0.25 * 360000)
+                        }
+                    }
+                }
+            }
 
             # --- the TASK outcomes --------------------------------------------
             # A tool made of tasks rather than questions — three practical
