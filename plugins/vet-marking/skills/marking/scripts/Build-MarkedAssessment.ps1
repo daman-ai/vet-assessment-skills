@@ -2422,7 +2422,10 @@ foreach ($mc in @($L.markedCopies)) {
         # Placed from the PAGE edge. Anchoring to "rightMargin" instead was tried
         # and is wrong: Word put the boxes inside the text column, one of them
         # over the student's own table.
-        $marginArrowOverlapTw = 400                                # into the answer
+        # 2.5 cm inside the text column. The outcome line the arrow sits beside
+        # is short, so the right of that line is clear and the head lands on
+        # empty page rather than across the student's words.
+        $marginArrowOverlapTw = 1400
         $marginArrowX = [int](($__pgW - $__right - $marginArrowOverlapTw) * 635)
         $marginArrowW = [int](($marginGapTw - 80 + $marginArrowOverlapTw) * 635)
         $marginBoxW = [int](($marginExtraTw - $marginGapTw - 284) * 635)
