@@ -250,27 +250,45 @@ the time, so the sheet records that it happened, never that it failed. There is
 no failing row to point at.
 
 Where a practical actually fails is the workbook: *"Recipe card 2 — chocolate
-mousse: records no setting time"*. And a recipe card **is not modelled in the
-ledger** — it exists only as free text in a feedback item's label, so nothing
-anchors it.
+mousse: records no setting time"*.
 
-Before this, the consequence was blunt: a student opened their workbook and
-found **nothing**. Every note stopped at the end of the knowledge questions, and
-where both tools are bound into one file they stopped half way through it.
+### A RECIPE CARD IS A QUESTION
 
-So a tool that produced no margin note of its own **stacks its feedback items
-down the margin from the top of the workbook**. They say what to fix and what to
-redo, which is what a student needs from a failed practical, and they say it
-inside the document the student opens rather than only on the sheet behind it.
+A card has the same shape as a question — a heading that appears once, the
+student's content under it, one judgement — so it goes in `questions` and needs
+no machinery of its own:
 
-**They carry no pointer, deliberately.** An arrow would claim to know which line
-the remark is about, and nothing here does. A workbook with nothing to fix gets
-no boxes at all.
+```jsonc
+"questions": [
+  { "ref": "Recipe card 1", "anchor": "Recipe card 1 - creme caramel",    "outcome": "S"   },
+  { "ref": "Recipe card 2", "anchor": "Recipe card 2 - chocolate mousse", "outcome": "NYS" },
+  { "ref": "Recipe card 3", "anchor": "Recipe card 3 - poached pear",     "outcome": "S"   }
+],
+"questionsEndAnchor": "Service record"
+```
 
-This is a deliberate floor, not the finished answer. Modelling recipe cards the
-way questions are modelled — each with an anchor into the workbook — would let
-every card carry its own note against the card itself. That is a ledger change
-and more for the assessor to record, and it has not been done.
+Each card then carries its own coloured outcome **inside its own box** and its
+own note in the margin **pointing at the card**, exactly as a question does. The
+item that speaks for a card names it in `questionNos`, the same as any other
+item. `questionsEndAnchor` names the first thing that is not a card.
+
+The same applies to any block a practical is judged by. If the workbook has
+labelled sections rather than cards, anchor those.
+
+### What is left over is stacked, without a pointer
+
+Some items have nothing to anchor to at all — *"Observation item 7 — crème
+caramel"* names something watched in a kitchen, not a block in the document.
+Those stack down the margin from the top of the workbook.
+
+Before this, they were dropped from the document entirely: a student opened
+their workbook and found **nothing**, and where both tools are bound into one
+file the notes stopped half way through it. Now every item reaches the student
+either against its own block or in the stack.
+
+**A stacked note carries no pointer, deliberately.** An arrow would claim to
+know which line the remark is about, and nothing here does. A workbook with
+nothing to fix gets no boxes at all.
 
 ### Widen the paper; never narrow the text
 

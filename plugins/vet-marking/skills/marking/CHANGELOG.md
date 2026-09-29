@@ -1,5 +1,28 @@
 ﻿# Changelog
 
+## v2.12.2 — 29 September 2026
+
+- **Recipe cards are anchored, so each carries its own verdict and its own
+  note.** A card has the same shape as a question — a heading that appears once,
+  the student's content under it, one judgement — so it goes in `questions` and
+  needs no machinery of its own. The worked example now models all three of
+  Daniel's cards, and the marked workbook comes back with green *Satisfactory*
+  inside cards 1 and 3, red inside card 2, and a blue margin note pointing at
+  card 2 saying what to fix and what to redo.
+
+  The same applies to any block a practical is judged by: if a workbook has
+  labelled sections rather than cards, anchor those.
+
+- **An item that no block claims is no longer dropped.** The stacked fallback
+  used to run only where a tool produced *no* notes at all, so on a workbook
+  with anchored cards an item like *"Observation item 7 — crème caramel"* — which
+  names something watched in a kitchen, not a block in the document — reached the
+  feedback sheet and never the document the student opens. It now stacks
+  alongside the anchored notes. Every item reaches the student either against its
+  own block or in the stack.
+
+  Marking gate 40/40 on the worked example and CPCCSP3001.
+
 ## v2.12.1 — 29 September 2026
 
 - **A practical tool's feedback now appears in the practical.** Margin notes had

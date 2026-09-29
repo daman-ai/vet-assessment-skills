@@ -146,6 +146,13 @@ Your account of the two thickening agents was correct and named the setting beha
             "Chocolate mousse card submitted with no setting time and no holding temperature.",
             "Crème caramel poured without a colour check on the caramel."
           ],
+          "_cardsComment": "RECIPE CARDS ARE QUESTIONS. A card has the same shape as a question — a heading that appears once, the student's content under it, one judgement — so it goes in 'questions' and needs no machinery of its own. Each card then carries its own coloured outcome inside its own box, and its own note in the margin pointing at the card it is about. 'questionsEndAnchor' names the first thing that is NOT a card. Without this a workbook's feedback could only be stacked at the top of the document, because nothing anchored a card.",
+          "questions": [
+            { "ref": "Recipe card 1", "anchor": "Recipe card 1 - creme caramel",    "outcome": "S"   },
+            { "ref": "Recipe card 2", "anchor": "Recipe card 2 - chocolate mousse", "outcome": "NYS" },
+            { "ref": "Recipe card 3", "anchor": "Recipe card 3 - poached pear",     "outcome": "S"   }
+          ],
+          "questionsEndAnchor": "Service record",
           "_sheetComment": "Two of the four observable tasks were not met, so two pairs are ticked No. The count of outcomes must equal the count of Yes/No pairs on the sheet, or nothing is ticked at all and the build says why.",
           "observationSheet": {
             "anchor": "Observation of Direct Competency — Practical Demonstration",
@@ -171,6 +178,7 @@ The chocolate mousse recipe card records no setting time and no holding temperat
           "items": [
             {
               "questionNo": "Recipe card 2 — chocolate mousse",
+              "questionNos": ["Recipe card 2"],
               "issue": "The recipe card records no setting time and no holding temperature. The unit requires you to record both for a set dessert.",
               "action": "Add the setting time in hours and the holding temperature in °C to recipe card 2, and resubmit the card."
             },

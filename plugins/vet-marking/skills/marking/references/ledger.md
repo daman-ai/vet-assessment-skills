@@ -156,6 +156,13 @@ used.
           // search to what follows text that appears once; the anchor must
           // still match exactly once inside that.
           "questions": [
+            // ANYTHING JUDGED BLOCK BY BLOCK GOES HERE, not questions alone: a
+            // recipe card, a labelled workbook section, a task part. A card has
+            // the same shape as a question - a heading that appears once, the
+            // student content under it, one judgement - so it needs no
+            // machinery of its own and gets the same coloured outcome in its own
+            // box and the same margin note pointing at it.
+            //   { "ref": "Recipe card 2", "anchor": "Recipe card 2 - chocolate mousse", "outcome": "NYS" }
             { "ref": "Q1", "anchor": "Q1.", "outcome": "S"   },
             { "ref": "Q3", "anchor": "Q3.", "outcome": "NYS" },
             { "ref": "Activity 2", "anchor": "Activity 2: Draft a business plan",

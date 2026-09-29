@@ -2461,6 +2461,7 @@ foreach ($mc in @($L.markedCopies)) {
             # Remembered so the practical fallback below can tell whether THIS
             # tool put any note in the margin, rather than the copy as a whole.
             $marginIdAtResultStart = $marginId
+            $resultItemsUsed = @{}
 
             # Re-read the paragraph list for EVERY tool. A previous tool's
             # outcome lines are new paragraphs, so indices taken before them are
@@ -2579,6 +2580,11 @@ foreach ($mc in @($L.markedCopies)) {
                             @($item.questionNos)
                         } else { @("$($item.questionNo)") }
                         if ($refs -contains "$($q.ref)") {
+                            # Claimed either way: the words print once, on the
+                            # first block the item covers, but the item counts as
+                            # placed for all of them so the leftovers pass below
+                            # does not print it again at the top.
+                            $resultItemsUsed["$($item.questionNo)"] = $true
                             if (-not $marginItemUsed.ContainsKey("$($item.questionNo)")) {
                                 $marginItemUsed["$($item.questionNo)"] = $true
                                 $issue = "$($item.issue)"; $action = "$($item.action)"
@@ -2620,8 +2626,14 @@ foreach ($mc in @($L.markedCopies)) {
             #
             # THEY CARRY NO POINTER, deliberately: an arrow would claim to know
             # which line the remark is about, and nothing here does.
-            if (-not $NoMarginNotes -and $marginId -eq $marginIdAtResultStart) {
-                $practicalItems = @($res.items)
+            if (-not $NoMarginNotes) {
+                # EVERY ITEM THIS TOOL CARRIES THAT NO CARD OR QUESTION CLAIMED.
+                # Where the tool has none at all - a practical - that is all of
+                # them. Where it has some, this catches the leftovers: an item
+                # about the observation, say, on a workbook whose cards are
+                # anchored. Without it those items reached the feedback sheet and
+                # never the document the student opens.
+                $practicalItems = @(@($res.items) | Where-Object { -not $resultItemsUsed.ContainsKey("$($_.questionNo)") })
                 if ($practicalItems.Count -gt 0) {
                     $anchorPara = $null
                     foreach ($pp in $paras) {
