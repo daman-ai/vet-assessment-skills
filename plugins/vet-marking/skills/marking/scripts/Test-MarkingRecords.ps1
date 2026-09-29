@@ -1161,6 +1161,8 @@ if ($M) {
         $spFresh = ($spCopy.PSObject.Properties.Name.Contains('freshFile') -and $spCopy.freshFile) -or $spCopy.priorAttemptNotSubmitted
         $spPfx  = if ($spAtt -ge 2 -and -not $spFresh) { "Attempt ${spAtt}: " } else { '' }
         $pkg = Open-Docx -Path $path
+        $fileBoxed = 0
+        $fileLoose = @()
         try {
             $paras = @(Get-BodyParagraphs $pkg)
             for ($i = 0; $i -lt $paras.Count; $i++) {
@@ -1194,9 +1196,39 @@ if ($M) {
                 }
                 $hereCell = Get-ParagraphCell $paras[$i]
                 $prevCell = Get-ParagraphCell $prev
-                if ($null -eq $hereCell -and $null -eq $prevCell) { $looseLines++; continue }
+                if ($null -eq $hereCell -and $null -eq $prevCell) {
+                    # A LOOSE LINE IS RECORDED, NOT WAVED THROUGH. It is only
+                    # legitimate where the submission has no response box; where
+                    # the rest of this document puts its answers in boxes, a
+                    # loose line is a verdict that escaped into body text.
+                    $looseLines++
+                    $fileLoose += ("{0}: '{1}'" -f $name,
+                        (Get-RunText $prev $pkg.Ns).Trim().Substring(0,
+                            [Math]::Min(46, (Get-RunText $prev $pkg.Ns).Trim().Length)))
+                    continue
+                }
+                $fileBoxed++
                 if ($null -eq $hereCell -or $null -eq $prevCell -or -not $hereCell.Equals($prevCell)) {
                     $spaceProbs += "${name}: an outcome line is not in the same response box as the answer above it"
+                }
+            }
+
+            # SELF-CALIBRATING, per document, because not every instrument puts
+            # its answers in boxes. Where most of THIS document's verdicts landed
+            # in one, the handful that did not are the anomalies and are named.
+            # Where hardly any did, the instrument simply does not work that way
+            # and nothing is said.
+            #
+            # This is the check that was missing when twelve verdicts on one
+            # CPCCSP3001 copy came to rest on the NEXT task's heading. Each was
+            # under a non-empty paragraph, in the same container as it, so every
+            # test above passed — the heading is non-empty, and both were loose
+            # body text. Counting loose lines without ever asking whether they
+            # SHOULD be loose is what let them through.
+            $fileTotal = $fileBoxed + $fileLoose.Count
+            if ($fileTotal -ge 5 -and $fileBoxed -ge [int]($fileTotal * 0.6) -and $fileLoose.Count -gt 0) {
+                foreach ($d in $fileLoose) {
+                    $spaceProbs += "$d — a verdict in body text, where this document's answers are in boxes"
                 }
             }
         } finally { Close-Docx $pkg }

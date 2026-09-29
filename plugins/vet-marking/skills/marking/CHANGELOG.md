@@ -1,5 +1,24 @@
 ﻿# Changelog
 
+## v2.12.3 — 29 September 2026
+
+- **`MarkedCopyInAnswerSpace` now questions a LOOSE outcome line instead of
+  tallying it.** This is the check that was blind to the twelve misplaced
+  verdicts on the CPCCSP3001 copies. Each of those sat under a non-empty
+  paragraph, in the same container as it — a task heading is non-empty, and both
+  it and the verdict were loose body text — so every test the check made passed.
+  Loose lines were counted and never asked whether they *should* be loose.
+
+  A loose line is only legitimate where the submission has no response box. The
+  test is now self-calibrating per document: where most of that document's
+  verdicts landed in a box, the handful that did not are named; where hardly any
+  did, the instrument does not work that way and nothing is said.
+
+  **Proved both ways.** With rule 4 on, the check passes. With rule 4 disabled
+  the gate fails and names the line — *"'Explain the uses of the materials
+  below…' — a verdict in body text, where this document's answers are in
+  boxes"*. Rule 4 now has a regression guard rather than a promise.
+
 ## v2.12.2 — 29 September 2026
 
 - **Recipe cards are anchored, so each carries its own verdict and its own
