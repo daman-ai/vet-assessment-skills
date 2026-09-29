@@ -2414,8 +2414,17 @@ foreach ($mc in @($L.markedCopies)) {
         $__right = if ($__mar) { [int]$__mar.GetAttribute('right', $__wns) } else { 1134 }
         $marginGapTw = 900                                        # room for the pointer
         $marginBoxX = [int](($__pgW - $__right + $marginGapTw) * 635)
-        $marginArrowX = [int](($__pgW - $__right + 110) * 635)
-        $marginArrowW = [int](($marginGapTw - 190) * 635)
+        # The pointer reaches INTO the answer rather than stopping at the page
+        # edge, so it lands on the response instead of gesturing at it from the
+        # margin. It crosses the response box border by this much; the outcome
+        # line it sits beside is short, so the right of that line is clear and
+        # the arrow does not cross the student's words.
+        # Placed from the PAGE edge. Anchoring to "rightMargin" instead was tried
+        # and is wrong: Word put the boxes inside the text column, one of them
+        # over the student's own table.
+        $marginArrowOverlapTw = 400                                # into the answer
+        $marginArrowX = [int](($__pgW - $__right - $marginArrowOverlapTw) * 635)
+        $marginArrowW = [int](($marginGapTw - 80 + $marginArrowOverlapTw) * 635)
         $marginBoxW = [int](($marginExtraTw - $marginGapTw - 284) * 635)
         $appendObs = @()          # records with no sheet to write into
         $sheetsWritten = 0
