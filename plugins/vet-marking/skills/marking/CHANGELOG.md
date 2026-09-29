@@ -25,6 +25,15 @@
     table's cell out into the margin.
   - Verified on three instruments: SITHPAT020 cookery, CPCCSP3001 construction
     and the SITHPAT016 worked example. Marking gate 40/40 on all three.
+  - **Written up as a standing rule**, not just implemented: `SKILL.md` carries
+    it under the marked assessment with the four non-negotiables, two new
+    entries in *What must never happen* (never narrow the text column, never
+    return the marked copy as images), and `marked-assessment.md` carries the
+    geometry table, the anchoring mechanics and what was tried and rejected.
+  - **The picture-based annotated map is superseded** and marked so. It does the
+    same job in two documents instead of one, is not editable, and takes ten
+    minutes a student where this takes five seconds. Kept only for annotating a
+    submission that must not be reopened; nothing calls it.
 
 - **`Get-RunText` no longer returns the text inside a floating shape.** A shape
   anchored in a paragraph keeps its words in `w:txbxContent` under that

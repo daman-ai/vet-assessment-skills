@@ -1,5 +1,16 @@
 # The annotated feedback map
 
+> **SUPERSEDED, 28 September 2026.** The marked assessment now carries each
+> question's outcome and feedback in a box in its own right margin — see
+> [marked-assessment.md](marked-assessment.md#the-outcome-also-goes-in-the-right-margin).
+> That does the same job in one document instead of two, stays editable so the
+> student can write their resubmission into it, and builds in about five seconds
+> against the ten-plus minutes this takes on a table-heavy instrument.
+>
+> This remains for the one thing it still does better: it reproduces the pages
+> as pictures, so it can annotate a submission that must not be reopened at all.
+> Nothing calls it automatically. Prefer the margin notes.
+
 The fifth document type, and the only one that puts the feedback **next to the
 work it judges**.
 

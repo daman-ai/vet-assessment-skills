@@ -222,6 +222,98 @@ note written into each row lands in merge continuations, which Word does not
 draw — the page shows one comment and eleven blanks. Write to the `w:vMerge`
 master.
 
+## The outcome also goes in the right margin
+
+Every question's verdict appears twice: once **in the response box** as the
+coloured line above, and once **out in the right margin** in a box level with
+the answer, which for a Not yet Satisfactory also carries the issue and the
+action from the ledger's `items[]`.
+
+The two cannot disagree — the margin box is rendered from the same ledger row in
+the same pass that writes the line — and they do different jobs. The line is the
+record inside the work. The box is what makes the fault findable: a feedback
+sheet says *what* to fix, and only this says *where*.
+
+| | Panel | Pointer |
+|---|---|---|
+| Satisfactory | white, thin green outline, green type | thin grey |
+| Not yet Satisfactory | **solid blue, white type**, issue and action | blue, full weight |
+
+`-NoMarginNotes` returns the plain marked copy.
+
+### Widen the paper; never narrow the text
+
+The boxes need empty page to sit on. **Both the page width and the right margin
+grow by 8 cm (4536 twips)**, so the text column is arithmetically unchanged and
+nothing reflows: the same words fall on the same lines on the same pages, and
+every table keeps its width.
+
+Narrowing the column instead is the obvious move and it is wrong. It moves every
+line break and page break, and any table wider than the new column runs off the
+page — and most response boxes in these instruments are fixed-width tables.
+
+**The test is the page count.** SITHPAT020 is 37 pages with the boxes and 37
+without. If a copy gains or loses a page, the column was not preserved.
+
+### It must stay editable
+
+The marked copy is the document a student writes their resubmission into, and
+its cover sheet and declaration are filled in by hand. So the boxes are
+**anchored shapes in a live Word document**, never a rendered image of the page.
+
+Rendering the pages and annotating the pictures reads identically and was built
+first. It cost the resubmission — nobody can type into a picture — and it took
+**over ten minutes a student** on a table-heavy cookery booklet against about
+**five seconds** for this. Both reasons are decisive on their own.
+
+### Anchored, not positioned
+
+Each box hangs off its own outcome paragraph:
+
+```xml
+<wp:positionH relativeFrom="page"><wp:posOffset>…</wp:posOffset></wp:positionH>
+<wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV>
+```
+
+Word then keeps it level with that answer wherever the answer lands — no
+coordinate is ever queried, nothing is repaginated, and the build stays fast.
+
+Two details are load-bearing:
+
+- **`layoutInCell="0"`.** The anchor sits in a response table's cell. Without
+  this Word confines the shape to that cell instead of letting it out into the
+  margin.
+- **`relativeFrom="page"`, not `"rightMargin"`.** Anchoring to the right margin
+  looks like the better idea — Word would locate the text column's edge itself
+  and no arithmetic would be needed. It was tried and it is wrong: Word placed
+  the boxes *inside* the text column, one of them over a student's own table.
+
+### Geometry
+
+All measured from the document's own first section, so a template with different
+paper or margins still lands the box clear of the text:
+
+| | Twips | What it is |
+|---|---|---|
+| extra page width and right margin | 4536 | 8 cm of new paper |
+| gap before the box | 900 | where the pointer runs |
+| pointer overlap | 1400 | 2.5 cm **into** the text column |
+| box width | extra − gap − 284 | the rest of the new margin |
+
+The pointer crosses into the answer rather than stopping at its edge, so it
+lands on the response instead of gesturing at it from the margin. The outcome
+line it sits beside is short, so the right of that line is clear page and the
+head falls there rather than across the student's words.
+
+### What it costs the gate
+
+A shape anchored in a paragraph keeps its words in `w:txbxContent` **under that
+paragraph**, so any `.//w:t` sweep returns the outcome line with the note's text
+glued onto it. `Get-RunText` excludes shape text for exactly this reason — see
+its own note. Without that the outcome checks stop finding their own lines, an
+empty spacer paragraph reads as full, and the walk-back in
+`Get-OutcomeTargetIndex` stops on a paragraph that only looks non-empty.
+
 ### The pre-start verification checklist
 
 The small assessor table inside an activity — *Assessor / supervisor to confirm

@@ -16,7 +16,7 @@ of competency**, for **one class**, on **one marking date**.
 | **Student Feedback Sheet** | one per student with **no** marked copy | the same feedback, standalone, for a student who has nothing coming back |
 | Student Assessment Record (SAR) | one per student | the individual record of that student's outcome |
 | Assessment Marking and Results Record | one per class/unit, or **one per WiseNet course-offer group** where the RTO files by group | the class-wide summary, one row per student. **Not built for a class of one** |
-| **Annotated feedback map** | optional; one per marked copy that has something to fix | the student's marked pages at 75%, each item of feedback written beside the answer it is about and a drawn arrow to the spot. A reading aid handed **with** the feedback sheet, never instead of it |
+| Annotated feedback map | **superseded** — the marked assessment carries its outcomes in its own right margin | pages reproduced as pictures with the feedback beside them. Kept only for annotating a submission that must not be reopened; nothing calls it |
 
 **EVERY STUDENT IS HANDED THEIR FEEDBACK.** A student with work coming back reads
 it on page one of their own marked assessment, where it cannot be separated from
@@ -217,7 +217,46 @@ The student's own submission comes back marked. It carries:
   oversight rather than a judgement;
 - for an **observation tool**, the assessor's record written **into the
   observation sheet the student submitted** — the ticks, the times, the
-  point-form notes, the feedback and the sufficiency box.
+  point-form notes, the feedback and the sufficiency box;
+- **out in the right margin, level with every answer, a box giving that
+  question's outcome** — a quiet green outline for Satisfactory, a **solid blue
+  panel carrying the issue and the action** for Not yet Satisfactory — with a
+  pointer running from the box 2.5 cm into the answer it judges.
+
+### The outcomes go in the right margin — the rule
+
+A feedback sheet lists what to fix. It does not say **where**. A student with
+nine items and a thirty-page workbook has to match each one to an answer before
+they can start, and many of these students are reading in a second language. The
+margin box does that matching for them: the remark sits beside the work.
+
+Four things about how it is done are not negotiable.
+
+- **WIDEN THE PAPER, NEVER NARROW THE TEXT.** The page and the right margin both
+  grow by 8 cm, so the text column is identical and **nothing reflows** — same
+  line breaks, same page breaks, tables untouched. Narrowing the column to make
+  room instead moves every break and pushes any wide table off the page. The
+  proof is a page count that does not change: SITHPAT020 is 37 pages with the
+  boxes and 37 without.
+- **IT STAYS EDITABLE.** The marked copy is what a student writes their
+  resubmission into, so it must remain a real Word document with a fillable
+  cover sheet. Every box is an anchored shape, not a picture. Rendering the
+  pages to images would read the same and take the resubmission away.
+- **THE BOX IS ANCHORED, NOT POSITIONED.** It hangs off its own outcome
+  paragraph with `positionV relativeFrom="paragraph"`, so Word keeps it level
+  with that answer wherever the answer lands. Nothing queries a coordinate and
+  nothing is rendered, which is why a copy builds in about five seconds.
+  `layoutInCell="0"` is what lets a box anchored in a response table's cell out
+  into the margin.
+- **BLUE FOR A FAIL, NOT RED.** The page already carries the red and green of
+  the outcome lines and the instrument's own headings, so a red panel competes
+  with what is under it and a green one reads as a pass at a glance. Blue
+  appears nowhere else in these documents: the student finds everything they
+  must act on by colour alone, without reading a word.
+
+`-NoMarginNotes` returns the plain marked copy. Full detail, including the
+geometry constants and what was tried and rejected, is in
+[references/marked-assessment.md](references/marked-assessment.md).
 
 **One marked copy per submitted FILE, not per tool.** Where UAT 1 and UAT 2 are
 supplied bound together, they are marked together into that one document, and
@@ -783,6 +822,13 @@ gate.
 - **Never alter the templates' structure, styling, headers or footers.** The
   gate hashes every part except `document.xml` against the template.
 - **Never alter the student's own words** in a marked copy.
+- **Never narrow the text column to make room for the margin notes.** Widen the
+  paper and the right margin together so the column is untouched. Narrowing it
+  reflows the student's document — every line break, every page break, and any
+  table wider than the new column runs off the page.
+- **Never return the marked copy as images.** It is what the student writes
+  their resubmission into; the margin notes are anchored shapes in a live Word
+  document, never a rendered page.
 - **Never leave an unfilled `[ … ]` field or a bracketed checkbox.**
 - **Never return a cover sheet with a blank field.** Half of them are the RTO's
   to complete, and a blank Trainer / Assessor line records that nobody marked it.
@@ -841,7 +887,7 @@ references/
   ledger.md                     the ledger schema — read before writing one
   wisenet-roll.md               who is required to submit, and how the matrix says so
   marked-assessment.md          the green/red copy returned to the student
-  annotated-feedback.md         the optional map: feedback beside the answer, with arrows
+  annotated-feedback.md         SUPERSEDED picture-based map; margin notes replaced it
   marking-standard.md           how to judge; the authorship rule and its limits
   result-rules.md               S/NYS → C/NYC, resit, invoicing
   date-rules.md                 the four dates and the holiday table
