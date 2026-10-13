@@ -934,10 +934,11 @@ foreach ($s in @($L.students)) {
     # ONE CHARGE ONLY. RTO ruling, 13 Oct 2026: the most a student is charged is $150, so the invoice
     # is raised on attempt 4 alone - attempt 5 and later are not charged again.
     $invoice = ($attempt -eq 4 -and -not $submittedNothing)
-    # RW is never an adverse outcome: re-enrol is never ticked for it.
+    # Re-enrol covers RW as well as NYC (RTO ruling, 13 Oct 2026); only a Competent result is excluded.
     # RE-ENROL FROM THE FIFTH ATTEMPT. RTO ruling, 13 Oct 2026: the student re-enrols in the unit
-    # only where they are still NYC on attempt 5 (Resubmission 4) or later.
-    $reEnrol = ($overall -eq 'NYC' -and $attempt -ge 5)
+    # where they are still not Competent on attempt 5 (Resubmission 4) or later - NYC (non-submitters
+    # included, since they are NYC) and RW alike.
+    $reEnrol = ($overall -in @('NYC', 'RW') -and $attempt -ge 5)
     # AN INVOICE ON THE ASSESSOR'S RULING (1 Oct 2026: "Invoice all NYC" took in attempt-1
     # non-submitters). 'invoiceOnRuling' carries the ruling in words; it raises the invoice for an
     # NYC learner at any attempt and leaves re-enrol to the rule. It is refused on anyone not NYC.

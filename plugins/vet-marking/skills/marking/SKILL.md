@@ -772,7 +772,7 @@ proves nothing.
   assessment.* Built once by
   `Build-AttemptChargeNotice` in Lib-Text.ps1; the amount and the first chargeable
   attempt can be overridden in the RTO profile as `charges.markingFee` / `charges.fromAttempt`.
-  **Re-enrol** ☒ only where NYC on **attempt 5 (Resubmission 4) or later** (RTO ruling,
+  **Re-enrol** ☒ on **attempt 5 (Resubmission 4) or later** for NYC (non-submitters included) and RW (RTO ruling,
   13 October 2026).
 
 Details: [references/result-rules.md](references/result-rules.md).
