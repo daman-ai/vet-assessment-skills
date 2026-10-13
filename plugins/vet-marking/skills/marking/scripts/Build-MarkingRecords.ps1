@@ -577,6 +577,13 @@ function Build-Feedback {
             }
         }
 
+        # ---- the marking-charge notice (attempt 4 and later) -----------------
+        $charge = Build-AttemptChargeNotice -Student $Student -Rto $Rto
+        if ($charge) {
+            $para = New-TextParagraph -Doc $pkg.Xml -Text $charge -Color $Rto.markedAssessment.notSatisfactoryColor -Bold -SizeHalfPoints 22 -SpaceBefore 160 -SpaceAfter 60
+            [void](Add-ParagraphAfter -Anchor $tNext -NewParagraph $para)
+        }
+
         $dest = Join-Path $OutDir $Student.feedbackFile
         [void](Save-Docx -Package $pkg -Destination $dest)
         [pscustomobject]@{ Path = $dest; Overflow = $overflow; Items = $items.Count }

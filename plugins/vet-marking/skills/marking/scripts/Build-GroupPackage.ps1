@@ -33,6 +33,10 @@ param(
     [Parameter(Mandatory)][string]$OutDir,
     [string[]]$SourceDir,
     [string]$Zip,
+    # ONE RECORD FOR THE RUN (RTO rule, 12 Oct 2026): reassessment and
+    # resubmission results carry ONE class record labelled Resubmission and the
+    # date, filed at the package root, instead of one record per group.
+    [string]$RunRecord,
     [switch]$Quiet
 )
 
@@ -98,6 +102,10 @@ if ($tooLong.Count) {
 }
 
 $missing  = New-Object System.Collections.ArrayList
+if ($RunRecord) {
+    if (-not (Test-Path -LiteralPath $RunRecord)) { throw "Run record $RunRecord does not exist." }
+    Copy-Item -LiteralPath $RunRecord -Destination (Join-Path $OutDir (Split-Path -Leaf $RunRecord)) -Force
+}
 $placed   = @{}          # studentId -> group folder, to prove nobody is filed twice
 $manifest = New-Object System.Collections.ArrayList
 $folders  = 0
@@ -123,7 +131,10 @@ foreach ($lf in $ledgers) {
     # class of one (a resubmission run for a single learner is the usual case),
     # so its absence there is not a missing document.
     $rec = Join-Path $RecordDir $L.amrrFile
-    if (@($L.students).Count -lt 2) {
+    if ($RunRecord) {
+        # the run's single record is filed once, at the package root
+    }
+    elseif (@($L.students).Count -lt 2) {
         if (-not $Quiet) { Write-Output ("  {0}: one student, so no class record is expected" -f $L.group.name) }
     }
     elseif (-not (Test-Path -LiteralPath $rec)) {

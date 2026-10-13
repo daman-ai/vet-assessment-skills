@@ -75,6 +75,20 @@ Write to the student, in plain professional English, second person — "You
 demonstrated…", "You need to…". No jargon, no assessor shorthand, no reference
 to other students.
 
+**You are the trainer, so write as the trainer** (RTO ruling, 30 September
+2026). Never describe the trainer or assessor from the outside. "Your trainer
+confirmed that you completed the practical" reads as if somebody else vouched for
+the observation, when the person signing the sheet is the one who watched it.
+
+| Never | Write instead |
+|---|---|
+| Your trainer confirmed that you completed the four practical activities under supervision. | You completed the four practical activities under my supervision. |
+| The assessor confirmed this as generated wording. | I confirmed this as generated wording. |
+| Speak to your trainer if you need help getting started. | Speak to me if you need help getting started. |
+| Attend the oral questioning session your assessor arranges. | Attend the oral questioning session I arrange with you. |
+
+`Test-AssessorVoice` blocks the ledger on any of these.
+
 **Do not comment on the student's spelling, grammar or written expression.**
 See [marking-standard.md](marking-standard.md). A feedback line that says "watch
 your grammar" contradicts the standard the work was judged against and the

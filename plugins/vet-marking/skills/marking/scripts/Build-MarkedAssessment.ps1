@@ -206,6 +206,39 @@ function Find-OneParagraph {
     $hits[0]
 }
 
+function Get-AnchorWindow {
+    <#
+      The range of paragraphs an anchor is looked for in, narrowed by the
+      optional 'anchorAfter' and 'anchorBefore' on the ledger object.
+
+      Added 7 Oct 2026 for the ACI CPCCBC4007 pack, which prints the whole of
+      UAT 2 twice - every task heading and the observation checklist appear in
+      both copies, and students answered both. 'anchorAfter' names text that
+      appears once before the copy meant; 'anchorBefore' names text that
+      appears once after it. Either must itself appear exactly once.
+    #>
+    param(
+        [Parameter(Mandatory)][object[]]$Paragraphs,
+        [Parameter(Mandatory)]$Ns,
+        [Parameter(Mandatory)]$Obj,
+        [Parameter(Mandatory)][string]$What
+    )
+    $from = 0; $to = $Paragraphs.Count
+    foreach ($key in 'anchorAfter', 'anchorBefore') {
+        if (-not ($Obj.PSObject.Properties.Name.Contains($key) -and $Obj.$key)) { continue }
+        $hits = @(Find-ParagraphIndex -Paragraphs $Paragraphs -Ns $Ns -Text "$($Obj.$key)")
+        if ($hits.Count -ne 1) { throw "${What}: $key '$($Obj.$key)' appears $($hits.Count) times; name something that appears once." }
+        if ($key -eq 'anchorAfter') { $from = $hits[0] + 1 } else { $to = $hits[0] }
+    }
+    @($from, $to)
+}
+
+function Get-SheetStart {
+    param([object[]]$Paragraphs, $Ns, $Sheet, [string]$Who)
+    $w = Get-AnchorWindow -Paragraphs $Paragraphs -Ns $Ns -Obj $Sheet -What "$Who / observation sheet anchor"
+    Find-OneParagraph -Paragraphs $Paragraphs -Ns $Ns -Text $Sheet.anchor -From $w[0] -To $w[1] -What "$Who / observation sheet anchor"
+}
+
 function Get-SheetEnd {
     <#
       The first paragraph that is NOT part of this observation sheet.
@@ -330,11 +363,21 @@ function Write-CoverSheet {
         $value = Resolve-CoverValue -Raw "$($fld.value)" -Student $Student -Ledger $Ledger -ToolNames $ToolNames
         if (-not "$value".Trim()) { throw "$Who / cover sheet: field '$label' resolves to nothing." }
 
+        # A LABEL PRINTED TWICE ON ONE SHEET. ACI's CPCC cover prints 'Date:'
+        # after the student's signature and again after 'Administration: Rec'd'.
+        # Where the student dated their own line the first hit is taken as
+        # filled and the RTO's line below it stays blank, so 'occurrence' (1-based)
+        # names which printing of the label a field means. Default 1.
+        $wantNth = 1
+        if ($fld.PSObject.Properties.Name.Contains('occurrence') -and $fld.occurrence) { $wantNth = [int]$fld.occurrence }
+        $seenNth = 0
         $hit = $null
         foreach ($cells in $rows) {
             for ($i = 0; $i -lt $cells.Count; $i++) {
                 $t = (("$($cells[$i].InnerText)") -replace '\s+', ' ').Trim()
                 if ($t -eq $label -or $t.StartsWith($label, [StringComparison]::OrdinalIgnoreCase)) {
+                    $seenNth++
+                    if ($seenNth -lt $wantNth) { continue }
                     $hit = [pscustomobject]@{ cells = $cells; at = $i; text = $t }
                     break
                 }
@@ -854,8 +897,48 @@ function Set-SheetSignOff {
     )
     $ns    = $Pkg.Ns
     $paras = @(Get-BodyParagraphs $Pkg)
-    $start = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
+    $start = Get-SheetStart -Paragraphs $paras -Ns $ns -Sheet $Sheet -Who $Who
     $end   = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
+
+    # A SHEET THAT SIGNS OFF ON ONE PRINTED LINE. ACI's CPCCOM1014 skills test
+    # ends 'Assessor Signature: _____ Date: _____' as a body paragraph, and the
+    # sheet's range (anchor to endAnchor) also holds the STUDENT's templates,
+    # whose incident report carries bare 'Signature:' and 'Date:' cells. The
+    # cell search below matched those and wrote the assessor's name and the
+    # assessment date onto the student's own signature line (28 Sep 2026),
+    # while the real sign-off line stayed blank and the gate passed. So where
+    # the ledger names 'signOffLine' ({ signatureLabel, dateLabel }), that
+    # line is filled and no table cell is touched.
+    if ($Sheet.PSObject.Properties.Name.Contains('signOffLine') -and $Sheet.signOffLine) {
+        $sl = $Sheet.signOffLine
+        $sigL = "$($sl.signatureLabel)"; $dateL = "$($sl.dateLabel)"
+        $rxSig = [regex]::Escape($sigL) + '\s*:?\s*_{2,}'
+        $hits = @()
+        foreach ($i in $start..([Math]::Min($end, $paras.Count) - 1)) {
+            if (Get-ParagraphCell $paras[$i]) { continue }
+            $txt = Get-RunText $paras[$i] $ns
+            if ($txt.IndexOf($sigL, [StringComparison]::OrdinalIgnoreCase) -ge 0) { $hits += $i }
+        }
+        if ($hits.Count -ne 1) { throw "$Who / observation sheet: signOffLine '$sigL' matches $($hits.Count) printed line(s) in the sheet; it must match exactly one." }
+        $p = $paras[$hits[0]]
+        $n = 0
+        # A FIELD ALREADY WRITTEN ON IS LEFT ALONE. 'Assessor Signature: __Karan Deep Singh___'
+        # still matches label-plus-underscores, and replacing that match glued the ledger's name
+        # onto the one already there (Sansar SINGH, 30 Sep 2026). So each field is filled only
+        # where the stretch after its label holds nothing but rule characters.
+        $line = Get-RunText $p $ns
+        $di = if ($dateL) { $line.IndexOf($dateL, [StringComparison]::OrdinalIgnoreCase) } else { -1 }
+        $si = $line.IndexOf($sigL, [StringComparison]::OrdinalIgnoreCase)
+        $sigTail  = if ($di -gt $si) { $line.Substring($si + $sigL.Length, $di - $si - $sigL.Length) } else { $line.Substring($si + $sigL.Length) }
+        $dateTail = if ($di -ge 0) { $line.Substring($di + $dateL.Length) } else { '' }
+        $m = [regex]::Match($line, $rxSig, 'IgnoreCase')
+        if ($m.Success -and $sigTail -notmatch '[A-Za-z0-9]') { $n += Set-TextInNode -Node $p -Ns $ns -Find $m.Value -Replace ("{0}: {1}" -f $sigL.TrimEnd(':'), $AssessorName) -Limit 1 }
+        if ($dateL -and $dateTail -notmatch '[0-9A-Za-z]') {
+            $m = [regex]::Match((Get-RunText $p $ns), ([regex]::Escape($dateL) + '\s*:?\s*_{2,}'), 'IgnoreCase')
+            if ($m.Success) { $n += Set-TextInNode -Node $p -Ns $ns -Find $m.Value -Replace ("{0}: {1}" -f $dateL.TrimEnd(':'), $DateText) -Limit 1 }
+        }
+        return $n                       # a line already signed on the day is left as it is
+    }
 
     $sigLabels = @('trainer/assessor signatures','trainer / assessor signatures','trainer/assessor signature',
                    'assessor signature','trainer signature','assessor name','assessor','signature','signatures')
@@ -932,6 +1015,11 @@ function Write-ObservationSheet {
         [Parameter(Mandatory)][string]$MarkingDateText,
         [string]$AssessorName = '',
         [string]$AssessmentDateText = '',
+        # A sheet first filled at attempt 2 or later (stacked onto a copy whose
+        # earlier marking left it blank) carries the attempt prefix on its
+        # outcome line, as every other line this attempt writes does. Added
+        # 8 Oct 2026: unprefixed, the gate's MarkedCopyOutcomes missed it.
+        [string]$AttemptPrefix = '',
         [Parameter(Mandatory)]$Marked,
         [Parameter(Mandatory)][string]$Who
     )
@@ -939,7 +1027,7 @@ function Write-ObservationSheet {
     $doc   = $Pkg.Xml
     $paras = @(Get-BodyParagraphs $Pkg)
 
-    $start = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
+    $start = Get-SheetStart -Paragraphs $paras -Ns $ns -Sheet $Sheet -Who $Who
     $end   = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
 
     # --- the ticks ----------------------------------------------------------
@@ -1017,10 +1105,15 @@ function Write-ObservationSheet {
             throw "$Who / observation sheet: the sheet has $($rows.Count) criterion row(s) but the ledger gives $($outcomes.Count) outcome(s). Give one Yes or No per row, in sheet order. Nothing was ticked."
         }
         $cellStyle = Get-SheetCellStyle $Sheet
+        # A 'word' cell takes the column's OWN heading word. An S / NS sheet ticked by typing
+        # 'Yes' under 'S' reads oddly and the gate (which looks for the heading word) counts
+        # no criterion rows at all - CPCSUS4002, 7 Oct 2026.
+        $yesWord = if ($cellStyle -eq 'word' -and $Sheet.PSObject.Properties.Name.Contains('yesHeader') -and $Sheet.yesHeader) { "$($Sheet.yesHeader)" } else { 'Yes' }
+        $noWord  = if ($cellStyle -eq 'word' -and $Sheet.PSObject.Properties.Name.Contains('noHeader')  -and $Sheet.noHeader)  { "$($Sheet.noHeader)" }  else { 'No' }
         for ($i = 0; $i -lt $outcomes.Count; $i++) {
             $want = "$($outcomes[$i])"
-            Set-BoxCell -Cell $rows[$i].yes -Ns $ns -Ticked ($want -eq 'Yes') -Who $Who -Row ($i + 1) -Column 'Yes' -Style $cellStyle
-            Set-BoxCell -Cell $rows[$i].no  -Ns $ns -Ticked ($want -eq 'No')  -Who $Who -Row ($i + 1) -Column 'No'  -Style $cellStyle
+            Set-BoxCell -Cell $rows[$i].yes -Ns $ns -Ticked ($want -eq 'Yes') -Who $Who -Row ($i + 1) -Column $yesWord -Style $cellStyle
+            Set-BoxCell -Cell $rows[$i].no  -Ns $ns -Ticked ($want -eq 'No')  -Who $Who -Row ($i + 1) -Column $noWord  -Style $cellStyle
         }
 
         # The comments column is this sheet's assessor comments area — one cell
@@ -1130,10 +1223,17 @@ function Write-ObservationSheet {
             $sufLabels = @($Sheet.sufficientLabels)
         }
         $paras = @(Get-BodyParagraphs $Pkg)
-        $start = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
+        $start = Get-SheetStart -Paragraphs $paras -Ns $ns -Sheet $Sheet -Who $Who
         $end   = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
         $sufficientAt = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.sufficientAnchor -From $start -To $end -What "$Who / observation sheet sufficientAnchor"
 
+        # WHERE THE BOX IS THE TOOL'S OWN RESULT. ACI's CPCCOM1014 skills test
+        # closes with 'Overall Result  ☐ Satisfactory  ☐ Not Yet Satisfactory',
+        # and ticking Satisfactory there for a learner whose UAT 2 is NYS writes a
+        # false result onto a signed page (28 Sep 2026). 'sufficientFollowsResult'
+        # ticks that box from the tool result instead of from 'sufficient'.
+        $sufTick = [bool]$Sheet.sufficient
+        if ($Sheet.PSObject.Properties.Name.Contains('sufficientFollowsResult') -and $Sheet.sufficientFollowsResult) { $sufTick = ($Outcome -eq 'S') }
         if ($sufLabels.Count -gt 0) {
             if ($sufLabels.Count -ne 2) {
                 throw "$Who / observation sheet: sufficientLabels needs exactly two labels — the satisfied one first."
@@ -1147,11 +1247,14 @@ function Write-ObservationSheet {
             if ($hit -lt 0) {
                 throw "$Who / observation sheet: no box labelled '$($sufLabels[0])' follows '$($Sheet.sufficientAnchor)', so the overall box cannot be ticked."
             }
-            $n = Set-LabelledBox -Node $paras[$hit] -Ns $ns -Label "$($sufLabels[0])" -Ticked ([bool]$Sheet.sufficient)
+            # tick the box this result wants and prove it, then clear the other
+            $onLabel  = if ($sufTick) { "$($sufLabels[0])" } else { "$($sufLabels[1])" }
+            $offLabel = if ($sufTick) { "$($sufLabels[1])" } else { "$($sufLabels[0])" }
+            $n = Set-LabelledBox -Node $paras[$hit] -Ns $ns -Label $onLabel -Ticked $true
             if ($n -lt 1) {
-                throw "$Who / observation sheet: the '$($sufLabels[0])' box was found but not ticked."
+                throw "$Who / observation sheet: the '$onLabel' box was found but not ticked."
             }
-            [void](Set-LabelledBox -Node $paras[$hit] -Ns $ns -Label "$($sufLabels[1])" -Ticked (-not [bool]$Sheet.sufficient))
+            [void](Set-LabelledBox -Node $paras[$hit] -Ns $ns -Label $offLabel -Ticked $false)
         }
         else {
             $suf = @()
@@ -1162,8 +1265,8 @@ function Write-ObservationSheet {
             if ($suf.Count -lt 2 -or $suf[0].word -ne 'Yes' -or $suf[1].word -ne 'No') {
                 throw "$Who / observation sheet: no Yes/No pair follows '$($Sheet.sufficientAnchor)', so the sufficiency box cannot be ticked."
             }
-            [void](Set-LabelledBox -Node $paras[$suf[0].index] -Ns $ns -Label 'Yes' -Ticked ([bool]$Sheet.sufficient))
-            [void](Set-LabelledBox -Node $paras[$suf[1].index] -Ns $ns -Label 'No'  -Ticked (-not [bool]$Sheet.sufficient))
+            [void](Set-LabelledBox -Node $paras[$suf[0].index] -Ns $ns -Label 'Yes' -Ticked $sufTick)
+            [void](Set-LabelledBox -Node $paras[$suf[1].index] -Ns $ns -Label 'No'  -Ticked (-not $sufTick))
         }
     }
 
@@ -1175,7 +1278,7 @@ function Write-ObservationSheet {
     foreach ($fld in @($Sheet.fields)) {
         if (-not $fld) { continue }
         $paras = @(Get-BodyParagraphs $Pkg)
-        $start = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
+        $start = Get-SheetStart -Paragraphs $paras -Ns $ns -Sheet $Sheet -Who $Who
         $end   = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
 
         # A LABEL THE SHEET PRINTS ONCE PER OCCASION. A pack observed over five
@@ -1251,7 +1354,7 @@ function Write-ObservationSheet {
     # Inserted after notesAnchor, which is inside the sheet, so it lands in the
     # sheet's own notes cell rather than in the body after the table.
     $paras   = @(Get-BodyParagraphs $Pkg)
-    $start   = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
+    $start   = Get-SheetStart -Paragraphs $paras -Ns $ns -Sheet $Sheet -Who $Who
     $end     = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
     $notesAt = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.notesAnchor -From $start -To $end -What "$Who / observation sheet notesAnchor"
     $after   = $paras[$notesAt]
@@ -1272,7 +1375,7 @@ function Write-ObservationSheet {
     if ($Marked.observationCompletedText) {
         $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationCompletedText, $MarkingDateText) -Color $Marked.headingColor -SpaceBefore 40 -SpaceAfter 60
     }
-    $outcomeText   = if ($Outcome -eq 'S') { $Marked.satisfactoryText }  else { $Marked.notSatisfactoryText }
+    $outcomeText   = $AttemptPrefix + $(if ($Outcome -eq 'S') { $Marked.satisfactoryText }  else { $Marked.notSatisfactoryText })
     $outcomeColour = if ($Outcome -eq 'S') { $Marked.satisfactoryColor } else { $Marked.notSatisfactoryColor }
     $lines += New-TextParagraph -Doc $doc -Text $outcomeText -Color $outcomeColour -Bold -SpaceBefore 80 -SpaceAfter 80
 
@@ -1281,7 +1384,7 @@ function Write-ObservationSheet {
     # --- feedback to the student, on the sheet's own feedback line ----------
     if ($Sheet.PSObject.Properties.Name.Contains('feedback') -and $Sheet.feedback) {
         $paras = @(Get-BodyParagraphs $Pkg)          # the inserts above moved everything
-        $start = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.anchor -What "$Who / observation sheet anchor"
+        $start = Get-SheetStart -Paragraphs $paras -Ns $ns -Sheet $Sheet -Who $Who
         $fbEnd = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
         $fbAt  = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.feedbackAnchor -From $start -To $fbEnd -What "$Who / observation sheet feedbackAnchor"
         $cell = Get-ParagraphCell $paras[$fbAt]
@@ -1332,7 +1435,7 @@ foreach ($s in @($L.students)) {
             $skipped += "$($s.fullName) / $($res.toolName): nothing submitted, so there is no assessment to mark"
         } elseif ($res.PSObject.Properties.Name.Contains('wrongAssessment') -and $res.wrongAssessment) {
             $skipped += "$($s.fullName) / $($res.toolName): the work submitted is $($res.submittedInstead), so there is no assessment for this unit to mark. The feedback goes out on a standalone sheet"
-        } elseif ((Get-ListCount $res.questions) -eq 0 -and (Get-ListCount $res.observations) -eq 0) {
+        } elseif ((Get-ListCount $res.questions) -eq 0 -and (Get-ListCount $res.observations) -eq 0 -and (Get-ListCount $res.tasks) -eq 0) {
             $skipped += "$($s.fullName) / $($res.toolName): no per-question outcomes and no observation record in the ledger, so no marked copy"
         } elseif (-not $res.evidence) {
             $skipped += "$($s.fullName) / $($res.toolName): outcomes were recorded but no evidence file is named, so there is no document to return"
@@ -1409,6 +1512,17 @@ foreach ($mc in @($L.markedCopies)) {
             $coverBlocks = @($L.coverSheet)
             for ($cb = 0; $cb -lt $coverBlocks.Count; $cb++) {
                 $whoCover = if ($coverBlocks.Count -gt 1) { "$($s.fullName) (cover block $($cb + 1))" } else { $s.fullName }
+                # 'ifPresent' (9 Oct 2026, SITXGLC002): a pack supplied as two
+                # files where only Part 1 carries the cover sheet. The block is
+                # filled wherever its anchor is found and skipped where it is
+                # not. Without it the Part 2 copy cannot be built at all.
+                if ($coverBlocks[$cb].PSObject.Properties.Name.Contains('ifPresent') -and [bool]$coverBlocks[$cb].ifPresent) {
+                    $cpHits = @(Find-ParagraphIndex -Paragraphs @(Get-BodyParagraphs $pkg) -Ns $ns -Text $coverBlocks[$cb].anchor)
+                    if ($cpHits.Count -eq 0) {
+                        $lastWarnings += "${whoCover}: no cover sheet at '$($coverBlocks[$cb].anchor)' in this copy; skipped (ifPresent)."
+                        continue
+                    }
+                }
                 [void](Write-CoverSheet -Pkg $pkg -Cover $coverBlocks[$cb] -Student $s -Ledger $L `
                                         -ToolNames ([string[]]@($mc.toolNames)) -Who $whoCover)
             }
@@ -1453,8 +1567,28 @@ foreach ($mc in @($L.markedCopies)) {
                     }
                     $from = $afterHits[0] + 1
                 }
+                # 'anchorBefore' (9 Oct 2026, MVC SITXCCS016): the task branch
+                # already honoured it. Two identical 'Interpret the customer
+                # satisfaction statistics' stems sit back to back, so the first
+                # can only be told apart by text that appears once after it.
+                $qTo = [int]::MaxValue
+                if ($q.PSObject.Properties.Name.Contains('anchorBefore') -and $q.anchorBefore) {
+                    $beforeHits = @(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $q.anchorBefore)
+                    if ($beforeHits.Count -ne 1) {
+                        $problems += "question '$($q.ref)': anchorBefore '$($q.anchorBefore)' appears $($beforeHits.Count) times; name something that appears once"
+                        continue
+                    }
+                    $qTo = $beforeHits[0]
+                }
 
-                $hits = @(@(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $anchorText) | Where-Object { $_ -ge $from })
+                # 'anchorExact' (28 Sep 2026, CPCCCM2006): a heading such as
+                # 'Question 1' is a substring of 'Question 10' to 'Question 16',
+                # so it can never be unique as a substring. Exact matches the
+                # paragraph's whole text, whitespace collapsed, case-insensitive.
+                $qExact = ($q.PSObject.Properties.Name.Contains('anchorExact') -and [bool]$q.anchorExact)
+                $allHits = if ($qExact) { @(Find-ParagraphIndexExact -Paragraphs $paras -Ns $ns -Text $anchorText) }
+                           else         { @(Find-ParagraphIndex      -Paragraphs $paras -Ns $ns -Text $anchorText) }
+                $hits = @($allHits | Where-Object { $_ -ge $from -and $_ -lt $qTo })
                 if ($hits.Count -eq 0) {
                     $problems += $(if ($anchorAfter) {
                         "question '$($q.ref)': no paragraph after '$anchorAfter' contains '$anchorText'"
@@ -1670,7 +1804,13 @@ foreach ($mc in @($L.markedCopies)) {
                         if ($afterHits.Count -gt 1) { $tProb += "task '$($t.ref)': anchorAfter '$tAfter' appears $($afterHits.Count) times; name something that appears once"; continue }
                         $from = $afterHits[0] + 1
                     }
-                    $hits  = @(@(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $aText) | Where-Object { $_ -ge $from })
+                    $tTo = $paras.Count
+                    if ($t.PSObject.Properties.Name.Contains('anchorBefore') -and $t.anchorBefore) {
+                        $beforeHits = @(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $t.anchorBefore)
+                        if ($beforeHits.Count -ne 1) { $tProb += "task '$($t.ref)': anchorBefore '$($t.anchorBefore)' appears $($beforeHits.Count) times; name something that appears once"; continue }
+                        $tTo = $beforeHits[0]
+                    }
+                    $hits  = @(@(Find-ParagraphIndex -Paragraphs $paras -Ns $ns -Text $aText) | Where-Object { $_ -ge $from -and $_ -lt $tTo })
                     if ($hits.Count -eq 0) { $tProb += $(if ($tAfter) { "task '$($t.ref)': no paragraph after '$tAfter' contains '$aText'" } else { "task '$($t.ref)': no paragraph contains '$aText'" }); continue }
                     if ($hits.Count -gt 1) { $tProb += $(if ($tAfter) { "task '$($t.ref)': '$aText' appears $($hits.Count) times after '$tAfter'; give it a unique 'anchor' in the ledger" } else { "task '$($t.ref)': '$aText' appears $($hits.Count) times; give it a unique 'anchor' in the ledger, or an 'anchorAfter' naming text that appears once before the copy you mean" }); continue }
                     $tLoc += [pscustomobject]@{
@@ -1780,6 +1920,7 @@ foreach ($mc in @($L.markedCopies)) {
                                                   -Outcome $res.result -MarkingDateText $L.dates.markingDateText `
                                                   -AssessorName "$($L.assessor)" `
                                                   -AssessmentDateText "$($L.dates.assessmentDateText)" `
+                                                  -AttemptPrefix $attemptPrefix `
                                                   -Marked $M -Who "$($s.fullName) / $($res.toolName)")
                     if ($sheet.PSObject.Properties.Name.Contains('verification') -and $sheet.verification) {
                         [void](Write-VerificationRows -Pkg $pkg -Verification $sheet.verification `
@@ -2073,6 +2214,12 @@ foreach ($mc in @($L.markedCopies)) {
                 $header += $p
                 $first = $false
             }
+        }
+
+        # ---- the marking-charge notice (attempt 4 and later) -----------------
+        $charge = Build-AttemptChargeNotice -Student $s -Rto $Rto
+        if ($charge) {
+            $header += New-TextParagraph -Doc $doc -Text $charge -Color $M.notSatisfactoryColor -Bold -SizeHalfPoints 24 -SpaceBefore 160 -SpaceAfter 60 @fit
         }
 
         foreach ($a in $appendObs) {

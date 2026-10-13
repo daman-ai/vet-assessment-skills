@@ -1,4 +1,4 @@
-# The closing checklist, and the gate that proves it
+﻿# The closing checklist, and the gate that proves it
 
 The RTO's marking instruction closes with an eighteen-point checklist. Every point is
 a machine check in `Test-MarkingRecords.ps1`, run against the **delivered files**
@@ -30,7 +30,7 @@ every check reads bytes off disk.
 | Every Competent student has N/A in Resubmission Due | `DateRules` |
 | Feedback Given equals the marking date on every record | `DateRules`, `CrossDocumentAgreement` |
 | Date of assessment is the same on every record | `DateRules` |
-| Invoice Raised ticked only where NYC after the second attempt | `InvoiceRule` |
+| Invoice Raised ticked only where NYC on attempt 4 or later | `InvoiceRule` |
 | Every non-submission carries the comment `No submission` | `NoSubmissionComment` |
 | SAR, marking record row and feedback sheet agree on every value | `CrossDocumentAgreement` |
 | Headers, footers and document numbering untouched | `TemplateUntouched` |

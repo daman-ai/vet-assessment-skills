@@ -23,7 +23,7 @@
     ToolNamesIdentical       same tool names in every document
     CrossDocumentAgreement   SAR, marking record row and feedback sheet agree
     DateRules                assessment, feedback-given and resubmission dates
-    InvoiceRule              ticked only where NYC after the second attempt
+    InvoiceRule              ticked on attempt 4 or later (any result, work submitted)
     NoSubmissionComment      a non-submission reads exactly 'No submission'
     TemplateUntouched        headers, footers, styles and numbering unchanged
     MarkedCopyOutcomes       one coloured outcome per question, front page matches the SAR
@@ -434,7 +434,10 @@ Add-Check 'DateRules' ($dateProbs.Count -eq 0) `
 
 $invProbs = @()
 foreach ($s in $L.students) {
-    $should = ($s.overall -eq 'NYC' -and $s.attempt -ge 2)
+    $ruled  = (@($s.PSObject.Properties.Name) -contains 'invoiceOnRuling' -and "$($s.invoiceOnRuling)")
+    $sentSome = (@($s.results | Where-Object { $_.submitted }).Count -gt 0)
+    $should = (($s.attempt -eq 4 -and $sentSome) -or $ruled)
+    if (@($s.PSObject.Properties.Name) -contains 'invoiceWaivedOnRuling' -and "$($s.invoiceWaivedOnRuling)") { $should = $false }
     if ([bool]$s.invoiceRaised -ne $should) { $invProbs += "$($s.fullName): invoice $($s.invoiceRaised), rule gives $should (attempt $($s.attempt), $($s.overall))" }
     if (-not $rowsOf.ContainsKey($s.sarFile)) { continue }
     $adminRow = @($rowsOf[$s.sarFile] | Where-Object { $_ -like '*Resit invoice raised*' }) | Select-Object -First 1
@@ -446,7 +449,7 @@ foreach ($s in $L.students) {
     }
 }
 Add-Check 'InvoiceRule' ($invProbs.Count -eq 0) `
-    $(if ($invProbs.Count) { ($invProbs | Select-Object -First 6) -join ' · ' } else { 'invoice ticked only where NYC after the second attempt' })
+    $(if ($invProbs.Count) { ($invProbs | Select-Object -First 6) -join ' · ' } else { 'invoice ticked on attempt 4 only (any result, work submitted)' })
 
 # --------------------------------------------------- 9. no-submission text ---
 
@@ -635,7 +638,11 @@ if ($L.PSObject.Properties.Name.Contains('coverSheet') -and $L.coverSheet) {
             for ($i = 0; $i -lt $paras.Count; $i++) {
                 if ((Get-RunText $paras[$i] $ns).IndexOf("$($cover.anchor)", [StringComparison]::OrdinalIgnoreCase) -ge 0) { $startAt = $i; break }
             }
-            if ($startAt -lt 0) { $coverProbs += "${name}: no cover sheet at '$($cover.anchor)'"; continue }
+            if ($startAt -lt 0) {
+                # 'ifPresent': the block is only printed in one of the files.
+                if ($cover.PSObject.Properties.Name.Contains('ifPresent') -and [bool]$cover.ifPresent) { continue }
+                $coverProbs += "${name}: no cover sheet at '$($cover.anchor)'"; continue
+            }
 
             $endAt = $paras.Count
             if ($cover.PSObject.Properties.Name.Contains('endAnchor') -and $cover.endAnchor) {
@@ -782,7 +789,9 @@ foreach ($name in $markedExpected.Keys) {
     # Sheet' line. That page is attempt 1's record and counts as one page; the
     # bare title is required at end of line so the current page's own
     # 'Student Feedback Sheet — Attempt N' is not counted twice.
-    $legacyPages = ([regex]::Matches($textOf[$name], 'MARKED ASSESSMENT\r?\nStudent Feedback Sheet\r?\n')).Count
+    # The oldest shape (MVC BSBCRT511, 01 Sep 2026) has no sheet title at all:
+    # 'MARKED ASSESSMENT' sits directly over the 'Student:  <name>' line.
+    $legacyPages = ([regex]::Matches($textOf[$name], 'MARKED ASSESSMENT\r?\n(?:Student Feedback Sheet\r?\n|Student:\s)')).Count
     $pages += $legacyPages
     if ($pages -ne $wantPages) {
         $stackProbs += "$name is attempt $att but carries $pages feedback page(s), where $wantPages was expected; each marked attempt keeps its own"
@@ -1402,7 +1411,19 @@ if ($M -and $M.observationHeading) {
                 $who = "${name} / $($res.toolName)"
 
                 $startAt = -1
-                for ($i = 0; $i -lt $paras.Count; $i++) {
+                # anchorAfter / anchorBefore (7 Oct 2026): a pack printing the
+                # same checklist twice names which copy this sheet is.
+                $sFrom = 0; $sTo = $paras.Count
+                foreach ($key in 'anchorAfter', 'anchorBefore') {
+                    if (-not ($sheet.PSObject.Properties.Name.Contains($key) -and $sheet.$key)) { continue }
+                    for ($i = 0; $i -lt $paras.Count; $i++) {
+                        if ((Get-RunText $paras[$i] $pkg.Ns).IndexOf("$($sheet.$key)", [StringComparison]::OrdinalIgnoreCase) -ge 0) {
+                            if ($key -eq 'anchorAfter') { $sFrom = $i + 1 } else { $sTo = $i }
+                            break
+                        }
+                    }
+                }
+                for ($i = $sFrom; $i -lt $sTo; $i++) {
                     if ((Get-RunText $paras[$i] $pkg.Ns).IndexOf("$($sheet.anchor)", [StringComparison]::OrdinalIgnoreCase) -ge 0) { $startAt = $i; break }
                 }
                 if ($startAt -lt 0) { $obsProbs += "${who}: the observation sheet named in the ledger is not in the delivered file"; continue }

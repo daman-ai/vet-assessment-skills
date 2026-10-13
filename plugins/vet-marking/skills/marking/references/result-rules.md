@@ -1,4 +1,4 @@
-# Result rules
+﻿# Result rules
 
 Applied in order, per student. All of this is **derived** by
 `Resolve-MarkingLedger.ps1` — none of it is hand-written into a ledger, and the
@@ -62,7 +62,7 @@ answer.
 | `overall` | `RW` |
 | Marking record comment | exactly `Result withheld - Prerequisite not completed - Continuing enrolment` |
 | Resubmission Due | **five working days from the marking date, always** — that is when the prerequisite question falls due, whether or not the student also has work to redo |
-| Invoice Raised | ☐ never. RW is not an adverse outcome and does not use an attempt |
+| Invoice Raised | ☒ on attempt 4 only (the work was still marked) |
 | Re-enrol in unit | ☐ never |
 | WiseNet outcome code | **70 — Continuing Enrolment** |
 | Per-tool S / NYS ticks | unchanged — judged normally |
@@ -74,20 +74,30 @@ The assessor records `confirmedExternally` with the evidence they saw — see
 
 ## Step 3 — resit and invoicing
 
-**Invoice Raised** is ticked (☒) only where the result is **NYC after the second
-attempt**. In every other case it stays unticked (☐).
+**Invoice Raised** is ticked (☒) on **attempt 4 only, whatever the result** — the most a student is charged is $150, so attempt 5 and later are not charged again —
+C, NYC and RW alike — wherever work was submitted (RTO ruling, 13 October 2026). A
+non-submission is never charged: nothing was marked. A student is not charged on attempt 2 or 3 (RTO ruling, 13 October 2026). In every
+other case it stays unticked (☐).
 
-**Re-enrol in unit** is ticked only where the **second attempt of assessment is
-not satisfactory**.
+| `attempt` | What it is | Charged? |
+|---|---|---|
+| 1 | First marking | No |
+| 2 | Resubmission 1 | No |
+| 3 | Resubmission 2 | No |
+| 4 | Resubmission 3 | **Yes** — Invoice Raised ☒ for C, NYC or RW (once, $150) |
+| 5+ | Resubmission 4+ | No — the $150 maximum was charged at attempt 4 |
+
+**Re-enrol in unit** is ticked only where the result is **NYC on attempt 5
+(Resubmission 4) or later** (RTO ruling, 13 October 2026).
 
 Both are computed from `attempt` and the overall result:
 
 ```
-invoiceRaised = (overall == NYC) and (attempt >= 2)
-reEnrol       = (overall == NYC) and (attempt >= 2)
+invoiceRaised = (attempt == 4) and (something was submitted)
+reEnrol       = (overall == NYC) and (attempt >= 5)
 ```
 
-A first-attempt NYC gets neither. This matters — a wrongly ticked invoice box
+An NYC on attempts 1 to 3 gets neither box. Attempt 4 gets the invoice (any result); an NYC on attempt 5 or later gets re-enrol but no further invoice. This matters — a wrongly ticked invoice box
 bills a student for a resit they have not had.
 
 ## The per-tool feedback option

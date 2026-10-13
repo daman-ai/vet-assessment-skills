@@ -33,7 +33,10 @@
 param(
     [Parameter(Mandatory)][string]$GroupLedgerDir,
     [Parameter(Mandatory)][string]$Dir,
-    [string]$Zip
+    [string]$Zip,
+    # ONE RECORD FOR THE RUN (RTO rule, 12 Oct 2026): the file name of the single
+    # resubmission record at the package root.
+    [string]$RunRecord
 )
 
 $ErrorActionPreference = 'Stop'
@@ -82,7 +85,10 @@ foreach ($label in ($expected.Keys | Sort-Object)) {
 
     # ---- the record ------------------------------------------------------
     $rec = Join-Path $gDir $L.amrrFile
-    if (@($L.students).Count -lt 2) {
+    if ($RunRecord) {
+        foreach ($gr in @(Get-ChildItem -LiteralPath $gDir -File -Filter 'AMLC_*.docx')) { $recProbs += "$label : $($gr.Name) is a group-level record; this run files one record at the package root" }
+    }
+    elseif (@($L.students).Count -lt 2) {
         # a group of one has no class record — it is not built for a class of one
         if (Test-Path -LiteralPath $rec) { $recProbs += "$label : $($L.amrrFile) is present for a group of one; no class record is built for one student" }
     }
@@ -149,8 +155,18 @@ foreach ($label in ($expected.Keys | Sort-Object)) {
     }
 }
 
-Add-Check 'RecordInEveryGroup'   ($recProbs.Count    -eq 0) $(if ($recProbs.Count)    { ($recProbs    | Select-Object -First 4) -join ' · ' } else { 'every group folder holds its own marking record' })
-Add-Check 'RecordListsItsGroup'  ($listProbs.Count   -eq 0) $(if ($listProbs.Count)   { ($listProbs   | Select-Object -First 4) -join ' · ' } else { 'each record names every student of its group and nobody else' })
+if ($RunRecord) {
+    $rr = Join-Path $dirFull $RunRecord
+    if (-not (Test-Path -LiteralPath $rr)) { $recProbs += "run record $RunRecord is not at the package root" }
+    else {
+        $fileCount[$RunRecord] = 1
+        $txt = (Get-DocxText -Path $rr) -replace '\s+', ' '
+        if ($txt -notmatch 'Resubmission') { $recProbs += "run record $RunRecord is not labelled Resubmission" }
+        foreach ($k in $expected.Keys) { foreach ($s in @($expected[$k].students)) { if ($txt -notmatch [regex]::Escape($s.studentId)) { $listProbs += "run record does not list $($s.studentId) $($s.fullName)" } } }
+    }
+}
+Add-Check 'RecordInEveryGroup'   ($recProbs.Count    -eq 0) $(if ($recProbs.Count)    { ($recProbs    | Select-Object -First 4) -join ' · ' } else { $(if ($RunRecord) { "one run record ($RunRecord) at the package root, no group-level record" } else { 'every group folder holds its own marking record' }) })
+Add-Check 'RecordListsItsGroup'  ($listProbs.Count   -eq 0) $(if ($listProbs.Count)   { ($listProbs   | Select-Object -First 4) -join ' · ' } else { $(if ($RunRecord) { 'the run record names every student of every group' } else { 'each record names every student of its group and nobody else' }) })
 Add-Check 'StudentFolderPerRow'  ($folderProbs.Count -eq 0) $(if ($folderProbs.Count) { ($folderProbs | Select-Object -First 4) -join ' · ' } else { "$studentFolders student folder(s), one per ledger row" })
 Add-Check 'StudentInOneGroupOnly' ($crossProbs.Count -eq 0) $(if ($crossProbs.Count)  { ($crossProbs  | Select-Object -First 4) -join ' · ' } else { "$($seenStudent.Count) student(s), each under exactly one group" })
 Add-Check 'SarAndMarkedPresent'  ($sarProbs.Count    -eq 0) $(if ($sarProbs.Count)    { ($sarProbs    | Select-Object -First 4) -join ' · ' } else { 'every student folder holds the SAR and the marked copy of the student it is named for' })

@@ -76,6 +76,11 @@ applies it wherever `observationSheet.layout` is `columns`.
 | Commas per sentence | **2** — the house rule, and it applies here too |
 
 - **Past tense, third person, active voice.**
+- **No observer in the sentence.** The trainer who watched is the one writing,
+  so never write *the trainer confirmed*, *the assessor watched* or *verified by
+  the assessor*. Write *Observed under supervision*, or just say what the
+  student did (RTO ruling, 30 September 2026; `Test-AssessorVoice`). A student
+  reporting *to* the trainer is the student's action and is fine.
 - **Plain assessor language.** No *demonstrated a sound understanding*, no
   *showcased*, no *effectively utilised*, no adverb padding.
 - **Vary the sentence openings.** Do not start every sentence with the student's

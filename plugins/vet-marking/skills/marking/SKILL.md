@@ -164,6 +164,29 @@ student listing six ingredients and misses generated text in short sentences.
 `Test-AiFlag.ps1` therefore reports every hit **with the sentence that triggered
 it**, and **every flag is an assessor decision before it reaches the ledger.**
 
+## The trainer is the one writing
+
+**Settled by the RTO on 30 September 2026.** Every word of prose in the ledger
+is written by the trainer/assessor who signs the record. That covers tool
+feedback, task comments, feedback items, observation points, row notes and the
+marking record comment. So it never describes that trainer from the outside.
+
+| Never | Write instead |
+|---|---|
+| *Your trainer confirmed that you completed the four practical activities under supervision.* | *You completed the four practical activities under my supervision.* |
+| *The trainer confirmed the activities were completed before marking.* (observation point) | *Observed completing all four activities under supervision before marking.* |
+| *Speak to your trainer if you need help.* | *Speak to me if you need help.* |
+| *…while the assessor watched.* (row note) | *…under observation.* |
+
+Student-facing text may use *I*, *me* and *my*. Third-person records such as
+observation points, row notes and sheet comments name no observer at all. A
+student reporting *to* the trainer is something the student did, and it stays:
+*reported the leads to the trainer*.
+
+`Test-AssessorVoice` (in `Lib-Text.ps1`) catches the trainer or assessor as the
+one confirming, observing or noting, and it catches *your trainer* or *your
+assessor* anywhere. The resolver refuses the ledger and names each place.
+
 ## The marked assessment
 
 The student's own submission comes back marked. It carries:
@@ -560,11 +583,43 @@ proves nothing.
   student is told what arrived and what to send instead. It is not filed as a
   non-submission: the student knows they submitted something.
 - **Overall:** any NYS → **NYC**. All S → **C**.
-- **Invoice Raised** ☒ only where NYC **after the second attempt**.
-  **Re-enrol** ☒ only where the second attempt is not satisfactory.
+- **Invoice Raised** ☒ on **attempt 4 only, whatever the result** (C, NYC or RW),
+  where work was submitted. **The maximum charge is $150**: attempt 5 and later are not
+  charged again. Attempt 1 is the first
+  marking, attempt 2 is Resubmission 1 and attempt 3 is Resubmission 2 (neither is
+  charged), attempt 4 is Resubmission 3 (chargeable). RTO ruling, 13 October 2026.
+- **The charge is printed in red** on the student's feedback - page one of the marked
+  copy and the standalone feedback sheet - on the attempt-4 record only:
+  *A charge of $150 will be applicable for assessment marking of this 4th attempt of
+  assessment.* Built once by
+  `Build-AttemptChargeNotice` in Lib-Text.ps1; the amount and the first chargeable
+  attempt can be overridden in the RTO profile as `charges.markingFee` / `charges.fromAttempt`.
+  **Re-enrol** ☒ only where NYC on **attempt 5 (Resubmission 4) or later** (RTO ruling,
+  13 October 2026).
 
 Details: [references/result-rules.md](references/result-rules.md).
 
+### The accounts invoice request — Resubmission 3 and later
+
+Where any student in the run is on **attempt 4 (Resubmission 3)**, accounts
+are sent an **invoice request, as a PDF only** (RTO instruction, 13 October 2026). It
+is printed from the RTO's own AMRR template — header, footer and palette untouched,
+so ACI Construction, ACI Culinary and MVC each get their own — and carries the unit
+details and a table of ONLY the students to be charged: name, student ID, course
+offer / group, attempt, resubmission number, result (C, NYC or **RW**), marking date
+and the $150 amount, with a total.
+
+```bash
+powershell -File scripts/Build-InvoiceRequest.ps1 -Ledger groups/group_Group_1.json,groups/group_Group_2.json -OutDir package
+```
+
+Who is listed is decided by `Build-AttemptChargeNotice`, the same function that
+prints the red charge line on the student's feedback, so accounts and the student
+can never disagree. **A withheld result (RW) on a chargeable attempt is listed** —
+the work was still marked. Where nobody is chargeable, nothing is written. The Word
+file is built in a hidden folder beside the output, exported to PDF and deleted; the
+PDF goes at the **package root**, beside the run report, as
+`INVOICE_<UNIT>_<DDMMYYYY>.pdf`.
 ## The dates
 
 All four derive from the marking date alone:
@@ -662,6 +717,10 @@ gate.
   observation happened.
 - **Never split one submitted file into two marked copies.** A document holding
   UAT 1 and UAT 2 comes back once, marked throughout.
+- **Never write about the trainer in the third person.** Avoid *Your trainer
+  confirmed…*, *the assessor observed…* and *speak to your trainer*. The trainer
+  is the one writing, so write *under my supervision* or *speak to me*.
+  `Test-AssessorVoice` refuses the ledger.
 - **Never use the word the RTO has banned** — the software-jargon term for a
   fill-in field. Say *field*. `NoBannedWord` blocks any document containing it.
 - **Never record one student twice, and never put them in two groups.** One
@@ -731,6 +790,7 @@ scripts/
   Set-AmrrColumns.ps1           re-lay a record's column widths, grid and cells together
   Convert-RecordsToPdf.ps1      SARs and feedback sheets to PDF, which is how they leave
   Build-GroupPackage.ps1        group folders, a folder per student, the zip
+  Build-InvoiceRequest.ps1      accounts invoice request (PDF): students charged on Resubmission 3
   Test-GroupPackage.ps1         the blocking gate for a consolidated group package
   Test-Install.ps1              prove the skill runs on this machine
 ```

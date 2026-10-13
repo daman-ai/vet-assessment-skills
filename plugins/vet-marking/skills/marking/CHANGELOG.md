@@ -1,5 +1,36 @@
 ﻿# Changelog
 
+## v2.10.0 — 30 September 2026
+
+### The trainer is the one writing
+
+RTO ruling: feedback must not say *"Your trainer confirmed that you completed…"*.
+The trainer/assessor writes and signs every comment, so text that describes the
+trainer in the third person reads as though somebody else vouched for the
+observation.
+
+- **`Test-AssessorVoice`** (new, `Lib-Text.ps1`) has four patterns:
+  - the trainer or assessor as the one confirming, observing, noting or watching;
+  - *confirmed / observed / verified by the trainer*;
+  - *your trainer* or *your assessor* anywhere;
+  - *the trainer's confirmation*.
+
+  Overlapping matches are reported once. A student reporting *to* the trainer
+  passes.
+- **Where it runs:**
+  - `Test-AssessorComment`, which covers tool feedback and task comments;
+  - `Test-ObservationCommentStyle`;
+  - `Test-ObservationRowNoteStyle`;
+  - the resolver, for feedback items, observation points, observation sheet
+    feedback, the marking record comment and resit feedback.
+- **Regression check:** the check was run over the 94 ledgers on this machine.
+  It rejects the CPCCWHS2001 runs of 28, 29 and 30 September, which carried
+  *"Your trainer confirmed…"*. It also finds the same fault in BSBOPS601, CPCCCM2008, CPCCCO2013,
+  CPCCOM1014, CPCCOM1015, CPCCOM2001 and CPCCSP3001 runs.
+- SKILL.md has a new section, *The trainer is the one writing*, and a new
+  never-rule. `feedback-writing.md` and `observation-comments.md` carry the
+  before-and-after wording.
+
 ## v2.9.0 — 8 September 2026
 
 ### What the student left blank is now found, not noticed

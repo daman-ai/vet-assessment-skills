@@ -1,6 +1,30 @@
 ﻿{
     "_comment":  "Cached training.gov.au Pre-requisite unit lookups, keyed by unit code. Each entry records the endpoint it came from and the date it was read, so a marking run is reproducible and an auditor can see when the check was made. Only successful lookups are cached: an unknown is never stored, because a cached unknown would look like an answer.",
     "_endpoint":  "https://training.gov.au/api/training/\u003cCODE\u003e?api-version=1.0\u0026include=all",
+    "BSBCMM511":  {
+                      "unit":  "BSBCMM511",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBCMM511?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBCMM511/unitdetails",
+                      "checkedOn":  "2026-10-08",
+                      "note":  null
+                  },
+    "BSBCRT511":  {
+                      "unit":  "BSBCRT511",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBCRT511?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBCRT511/unitdetails",
+                      "checkedOn":  "2026-10-08",
+                      "note":  null
+                  },
     "BSBCRT611":  {
                       "unit":  "BSBCRT611",
                       "status":  "none",
@@ -11,6 +35,18 @@
                       "source":  "https://training.gov.au/api/training/BSBCRT611?api-version=1.0\u0026include=all",
                       "pageUrl":  "https://training.gov.au/training/details/BSBCRT611/unitdetails",
                       "checkedOn":  "2026-09-10",
+                      "note":  null
+                  },
+    "BSBESB301":  {
+                      "unit":  "BSBESB301",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBESB301?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBESB301/unitdetails",
+                      "checkedOn":  "2026-09-28",
                       "note":  null
                   },
     "BSBESB401":  {
@@ -25,6 +61,18 @@
                       "checkedOn":  "2026-09-02",
                       "note":  null
                   },
+    "BSBESB407":  {
+                      "unit":  "BSBESB407",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBESB407?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBESB407/unitdetails",
+                      "checkedOn":  "2026-09-28",
+                      "note":  null
+                  },
     "BSBHRM613":  {
                       "unit":  "BSBHRM613",
                       "status":  "none",
@@ -35,6 +83,18 @@
                       "source":  "https://training.gov.au/api/training/BSBHRM613?api-version=1.0\u0026include=all",
                       "pageUrl":  "https://training.gov.au/training/details/BSBHRM613/unitdetails",
                       "checkedOn":  "2026-09-10",
+                      "note":  null
+                  },
+    "BSBLDR601":  {
+                      "unit":  "BSBLDR601",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBLDR601?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBLDR601/unitdetails",
+                      "checkedOn":  "2026-09-28",
                       "note":  null
                   },
     "BSBLDR811":  {
@@ -61,6 +121,18 @@
                       "checkedOn":  "2026-09-10",
                       "note":  null
                   },
+    "BSBOPS502":  {
+                      "unit":  "BSBOPS502",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBOPS502?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBOPS502/unitdetails",
+                      "checkedOn":  "2026-10-08",
+                      "note":  null
+                  },
     "BSBOPS601":  {
                       "unit":  "BSBOPS601",
                       "status":  "none",
@@ -73,6 +145,198 @@
                       "checkedOn":  "2026-09-08",
                       "note":  null
                   },
+    "BSBPEF502":  {
+                      "unit":  "BSBPEF502",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBPEF502?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBPEF502/unitdetails",
+                      "checkedOn":  "2026-10-07",
+                      "note":  null
+                  },
+    "BSBPMG422":  {
+                      "unit":  "BSBPMG422",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBPMG422?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBPMG422/unitdetails",
+                      "checkedOn":  "2026-10-07",
+                      "note":  null
+                  },
+    "BSBSUS601":  {
+                      "unit":  "BSBSUS601",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBSUS601?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBSUS601/unitdetails",
+                      "checkedOn":  "2026-10-09",
+                      "note":  null
+                  },
+    "BSBTWK502":  {
+                      "unit":  "BSBTWK502",
+                      "status":  "none",
+                      "prerequisites":  [
+
+                                        ],
+                      "prerequisitesConfirmedNone":  true,
+                      "source":  "https://training.gov.au/api/training/BSBTWK502?api-version=1.0\u0026include=all",
+                      "pageUrl":  "https://training.gov.au/training/details/BSBTWK502/unitdetails",
+                      "checkedOn":  "2026-10-09",
+                      "note":  null
+                  },
+    "CPCCBC4001":  {
+                       "unit":  "CPCCBC4001",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4001?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4001/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4002":  {
+                       "unit":  "CPCCBC4002",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4002?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4002/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4004":  {
+                       "unit":  "CPCCBC4004",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4004?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4004/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4005":  {
+                       "unit":  "CPCCBC4005",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4005?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4005/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4006":  {
+                       "unit":  "CPCCBC4006",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4006?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4006/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4007":  {
+                       "unit":  "CPCCBC4007",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4007?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4007/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4012":  {
+                       "unit":  "CPCCBC4012",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4012?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4012/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4014":  {
+                       "unit":  "CPCCBC4014",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4014?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4014/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4021":  {
+                       "unit":  "CPCCBC4021",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4021?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4021/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4024":  {
+                       "unit":  "CPCCBC4024",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4024?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4024/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCBC4053":  {
+                       "unit":  "CPCCBC4053",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCBC4053?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCBC4053/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
+    "CPCCCM2006":  {
+                       "unit":  "CPCCCM2006",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCCM2006?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCCM2006/unitdetails",
+                       "checkedOn":  "2026-09-28",
+                       "note":  null
+                   },
     "CPCCCM2008":  {
                        "unit":  "CPCCCM2008",
                        "status":  "found",
@@ -116,6 +380,30 @@
                        "source":  "https://training.gov.au/api/training/CPCCCO2013?api-version=1.0\u0026include=all",
                        "pageUrl":  "https://training.gov.au/training/details/CPCCCO2013/unitdetails",
                        "checkedOn":  "2026-09-03",
+                       "note":  null
+                   },
+    "CPCCOM1012":  {
+                       "unit":  "CPCCOM1012",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCOM1012?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCOM1012/unitdetails",
+                       "checkedOn":  "2026-09-28",
+                       "note":  null
+                   },
+    "CPCCOM1013":  {
+                       "unit":  "CPCCOM1013",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCCOM1013?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCOM1013/unitdetails",
+                       "checkedOn":  "2026-09-28",
                        "note":  null
                    },
     "CPCCOM1014":  {
@@ -202,6 +490,51 @@
                        "checkedOn":  "2026-09-10",
                        "note":  null
                    },
+    "CPCCSP3001":  {
+                       "unit":  "CPCCSP3001",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "CPCCWHS2001",
+                                                 "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/CPCCSP3001?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCSP3001/unitdetails",
+                       "checkedOn":  "2026-09-28",
+                       "note":  null
+                   },
+    "CPCCSP3002":  {
+                       "unit":  "CPCCSP3002",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "CPCCWHS2001",
+                                                 "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/CPCCSP3002?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCSP3002/unitdetails",
+                       "checkedOn":  "2026-10-12",
+                       "note":  null
+                   },
+    "CPCCSP3004":  {
+                       "unit":  "CPCCSP3004",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "CPCCWHS2001",
+                                                 "title":  "Apply WHS requirements, policies and procedures in the construction industry"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/CPCCSP3004?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCCSP3004/unitdetails",
+                       "checkedOn":  "2026-10-13",
+                       "note":  null
+                   },
     "CPCCWHS1001":  {
                         "unit":  "CPCCWHS1001",
                         "status":  "none",
@@ -226,6 +559,18 @@
                         "checkedOn":  "2026-09-03",
                         "note":  null
                     },
+    "CPCSUS4002":  {
+                       "unit":  "CPCSUS4002",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/CPCSUS4002?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/CPCSUS4002/unitdetails",
+                       "checkedOn":  "2026-10-07",
+                       "note":  null
+                   },
     "CPCWHS1001":  {
                        "unit":  "CPCWHS1001",
                        "status":  "none",
@@ -236,6 +581,33 @@
                        "source":  "https://training.gov.au/api/training/CPCWHS1001?api-version=1.0\u0026include=all",
                        "pageUrl":  "https://training.gov.au/training/details/CPCWHS1001/unitdetails",
                        "checkedOn":  "2026-09-03",
+                       "note":  null
+                   },
+    "SITHKOP012":  {
+                       "unit":  "SITHKOP012",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "SITHCCC027",
+                                                 "title":  "Prepare dishes using basic methods of cookery"
+                                             },
+                                             {
+                                                 "code":  "SITHCCC042",
+                                                 "title":  "Prepare food to meet special dietary requirements"
+                                             },
+                                             {
+                                                 "code":  "SITHKOP010",
+                                                 "title":  "Plan and cost recipes"
+                                             },
+                                             {
+                                                 "code":  "SITXFSA005",
+                                                 "title":  "Use hygienic practices for food safety"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/SITHKOP012?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITHKOP012/unitdetails",
+                       "checkedOn":  "2026-10-08",
                        "note":  null
                    },
     "SITHPAT016":  {
@@ -253,6 +625,54 @@
                        "checkedOn":  "2026-09-02",
                        "note":  null
                    },
+    "SITXCCS015":  {
+                       "unit":  "SITXCCS015",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXCCS015?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXCCS015/unitdetails",
+                       "checkedOn":  "2026-10-09",
+                       "note":  null
+                   },
+    "SITXCCS016":  {
+                       "unit":  "SITXCCS016",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXCCS016?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXCCS016/unitdetails",
+                       "checkedOn":  "2026-10-09",
+                       "note":  null
+                   },
+    "SITXFIN010":  {
+                       "unit":  "SITXFIN010",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXFIN010?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXFIN010/unitdetails",
+                       "checkedOn":  "2026-10-09",
+                       "note":  null
+                   },
+    "SITXFSA005":  {
+                       "unit":  "SITXFSA005",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXFSA005?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXFSA005/unitdetails",
+                       "checkedOn":  "2026-10-02",
+                       "note":  null
+                   },
     "SITXFSA006":  {
                        "unit":  "SITXFSA006",
                        "status":  "none",
@@ -263,6 +683,30 @@
                        "source":  "https://training.gov.au/api/training/SITXFSA006?api-version=1.0\u0026include=all",
                        "pageUrl":  "https://training.gov.au/training/details/SITXFSA006/unitdetails",
                        "checkedOn":  "2026-09-02",
+                       "note":  null
+                   },
+    "SITXGLC002":  {
+                       "unit":  "SITXGLC002",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXGLC002?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXGLC002/unitdetails",
+                       "checkedOn":  "2026-10-09",
+                       "note":  null
+                   },
+    "SITXHRM007":  {
+                       "unit":  "SITXHRM007",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXHRM007?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXHRM007/unitdetails",
+                       "checkedOn":  "2026-10-06",
                        "note":  null
                    },
     "SITXHRM008":  {
@@ -287,6 +731,18 @@
                        "source":  "https://training.gov.au/api/training/SITXMGT004?api-version=1.0\u0026include=all",
                        "pageUrl":  "https://training.gov.au/training/details/SITXMGT004/unitdetails",
                        "checkedOn":  "2026-09-08",
+                       "note":  null
+                   },
+    "SITXMGT005":  {
+                       "unit":  "SITXMGT005",
+                       "status":  "none",
+                       "prerequisites":  [
+
+                                         ],
+                       "prerequisitesConfirmedNone":  true,
+                       "source":  "https://training.gov.au/api/training/SITXMGT005?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITXMGT005/unitdetails",
+                       "checkedOn":  "2026-10-08",
                        "note":  null
                    },
     "SITXWHS006":  {

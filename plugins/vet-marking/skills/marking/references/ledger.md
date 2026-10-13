@@ -114,6 +114,10 @@ used.
       // never written. Name the attempts here ([1]); the two flags above still
       // describe the attempt immediately before this one.
       "attemptsNotInFile": [],
+      // "stackedOnOlderCopy": true — this attempt was written into an OLDER marked
+      // copy (e.g. attempt 3 into the attempt-1 copy) while the previous attempt's
+      // marked copy stays on file separately; lets attemptsNotInFile name the
+      // immediately previous attempt. Added 8 Oct 2026.
       // Corrections to the student's own cover sheet, label by label. The
       // builder leaves what a student wrote alone; this is the one exception,
       // for a value that is the RTO's record rather than theirs — a student ID
@@ -367,3 +371,17 @@ non-submitter in the class.
 - [date-rules.md](date-rules.md) — how one date becomes four
 - `examples/ledger.example.json` — a worked five-student ledger covering the
   Competent, part-NYS, non-submission, authorship-flag and second-attempt cases
+
+## Options added 28 September 2026 (CPCCOM1014)
+
+- **`coverSheet.fields[].occurrence`** (1-based, default 1): which printing of a label a
+  field fills. The ACI CPCC cover prints `Date:` after the student's signature and again
+  after `Administration: Rec'd`; `{ "label": "Date:", "value": "{{assessmentDate}}", "occurrence": 2 }`
+  fills the RTO's line when the student has dated their own.
+- **`observationSheet.signOffLine`** `{ "signatureLabel": "Assessor Signature", "dateLabel": "Date" }`:
+  the sheet signs off on one printed line of underscores. That line is filled and **no table
+  cell is touched**. Without it the cell search matched the student's own incident-report
+  `Signature:` / `Date:` cells inside the sheet range and signed them in the assessor's name.
+- **`observationSheet.sufficientFollowsResult: true`**: the box at `sufficientAnchor` is the
+  tool's own result (`Overall Result  ☐ Satisfactory  ☐ Not Yet Satisfactory`), so it is ticked
+  from the tool result rather than from `sufficient`.

@@ -90,6 +90,52 @@ function Test-FeedbackStyle {
     })
 }
 
+# ------------------------------- the assessor's own voice --------------------
+#
+# SETTLED BY THE RTO ON 30 SEPTEMBER 2026. Everything the ledger carries in
+# prose — tool feedback, task comments, feedback items, observation points, row
+# notes, the marking record comment — is written BY the trainer/assessor who
+# signs the record. So it never talks about that trainer from the outside:
+# "Your trainer confirmed that you completed the practical" is the assessor
+# describing themselves in the third person, and reads as if someone else had
+# vouched for the observation.
+#
+# Write as the trainer is writing: "You completed the four practical activities
+# under my supervision", "I observed you isolate the sander", or, in a
+# third-person record, "Observed under supervision on the day".
+#
+# The patterns catch the trainer or assessor as the one confirming, observing or
+# noting, and 'your trainer' / 'your assessor' anywhere. They leave alone a
+# student reporting TO the trainer ("reported the leads to the trainer"), which
+# is something the student did.
+$script:ASSESSOR_ASIDE = @(
+    '(?i)\b(your|the|a|his|her|their)\s+(trainer\s*/\s*assessor|trainer\s+or\s+assessor|trainer\s+and\s+assessor|trainer|assessor)\s+(has\s+|had\s+|have\s+)?(confirmed|confirms|observed|observes|watched|noted|notes|saw|verified|checked|agreed|recorded|reported|advised|witnessed|signed)\b',
+    '(?i)\b(confirmed|observed|witnessed|verified|noted|recorded|watched|signed\s+off)\s+by\s+(your|the|a)\s+(trainer\s*/\s*assessor|trainer|assessor)\b',
+    '(?i)\byour\s+(trainer\s*/\s*assessor|trainer|assessor)\b',
+    "(?i)\bthe\s+(trainer|assessor)'s\s+(confirmation|observation|record)\b"
+)
+
+function Test-AssessorVoice {
+    <#
+      Returns a failure message for every place where assessor-written text
+      refers to the trainer or assessor in the third person, or an empty array.
+    #>
+    param(
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Text,
+        [string]$Where = 'assessor text'
+    )
+    $out = @()
+    $seen = @()    # spans already reported; 'Your trainer confirmed' is one fault, not two
+    foreach ($rx in $script:ASSESSOR_ASIDE) {
+        foreach ($m in [regex]::Matches("$Text", $rx)) {
+            if (@($seen | Where-Object { $m.Index -lt $_[1] -and ($m.Index + $m.Length) -gt $_[0] }).Count -gt 0) { continue }
+            $seen += ,@($m.Index, ($m.Index + $m.Length))
+            $out += "${Where}: '$($m.Value)' — the trainer is the one writing this. Write as the trainer ('under my supervision', 'I observed you', 'Observed on the day'), never about the trainer in the third person."
+        }
+    }
+    @($out)
+}
+
 # ------------------------------- the withheld-result notice ------------------
 #
 # APPROVED RTO WORDING. It goes on page one of an RW student's marked copy with
@@ -324,6 +370,7 @@ function Test-ObservationCommentStyle {
     foreach ($rx in $script:OBS_PERSON) {
         if ("$Text" -cmatch $rx) { $out += "${Where}: contains $rx — these comments are past tense and third person." }
     }
+    $out += @(Test-AssessorVoice -Text $Text -Where $Where)
     @($out)
 }
 
@@ -374,6 +421,7 @@ function Test-AssessorComment {
         $bn = (($b -replace '[^\p{L}\p{Nd}\s]', ' ') -replace '\s+', ' ').Trim().ToLowerInvariant()
         if ($flat -match [regex]::Escape($bn)) { $out += "${Where}: uses '$b' — say what the student did instead." }
     }
+    $out += @(Test-AssessorVoice -Text $Text -Where $Where)
     @($out)
 }
 
@@ -430,8 +478,40 @@ function Test-ObservationRowNoteStyle {
     foreach ($rx in $script:OBS_PERSON) {
         if ("$body" -cmatch $rx) { $out += "${Where}: contains $rx — these notes are past tense and third person." }
     }
+    $out += @(Test-AssessorVoice -Text $body -Where $Where)
     @($out)
 }
 
 function Get-FeedbackMaxCommas { $script:FEEDBACK_MAX_COMMAS }
 function Get-AuthorshipMaxCommas { $script:AUTHORSHIP_MAX_COMMAS }
+
+function Get-Ordinal([int]$n) {
+    $suffix = if (($n % 100) -in 11, 12, 13) { 'th' } else { switch ($n % 10) { 1 { 'st' } 2 { 'nd' } 3 { 'rd' } default { 'th' } } }
+    "$n$suffix"
+}
+
+function Build-AttemptChargeNotice {
+    <#
+      The marking-charge line for a chargeable attempt. RTO ruling, 13 October
+      2026: attempt 1 is the first marking and attempts 2 and 3 (Resubmissions
+      1 and 2) are free; attempt 4 (Resubmission 3) and every attempt after it
+      carries a $150 marking charge. The student is told in red on their
+      feedback - page one of the marked copy and the standalone feedback sheet,
+      built here so both read the same words. Returns '' where no charge applies.
+      The amount and the first chargeable attempt can be set in the RTO profile
+      as charges.markingFee and charges.fromAttempt.
+    #>
+    param([Parameter(Mandatory)]$Student, $Rto)
+    $from = 4; $fee = '$150'
+    if ($Rto -and $Rto.PSObject.Properties.Name -contains 'charges' -and $Rto.charges) {
+        if ($Rto.charges.PSObject.Properties.Name -contains 'fromAttempt' -and $Rto.charges.fromAttempt) { $from = [int]$Rto.charges.fromAttempt }
+        if ($Rto.charges.PSObject.Properties.Name -contains 'markingFee' -and $Rto.charges.markingFee) { $fee = "$($Rto.charges.markingFee)" }
+    }
+    $attempt = 1
+    if ($Student.PSObject.Properties.Name -contains 'attempt' -and $Student.attempt) { $attempt = [int]$Student.attempt }
+    # One charge only (RTO ruling, 13 Oct 2026: the maximum is $150) - the chargeable attempt and no other.
+    if ($attempt -ne $from) { return '' }
+    # nothing submitted, nothing marked, nothing charged
+    if ($Student.PSObject.Properties.Name -contains 'results' -and @($Student.results).Count -and -not @($Student.results | Where-Object { $_.submitted }).Count) { return '' }
+    "A charge of $fee will be applicable for assessment marking of this $(Get-Ordinal $attempt) attempt of assessment."
+}

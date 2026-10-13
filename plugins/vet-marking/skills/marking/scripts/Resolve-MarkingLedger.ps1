@@ -261,14 +261,18 @@ foreach ($s in @($L.students)) {
     # gate expects the pages the file can actually hold and does not demand an
     # attempt-1 page that was never written. Each must be an attempt before
     # this one; the two flags above already describe the attempt immediately
-    # before, so this list is for anything earlier than that.
+    # before, so this list is for anything earlier than that. The one exception
+    # is 'stackedOnOlderCopy': the student wrote this attempt into an OLDER
+    # marked copy (attempt 1's) rather than the immediately previous one, whose
+    # marked copy stays on file separately; then the immediately previous
+    # attempt may be named here too (added 8 Oct 2026, CPCCCM2012 Harpreet).
     $notInFile = @()
     if ($s.PSObject.Properties.Name.Contains('attemptsNotInFile') -and $null -ne $s.attemptsNotInFile) {
         foreach ($a in @($s.attemptsNotInFile)) {
             $n = 0
             if (-not [int]::TryParse("$a", [ref]$n) -or $n -lt 1 -or $n -ge $attempt) {
                 Fail "${who}: attemptsNotInFile names '$a', which is not an attempt before attempt $attempt."
-            } elseif ($n -eq ($attempt - 1) -and -not $freshFile) {
+            } elseif ($n -eq ($attempt - 1) -and -not $freshFile -and -not ($s.PSObject.Properties.Name.Contains('stackedOnOlderCopy') -and $s.stackedOnOlderCopy)) {
                 Fail "${who}: attemptsNotInFile names attempt $n, the attempt immediately before this one. Say that with priorAttemptNotSubmitted or priorMarkedCopySeparate instead."
             } else { $notInFile += $n }
         }
@@ -369,6 +373,7 @@ foreach ($s in @($L.students)) {
                 if (-not $it.$f) { Fail "$who / '$($t.name)': a feedback item has no $f." }
             }
             foreach ($f in @('issue','action')) {
+                foreach ($m in @(Test-AssessorVoice -Text "$($it.$f)" -Where "$who / '$($t.name)' / item $($it.questionNo) / $f")) { Fail $m }
                 foreach ($h in @(Test-FeedbackStyle -Text "$($it.$f)" -Where "$who / '$($t.name)' / item $($it.questionNo) / $f")) {
                     Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
                 }
@@ -472,6 +477,7 @@ foreach ($s in @($L.students)) {
             Fail "$who / '$($t.name)': nothing was submitted or observed, so there can be no observation record. Remove 'observations'."
         }
         foreach ($point in $observations) {
+            foreach ($m in @(Test-AssessorVoice -Text "$point" -Where "$who / '$($t.name)' / observation point")) { Fail $m }
             foreach ($h in @(Test-FeedbackStyle -Text "$point" -Where "$who / '$($t.name)' / observation point")) {
                 Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
             }
@@ -522,7 +528,7 @@ foreach ($s in @($L.students)) {
                         Fail "$who / '$($t.name)': observationSheet.sufficientLabels needs exactly two labels — the satisfied one first, as the sheet prints them."
                     }
                 }
-                foreach ($o in @($sheet.outcomes)) {
+                foreach ($o in @($sheet.outcomes | Where-Object { $null -ne $_ })) {
                     # RTO PROCESS: the practical is conducted before marking,
                     # always overseen by a trainer, with oral feedback given at
                     # the time. The sheet is then ticked Yes for all submitted
@@ -545,6 +551,7 @@ foreach ($s in @($L.students)) {
                 }
                 if ($sheet.PSObject.Properties.Name.Contains('feedback') -and $sheet.feedback) {
                     if (-not $sheet.feedbackAnchor) { Fail "$who / '$($t.name)': observationSheet.feedback was written but there is no feedbackAnchor saying where it goes." }
+                    foreach ($m in @(Test-AssessorVoice -Text "$($sheet.feedback)" -Where "$who / '$($t.name)' / observation sheet feedback")) { Fail $m }
                     foreach ($h in @(Test-FeedbackStyle -Text "$($sheet.feedback)" -Where "$who / '$($t.name)' / observation sheet feedback")) {
                         Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
                     }
@@ -659,7 +666,9 @@ foreach ($s in @($L.students)) {
         if ($taskList.Count -gt 0) {
             $nysTasks = @($taskList | Where-Object { "$($_.outcome)" -eq 'NYS' }).Count
             if ($result -eq 'S'   -and $nysTasks -gt 0) { Fail "$who / '$($t.name)': the tool is Satisfactory but $nysTasks task(s) are Not Yet Satisfactory." }
-            if ($result -eq 'NYS' -and $nysTasks -eq 0) { Fail "$who / '$($t.name)': the tool is Not Yet Satisfactory but every task is Satisfactory. Name the task that was not met." }
+            # A task deleted from the submission has no heading to stamp, so it sits in
+            # absentQuestions rather than tasks, and it is the reason the tool is NYS.
+            if ($result -eq 'NYS' -and $nysTasks -eq 0 -and @($absentQ).Count -eq 0) { Fail "$who / '$($t.name)': the tool is Not Yet Satisfactory but every task is Satisfactory. Name the task that was not met, or name a task missing from the submission in 'absentQuestions'." }
         }
 
         # ---- the pre-start verification checklist -----------------------------
@@ -679,7 +688,7 @@ foreach ($s in @($L.students)) {
         # their returned copy: a remark under each question, or an observation
         # record. Neither is a CHECK rather than a failure, because a tool can
         # legitimately be judged on evidence that is not a Word document.
-        if ($submitted -and -not $wrongAssessment -and $questions.Count -eq 0 -and $observations.Count -eq 0) {
+        if ($submitted -and -not $wrongAssessment -and $questions.Count -eq 0 -and $observations.Count -eq 0 -and @($taskList).Count -eq 0) {
             $checks += "$who / '$($t.name)': submitted but carries neither per-question outcomes nor an observation record, so the student's returned copy will show no remarks for this tool."
         }
         if ($wrongAssessment -and ($questions.Count -gt 0 -or $observations.Count -gt 0)) {
@@ -766,6 +775,12 @@ foreach ($s in @($L.students)) {
             $prereqNotMet += $p
         }
     }
+    # A NON-SUBMITTER IS NYS, NOT RW. RTO ruling, 13 Oct 2026: a learner who
+    # submitted nothing has no result to withhold, so the prerequisite gate
+    # does not apply and the record reads NYC / 'No submission'. RW is kept
+    # for work that was submitted and marked.
+    $submittedNothing = ($resolvedResults.Count -gt 0) -and (@($resolvedResults | Where-Object { -not $_.submitted }).Count -eq $resolvedResults.Count)
+    if ($submittedNothing) { $prereqNotMet = @() }
     if ($prereqNotMet.Count -gt 0) { $overall = 'RW' }
 
     # --- comment ------------------------------------------------------------
@@ -792,6 +807,7 @@ foreach ($s in @($L.students)) {
     # has to read identically for every RW student in the class.
     if ($overall -eq 'RW') { $comment = Get-WithheldComment }
     if (-not $comment) { Fail "$who has no marking record comment." }
+    foreach ($m in @(Test-AssessorVoice -Text "$comment" -Where "$who / marking record comment")) { Fail $m }
     foreach ($h in @(Test-FeedbackStyle -Text "$comment" -Where "$who / marking record comment")) {
         Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
     }
@@ -800,12 +816,39 @@ foreach ($s in @($L.students)) {
     }
 
     # --- resit, invoice, re-enrol ------------------------------------------
-    # RW is not an adverse outcome — the student has done nothing wrong and has
-    # not used an attempt. Neither box is ever ticked for them.
-    $invoice = ($overall -eq 'NYC' -and $attempt -ge 2)
-    $reEnrol = ($overall -eq 'NYC' -and $attempt -ge 2)
+    # INVOICE FROM THE FOURTH ATTEMPT, WHATEVER THE RESULT. RTO rulings, 13 Oct 2026: attempt 1 is
+    # the first marking, attempts 2 and 3 (Resubmissions 1 and 2) are never charged, and attempt 4
+    # (Resubmission 3) and every attempt after it is charged for its marking - C, NYC and RW alike.
+    # Nothing submitted means nothing was marked, so a non-submission is never charged. The same
+    # rule prints the red charge line (Build-AttemptChargeNotice) and fills the accounts report.
+    # ONE CHARGE ONLY. RTO ruling, 13 Oct 2026: the most a student is charged is $150, so the invoice
+    # is raised on attempt 4 alone - attempt 5 and later are not charged again.
+    $invoice = ($attempt -eq 4 -and -not $submittedNothing)
+    # RW is never an adverse outcome: re-enrol is never ticked for it.
+    # RE-ENROL FROM THE FIFTH ATTEMPT. RTO ruling, 13 Oct 2026: the student re-enrols in the unit
+    # only where they are still NYC on attempt 5 (Resubmission 4) or later.
+    $reEnrol = ($overall -eq 'NYC' -and $attempt -ge 5)
+    # AN INVOICE ON THE ASSESSOR'S RULING (1 Oct 2026: "Invoice all NYC" took in attempt-1
+    # non-submitters). 'invoiceOnRuling' carries the ruling in words; it raises the invoice for an
+    # NYC learner at any attempt and leaves re-enrol to the rule. It is refused on anyone not NYC.
+    $invoiceRuling = ''
+    if ($s.PSObject.Properties.Name.Contains('invoiceOnRuling') -and $s.invoiceOnRuling) {
+        $invoiceRuling = "$($s.invoiceOnRuling)"
+        # 13 Oct 2026: a resit fee can be ruled for a resubmission that comes back C (Harinder
+        # SINGH, CPCCOM1014: "Competent, yes invoice"). Since 13 Oct 2026 RW is invoiced like any result.
+        $invoice = $true
+    }
+    # THE REVERSE RULING (7 Oct 2026: BSBESB401 re-run as attempt 2 with no new evidence, "no
+    # invoice"). 'invoiceWaivedOnRuling' carries the ruling in words; it leaves BOTH Invoice Raised
+    # and Re-enrol unticked at attempt 2+. It cannot be combined with invoiceOnRuling.
+    $invoiceWaived = ''
+    if ($s.PSObject.Properties.Name.Contains('invoiceWaivedOnRuling') -and $s.invoiceWaivedOnRuling) {
+        $invoiceWaived = "$($s.invoiceWaivedOnRuling)"
+        if ($invoiceRuling) { Fail "${who}: invoiceWaivedOnRuling and invoiceOnRuling are both set; a ruling raises the invoice or waives it, not both." }
+        else { $invoice = $false; $reEnrol = $false }
+    }
     if ($s.PSObject.Properties.Name.Contains('invoiceRaised') -and $null -ne $s.invoiceRaised -and [bool]$s.invoiceRaised -ne $invoice) {
-        Fail "${who}: invoiceRaised is derived (NYC after the second attempt), not stated. Remove it from the ledger or correct 'attempt'."
+        Fail "${who}: invoiceRaised is derived (attempt 4 with work submitted), not stated. Remove it from the ledger or correct 'attempt'."
     }
 
     $resit = $null
@@ -817,6 +860,7 @@ foreach ($s in @($L.students)) {
         }
         if ($resit.result -notin @('S','NYS')) { Fail "${who}: resit.result must be S or NYS." }
         if (-not $resit.feedback)              { Fail "${who}: a recorded resit needs feedback." }
+        foreach ($m in @(Test-AssessorVoice -Text "$($resit.feedback)" -Where "${who} / resit feedback")) { Fail $m }
         foreach ($h in @(Test-FeedbackStyle -Text "$($resit.feedback)" -Where "${who} / resit feedback")) {
             Fail ("{0}: {1} commas in one sentence, limit is {2}. {3} — `"{4}`"" -f $h.where, $h.commas, (Get-FeedbackMaxCommas), $h.fix, $h.sentence)
         }
@@ -862,6 +906,8 @@ foreach ($s in @($L.students)) {
         overall             = $overall
         comment             = $comment
         invoiceRaised       = $invoice
+        invoiceOnRuling     = $invoiceRuling
+        invoiceWaivedOnRuling = $invoiceWaived
         reEnrol             = $reEnrol
         resit               = $resit
         resubmissionDueText = $resubText
@@ -967,7 +1013,11 @@ foreach ($rs in $resolvedStudents) {
         if (-not $res.submitted) { continue }
         $hasQ = (@($res.questions).Count -gt 0)
         $hasO = (@($res.observations).Count -gt 0)
-        if (-not $hasQ -and -not $hasO) { continue }
+        # A tool judged task by task (a unit project) carries its remarks as
+        # task outcomes and comments. Added 7 Oct 2026: without this a tasks-only
+        # tool was dropped from the marked copy and its comments never written.
+        $hasT = (@($res.tasks).Count -gt 0)
+        if (-not $hasQ -and -not $hasO -and -not $hasT) { continue }
 
         if (-not $res.evidence) {
             $checks += "$($rs.fullName) [$($rs.studentId)] / '$($res.toolName)': outcomes were recorded but no evidence file is named, so there is no document to return marked. Add 'evidence', or accept that this tool has no marked copy."
