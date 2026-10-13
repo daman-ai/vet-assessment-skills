@@ -625,6 +625,21 @@
                        "checkedOn":  "2026-09-02",
                        "note":  null
                    },
+    "SITHPAT020":  {
+                       "unit":  "SITHPAT020",
+                       "status":  "found",
+                       "prerequisites":  [
+                                             {
+                                                 "code":  "SITXFSA005",
+                                                 "title":  "Use hygienic practices for food safety"
+                                             }
+                                         ],
+                       "prerequisitesConfirmedNone":  false,
+                       "source":  "https://training.gov.au/api/training/SITHPAT020?api-version=1.0\u0026include=all",
+                       "pageUrl":  "https://training.gov.au/training/details/SITHPAT020/unitdetails",
+                       "checkedOn":  "2026-09-28",
+                       "note":  null
+                   },
     "SITXCCS015":  {
                        "unit":  "SITXCCS015",
                        "status":  "none",

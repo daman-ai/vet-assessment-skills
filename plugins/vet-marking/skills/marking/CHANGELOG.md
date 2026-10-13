@@ -1,6 +1,362 @@
 ﻿# Changelog
 
-## v2.10.0 — 30 September 2026
+## v2.13.0 — 13 October 2026
+
+Merges the 23 Sep – 13 Oct work of the second working machine onto v2.12.3.
+
+### Charging and re-enrolment (RTO rulings, 13 October 2026)
+
+- Attempt 1 is the first marking. Attempts 2 and 3 (Resubmissions 1 and 2) are free.
+- **One $150 charge, on attempt 4 (Resubmission 3) only, for any submitted result** —
+  C, NYC and RW alike. Invoice Raised is derived that way by the resolver and checked by
+  `InvoiceRule`. Attempt 5 and later are never charged again. A non-submission is never
+  charged.
+- Every charged record carries, in red on page one of the marked copy and on the
+  standalone feedback sheet: *A charge of $150 will be applicable for assessment marking
+  of this 4th attempt of assessment.* — `Build-AttemptChargeNotice` in `Lib-Text.ps1`.
+- **Re-enrol** is ticked only for an NYC on attempt 5 (Resubmission 4) or later.
+- **`Build-InvoiceRequest.ps1`** (new): the accounts invoice request, PDF only, on the
+  RTO's own AMRR template (ACI Construction, ACI Culinary and MVC), listing only the
+  students to be charged with the unit details and a total.
+
+### Non-submitters are NYS, not RW (RTO ruling, 13 October 2026)
+
+A learner who submitted nothing has no result to withhold, so the prerequisite gate no
+longer turns them into RW; they are NYC / *No submission*. RW is kept for marked work.
+
+## v2.12.3 — 29 September 2026
+
+- **`MarkedCopyInAnswerSpace` now questions a LOOSE outcome line instead of
+  tallying it.** This is the check that was blind to the twelve misplaced
+  verdicts on the CPCCSP3001 copies. Each of those sat under a non-empty
+  paragraph, in the same container as it — a task heading is non-empty, and both
+  it and the verdict were loose body text — so every test the check made passed.
+  Loose lines were counted and never asked whether they *should* be loose.
+
+  A loose line is only legitimate where the submission has no response box. The
+  test is now self-calibrating per document: where most of that document's
+  verdicts landed in a box, the handful that did not are named; where hardly any
+  did, the instrument does not work that way and nothing is said.
+
+  **Proved both ways.** With rule 4 on, the check passes. With rule 4 disabled
+  the gate fails and names the line — *"'Explain the uses of the materials
+  below…' — a verdict in body text, where this document's answers are in
+  boxes"*. Rule 4 now has a regression guard rather than a promise.
+
+## v2.12.2 — 29 September 2026
+
+- **Recipe cards are anchored, so each carries its own verdict and its own
+  note.** A card has the same shape as a question — a heading that appears once,
+  the student's content under it, one judgement — so it goes in `questions` and
+  needs no machinery of its own. The worked example now models all three of
+  Daniel's cards, and the marked workbook comes back with green *Satisfactory*
+  inside cards 1 and 3, red inside card 2, and a blue margin note pointing at
+  card 2 saying what to fix and what to redo.
+
+  The same applies to any block a practical is judged by: if a workbook has
+  labelled sections rather than cards, anchor those.
+
+- **An item that no block claims is no longer dropped.** The stacked fallback
+  used to run only where a tool produced *no* notes at all, so on a workbook
+  with anchored cards an item like *"Observation item 7 — crème caramel"* — which
+  names something watched in a kitchen, not a block in the document — reached the
+  feedback sheet and never the document the student opens. It now stacks
+  alongside the anchored notes. Every item reaches the student either against its
+  own block or in the stack.
+
+  Marking gate 40/40 on the worked example and CPCCSP3001.
+
+## v2.12.1 — 29 September 2026
+
+- **A practical tool's feedback now appears in the practical.** Margin notes had
+  one call site, in the questions loop, so a recipe workbook or observation tool
+  got **none** — verified on the worked example, where every `_kq` copy carried
+  12 notes and every `_rw` copy carried 0. A student opened their workbook and
+  found nothing, and where both tools are bound into one file the notes stopped
+  half way through it.
+
+  A practical has nothing to pin a note to: no questions, no response boxes, and
+  an observation sheet ticked Yes on every row by the RTO's own process, so there
+  is no failing row to point at. Where it actually fails is the workbook — *"Recipe
+  card 2 — chocolate mousse: records no setting time"* — and a recipe card is not
+  modelled in the ledger, existing only as free text in an item's label.
+
+  So a tool that produced no note of its own stacks its feedback items down the
+  margin from the top of the workbook: what to fix, what to redo, inside the
+  document the student opens. **No pointer** — an arrow would claim to know which
+  line the remark is about, and nothing here does. A workbook with nothing to fix
+  gets no boxes.
+
+  A deliberate floor, not the finished answer: modelling recipe cards the way
+  questions are modelled would let each card carry its own note against the card
+  itself. That is a ledger change and has not been done.
+
+  Marking gate 40/40 on the SITHPAT016 worked example and CPCCSP3001.
+
+## v2.12.0 — 28 September 2026
+
+- **The marked assessment now carries its outcomes in the right margin.** Every
+  question's verdict, and the feedback where there is any, sits in a box out on
+  the page beside the answer it judges — Satisfactory as a quiet green outline,
+  Not yet Satisfactory as a blue panel carrying the issue and the action.
+  A pointer runs from each box back towards the answer — blue and full weight
+  for a fail, thin grey for a pass — anchored to the same paragraph, so it needs
+  no coordinate either. `-NoMarginNotes` returns the plain copy.
+
+  - **The PAPER is widened, not the text column narrowed.** Widening the page
+    and the right margin by the same 8 cm leaves the text column identical, so
+    nothing reflows: the SITHPAT020 copy is 37 pages with the notes and 37
+    without. Narrowing the column instead would move every line break and page
+    break and push any wide table off the page.
+  - **The boxes are anchored, not positioned.** Each hangs off its own outcome
+    paragraph with `positionV relativeFrom="paragraph"`, so Word keeps it level
+    with that answer wherever the answer lands. Nothing queries a coordinate and
+    nothing is rendered, so **the document stays fully editable** — the student
+    types their resubmission into it exactly as before — and a copy builds in
+    about 5 seconds against the 10+ minutes the picture-based map took on the
+    same unit. `layoutInCell="0"` is what lets a box anchored in a response
+    table's cell out into the margin.
+  - Verified on three instruments: SITHPAT020 cookery, CPCCSP3001 construction
+    and the SITHPAT016 worked example. Marking gate 40/40 on all three.
+  - **Written up as a standing rule**, not just implemented: `SKILL.md` carries
+    it under the marked assessment with the four non-negotiables, two new
+    entries in *What must never happen* (never narrow the text column, never
+    return the marked copy as images), and `marked-assessment.md` carries the
+    geometry table, the anchoring mechanics and what was tried and rejected.
+  - **The picture-based annotated map is superseded** and marked so. It does the
+    same job in two documents instead of one, is not editable, and takes ten
+    minutes a student where this takes five seconds. Kept only for annotating a
+    submission that must not be reopened; nothing calls it.
+
+- **`Get-RunText` no longer returns the text inside a floating shape.** A shape
+  anchored in a paragraph keeps its words in `w:txbxContent` under that
+  paragraph, so a plain `.//w:t` sweep glued the note box's text onto the
+  outcome line. Every caller then read a line that does not match what is
+  printed — the gate stopped finding its own outcome lines, an empty spacer
+  paragraph reads as full, and the walk-back stops on a paragraph that only
+  looks non-empty. `marked-assessment.md` had carried this as "rule 1" of the
+  insertion logic for months; it belongs in the one place every caller reads
+  text through.
+
+## v2.11.0 — 28 September 2026
+
+- **Rule 4 in `Get-OutcomeTargetIndex`: the outcome line must end up INSIDE the
+  response box.** Rules 1 to 3 all walk back from the next question, and rule 3
+  only engages where that next question opens a table of its own. Where it is
+  plain body text — as every ACI CPCC task's `(a)` is, under its own Task
+  heading — nothing stopped the walk-back at the box, and the verdict came to
+  rest on the last non-empty paragraph before the anchor: the **next** task's
+  *Question / instructions* line.
+
+  Two things went wrong at once and neither showed in a build log. The student's
+  own response box came back **empty** — which this skill names by name, *"the
+  student's eye goes to the box and finds nothing in it"* — and a red Not yet
+  Satisfactory printed directly above a part they had passed. Every gate passed
+  it, because each question did carry an outcome in the right colour; only
+  reading *where* it landed finds it.
+
+  Found by the annotated feedback map on the CPCCSP3001 24 September copies,
+  where it hit the last sub-question of nearly every task — 12 of 43 on one
+  student. Rule 4 now places the line after the last thing written inside the
+  question's own response box; where rules 1 to 3 already landed inside the box
+  it changes nothing. A lookahead bound stops a question whose response is plain
+  paragraphs from adopting the next task's scenario or *Maps to* box as its own.
+  All four CPCCSP3001 copies rebuilt: 12 misplaced verdicts to zero, main gate
+  40/40.
+
+- **The marking gate no longer mistakes an annotated map for a record.** Built
+  into the same directory as the records, `ANNOTATED_*.docx` read as unexpected
+  files and as marked copies missing their tool name — three checks failed on
+  documents that were correct. They are excluded now, and **named in the
+  summary** rather than quietly filtered: a gate that drops files from its
+  inventory without saying so is a gate with a hole in it, and the next thing to
+  land in that directory would vanish the same way. They have their own gate.
+
+- **A fifth document type: the annotated feedback map.** Each page of the
+  student's marked copy is reproduced at 75% of the text width, each item of
+  feedback is written in the column beside it, and a hand-drawn arrow runs from
+  the note to the exact place on the page. Built by
+  `Build-AnnotatedFeedback.ps1`, checked by `Test-AnnotatedFeedback.ps1`,
+  described in `references/annotated-feedback.md`. It is **optional and
+  additional**: the Student Feedback Sheet is the RTO's record that feedback was
+  issued, and the map travels with it rather than instead of it.
+  - **It adds placement, never content.** Every note is the ledger's `items[]`
+    row, rendered a second time — the same row the feedback sheet prints. The
+    sheet and the map cannot drift, because there is one description of a fault
+    and two renderings of it.
+  - **It never opens the student's work for writing.** Widening the marked
+    copy's right margin to make room for the notes would reflow the student's
+    document, move every page break and push fixed-width response tables off the
+    page. The builder renders each page as a picture and annotates the picture.
+  - **Word supplies the coordinates.** `Range.Information` gives a found
+    anchor's page and its position in points, which is the space the exported
+    PDF renders in, so the arrow lands without a calibration step. It points
+    between one question's anchor and the next — the middle of the response —
+    and at the right edge of the text column, which is clear of the student's
+    own writing where the middle is not.
+  - **The page is narrowed, not shrunk.** The height is left at the full text
+    height and only the width is taken to 75%, so the column opens on the right
+    without costing a third of the page. `-KeepAspect` restores proportional
+    scaling where the returned work has to measure true.
+  - **Every question carries a panel, pass and fail.** Satisfactory is a quiet
+    green-outlined panel with a thin grey leader; Not yet Satisfactory is a
+    solid blue panel with white type, a full-weight arrow and a numbered ring.
+    Blue because the page is already carrying the red and green of the marked
+    copy's own outcome lines, so a red panel competes and a green one reads as a
+    pass. A column of failures alone left every unannotated page ambiguous —
+    right, or not looked at?
+  - **The note sits level with the CENTRE OF THE WRITING**, not of the box. A
+    response box is sized for the longest answer the writers expected, so a
+    student who answered in six lines leaves two thirds of it blank; centring on
+    the box put the note in the middle of an empty page with the answer well
+    above it. Only the paragraphs carrying text are measured. That also disposed
+    of a second fault: a table's `Range.End` sits just PAST the table, often on
+    the following page, so a box wholly on one page looked broken across two and
+    took the page-break fallback. Writing that genuinely runs over a break
+    centres on the part on its first page, because where an answer starts is
+    where the student looks. The outcome line is now the fallback, not the
+    target.
+  - **The outcome line is found** by
+    searching for `Not yet Satisfactory` only within the span between this
+    question's anchor and the next, so the right line is found though every NYS
+    question carries the same words. Only the opening words are matched, because
+    profiles end the line *refer to the feedback sheet* or *refer to the
+    feedback page*. The midpoint between anchors is the fallback: on a task
+    whose stem runs to a paragraph, the midpoint is still the stem.
+  - **It reports a verdict written outside the student's response box.** The
+    test is structural — is the line inside a table? — and self-calibrating:
+    where most of a document's verdicts sit in a box, the ones that do not are
+    named; where hardly any do, the instrument does not work that way and
+    nothing is said. A page-distance test was tried first and was worse in both
+    directions: it flagged long answers that legitimately run onto the next page
+    and missed a verdict one page on in the next task's heading block.
+    On the CPCCSP3001 24 Sep copy it finds **12 of 43** — Q1(c), Q2(b), Q3(c),
+    Q4(b), Q5(b), Q6(c), Q7(b), Q8(c), Q9(c), Q10(c), Q11(c) and T2(d), which is
+    the last part of nearly every task. Those response boxes come back to the
+    student empty and the verdict prints over the next task's heading.
+  - **Scratch paths are per copy, not per student.** A student whose tools
+    arrived as separate files has several marked copies under one studentId, and
+    the second collided with the first's working directory. It surfaced only
+    once every question produced an entry, because the student it hit had been
+    skipped before.
+  - **`-Timing`** prints the elapsed time of each stage. Word COM and the PDF
+    renderer vary enough between instruments that "it is taking a while" is not
+    a diagnosis. **Known limitation:** a table-heavy instrument is far slower
+    than its page count suggests — CPCCSP3001 builds 54 pages in under two
+    minutes, SITHPAT020 at 37 pages but 71 tables takes considerably longer.
+    The Word stages were measured at about 5s in total on that document, so the
+    document's size is not the cause and the cost lies later in the pipeline.
+    Records are unaffected; this is the optional map only.
+  - **The whole assessment is the default.** Every page of the marked copy is
+    carried, annotated where there is something to say, so the map is read end
+    to end rather than as an extract that sends the student back to the marked
+    copy for context. `-NotedPagesOnly` gives the extract where a short handout
+    is wanted; `-Dpi 110` roughly halves a long workbook's file size.
+  - **The wobble is seeded from the item's text, not `Get-Random`.** Rebuilding
+    the same ledger twice produces a byte-identical `document.xml`; arrows that
+    moved on every build would defeat a gate that reads delivered files back.
+  - **Nothing is dropped and nothing is claimed.** An item whose `questionNo` is
+    a label rather than a question ref has nothing to point at; it is still
+    printed at the end of the map and counted in the run's report. Where no item
+    on a copy could be anchored, no map is built — a map with no arrow is the
+    feedback sheet behind a picture of the cover page — and the run names those
+    students rather than leaving a missing file to be noticed later.
+  - `0xFFFFFFFF` parses as Int32 `-1` in PowerShell 5.1, so masking a hash with
+    it changes nothing and the product then overflows a `[uint32]` cast. The
+    seed uses `0xFFFFFFFFL`.
+
+## v2.10.1 — 24 September 2026
+
+- **Inline S / NS grids in `snsChecklists`.** A grid headed by one `S / NS`
+  column with `☐ S ☐ NS` in each cell is now a grid. The box is ticked inside
+  the cell, the entry's `outcome` ticks the `□ Satisfactory (S) □ Not
+  Satisfactory (NS)` line after it, `comments` replace the box's `Record … here…`
+  prompt, and the `Assessor name:` line is filled with the signature blank.
+  Found only in tables with no separate S and NS columns, and not at all where
+  the tool's sheet is `layout: "inlinePairs"`, so every existing grid count is
+  unchanged. `MarkedCopySnsChecklist` carries the writer's patterns and checks
+  each inline grid's ticks, box, outcome line and sign-off against that grid.
+  Written for ACI CPCCSP3001's two observation occasions.
+- **The resolver refused a sheet with no `outcomes`.** `@($null)` is one
+  element, so a sheet that only carries `snsChecklists` failed with "outcomes
+  must each be 'Yes', got ''".
+- **`Test-SubmissionBlanks.ps1` reported every question unanswered.** It split
+  the key file on `|` only; a tab-separated file gave every key an empty
+  anchor, which every paragraph contains, so all questions sat on paragraph 0.
+  Tabs are read, an empty anchor is refused, a key missing from a copy is
+  listed under KEY NOT FOUND, short table labels count as template text, a
+  `Write … here…` prompt is not an answer, `-EndAnchor` closes the last block,
+  and assessor sign-off lines are no longer reported as blank student lines.
+
+## v2.10.0 — 23 September 2026
+
+Two lines of this skill had been running apart since early September and are
+merged here. Neither was ahead of the other: the machine copy carried the
+CPCCCM2008 / CPCCSP2002 / CPCCSP2003 work and the repository copy carried the
+SITXMGT004 rulings and everything the RTO settled on 8 and 10 September.
+
+**Both lines called their release v2.8.0.** The entry below dated 8 September is
+the repository's; the machine's v2.8.0 of 9 September is folded into this one.
+
+### Brought across from the CPCC line
+
+- **S / NS checklist grids.** The third observation-sheet shape — criteria down
+  the rows, bare boxes under `S` and `NS`, no Yes/No words anywhere.
+  `snsChecklists` takes one entry per grid in document order, each with its own
+  `outcomes` and, where the instrument provides them, an `outcome`, a `comments`
+  box, a per-row `notes` column and a `decision` answering the task decision
+  line printed after the grid. A count that does not match the grids found is a
+  hard failure. Three spellings of the pair are in circulation and the
+  not-satisfactory heading is matched first; two characters are used for an
+  empty box. `Write-SnsChecklist`, `Write-VerificationTable`, `Set-BoxAtIndex`,
+  `New-CommentsBox` and `Get-SnsCellText`, gated by `MarkedCopySnsChecklist` and
+  `MarkedCopyTaskDecision`.
+- **`Test-LearnerPronouns`** refuses a gendered pronoun in assessor prose —
+  observation records, criterion comments, checklist comments and notes.
+  Feedback written *to* the student is second person and is not checked.
+- **A paragraph's own mark carries a colour, and it is read before the run's.**
+  `w:pPr/w:rPr/w:color` tints only the pilcrow, so it changes nothing a reader
+  sees, but it is the first `w:color` in the paragraph. Three green Satisfactory
+  lines were reported as black. `Set-CellText` and `Add-CellLine` now clear it.
+- **A submission with no table at all** — one arrived as fifty-three page images
+  and nothing else — now reports its content box on the text margin rather than
+  returning `$null`.
+- **`Test-AiFlag` unrolled a single-object JSON file into nothing.** It now
+  appends element by element.
+
+### Three defects the merge itself uncovered
+
+All three were splices left by the earlier hand-merge onto the pre-v2.6.0 line.
+Each passed a parse and each was silently wrong, so each is fixed here rather
+than carried across as it stood.
+
+1. **The S / NS writers ran once per student instead of once per tool.**
+   `Write-VerificationTable` and `Write-SnsChecklist` sat *outside* both the
+   `if ($sheet)` block and the per-tool loop, reading `$sheet`, `$sns`, `$res`
+   and `$obs` left over from the final iteration. On a student with more than
+   one tool, every tool but the last had its grids left untouched. They are now
+   inside the loop, beside `Write-ObservationSheet`.
+2. **The criterion-comment pronoun check had never run.** It was placed inside
+   the `observationSheet` blank-field branch and tested `$text`, a variable that
+   appears exactly once in the file and is never assigned. It now runs in the
+   comment loop it belongs to, against `$cmText` and `$ci`.
+3. **`references/ledger.md` documented `snsChecklists` inside another comment.**
+   The block had been spliced into the middle of a sentence about `anchorAfter`,
+   outside the `observationSheet` object it describes. The sentence is whole
+   again and the example sits inside the object.
+
+### Where the two lines touched the same code
+
+- `-SkipRecord` is kept, but skips **only** the notes-cell record. The sign-off
+  row and the student feedback line are written either way, so the 8 September
+  sign-off rule holds on an S / NS instrument.
+- The S / NS record builder now honours the emptied `observationHeading` and
+  `observationCompletedText`, matching what `Write-ObservationSheet` already did.
+- `SKILL.md` describes three sheet shapes again, keeping the column-sheet detail
+  and all four sections the repository line added.
+
+
+## v2.10.0-local — 30 September 2026 (second machine, merged in v2.13.0)
 
 ### The trainer is the one writing
 

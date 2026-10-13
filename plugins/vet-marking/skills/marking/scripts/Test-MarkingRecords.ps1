@@ -30,6 +30,8 @@
     MarkedCopyInAnswerSpace  every outcome line sits in the answer it judges
     MarkedCopyDeclarationPage the declaration is a page of its own, before the student's
     MarkedCopyObservationSheet the observation record is in the sheet, not bolted on the front
+    MarkedCopySnsChecklist   every S/NS grid is ticked, signed and commented as the ledger judges it
+    MarkedCopyTaskDecision   every task decision line resolves to one marked box and one empty one
     MarkedCopyFrontBlockAligned  the front block sits on the content's own edges
     NoBannedWord             the RTO's banned word appears in no issued document
     NoMojibake               no double-encoded characters
@@ -84,7 +86,19 @@ function Add-Check {
 # --------------------------------------------------------------- inventory ---
 
 $dirFull = (Resolve-Path -LiteralPath $Dir).Path
-$files   = @(Get-ChildItem -LiteralPath $dirFull -Filter '*.docx' -File)
+$allDocx = @(Get-ChildItem -LiteralPath $dirFull -Filter '*.docx' -File)
+
+# ANNOTATED FEEDBACK MAPS ARE NOT RECORDS, AND THIS GATE DOES NOT CHECK THEM.
+# They have their own gate, Test-AnnotatedFeedback.ps1, which reads them against
+# the same ledger. Left in the inventory they read as unexpected files and as
+# marked copies missing their tool name, so a run that built maps into the same
+# directory as the records failed three checks on documents that were correct.
+#
+# They are counted and named rather than quietly filtered: a gate that drops
+# files from its inventory without saying so is a gate with a hole in it, and
+# the next thing to land in that directory would vanish the same way.
+$maps    = @($allDocx | Where-Object { $_.Name -like 'ANNOTATED_*' })
+$files   = @($allDocx | Where-Object { $_.Name -notlike 'ANNOTATED_*' })
 
 $expected = @{}
 $markedExpected = @{}
@@ -436,7 +450,7 @@ $invProbs = @()
 foreach ($s in $L.students) {
     $ruled  = (@($s.PSObject.Properties.Name) -contains 'invoiceOnRuling' -and "$($s.invoiceOnRuling)")
     $sentSome = (@($s.results | Where-Object { $_.submitted }).Count -gt 0)
-    $should = (($s.attempt -eq 4 -and $sentSome) -or $ruled)
+    $should = ($s.attempt -eq 4 -and $sentSome)
     if (@($s.PSObject.Properties.Name) -contains 'invoiceWaivedOnRuling' -and "$($s.invoiceWaivedOnRuling)") { $should = $false }
     if ([bool]$s.invoiceRaised -ne $should) { $invProbs += "$($s.fullName): invoice $($s.invoiceRaised), rule gives $should (attempt $($s.attempt), $($s.overall))" }
     if (-not $rowsOf.ContainsKey($s.sarFile)) { continue }
@@ -1156,6 +1170,8 @@ if ($M) {
         $spFresh = ($spCopy.PSObject.Properties.Name.Contains('freshFile') -and $spCopy.freshFile) -or $spCopy.priorAttemptNotSubmitted
         $spPfx  = if ($spAtt -ge 2 -and -not $spFresh) { "Attempt ${spAtt}: " } else { '' }
         $pkg = Open-Docx -Path $path
+        $fileBoxed = 0
+        $fileLoose = @()
         try {
             $paras = @(Get-BodyParagraphs $pkg)
             for ($i = 0; $i -lt $paras.Count; $i++) {
@@ -1189,9 +1205,39 @@ if ($M) {
                 }
                 $hereCell = Get-ParagraphCell $paras[$i]
                 $prevCell = Get-ParagraphCell $prev
-                if ($null -eq $hereCell -and $null -eq $prevCell) { $looseLines++; continue }
+                if ($null -eq $hereCell -and $null -eq $prevCell) {
+                    # A LOOSE LINE IS RECORDED, NOT WAVED THROUGH. It is only
+                    # legitimate where the submission has no response box; where
+                    # the rest of this document puts its answers in boxes, a
+                    # loose line is a verdict that escaped into body text.
+                    $looseLines++
+                    $fileLoose += ("{0}: '{1}'" -f $name,
+                        (Get-RunText $prev $pkg.Ns).Trim().Substring(0,
+                            [Math]::Min(46, (Get-RunText $prev $pkg.Ns).Trim().Length)))
+                    continue
+                }
+                $fileBoxed++
                 if ($null -eq $hereCell -or $null -eq $prevCell -or -not $hereCell.Equals($prevCell)) {
                     $spaceProbs += "${name}: an outcome line is not in the same response box as the answer above it"
+                }
+            }
+
+            # SELF-CALIBRATING, per document, because not every instrument puts
+            # its answers in boxes. Where most of THIS document's verdicts landed
+            # in one, the handful that did not are the anomalies and are named.
+            # Where hardly any did, the instrument simply does not work that way
+            # and nothing is said.
+            #
+            # This is the check that was missing when twelve verdicts on one
+            # CPCCSP3001 copy came to rest on the NEXT task's heading. Each was
+            # under a non-empty paragraph, in the same container as it, so every
+            # test above passed — the heading is non-empty, and both were loose
+            # body text. Counting loose lines without ever asking whether they
+            # SHOULD be loose is what let them through.
+            $fileTotal = $fileBoxed + $fileLoose.Count
+            if ($fileTotal -ge 5 -and $fileBoxed -ge [int]($fileTotal * 0.6) -and $fileLoose.Count -gt 0) {
+                foreach ($d in $fileLoose) {
+                    $spaceProbs += "$d — a verdict in body text, where this document's answers are in boxes"
                 }
             }
         } finally { Close-Docx $pkg }
@@ -1779,6 +1825,269 @@ if ($foreignProbs.Count -eq 0 -and $foreignMeta.Count -gt 0) {
         $(if ($foreignProbs.Count) { (($foreignProbs | Select-Object -Unique | Select-Object -First 4) -join ' · ') } else { "no record names a provider other than $($Rto.rto.tradingName), headers and footers included" })
 }
 
+# ------------------------------ 11b-ii. the S / NS observation grids ---------
+#
+# The same distrust, applied to the third sheet shape. The grids are found in
+# the DELIVERED file and re-paired against the ledger here, rather than trusting
+# the build's own count: two of this skill's worst defects were writers that
+# found nothing and ticked nothing without raising anything. A blank grid under
+# a signed outcome is the failure that looks most like success.
+
+$snsProbs = @()
+foreach ($name in $markedExpected.Keys) {
+    $path = Join-Path $dirFull $name
+    if (-not (Test-Path -LiteralPath $path)) { continue }
+    $exp = $markedExpected[$name]
+    $want = @()
+    foreach ($res in @($exp.results)) {
+        if ($res.observationSheet -and $res.observationSheet.PSObject.Properties.Name.Contains('snsChecklists')) {
+            foreach ($cl in @($res.observationSheet.snsChecklists)) { if ($cl) { $want += $cl } }
+        }
+    }
+    if ($want.Count -eq 0) { continue }
+    # A tool whose observationSheet is itself 'inlinePairs' has its one-column
+    # table filled by the sheet writer; the builder does not count it as a grid
+    # and neither does this check.
+    $noInline = (@($exp.results | Where-Object { $_.observationSheet -and $_.observationSheet.PSObject.Properties.Name.Contains('layout') -and "$($_.observationSheet.layout)".Trim() -eq 'inlinePairs' }).Count -gt 0)
+
+    # The inline shape — one 'S / NS' column, both boxes in each cell. These
+    # patterns are Write-SnsChecklist's, word for word.
+    $INLBOXRX    = '[' + [char]0x25A1 + [char]0x2610 + [char]0x2612 + [char]0x2611 + ']'
+    $INLHDRRX    = '^S\s*/\s*(NS|NYS)$'
+    $INLPAIRRX   = '^' + $INLBOXRX + 'S' + $INLBOXRX + '(NS|NYS)$'
+    $INLOUTRX    = '^\s*(?<s>' + $INLBOXRX + ')\s*Satisfactory\b.*?(?<n>' + $INLBOXRX + ')\s*Not\s+(?:Yet\s+)?Satisfactory\b'
+    $INLPROMPTRX = '^Record\b.*\bhere\s*(…|\.\.\.)?\s*$'
+    $inlOnSet    = @([string]$BOX_T, [string][char]0x2611)
+
+    $pkg = Open-Docx -Path $path
+    try {
+        $ns = $pkg.Ns
+        $grids = @(); $gmaps = @()
+        $bodyNodes = @($pkg.Body.ChildNodes)
+        foreach ($tbl in @($pkg.Body.SelectNodes('./w:tbl', $ns))) {
+            $trs = @($tbl.SelectNodes('./w:tr', $ns))
+            if ($trs.Count -lt 2) { continue }
+            $foundHere = $false
+            for ($k = 0; $k -lt [math]::Min(4, $trs.Count); $k++) {
+                $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+                if ($cells.Count -lt 3) { continue }
+                $hdr = @($cells | ForEach-Object { (($_.SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim() })
+                # These four patterns must stay word for word the same as the
+                # ones in Write-SnsChecklist. A gate that finds a different set
+                # of grids from the writer reports a file as unmarked when it is
+                # marked, or passes one that is not. The NOT-satisfactory column
+                # is tested first so 'Not yet' cannot be claimed as 'S'.
+                $sc = -1; $nc = -1
+                for ($c = 0; $c -lt $hdr.Count; $c++) {
+                    if ($nc -lt 0 -and $hdr[$c] -match '^(NS|NYS)(\s|$)')     { $nc = $c; continue }
+                    if ($nc -lt 0 -and $hdr[$c] -match '^Not\s*[Yy]et')       { $nc = $c; continue }
+                    if ($sc -lt 0 -and $hdr[$c] -match '^S(\s|$)')            { $sc = $c; continue }
+                    if ($sc -lt 0 -and $hdr[$c] -match '^Satisfactory(\s|$)') { $sc = $c }
+                }
+                if ($sc -lt 0 -or $nc -lt 0) { continue }
+                $grids += $tbl
+                $gmaps += [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $sc; ns = $nc; inline = $false }
+                $foundHere = $true
+                break
+            }
+            if ($foundHere -or $noInline) { continue }
+            for ($k = 0; $k -lt [math]::Min(4, $trs.Count); $k++) {
+                $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+                if ($cells.Count -lt 3) { continue }
+                $hdr = @($cells | ForEach-Object { (($_.SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim() })
+                $ic = -1
+                for ($c = 0; $c -lt $hdr.Count; $c++) { if ($hdr[$c] -match $INLHDRRX) { $ic = $c; break } }
+                if ($ic -lt 0) { continue }
+                $inlRows = 0
+                for ($q = $k + 1; $q -lt $trs.Count; $q++) {
+                    $qc = @($trs[$q].SelectNodes('./w:tc', $ns))
+                    if ($qc.Count -ne $hdr.Count) { continue }
+                    $qt = (($qc[$ic].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '') -replace '\s+', ''
+                    if ($qt -match $INLPAIRRX) { $inlRows++ }
+                }
+                if ($inlRows -eq 0) { continue }
+                $grids += $tbl
+                $gmaps += [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $ic; ns = $ic; inline = $true }
+                break
+            }
+        }
+        if ($grids.Count -ne $want.Count) {
+            $snsProbs += "${name}: the delivered file holds $($grids.Count) S/NS grid(s), the ledger judges $($want.Count)"
+        } else {
+            for ($g = 0; $g -lt $grids.Count; $g++) {
+                $gm   = $gmaps[$g]
+                $rows = @()
+                $trs  = @($grids[$g].SelectNodes('./w:tr', $ns))
+                for ($k = $gm.header + 1; $k -lt $trs.Count; $k++) {
+                    $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+                    if ($cells.Count -ne $gm.cols) { continue }
+                    $c0 = (($cells[0].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
+                    if ($c0 -eq '') { continue }
+                    if ($gm.inline) {
+                        $dt = (($cells[$gm.s].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '') -replace '\s+', ''
+                        if ($dt -notmatch $INLPAIRRX) { continue }
+                    }
+                    $rows += ,$cells
+                }
+                $wo = @($want[$g].outcomes)
+                if ($rows.Count -ne $wo.Count) {
+                    $snsProbs += "${name}: grid $($g + 1) holds $($rows.Count) criterion row(s), the ledger judges $($wo.Count)"
+                    continue
+                }
+                if ($gm.inline) {
+                    # Both boxes in one cell: the first is S, the second NS.
+                    for ($r = 0; $r -lt $rows.Count; $r++) {
+                        $dRaw = (($rows[$r][$gm.s].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '')
+                        $bx   = @([regex]::Matches($dRaw, $INLBOXRX) | ForEach-Object { $_.Value })
+                        $wantS = ("$($wo[$r])" -eq 'S')
+                        $sOn = ($bx.Count -ge 1 -and $inlOnSet -contains $bx[0])
+                        $nOn = ($bx.Count -ge 2 -and $inlOnSet -contains $bx[1])
+                        if ($bx.Count -ne 2 -or $sOn -ne $wantS -or $nOn -eq $wantS) {
+                            $snsProbs += "${name}: grid $($g + 1) row $($r + 1) should read $($wo[$r]) but its cell reads '$($dRaw.Trim())'"
+                        }
+                    }
+
+                    # This grid's own comments box, outcome line and sign-off,
+                    # each the FIRST after the grid and before the next grid, so
+                    # one occasion's record cannot stand in for the other's.
+                    $cl    = $want[$g]
+                    $gAt   = [Array]::IndexOf($bodyNodes, $grids[$g])
+                    $gStop = $bodyNodes.Count
+                    if ($g + 1 -lt $grids.Count) { $gStop = [Array]::IndexOf($bodyNodes, $grids[$g + 1]) }
+                    $cmtCell = $null; $cmtSeen = $false; $outM = $null; $outNode = $null; $sigText = $null
+                    for ($i = $gAt + 1; $i -lt $gStop; $i++) {
+                        $bn = $bodyNodes[$i]
+                        if ($bn.LocalName -eq 'p') {
+                            $bt = Get-RunText $bn $ns
+                            if (-not $cmtSeen -and $bt.Trim() -match '^Assessor (comments|Observations)') { $cmtSeen = $true; continue }
+                            if (-not $outM) {
+                                $om = [regex]::Match($bt, $INLOUTRX, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+                                if ($om.Success) { $outM = $om; continue }
+                            }
+                            if (-not $sigText -and $bt.Trim() -match '^Assessor\s+(name:|signature\s*/\s*date:)') { $sigText = $bt.Trim() }
+                        } elseif ($bn.LocalName -eq 'tbl' -and $cmtSeen -and -not $cmtCell) {
+                            $cmtCell = @($bn.SelectNodes('.//w:tc', $ns))[0]
+                        }
+                    }
+                    $cLines = @((("$($cl.comments)") -split "`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+                    if ($cLines.Count -gt 0) {
+                        if (-not $cmtCell) {
+                            $snsProbs += "${name}: grid $($g + 1) has no comments box after it"
+                        } else {
+                            $cText = ((@($cmtCell.SelectNodes('.//w:p', $ns)) | ForEach-Object { Get-RunText $_ $ns }) -join "`n")
+                            foreach ($cln in $cLines) {
+                                if ($cText.IndexOf($cln, [StringComparison]::Ordinal) -lt 0) {
+                                    $snsProbs += "${name}: grid $($g + 1)'s comments box does not carry its comments"
+                                    break
+                                }
+                            }
+                            foreach ($cp in @($cmtCell.SelectNodes('.//w:p', $ns))) {
+                                if ((Get-RunText $cp $ns).Trim() -match $INLPROMPTRX) {
+                                    $snsProbs += "${name}: grid $($g + 1)'s comments box still carries the template's 'Record … here' prompt"
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    if ("$($cl.outcome)" -ne '') {
+                        if (-not $outM) {
+                            $snsProbs += "${name}: grid $($g + 1) has no Satisfactory / Not Satisfactory outcome line after it"
+                        } else {
+                            $oS = ($inlOnSet -contains $outM.Groups['s'].Value)
+                            $oN = ($inlOnSet -contains $outM.Groups['n'].Value)
+                            $oWantS = ("$($cl.outcome)" -eq 'S')
+                            if ($oS -ne $oWantS -or $oN -eq $oWantS) {
+                                $snsProbs += "${name}: grid $($g + 1)'s outcome line should read $($cl.outcome) but reads S=$oS NS=$oN"
+                            }
+                        }
+                    }
+                    if ("$($cl.assessor)" -ne '') {
+                        $sigWant = "Assessor name: $($cl.assessor)   Signature: ___________   Date: $($cl.dateText)"
+                        if (-not $sigText) {
+                            $snsProbs += "${name}: grid $($g + 1) has no 'Assessor name: … Date: …' line after it"
+                        } elseif ($sigText -ne $sigWant) {
+                            $snsProbs += "${name}: grid $($g + 1)'s sign-off line reads '$sigText', not the assessor, a blank signature and $($cl.dateText)"
+                        }
+                    }
+                    continue
+                }
+                for ($r = 0; $r -lt $rows.Count; $r++) {
+                    $sTxt = (($rows[$r][$gm.s].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
+                    $nTxt = (($rows[$r][$gm.ns].SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
+                    # A box the build ticked reads BALLOT BOX WITH X. A box that
+                    # was already marked when the submission arrived is left
+                    # alone by design, and it commonly reads BALLOT BOX WITH
+                    # CHECK, so both count as marked. Only the box that carries
+                    # no mark at all is unmarked.
+                    $sOn  = ($sTxt -eq [string]$BOX_T -or $sTxt -eq [string][char]0x2611)
+                    $nOn  = ($nTxt -eq [string]$BOX_T -or $nTxt -eq [string][char]0x2611)
+                    $wantS = ("$($wo[$r])" -eq 'S')
+                    if ($sOn -ne $wantS -or $nOn -eq $wantS) {
+                        $snsProbs += "${name}: grid $($g + 1) row $($r + 1) should read $($wo[$r]) but reads S='$sTxt' NS='$nTxt'"
+                    }
+                }
+            }
+        }
+
+        # every comments box carries its record, and the sign-off line names the
+        # assessor and the date. Read off the DOM already open here — Get-DocxText
+        # takes a PATH and would reopen the file from scratch.
+        $body = (($pkg.Body.SelectNodes('.//w:t', $ns) | ForEach-Object { $_.InnerText }) -join '')
+        foreach ($cl in $want) {
+            $first = @((("$($cl.comments)") -split "`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })[0]
+            if ($first) {
+                if ($body.IndexOf($first, [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                    $snsProbs += "${name}: an observation checklist's comments are not in the delivered file"
+                }
+                if ($body.IndexOf("Assessor name: $($cl.assessor)", [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                    $snsProbs += "${name}: an observation checklist sign-off line does not name $($cl.assessor)"
+                }
+            }
+            foreach ($nt in @($cl.notes)) {
+                if ("$nt".Trim() -eq '') { continue }
+                if ($body.IndexOf("$nt".Trim(), [StringComparison]::OrdinalIgnoreCase) -lt 0) {
+                    $snsProbs += "${name}: an observation note is not in the delivered file"
+                    break
+                }
+            }
+        }
+    } finally { Close-Docx $pkg }
+}
+Add-Check 'MarkedCopySnsChecklist' ($snsProbs.Count -eq 0) `
+    $(if ($snsProbs.Count) { ($snsProbs | Select-Object -First 4) -join ' · ' } else { 'every S/NS observation grid is ticked, signed and commented as the ledger judges it' })
+
+# ------------------------------- 11b2. the task decision lines ---------------
+#
+# A decision line that carries both boxes on one paragraph is not a grid, so the
+# check above never reaches it. One learner's workbook printed the line as
+# '[] satisfactory' in lower case, the writer's match was case sensitive, and
+# the box went out empty under a signed result with every other check green.
+# What is asserted here is only what can be asserted without the ledger: the
+# line resolves to exactly one marked box and one empty one.
+
+$decProbs = @()
+$MARK_T = [string][char]0x2612
+$MARK_C = [string][char]0x2611
+foreach ($name in $markedExpected.Keys) {
+    $path = Join-Path $dirFull $name
+    if (-not (Test-Path -LiteralPath $path)) { continue }
+    $pkg = Open-Docx -Path $path
+    try {
+        foreach ($p in @($pkg.Body.SelectNodes('.//w:p', $pkg.Ns))) {
+            $t = (Get-RunText $p $pkg.Ns).Trim()
+            if ($t -notmatch '(Assessor decision for |Task\s+\d+\s+result\s*:)') { continue }
+            $marked = ([regex]::Matches($t, "[$MARK_T$MARK_C]")).Count
+            $empty  = ([regex]::Matches($t, '[□☐]')).Count
+            if ($marked -ne 1 -or $empty -ne 1) {
+                $decProbs += "${name}: a task decision line carries $marked marked and $empty empty box(es)"
+            }
+        }
+    } finally { Close-Docx $pkg }
+}
+Add-Check 'MarkedCopyTaskDecision' ($decProbs.Count -eq 0) `
+    $(if ($decProbs.Count) { ($decProbs | Select-Object -First 4) -join ' · ' } else { 'every task decision line resolves to one marked box and one empty one' })
+
+
 # ------------------------------------------- 11c. the RTO's word ban ---------
 #
 # The RTO's instruction: one word of software jargon does not appear in the
@@ -1926,6 +2235,9 @@ if (-not $Quiet) {
     Write-Output ''
     Write-Output "MARKING RECORDS GATE — $($L.unit.code) $($L.unit.title), marking date $($L.dates.markingDateText)"
     Write-Output ("  $dirFull  ·  {0} file(s)" -f $files.Count)
+    if ($maps.Count -gt 0) {
+        Write-Output ("  plus {0} annotated feedback map(s), NOT checked here - run Test-AnnotatedFeedback.ps1 over them" -f $maps.Count)
+    }
     Write-Output ''
     foreach ($r in $results) {
         Write-Output ("  {0,-4} {1,-24} {2}" -f $r.status, $r.name, $r.detail)

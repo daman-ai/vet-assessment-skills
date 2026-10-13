@@ -41,7 +41,11 @@ param(
     [Parameter(Mandatory)][string]$OutDir,
     [string]$RtoProfile,
     [string]$SubmissionRoot,
-    [switch]$Quiet
+    [switch]$Quiet,
+    # The outcome, and the feedback where there is any, goes in a box out in the
+    # right margin level with the answer it judges. -NoMarginNotes returns the
+    # plain marked copy instead.
+    [switch]$NoMarginNotes
 )
 
 $ErrorActionPreference = 'Stop'
@@ -146,7 +150,11 @@ function Get-OutcomeTargetIndex {
         # counted the eight answer paragraphs as "heading rows" and put the
         # outcome under the 'No' box above the answer. The gate passed it,
         # because the line sat under a non-empty paragraph in the same cell.
-        [switch]$NoHeadingSkip
+        [switch]$NoHeadingSkip,
+        # How far past the question's anchor rule 4 will look for the response
+        # box. Two or three paragraphs is typical - the stem, a "Student
+        # response" label, then the box.
+        [int]$ResponseBoxLookahead = 12
     )
 
     $ti = [Math]::Max($From, $Next - 1)
@@ -179,7 +187,227 @@ function Get-OutcomeTargetIndex {
         }
         if ($headingSkips -gt 0 -and $headingSkips -le $HeadingRunLimit) { $ti = $ni }
     }
+
+    # RULE 4 - THE LINE MUST END UP INSIDE THE RESPONSE BOX.
+    #
+    # Rules 1 to 3 all walk BACK from the next question, and rule 3 only engages
+    # where that next question opens a table of its own. Where it is plain body
+    # text - as every ACI CPCC task's "(a)" is, sitting under its own Task
+    # heading - nothing stops the walk-back at the box, and the verdict comes to
+    # rest on the last non-empty paragraph before the anchor: the NEXT task's
+    # "Question / instructions" line.
+    #
+    # Two things then go wrong at once, and neither shows in a build log. The
+    # student's own response box comes back EMPTY - which this skill names by
+    # name, "the student's eye goes to the box and finds nothing in it" - and a
+    # red Not yet Satisfactory prints directly above a part they passed. On the
+    # CPCCSP3001 24 September copies it hit the last sub-question of nearly
+    # every task, 12 of 43 on one student, and every gate passed because each
+    # question did carry an outcome in the right colour. Only reading WHERE it
+    # landed finds it.
+    #
+    # So: where the chosen paragraph is not in a table but this question does
+    # have a response box, the line goes after the last thing written inside
+    # that box. Where rules 1 to 3 already landed inside the box, this changes
+    # nothing at all.
+    $chosenTbl = Get-ParagraphTable $Paragraphs[$ti]
+    if (-not ($chosenTbl -is [System.Xml.XmlElement])) {
+        # The box is the first table opening after this question's anchor. The
+        # lookahead stops a question whose response is plain paragraphs from
+        # adopting the NEXT task's scenario or "Maps to" box as its own: a real
+        # response box follows its question within a line or two, while a next
+        # task's furniture only appears past the whole answer.
+        $respTbl = $null; $respStart = -1
+        $limit = [Math]::Min($Next, $From + 1 + $ResponseBoxLookahead)
+        for ($i = $From + 1; $i -lt $limit -and $i -lt $Paragraphs.Count; $i++) {
+            $t = Get-ParagraphTable $Paragraphs[$i]
+            if ($t -is [System.Xml.XmlElement]) { $respTbl = $t; $respStart = $i; break }
+        }
+        if ($respTbl -and $respStart -lt $ti) {
+            $last = -1
+            for ($i = $respStart; $i -lt $Next -and $i -lt $Paragraphs.Count; $i++) {
+                $t = Get-ParagraphTable $Paragraphs[$i]
+                if (-not ($t -is [System.Xml.XmlElement]) -or -not $t.Equals($respTbl)) { continue }
+                if (Test-ParagraphInTextBox $Paragraphs[$i]) { continue }
+                if ([string]::IsNullOrWhiteSpace((Get-RunText -Node $Paragraphs[$i] -Ns $Ns))) { continue }
+                $last = $i
+            }
+            if ($last -ge 0) { $ti = $last }
+        }
+    }
     $ti
+}
+
+function Add-MarginNote {
+    <#
+      Puts the outcome, and where there is one the feedback, in a box out in the
+      RIGHT MARGIN, level with the answer it judges.
+
+      WHY THE PAGE IS WIDENED RATHER THAN THE TEXT NARROWED. The box needs empty
+      page to sit on. Narrowing the text column to make room reflows the
+      student's document - every line break, every page break, and any table
+      wider than the new column runs off the page. Widening the PAPER and the
+      right margin by the same amount leaves the text column exactly as it was,
+      so nothing moves: the same words fall on the same lines on the same pages,
+      and the extra width is empty margin for the notes.
+
+      WHY IT IS ANCHORED, NOT POSITIONED. The box hangs off the outcome
+      paragraph with positionV relativeFrom="paragraph", so Word keeps it level
+      with that answer wherever the answer ends up. Nothing has to ask Word for
+      a coordinate, nothing has to be rendered, and the document stays fully
+      editable - the student types their resubmission into it as before.
+
+      layoutInCell="0" matters: the anchor sits in a response table's cell, and
+      without it Word confines the shape to that cell instead of letting it out
+      into the margin.
+    #>
+    param(
+        [Parameter(Mandatory)]$Doc,
+        [Parameter(Mandatory)]$Paragraph,
+        [Parameter(Mandatory)][int]$Id,
+        [Parameter(Mandatory)][string]$Label,
+        [Parameter(Mandatory)][bool]$IsNys,
+        [string]$Issue = '',
+        [string]$Action = '',
+        [Parameter(Mandatory)][int]$BoxXEmu,
+        [Parameter(Mandatory)][int]$BoxWEmu,
+        [int]$ArrowXEmu = 0,
+        [int]$ArrowWEmu = 0,
+        [int]$YOffsetEmu = 0
+    )
+    $EMU_PT = 12700
+    if ($IsNys) { $fill = '1F4E79'; $ln = '14395B'; $head = 'FFFFFF'; $body = 'FFFFFF'; $note = 'DCE9F5'; $verdict = 'Not yet Satisfactory' }
+    else        { $fill = 'FFFFFF'; $ln = 'A9C7A9'; $head = '1E7B34'; $body = '1A1A1A'; $note = '404040'; $verdict = 'Satisfactory' }
+
+    $esc = {
+        param([string]$t)
+        if ($null -eq $t) { return '' }
+        $o = $t -replace '&', '&amp;' -replace '<', '&lt;' -replace '>', '&gt;' -replace '"', '&quot;'
+        return ($o -replace '[\x00-\x08\x0B\x0C\x0E-\x1F]', ' ')
+    }
+    # Height from the text, because the box must not autofit: a shape that grows
+    # on open would overlap the one below it.
+    $colPt = $BoxWEmu / [double]$EMU_PT
+    $perLine = [Math]::Max(10, [int]($colPt / 4.0))
+    $lines = 2
+    foreach ($t in @($Issue, $Action)) {
+        if ($t) { $lines += [Math]::Max(1, [int][Math]::Ceiling($t.Length / [double]$perLine)) }
+    }
+    $boxH = [int](($lines * 11.0 + 16.0) * $EMU_PT)
+
+    $sb = New-Object System.Text.StringBuilder
+    [void]$sb.Append(('<w:p><w:pPr><w:spacing w:before="0" w:after="20" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:b/><w:color w:val="{0}"/><w:sz w:val="16"/></w:rPr><w:t xml:space="preserve">{1}</w:t></w:r></w:p>' -f $head, (& $esc $Label)))
+    [void]$sb.Append(('<w:p><w:pPr><w:spacing w:before="0" w:after="40" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:b/><w:color w:val="{0}"/><w:sz w:val="18"/></w:rPr><w:t xml:space="preserve">{1}</w:t></w:r></w:p>' -f $head, $verdict))
+    if ($Issue)  { [void]$sb.Append(('<w:p><w:pPr><w:spacing w:before="0" w:after="40" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:color w:val="{0}"/><w:sz w:val="15"/></w:rPr><w:t xml:space="preserve">{1}</w:t></w:r></w:p>' -f $body, (& $esc $Issue))) }
+    if ($Action) { [void]$sb.Append(('<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:i/><w:color w:val="{0}"/><w:sz w:val="15"/></w:rPr><w:t xml:space="preserve">{1}</w:t></w:r></w:p>' -f $note, (& $esc $Action))) }
+
+    $xml = @"
+<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+     xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+     xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+     xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
+  <w:drawing>
+    <wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="$($Id + 100)"
+               behindDoc="0" locked="0" layoutInCell="0" allowOverlap="1">
+      <wp:simplePos x="0" y="0"/>
+      <wp:positionH relativeFrom="page"><wp:posOffset>$BoxXEmu</wp:posOffset></wp:positionH>
+      <wp:positionV relativeFrom="paragraph"><wp:posOffset>$YOffsetEmu</wp:posOffset></wp:positionV>
+      <wp:extent cx="$BoxWEmu" cy="$boxH"/>
+      <wp:effectExtent l="0" t="0" r="0" b="0"/>
+      <wp:wrapNone/>
+      <wp:docPr id="$Id" name="Assessor note $Id" descr="$(& $esc $Label) $verdict"/>
+      <wp:cNvGraphicFramePr/>
+      <a:graphic>
+        <a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
+          <wps:wsp>
+            <wps:cNvSpPr/>
+            <wps:spPr>
+              <a:xfrm><a:off x="0" y="0"/><a:ext cx="$BoxWEmu" cy="$boxH"/></a:xfrm>
+              <a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 8000"/></a:avLst></a:prstGeom>
+              <a:solidFill><a:srgbClr val="$fill"/></a:solidFill>
+              <a:ln w="12700"><a:solidFill><a:srgbClr val="$ln"/></a:solidFill></a:ln>
+            </wps:spPr>
+            <wps:txbx><w:txbxContent>$($sb.ToString())</w:txbxContent></wps:txbx>
+            <wps:bodyPr rot="0" wrap="square" lIns="63000" tIns="36000" rIns="63000" bIns="36000" anchor="t"><a:noAutofit/></wps:bodyPr>
+          </wps:wsp>
+        </a:graphicData>
+      </a:graphic>
+    </wp:anchor>
+  </w:drawing>
+</w:r>
+"@
+    $frag = $Doc.CreateDocumentFragment()
+    $frag.InnerXml = $xml
+    [void]$Paragraph.AppendChild($frag)
+
+    # THE ARROW, anchored to the same paragraph so it stays level with the box.
+    # It runs from the note's left edge back to the text column and lands on the
+    # answer. There is no coordinate to aim at - Word places both shapes
+    # relative to this paragraph - so the arrow is a fixed span across the gap
+    # rather than a line to a measured point, and it reads the same way.
+    if ($ArrowXEmu -gt 0 -and $ArrowWEmu -gt 0) {
+        $ay = $YOffsetEmu + [int](6.0 * $EMU_PT)
+        $arrow = @"
+<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+     xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+     xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+     xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
+  <w:drawing>
+    <wp:anchor distT="0" distB="0" distL="0" distR="0" simplePos="0" relativeHeight="$($Id + 600)"
+               behindDoc="0" locked="0" layoutInCell="0" allowOverlap="1">
+      <wp:simplePos x="0" y="0"/>
+      <wp:positionH relativeFrom="page"><wp:posOffset>$ArrowXEmu</wp:posOffset></wp:positionH>
+      <wp:positionV relativeFrom="paragraph"><wp:posOffset>$ay</wp:posOffset></wp:positionV>
+      <wp:extent cx="$ArrowWEmu" cy="0"/>
+      <wp:effectExtent l="0" t="0" r="0" b="0"/>
+      <wp:wrapNone/>
+      <wp:docPr id="$($Id + 500)" name="Note pointer $Id"/>
+      <wp:cNvGraphicFramePr/>
+      <a:graphic>
+        <a:graphicData uri="http://schemas.microsoft.com/office/word/2010/wordprocessingShape">
+          <wps:wsp>
+            <wps:cNvCnPr/>
+            <wps:spPr>
+              <a:xfrm><a:off x="0" y="0"/><a:ext cx="$ArrowWEmu" cy="0"/></a:xfrm>
+              <a:prstGeom prst="straightConnector1"><a:avLst/></a:prstGeom>
+              <a:ln w="$(if ($IsNys) { 19050 } else { 9525 })" cap="rnd">
+                <a:solidFill><a:srgbClr val="$(if ($IsNys) { '1F4E79' } else { 'A6A6A6' })"/></a:solidFill>
+                <a:headEnd type="triangle" w="med" len="med"/>
+              </a:ln>
+            </wps:spPr>
+            <wps:bodyPr/>
+          </wps:wsp>
+        </a:graphicData>
+      </a:graphic>
+    </wp:anchor>
+  </w:drawing>
+</w:r>
+"@
+        $frag2 = $Doc.CreateDocumentFragment()
+        $frag2.InnerXml = $arrow
+        [void]$Paragraph.AppendChild($frag2)
+    }
+}
+
+function Expand-PageForMargin {
+    <#
+      Widens the paper and the right margin by the SAME amount, in every
+      section, so the text column is untouched and nothing in the student's
+      document reflows.
+    #>
+    param([Parameter(Mandatory)]$Doc, [Parameter(Mandatory)]$Ns, [int]$ExtraTwips)
+    $n = 0
+    foreach ($sect in $Doc.SelectNodes('//w:sectPr', $Ns)) {
+        $sz = $sect.SelectSingleNode('w:pgSz', $Ns)
+        $mar = $sect.SelectSingleNode('w:pgMar', $Ns)
+        if (-not $sz -or -not $mar) { continue }
+        $w = [int]$sz.GetAttribute('w', $Ns.LookupNamespace('w'))
+        $r = [int]$mar.GetAttribute('right', $Ns.LookupNamespace('w'))
+        $sz.SetAttribute('w', $Ns.LookupNamespace('w'), [string]($w + $ExtraTwips))
+        $mar.SetAttribute('right', $Ns.LookupNamespace('w'), [string]($r + $ExtraTwips))
+        $n++
+    }
+    return $n
 }
 
 function Find-OneParagraph {
@@ -991,6 +1219,779 @@ function Set-SheetSignOff {
     $written
 }
 
+function Set-BoxAtIndex {
+    <#
+      Ticks the single box at $CharIndex of a paragraph's flattened text,
+      whichever run happens to hold it. Get-RunText concatenates the w:t nodes
+      with nothing between them, so the same index addresses both.
+    #>
+    param($Node, $Ns, [int]$CharIndex, [string]$Tick)
+    $pos = 0
+    foreach ($tn in @($Node.SelectNodes('.//w:t', $Ns))) {
+        $s = [string]$tn.InnerText
+        if ($CharIndex -lt $pos + $s.Length) {
+            $off = $CharIndex - $pos
+            $tn.InnerText = $s.Substring(0, $off) + $Tick + $s.Substring($off + 1)
+            return $true
+        }
+        $pos += $s.Length
+    }
+    return $false
+}
+function Write-VerificationTable {
+    <#
+      Fills an assessor VERIFICATION TABLE - a table that is not an S/NS grid,
+      not a Yes/No sheet and not a comments box, but still carries columns only
+      the assessor may complete. CPCCCM2008 has two:
+
+        Template 2.6 - Practical Erection Verification Log
+          Scaffold feature verified by assessor | Assessor notes | Verified
+        Template 3.2 - Mandatory Alteration / Repair / Rectification Log
+          ... | Completed by | Assessor verification
+
+      They sit outside every grid, so none of the three observation-sheet
+      writers touches them and they went out blank under a signed result.
+
+      Columns are found BY HEADING, never by ordinal, because the two tables
+      have different shapes and learners' copies vary. A cell that already
+      carries content is LEFT ALONE - a trainer who completed the sheet on the
+      day keeps their entry, and this writer only fills what is empty.
+    #>
+    param(
+        [Parameter(Mandatory)]$Pkg,
+        [Parameter(Mandatory)][AllowEmptyCollection()][object[]]$Tables,
+        [Parameter(Mandatory)][string]$Who
+    )
+    if (@($Tables).Count -eq 0) { return 0 }
+    $ns    = $Pkg.Ns
+    $TICK  = [string][char]0x2612
+    $EMPTY = @([string][char]0x25A1, [string][char]0x2610)
+    $filled = 0
+
+    foreach ($spec in $Tables) {
+        $anchor = "$($spec.anchor)"
+        if ($anchor -eq '') { throw "${Who}: a verification table has no anchor." }
+        $target = $null
+        foreach ($tbl in @($Pkg.Body.SelectNodes('.//w:tbl', $ns))) {
+            if ((Get-RunText $tbl $ns).IndexOf($anchor, [StringComparison]::OrdinalIgnoreCase) -ge 0) { $target = $tbl; break }
+        }
+        # A submission that does not carry this template at all is reported by
+        # the caller, not silently skipped here.
+        if (-not $target) {
+            if ($spec.PSObject.Properties.Name -contains 'optional' -and $spec.optional) { continue }
+            throw "${Who}: no table contains '$anchor', so its assessor columns cannot be filled."
+        }
+
+        $trs = @($target.SelectNodes('./w:tr', $ns))
+        $noteCol = -1; $tickCol = -1; $hdrRow = -1
+        for ($r = 0; $r -lt [math]::Min(4, $trs.Count); $r++) {
+            $tc = @($trs[$r].SelectNodes('./w:tc', $ns))
+            for ($c = 0; $c -lt $tc.Count; $c++) {
+                $h = (Get-SnsCellText $tc[$c] $ns)
+                if ($noteCol -lt 0 -and "$($spec.notesHeading)" -ne '' -and $h -match "$($spec.notesHeading)") { $noteCol = $c; $hdrRow = $r }
+                if ($tickCol -lt 0 -and "$($spec.tickHeading)"  -ne '' -and $h -match "$($spec.tickHeading)")  { $tickCol = $c; $hdrRow = $r }
+            }
+            if ($hdrRow -ge 0) { break }
+        }
+        if ($hdrRow -lt 0) { throw "${Who}: '$anchor' has no column headed '$($spec.notesHeading)' or '$($spec.tickHeading)'." }
+
+        $notes = @(); if ($spec.PSObject.Properties.Name -contains 'notes' -and $spec.notes) { $notes = @($spec.notes) }
+        $i = 0
+        for ($r = $hdrRow + 1; $r -lt $trs.Count; $r++) {
+            $tc = @($trs[$r].SelectNodes('./w:tc', $ns))
+            if ($tc.Count -le [math]::Max($noteCol, $tickCol)) { continue }
+            if ((Get-SnsCellText $tc[0] $ns) -eq '') { continue }
+            # the assessor's note for this row, where one is given and the cell is empty
+            if ($noteCol -ge 0 -and $i -lt $notes.Count -and "$($notes[$i])".Trim() -ne '') {
+                if ((Get-SnsCellText $tc[$noteCol] $ns) -eq '') {
+                    [void](Set-CellText -Cell $tc[$noteCol] -Ns $ns -Value "$($notes[$i])" -Color '000000')
+                    $filled++
+                }
+            }
+            if ($tickCol -ge 0) {
+                $cur = Get-SnsCellText $tc[$tickCol] $ns
+                if ($cur -eq '' -or $EMPTY -contains $cur) {
+                    [void](Set-CellText -Cell $tc[$tickCol] -Ns $ns -Value $TICK -Color '000000')
+                    $filled++
+                }
+            }
+            $i++
+        }
+    }
+    $filled
+}
+function Write-SnsChecklist {
+    <#
+      Fills an observation checklist built as an S / NS TICK-BOX GRID:
+
+          #  |  Observable behaviour  |  S  |  NS
+          1  |  Reads and interprets. |  X  |  X
+
+      This is the THIRD shape an observation sheet comes in, and neither of the
+      other two writers touches it. Write-ObservationSheet pairs the box-and-word
+      paragraph boxes, which this grid has none of. Write-CriterionComments walks
+      a grid, but keys on a 'Trainer/Assessor Comments' column, which this grid
+      does not have - its comments live in one box under the whole checklist.
+      Handed this sheet, both find nothing and tick nothing, silently, which is
+      the failure that looks most like success: a signed record over a blank
+      instrument.
+
+      One entry per checklist in the submission, in document order. A submission
+      observed on two occasions carries two grids and needs two entries; a count
+      mismatch is a hard failure rather than a half-filled sheet.
+
+      Each entry fills four things, all addressed by the text around them rather
+      than by position in the file:
+        - the S or NS box on every numbered criterion row;
+        - the Satisfactory / Not Satisfactory row of the 'Outcome (tick one)'
+          table that follows the grid;
+        - the comments box under 'Assessor comments';
+        - the 'Assessor name: ... Date: ...' line, leaving the signature blank
+          because a signature is not ours to write.
+
+      A box already ticked by hand is left alone, as everywhere else in this
+      skill: a trainer who marked the sheet before it reached us keeps it.
+    #>
+    param(
+        [Parameter(Mandatory)]$Pkg,
+        [Parameter(Mandatory)][AllowEmptyCollection()][object[]]$Checklists,
+        [Parameter(Mandatory)][string]$Who,
+        # The tool-level observation record, written into the FIRST comments
+        # box rather than into the body above it. An auditor opens the sheet;
+        # a record floating in the body beside an empty box answers them the
+        # wrong way round, and the gate checks for exactly that.
+        [string[]]$Observations = @(),
+        [string]$Outcome = '',
+        [string]$MarkingDateText = '',
+        $Marked = $null,
+        # Set where the tool's observationSheet is itself 'inlinePairs': that
+        # sheet's single-column table is Write-ObservationSheet's to fill, and
+        # counting it here too would change this writer's grid count.
+        [switch]$NoInlineGrids
+    )
+    if (@($Checklists).Count -eq 0) { return 0 }
+
+    $ns    = $Pkg.Ns
+    # Two characters are used for an empty box across the instruments in
+    # circulation: WHITE SQUARE and BALLOT BOX. They look alike on the page and
+    # they are not the same codepoint, so a writer that knows only one leaves
+    # every box on the other instrument untouched and reports success. Both are
+    # accepted here, and $EMPTYRX is the class the decision lines are read with.
+    $EMPTIES = @([string][char]0x25A1, [string][char]0x2610)
+    $EMPTYRX = '[' + $EMPTIES[0] + $EMPTIES[1] + ']'
+    $TICK    = [string][char]0x2612      # BALLOT BOX WITH X
+
+    # THE INLINE SHAPE. ACI's CPCCSP3001 pack heads ONE decision column
+    # 'S / NS' and prints both boxes inside each of its cells, each with its
+    # word: '☐ S    ☐ NS'. The column finder below sees 'S' and no 'NS' and
+    # passes over it, so two occasions of 39 criteria went unfound. These three
+    # patterns are matched against whitespace-stripped cell text (the header
+    # and the pair) or the paragraph text (the outcome line), and
+    # Test-MarkingRecords.ps1 carries them word for word.
+    $INLBOXRX  = '[' + [char]0x25A1 + [char]0x2610 + [char]0x2612 + [char]0x2611 + ']'
+    $INLHDRRX  = '^S\s*/\s*(NS|NYS)$'
+    $INLPAIRRX = '^' + $INLBOXRX + 'S' + $INLBOXRX + '(NS|NYS)$'
+    $INLOUTRX  = '^\s*(?<s>' + $INLBOXRX + ')\s*Satisfactory\b.*?(?<n>' + $INLBOXRX + ')\s*Not\s+(?:Yet\s+)?Satisfactory\b'
+    # The comments box arrives holding the template's own instruction, which
+    # is not the learner's text and is replaced rather than appended to.
+    $INLPROMPTRX = '^Record\b.*\bhere\s*(…|\.\.\.)?\s*$'
+
+    # -- every body node in order, so 'the table after this heading' means what
+    #    it says. Addressing the outcome table or the comments box by absolute
+    #    index would break the moment a student adds a line to their answer.
+    $nodes = @($Pkg.Body.ChildNodes)
+
+    # A grid is any table with a header row carrying an S column and an NS
+    # column. Two instruments in circulation for this unit shape it differently
+    # — one whole checklist in a single table with a '#' column, and a run of
+    # small tables each headed 'Performance Criteria' with an 'Assessor Notes'
+    # column — so the columns are found by their headings and everything below
+    # keys off that, rather than off a shape that only one of them has.
+    $gridAt = @(); $gridMap = @{}
+    for ($i = 0; $i -lt $nodes.Count; $i++) {
+        if ($nodes[$i].LocalName -ne 'tbl') { continue }
+        $trs = @($nodes[$i].SelectNodes('./w:tr', $ns))
+        if ($trs.Count -lt 2) { continue }
+        $found = $false
+        for ($k = 0; $k -lt [math]::Min(4, $trs.Count) -and -not $found; $k++) {
+            $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+            if ($cells.Count -lt 3) { continue }
+            $hdr = @($cells | ForEach-Object { Get-SnsCellText $_ $ns })
+            # Column headings vary between instruments and the NOT-satisfactory
+            # one is tested FIRST, because 'Not yet' would otherwise be claimed
+            # by the Satisfactory pattern and both columns would address the
+            # same cell. Three spellings of the pair are in circulation here:
+            # S / NS, S / NYS, and Satisfactory / Not yet.
+            $sc = -1; $nc = -1; $note = -1
+            for ($c = 0; $c -lt $hdr.Count; $c++) {
+                if ($nc -lt 0 -and $hdr[$c] -match '^(NS|NYS)(\s|$)')      { $nc = $c; continue }
+                if ($nc -lt 0 -and $hdr[$c] -match '^Not\s*[Yy]et')        { $nc = $c; continue }
+                if ($sc -lt 0 -and $hdr[$c] -match '^S(\s|$)')             { $sc = $c; continue }
+                if ($sc -lt 0 -and $hdr[$c] -match '^Satisfactory(\s|$)')  { $sc = $c; continue }
+                if ($note -lt 0 -and $hdr[$c] -match '^(Assessor Notes|Notes|Trainer/Assessor Comments|Comments)') { $note = $c }
+            }
+            if ($sc -lt 0 -or $nc -lt 0) { continue }
+            $gridAt += $i
+            $gridMap[$i] = [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $sc; ns = $nc; notes = $note; inline = $false }
+            $found = $true
+        }
+        # Only a table with no separate S and NS columns anywhere in its head
+        # is tried as the inline shape, so every grid found before is found
+        # exactly as before. It counts only where at least one row below the
+        # heading carries the two boxes, so a table merely headed 'S / NS' is
+        # not a grid.
+        if ($found -or $NoInlineGrids) { continue }
+        for ($k = 0; $k -lt [math]::Min(4, $trs.Count) -and -not $found; $k++) {
+            $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+            if ($cells.Count -lt 3) { continue }
+            $hdr = @($cells | ForEach-Object { Get-SnsCellText $_ $ns })
+            $ic  = -1
+            for ($c = 0; $c -lt $hdr.Count; $c++) {
+                if ($hdr[$c] -match $INLHDRRX) { $ic = $c; break }
+            }
+            if ($ic -lt 0) { continue }
+            $inlRows = 0
+            for ($q = $k + 1; $q -lt $trs.Count; $q++) {
+                $qc = @($trs[$q].SelectNodes('./w:tc', $ns))
+                if ($qc.Count -ne $hdr.Count) { continue }
+                if (((Get-SnsCellText $qc[$ic] $ns) -replace '\s+', '') -match $INLPAIRRX) { $inlRows++ }
+            }
+            if ($inlRows -eq 0) { continue }
+            $gridAt += $i
+            $gridMap[$i] = [pscustomobject]@{ header = $k; cols = $hdr.Count; s = $ic; ns = $ic; notes = -1; inline = $true }
+            $found = $true
+        }
+    }
+    if ($gridAt.Count -ne @($Checklists).Count) {
+        throw "${Who}: the submission has $($gridAt.Count) S/NS observation grid(s) but the ledger gives $(@($Checklists).Count). Give one checklist per grid, in document order. Nothing was ticked."
+    }
+
+    $filled        = 0
+    $deferred      = @()
+    $recordWritten = $false
+    for ($g = 0; $g -lt $gridAt.Count; $g++) {
+        $cl    = $Checklists[$g]
+        $start = $gridAt[$g]
+        $stop  = $nodes.Count
+        if ($g + 1 -lt $gridAt.Count) { $stop = $gridAt[$g + 1] }
+
+        $outcomes = @()
+        if ($cl.PSObject.Properties.Name.Contains('outcomes') -and $cl.outcomes) { $outcomes = @($cl.outcomes) }
+
+        # ---- the criterion rows -------------------------------------------
+        # A criterion row has the full set of columns. Section headings span
+        # them all and so arrive as a single cell, which is what excludes them.
+        $gm    = $gridMap[$start]
+        $notes = @()
+        if ($cl.PSObject.Properties.Name.Contains('notes') -and $cl.notes) { $notes = @($cl.notes) }
+        $trs  = @($nodes[$start].SelectNodes('./w:tr', $ns))
+        $crit = @()
+        for ($k = $gm.header + 1; $k -lt $trs.Count; $k++) {
+            $cells = @($trs[$k].SelectNodes('./w:tc', $ns))
+            if ($cells.Count -ne $gm.cols) { continue }
+            if ((Get-SnsCellText $cells[0] $ns) -eq '') { continue }
+            # An inline row is one whose decision cell holds the two boxes;
+            # a note or rule row spanning the same columns is not a criterion.
+            if ($gm.inline -and (((Get-SnsCellText $cells[$gm.s] $ns) -replace '\s+', '') -notmatch $INLPAIRRX)) { continue }
+            $crit += ,$cells
+        }
+        if ($gm.inline -and $notes.Count -gt 0) {
+            throw "${Who}: observation grid $($g + 1) has one 'S / NS' column and no notes column, so its notes have nowhere to go. Put the record in 'comments'. Nothing was ticked."
+        }
+        if ($crit.Count -ne $outcomes.Count) {
+            throw "${Who}: observation grid $($g + 1) has $($crit.Count) criterion row(s) but the ledger gives $($outcomes.Count) outcome(s). Give one S or NS per row, in sheet order. Nothing was ticked."
+        }
+        if ($notes.Count -gt 0 -and $notes.Count -ne $crit.Count) {
+            throw "${Who}: observation grid $($g + 1) has $($crit.Count) criterion row(s) but the ledger gives $($notes.Count) note(s). Give one per row, in sheet order, blank where there is nothing to add."
+        }
+        for ($r = 0; $r -lt $crit.Count; $r++) {
+            $want = "$($outcomes[$r])"
+            if ($want -ne 'S' -and $want -ne 'NS') {
+                throw "${Who}: observation grid $($g + 1), row $($r + 1): outcome must be 'S' or 'NS', got '$want'."
+            }
+            if ($gm.inline) {
+                # Both boxes live in one cell. The wanted one is ticked where it
+                # stands, in whichever run holds it, so the cell's words and the
+                # symbol font survive. The same refusal as the column shape: a
+                # row arriving with the opposite box marked is not ticked beside.
+                $inlCell = $crit[$r][$gm.s]
+                $inlBx   = @([regex]::Matches((Get-RunText $inlCell $ns), $INLBOXRX))
+                if ($inlBx.Count -ne 2) {
+                    throw "${Who}: observation grid $($g + 1), row $($r + 1): the S / NS cell holds $($inlBx.Count) box(es), not two. Nothing was ticked on this row."
+                }
+                $inlWant = $(if ($want -eq 'S') { 0 } else { 1 })
+                $inlOn   = @([string]$TICK, [string][char]0x2611)
+                if ($inlOn -contains $inlBx[1 - $inlWant].Value) {
+                    throw "${Who}: observation grid $($g + 1), row $($r + 1) already carries a mark in the box opposite the '$want' judgement. Nothing was ticked on this row."
+                }
+                if ($inlOn -notcontains $inlBx[$inlWant].Value) {
+                    if (-not (Set-BoxAtIndex -Node $inlCell -Ns $ns -CharIndex $inlBx[$inlWant].Index -Tick $TICK)) {
+                        throw "${Who}: observation grid $($g + 1), row $($r + 1): the $want box was found but could not be ticked."
+                    }
+                    $filled++
+                }
+                continue
+            }
+            $target = $crit[$r][$gm.ns]
+            $other  = $crit[$r][$gm.s]
+            if ($want -eq 'S') { $target = $crit[$r][$gm.s]; $other = $crit[$r][$gm.ns] }
+            # A submission that arrives with the OPPOSITE box already marked
+            # cannot be signed off by ticking beside it: the row would carry two
+            # marks and say both things at once. Learners have been found
+            # filling the assessor's own columns before submitting, so this is
+            # refused loudly rather than resolved by overwriting somebody's mark.
+            $opp = Get-SnsCellText $other $ns
+            if ($opp -ne '' -and -not ($EMPTIES -contains $opp)) {
+                throw "${Who}: observation grid $($g + 1), row $($r + 1) already carries a mark in the column opposite the '$want' judgement. Nothing was ticked on this row."
+            }
+            $cur = Get-SnsCellText $target $ns
+            $strayRx = '^[' + $EMPTIES[0] + $EMPTIES[1] + [char]0x2612 + [char]0x2611 + [char]0x2713 + [char]0x2714 + 'VvXx' + '\s' + ']+$'
+            if ($EMPTIES -contains $cur -or $cur -eq '' -or $cur -match $strayRx) {
+                if ($cur -ne $TICK) {
+                    [void](Set-CellText -Cell $target -Ns $ns -Value $TICK -Color '000000')
+                    $filled++
+                }
+            }
+            if ($gm.notes -ge 0 -and $notes.Count -gt 0) {
+                $nt = "$($notes[$r])".Trim()
+                if ($nt -ne '') {
+                    # A notes cell that already carries writing is APPENDED to,
+                    # never overwritten - the same rule as the comments box.
+                    # Learners have been found filling the assessor's comment
+                    # column before submitting; that text is theirs and it
+                    # stays, and the assessor's note still has to land in the
+                    # row it judges rather than beside it.
+                    $cell = $crit[$r][$gm.notes]
+                    if ((Get-SnsCellText $cell $ns) -eq '') {
+                        [void](Set-CellText -Cell $cell -Ns $ns -Value $nt -Color '000000')
+                    } else {
+                        [void](Add-CellLine -Cell $cell -Ns $ns -Value $nt -Color '000000')
+                    }
+                    $filled++
+                }
+            }
+        }
+
+        # ---- the overall outcome table ------------------------------------
+        # Optional: the small-table instrument records its outcome elsewhere,
+        # so a checklist that names no overall outcome simply skips this.
+        $done = ("$($cl.outcome)" -eq '')
+        # The inline shape has no Outcome table. Its occasion outcome is one
+        # printed line after the grid, box first:
+        #   '□ Satisfactory (S)          □ Not Satisfactory (NS)'
+        # The first such line after THIS grid is this grid's, and the box is
+        # ticked where it stands so the line keeps its words and spacing.
+        if ($gm.inline -and -not $done) {
+            for ($i = $start + 1; $i -lt $stop -and -not $done; $i++) {
+                $ocands = @()
+                if     ($nodes[$i].LocalName -eq 'p')   { $ocands = @($nodes[$i]) }
+                elseif ($nodes[$i].LocalName -eq 'tbl') { $ocands = @($nodes[$i].SelectNodes('.//w:p', $ns)) }
+                foreach ($onode in $ocands) {
+                    $om = [regex]::Match((Get-RunText $onode $ns), $INLOUTRX, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+                    if (-not $om.Success) { continue }
+                    $oWant = $(if ("$($cl.outcome)" -eq 'S') { $om.Groups['s'] } else { $om.Groups['n'] })
+                    $oOpp  = $(if ("$($cl.outcome)" -eq 'S') { $om.Groups['n'] } else { $om.Groups['s'] })
+                    if (@([string]$TICK, [string][char]0x2611) -contains $oOpp.Value) {
+                        throw "${Who}: observation grid $($g + 1)'s outcome line already carries a mark opposite the '$($cl.outcome)' outcome. Nothing was ticked on it."
+                    }
+                    if ($oWant.Value -ne [string]$TICK -and $oWant.Value -ne [string][char]0x2611) {
+                        if (-not (Set-BoxAtIndex -Node $onode -Ns $ns -CharIndex $oWant.Index -Tick $TICK)) {
+                            throw "${Who}: observation grid $($g + 1)'s outcome line was found but its box could not be ticked."
+                        }
+                        $filled++
+                    }
+                    $done = $true
+                    break
+                }
+            }
+            if (-not $done) {
+                throw "${Who}: observation grid $($g + 1) has no '☐ Satisfactory … ☐ Not Satisfactory' outcome line after it, so the occasion outcome cannot be recorded."
+            }
+        }
+        for ($i = $start + 1; $i -lt $stop -and -not $done; $i++) {
+            if ($nodes[$i].LocalName -ne 'tbl') { continue }
+            $otrs = @($nodes[$i].SelectNodes('./w:tr', $ns))
+            if ($otrs.Count -lt 3) { continue }
+            $c0 = @($otrs[0].SelectNodes('./w:tc', $ns))
+            if ((Get-SnsCellText $c0[0] $ns) -notmatch '^Outcome') { continue }
+            # NOT $tick. PowerShell variable names are case-insensitive, so a
+            # $tick here IS $TICK, the ballot-box character every box on every
+            # grid is written from. The first outcome table would overwrite it
+            # with a pair of booleans and every later grid would be filled with
+            # 'True False' instead of a mark. That is trap 7 in SKILL.md and it
+            # cost a full rebuild here.
+            $wantS   = ("$($cl.outcome)" -eq 'S')
+            $rows    = @(@($otrs[1].SelectNodes('./w:tc', $ns)), @($otrs[2].SelectNodes('./w:tc', $ns)))
+            $wantRow = @($wantS, (-not $wantS))
+            for ($z = 0; $z -lt 2; $z++) {
+                $cells = $rows[$z]
+                if ($cells.Count -lt 2) { continue }
+                if (-not $wantRow[$z]) { continue }
+                $box = $cells[$cells.Count - 1]
+                $cur = Get-SnsCellText $box $ns
+                if ($EMPTIES -contains $cur -or $cur -eq '') {
+                    [void](Set-CellText -Cell $box -Ns $ns -Value $TICK -Color '000000')
+                    $filled++
+                }
+            }
+            $done = $true
+        }
+        if (-not $done) {
+            throw "${Who}: observation grid $($g + 1) has no 'Outcome (tick one)' table after it, so the overall outcome cannot be recorded."
+        }
+
+        # ---- this grid's own task decision line ----------------------------
+        # One instrument closes each performance task with a decision carrying
+        # BOTH boxes in a single paragraph, after the grid it belongs to:
+        #   'Assessor decision for Task 2 practical erection:  [] Satisfactory    [] Not Yet Satisfactory'
+        # It is ticked from the CHECKLIST's own decision rather than from the
+        # tool result, because the two are not always the same judgement: a
+        # learner whose erection was watched and was sound, and whose written
+        # dismantling record is missing, is Satisfactory on Task 2 and not on
+        # Task 3 under one NYS tool. Ticking both from the tool result would
+        # put a red mark against work the assessor watched and accepted.
+        # The search is bounded by this grid's own range, so each decision line
+        # is answered by the grid above it and no other.
+        $dec = "$($cl.decision)"
+        if ($dec -eq '') { $dec = "$Outcome" }
+        if ($dec -ne '') {
+            $wantDecS = ($dec -eq 'S')
+            # The decision line is a body paragraph on one instrument and a row
+            # INSIDE the comments table on the other. Walking body children only
+            # skipped every line of the second kind: three per learner went out
+            # with both boxes empty under a signed result.
+            $decCands = @()
+            for ($i = $start + 1; $i -lt $stop; $i++) {
+                if     ($nodes[$i].LocalName -eq 'p')   { $decCands += $nodes[$i] }
+                elseif ($nodes[$i].LocalName -eq 'tbl') { $decCands += @($nodes[$i].SelectNodes('.//w:p', $ns)) }
+            }
+            foreach ($dnode in $decCands) {
+                $dt = Get-RunText $dnode $ns
+                # Two line shapes are in circulation and the second was silently
+                # skipped, so three decision lines per learner went out with both
+                # boxes empty under a signed result:
+                #   'Assessor decision for Task 2 ...:  [] Satisfactory  [] Not Yet Satisfactory'
+                #   'Task 1 result:  Satisfactory []   Not Satisfactory []'
+                # A THIRD line shape carries no label at all: the pair is the
+                # whole cell of an 'Observation outcome (this occasion)' table
+                # printed under the grid. Matched only when the paragraph IS
+                # the pair and nothing else, so no sentence mentioning the word
+                # 'Satisfactory' can be mistaken for a decision.
+                $bareDec = "^\s*Satisfactory\s*$EMPTYRX\s+Not\s+(?:Yet\s+)?Satisfactory\s*$EMPTYRX\s*$"
+                if ($dt -notmatch '(Assessor decision for |Task\s+\d+\s+result\s*:)' -and $dt -notmatch $bareDec) { continue }
+                if ($dt -notmatch $EMPTYRX) { continue }
+                $boxPat = $EMPTYRX
+                # CASE-INSENSITIVE deliberately. [regex]::Match is case
+                # sensitive where PowerShell's own -match is not, and one
+                # learner's workbook prints the line as '[] satisfactory'. The
+                # box went out empty under a signed result and the gate did not
+                # see it, because the gate reads grids and not this line.
+                # The matched text is used verbatim as the replacement's Find,
+                # so whatever case the page carries is preserved.
+                $ci  = [System.Text.RegularExpressions.RegexOptions]::IgnoreCase
+                # The box sits BEFORE the word on one instrument and AFTER it on
+                # the other, and 'Satisfactory []' also matches inside
+                # 'Not Satisfactory []', so the Satisfactory form is guarded with
+                # a lookbehind. 'Yet' is optional: one pack prints 'Not Yet
+                # Satisfactory' and the other 'Not Satisfactory'.
+                if ($wantDecS) {
+                    $hit = [regex]::Match($dt, "$boxPat\s*Satisfactory", $ci)
+                    if (-not $hit.Success) {
+                        $hit = [regex]::Match($dt, "(?<!Not\s)(?<!Not\sYet\s)Satisfactory\s*$boxPat", $ci)
+                    }
+                } else {
+                    $hit = [regex]::Match($dt, "Not\s+(?:Yet\s+)?Satisfactory\s*$boxPat", $ci)
+                    if (-not $hit.Success) {
+                        $hit = [regex]::Match($dt, "$boxPat\s*Not\s+(?:Yet\s+)?Satisfactory", $ci)
+                    }
+                }
+                if (-not $hit.Success) { continue }
+                # The box's index inside the match, turned into an index into the
+                # whole paragraph, then ticked in whichever run holds it.
+                $inMatch = [regex]::Match($hit.Value, $boxPat)
+                if (-not $inMatch.Success) { continue }
+                if (Set-BoxAtIndex -Node $dnode -Ns $ns -CharIndex ($hit.Index + $inMatch.Index) -Tick $TICK) { $filled++ }
+            }
+        }
+
+        # ---- the comments box ---------------------------------------------
+        # 'Assessor comments' is a heading paragraph and the box is the table
+        # that follows it. Writing under the heading instead would put the
+        # record in the body flow beside an empty box, the wrong way round.
+        # Optional, like the outcome table: a checklist with nothing to say
+        # here carries its record in its per-row notes instead.
+        if ("$($cl.comments)".Trim() -eq '') { continue }
+        $cmtAt = -1
+        for ($i = $start + 1; $i -lt $stop; $i++) {
+            if ($nodes[$i].LocalName -ne 'p') { continue }
+            if ((Get-RunText $nodes[$i] $ns).Trim() -match '^Assessor (comments|Observations)') { $cmtAt = $i; break }
+        }
+        # A THIRD shape: the heading and its box are both rows of one table, so
+        # the heading is never a body-level paragraph and the loop above finds
+        # nothing. Here the box is the first EMPTY cell after the heading cell
+        # in that same table. Searching only the body flow threw on every
+        # learner of this instrument and produced no marked copy at all.
+        $bcellDirect = $null
+        if ($cmtAt -lt 0) {
+            for ($i = $start + 1; $i -lt $stop -and -not $bcellDirect; $i++) {
+                if ($nodes[$i].LocalName -ne 'tbl') { continue }
+                $tcs = @($nodes[$i].SelectNodes('.//w:tc', $ns))
+                $seen = -1
+                for ($c = 0; $c -lt $tcs.Count; $c++) {
+                    $ct = (Get-SnsCellText $tcs[$c] $ns)
+                    if ($seen -lt 0) {
+                        if ($ct -match '^Assessor (comments|Observations)') { $seen = $c }
+                        continue
+                    }
+                    if ($ct -eq '') { $bcellDirect = $tcs[$c]; break }
+                }
+            }
+        }
+        if ($cmtAt -lt 0 -and -not $bcellDirect) {
+            throw "${Who}: observation grid $($g + 1) has no 'Assessor comments' or 'Assessor Observations' heading after it, so the record has nowhere to go."
+        }
+        # The box is the first table between 'Assessor comments' and the
+        # sign-off line. It is NOT simply the next node: Write-ObservationSheet
+        # has already run and put the tool-level observation record directly
+        # under that heading, so stopping at the first non-empty paragraph
+        # stops on our own writing and reports a box that is plainly there.
+        $boxAt = -1
+        for ($i = $cmtAt + 1; $i -lt $stop -and $cmtAt -ge 0; $i++) {
+            if ($nodes[$i].LocalName -eq 'p' -and (Get-RunText $nodes[$i] $ns).Trim() -match '^Assessor name:') { break }
+            if ($nodes[$i].LocalName -eq 'tbl') { $boxAt = $i; break }
+        }
+        $lines = @(("$($cl.comments)" -split "`n") | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+        if ($lines.Count -eq 0) { throw "${Who}: observation grid $($g + 1) has no comments to write." }
+
+        # A FOURTH sheet shape carries a comments box and NO sign-off line at
+        # all. The loop further down rewrites a line that exists and writes
+        # nothing where there is none, so the record went out naming nobody and
+        # the gate refused it. Where the sheet provides no line, the sign-off is
+        # written as the last line of the comments box instead - inside the
+        # space the sheet allocates for the record, not loose beside it.
+        $sigLine = "Assessor name: $($cl.assessor)   Signature: ___________   Date: $($cl.dateText)"
+        $hasSig  = $false
+        for ($i = $start + 1; $i -lt $stop -and -not $hasSig; $i++) {
+            $sigCand = @()
+            if     ($nodes[$i].LocalName -eq 'p')   { $sigCand = @($nodes[$i]) }
+            elseif ($nodes[$i].LocalName -eq 'tbl') { $sigCand = @($nodes[$i].SelectNodes('.//w:p', $ns)) }
+            foreach ($cnode in $sigCand) {
+                if ((Get-RunText $cnode $ns).Trim() -match '^Assessor\s+(name:|signature\s*/\s*date:)') { $hasSig = $true; break }
+            }
+        }
+        if (-not $hasSig -and "$($cl.assessor)" -ne '') { $lines += $sigLine }
+
+        # Some submissions arrive with the comments box gone — a learner whose
+        # file has been mangled by an editor loses the table and keeps the
+        # heading. The record still belongs under that heading, so it is
+        # written as paragraphs there rather than refused. Nothing of the
+        # learner's is displaced: the paragraphs are inserted, not substituted.
+        # Inserting here and now would shift every index below it, and the grid
+        # positions were measured before the loop started. The anchor is held
+        # as a NODE instead and written after the loop, where no index matters.
+        # The tool-level record goes at the head of the first box that exists,
+        # above that occasion's own comments.
+        $head = @()
+        if (-not $recordWritten -and $Marked -and @($Observations).Count -gt 0) {
+            if ($Marked.observationHeading) { $head += [pscustomobject]@{ text = $Marked.observationHeading; color = $Marked.headingColor } }
+            foreach ($point in $Observations) {
+                $head += [pscustomobject]@{ text = ("{0}  {1}" -f $Marked.observationBullet, $point); color = '000000' }
+            }
+            if ($Marked.observationCompletedText) { $head += [pscustomobject]@{ text = ("{0}  {1}" -f $Marked.observationCompletedText, $MarkingDateText); color = $Marked.headingColor } }
+            $oTxt = $(if ($Outcome -eq 'S') { $Marked.satisfactoryText }  else { $Marked.notSatisfactoryText })
+            $oCol = $(if ($Outcome -eq 'S') { $Marked.satisfactoryColor } else { $Marked.notSatisfactoryColor })
+            $head += [pscustomobject]@{ text = $oTxt; color = $oCol }
+        }
+
+        if ($bcellDirect) {
+            $bcell = $bcellDirect
+            foreach ($h in $head) {
+                if ((Get-SnsCellText $bcell $ns) -eq '') {
+                    [void](Set-CellText -Cell $bcell -Ns $ns -Value $h.text -Color $h.color)
+                } else {
+                    [void](Add-CellLine -Cell $bcell -Ns $ns -Value $h.text -Color $h.color)
+                }
+            }
+            if ($head.Count -gt 0) { $recordWritten = $true }
+            if ((Get-SnsCellText $bcell $ns) -eq '') {
+                [void](Set-CellText -Cell $bcell -Ns $ns -Value $lines[0] -Color '000000')
+                for ($z = 1; $z -lt $lines.Count; $z++) {
+                    [void](Add-CellLine -Cell $bcell -Ns $ns -Value $lines[$z] -Color '000000')
+                }
+            } else {
+                foreach ($ln in $lines) { [void](Add-CellLine -Cell $bcell -Ns $ns -Value $ln -Color '000000') }
+            }
+        } elseif ($boxAt -lt 0) {
+            # No box on this sheet. Build one from the outcome table just above,
+            # and defer the insert: putting a table into the body here would
+            # shift every index the grid positions were measured against.
+            $src = $null
+            for ($i = $cmtAt - 1; $i -gt $start; $i--) {
+                if ($nodes[$i].LocalName -eq 'tbl') { $src = $nodes[$i]; break }
+            }
+            if (-not $src) {
+                throw "${Who}: observation grid $($g + 1) has no comments box and no table above it to build one from."
+            }
+            $deferred += [pscustomobject]@{ anchor = $nodes[$cmtAt]; lines = $lines; head = $head; src = $src }
+            if ($head.Count -gt 0) { $recordWritten = $true }
+        } else {
+            $bcell = @($nodes[$boxAt].SelectNodes('.//w:tc', $ns))[0]
+            if (-not $bcell) { throw "${Who}: the comments box under observation grid $($g + 1) has no cell." }
+            # The inline shape's box is printed holding its own instruction,
+            # 'Record overall comments for this observation occasion here…'.
+            # That is template text, not the learner's, so it is replaced; any
+            # other text in the box is still appended to, as below.
+            if ($gm.inline -and (Get-SnsCellText $bcell $ns) -match $INLPROMPTRX) {
+                [void](Set-CellText -Cell $bcell -Ns $ns -Value '' -Color '000000')
+            }
+            foreach ($h in $head) {
+                if ((Get-SnsCellText $bcell $ns) -eq '') {
+                    [void](Set-CellText -Cell $bcell -Ns $ns -Value $h.text -Color $h.color)
+                } else {
+                    [void](Add-CellLine -Cell $bcell -Ns $ns -Value $h.text -Color $h.color)
+                }
+            }
+            if ($head.Count -gt 0) { $recordWritten = $true }
+            # A box that already carries text is APPENDED to, never overwritten.
+            # Some learners type into the assessor's box before submitting; that
+            # is their document and it stays, but the assessor's record still
+            # has to land in the instrument rather than beside it.
+            if ((Get-SnsCellText $bcell $ns) -eq '') {
+                [void](Set-CellText -Cell $bcell -Ns $ns -Value $lines[0] -Color '000000')
+                for ($p = 1; $p -lt $lines.Count; $p++) {
+                    [void](Add-CellLine -Cell $bcell -Ns $ns -Value $lines[$p] -Color '000000')
+                }
+            } else {
+                foreach ($ln in $lines) { [void](Add-CellLine -Cell $bcell -Ns $ns -Value $ln -Color '000000') }
+            }
+        }
+        $filled++
+
+        # ---- the assessor name and date -------------------------------------
+        # The signature stays blank. Recording who observed and when is the
+        # assessor's own record; signing for them is not ours to do.
+        # Two spellings of the sign-off line, and on this instrument it sits in
+        # the same table as the comments box rather than in the body flow:
+        #   'Assessor name: ...   Signature: ...   Date: ...'
+        #   'Assessor signature / date:'
+        $sigCands = @()
+        for ($i = $start + 1; $i -lt $stop; $i++) {
+            if     ($nodes[$i].LocalName -eq 'p')   { $sigCands += $nodes[$i] }
+            elseif ($nodes[$i].LocalName -eq 'tbl') { $sigCands += @($nodes[$i].SelectNodes('.//w:p', $ns)) }
+        }
+        foreach ($snode in $sigCands) {
+            $t = (Get-RunText $snode $ns).Trim()
+            if ($t -notmatch '^Assessor\s+(name:|signature\s*/\s*date:)') { continue }
+            # The WHOLE line is rewritten, not patched around whatever is on it.
+            # Learners have been found typing the assessor's name and a date of
+            # their own into this line before submitting, and a record that
+            # carries somebody else's idea of who assessed it, and when, is
+            # worse than one that carries nothing. The signature stays blank.
+            $sig = "Assessor name: $($cl.assessor)   Signature: ___________   Date: $($cl.dateText)"
+            if ($sig -ne $t) {
+                [void](Set-TextInNode -Node $snode -Ns $ns -Find $t -Replace $sig)
+                $filled++
+            }
+            break
+        }
+    }
+
+    # Per-task assessor outcome boxes. The small-table instrument closes each
+    # performance task with a decision pair of its own — an empty box then
+    # 'SATISFACTORY (S) ...', and another then 'NOT SATISFACTORY (NS) ...'.
+    # They sit in no grid, so neither the criterion ticks nor the sheet's own
+    # outcome table reaches them, and four per learner were going out empty
+    # underneath a signed result.
+    if ("$Outcome" -ne '') {
+        $wantS = ("$Outcome" -eq 'S')
+        foreach ($p in @($Pkg.Body.SelectNodes('.//w:p', $ns))) {
+            $t = (Get-RunText $p $ns).Trim()
+            if ($t -notmatch "^$EMPTYRX\s*(NOT\s+)?SATISFACTORY\b") { continue }
+            $isNot  = ($t -match "^$EMPTYRX\s*NOT\s+SATISFACTORY\b")
+            $tickIt = $(if ($isNot) { -not $wantS } else { $wantS })
+            if (-not $tickIt) { continue }
+            if ((Set-TextInNode -Node $p -Ns $ns -Find $t.Substring(0,1) -Replace $TICK -Limit 1) -gt 0) { $filled++ }
+        }
+    }
+
+    # Comments for any grid whose box was missing, written now that no index
+    # into the body matters any more. Node references survive the insertions.
+    foreach ($d in $deferred) {
+        $box = New-CommentsBox -Source $d.src -Ns $ns
+        if (-not $box) { throw "${Who}: could not build a comments box for this observation sheet." }
+        [void]$d.anchor.ParentNode.InsertAfter($box, $d.anchor)
+        $bcell = @($box.SelectNodes('.//w:tc', $ns))[0]
+        $first = $true
+        foreach ($h in @($d.head)) {
+            if (-not $h) { continue }
+            if ($first) { [void](Set-CellText -Cell $bcell -Ns $ns -Value $h.text -Color $h.color); $first = $false }
+            else        { [void](Add-CellLine -Cell $bcell -Ns $ns -Value $h.text -Color $h.color) }
+        }
+        foreach ($ln in $d.lines) {
+            if ($first) { [void](Set-CellText -Cell $bcell -Ns $ns -Value $ln -Color '000000'); $first = $false }
+            else        { [void](Add-CellLine -Cell $bcell -Ns $ns -Value $ln -Color '000000') }
+        }
+    }
+    $filled
+}
+
+function New-CommentsBox {
+    <#
+      Builds the one-cell comments box a sheet is missing, by cloning a table
+      that is already on that sheet and reducing it to a single full-width cell.
+
+      Some submissions arrive with the box gone — a file mangled by an editor
+      keeps the 'Assessor comments' heading and loses the table under it. The
+      record still has to land in the space the sheet allocates for it, so the
+      space is rebuilt rather than the record written loose in the body beside
+      it. Cloning a neighbouring table rather than composing one from scratch
+      is what keeps the width, the borders and the shading the learner's own
+      document uses.
+    #>
+    param($Source, $Ns)
+    $box = $Source.CloneNode($true)
+    $trs = @($box.SelectNodes('./w:tr', $Ns))
+    for ($i = 1; $i -lt $trs.Count; $i++) { [void]$box.RemoveChild($trs[$i]) }
+    $row = @($box.SelectNodes('./w:tr', $Ns))[0]
+    if (-not $row) { return $null }
+
+    $cols = @($box.SelectNodes('w:tblGrid/w:gridCol', $Ns))
+    $total = 0
+    foreach ($c in $cols) { $total += [int]$c.GetAttribute('w', $script:W) }
+
+    $cells = @($row.SelectNodes('./w:tc', $Ns))
+    for ($i = 1; $i -lt $cells.Count; $i++) { [void]$row.RemoveChild($cells[$i]) }
+    $cell = @($row.SelectNodes('./w:tc', $Ns))[0]
+    if (-not $cell) { return $null }
+
+    $pr = $cell.SelectSingleNode('w:tcPr', $Ns)
+    if ($pr) {
+        foreach ($n in @($pr.SelectNodes('w:gridSpan', $Ns))) { [void]$pr.RemoveChild($n) }
+        foreach ($n in @($pr.SelectNodes('w:shd', $Ns)))      { [void]$pr.RemoveChild($n) }
+        if ($cols.Count -gt 1) {
+            $gs = $cell.OwnerDocument.CreateElement('w', 'gridSpan', $script:W)
+            [void]$gs.SetAttribute('val', $script:W, "$($cols.Count)")
+            [void]$pr.PrependChild($gs)
+        }
+        $w = $pr.SelectSingleNode('w:tcW', $Ns)
+        if ($w -and $total -gt 0) { [void]$w.SetAttribute('w', $script:W, "$total") }
+    }
+
+    # One empty paragraph, keeping the cloned cell's own paragraph formatting.
+    $paras = @($cell.SelectNodes('w:p', $Ns))
+    for ($i = 1; $i -lt $paras.Count; $i++) { [void]$cell.RemoveChild($paras[$i]) }
+    $p = $paras[0]
+    foreach ($r in @($p.SelectNodes('.//w:r', $Ns))) { [void]$r.ParentNode.RemoveChild($r) }
+    $box
+}
+
+function Get-SnsCellText {
+    <# A cell's whole visible text, trimmed. Named apart from the sibling
+       writers' local helpers so nothing shadows anything. #>
+    param($Cell, $Ns)
+    (($Cell.SelectNodes('.//w:t', $Ns) | ForEach-Object { $_.InnerText }) -join '').Trim()
+}
+
 function Write-ObservationSheet {
     <#
       Writes the assessor's observation record INTO the observation sheet the
@@ -1021,7 +2022,12 @@ function Write-ObservationSheet {
         # 8 Oct 2026: unprefixed, the gate's MarkedCopyOutcomes missed it.
         [string]$AttemptPrefix = '',
         [Parameter(Mandatory)]$Marked,
-        [Parameter(Mandatory)][string]$Who
+        [Parameter(Mandatory)][string]$Who,
+        # Where an S/NS grid carries its own comments box, the tool-level
+        # record goes THERE (Write-SnsChecklist puts it there) and must not
+        # also be written into the sheet's notes cell. The sign-off row and
+        # the student feedback line are still written either way.
+        [switch]$SkipRecord
     )
     $ns    = $Pkg.Ns
     $doc   = $Pkg.Xml
@@ -1353,33 +2359,35 @@ function Write-ObservationSheet {
     # --- the record itself --------------------------------------------------
     # Inserted after notesAnchor, which is inside the sheet, so it lands in the
     # sheet's own notes cell rather than in the body after the table.
-    $paras   = @(Get-BodyParagraphs $Pkg)
-    $start   = Get-SheetStart -Paragraphs $paras -Ns $ns -Sheet $Sheet -Who $Who
-    $end     = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
-    $notesAt = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.notesAnchor -From $start -To $end -What "$Who / observation sheet notesAnchor"
-    $after   = $paras[$notesAt]
+    if (-not $SkipRecord) {
+        $paras   = @(Get-BodyParagraphs $Pkg)
+        $start   = Get-SheetStart -Paragraphs $paras -Ns $ns -Sheet $Sheet -Who $Who
+        $end     = Get-SheetEnd -Paragraphs $paras -Ns $ns -Sheet $Sheet -Start $start -Who $Who
+        $notesAt = Find-OneParagraph -Paragraphs $paras -Ns $ns -Text $Sheet.notesAnchor -From $start -To $end -What "$Who / observation sheet notesAnchor"
+        $after   = $paras[$notesAt]
 
-    # THE NOTES CELL CARRIES WHAT THE ASSESSOR SAW, AND NOTHING ELSE.
-    # The RTO's rule, given 8 September 2026: no 'ASSESSOR OBSERVATION RECORD'
-    # banner and no 'observation completed by the assessor on ...' line. The
-    # sheet already says whose record it is and its sign-off row carries the
-    # date, so both lines sat between the reader and the observation. A profile
-    # that leaves either string empty prints neither.
-    $lines = @()
-    if ($Marked.observationHeading) {
-        $lines += New-TextParagraph -Doc $doc -Text $Marked.observationHeading -Color $Marked.headingColor -Bold -SpaceBefore 80 -SpaceAfter 60
-    }
-    foreach ($point in $Observations) {
-        $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationBullet, $point) -Color '000000' -SpaceBefore 0 -SpaceAfter 40
-    }
-    if ($Marked.observationCompletedText) {
-        $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationCompletedText, $MarkingDateText) -Color $Marked.headingColor -SpaceBefore 40 -SpaceAfter 60
-    }
-    $outcomeText   = $AttemptPrefix + $(if ($Outcome -eq 'S') { $Marked.satisfactoryText }  else { $Marked.notSatisfactoryText })
-    $outcomeColour = if ($Outcome -eq 'S') { $Marked.satisfactoryColor } else { $Marked.notSatisfactoryColor }
-    $lines += New-TextParagraph -Doc $doc -Text $outcomeText -Color $outcomeColour -Bold -SpaceBefore 80 -SpaceAfter 80
+        # THE NOTES CELL CARRIES WHAT THE ASSESSOR SAW, AND NOTHING ELSE.
+        # The RTO's rule, given 8 September 2026: no 'ASSESSOR OBSERVATION RECORD'
+        # banner and no 'observation completed by the assessor on ...' line. The
+        # sheet already says whose record it is and its sign-off row carries the
+        # date, so both lines sat between the reader and the observation. A profile
+        # that leaves either string empty prints neither.
+        $lines = @()
+        if ($Marked.observationHeading) {
+            $lines += New-TextParagraph -Doc $doc -Text $Marked.observationHeading -Color $Marked.headingColor -Bold -SpaceBefore 80 -SpaceAfter 60
+        }
+        foreach ($point in $Observations) {
+            $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationBullet, $point) -Color '000000' -SpaceBefore 0 -SpaceAfter 40
+        }
+        if ($Marked.observationCompletedText) {
+            $lines += New-TextParagraph -Doc $doc -Text ("{0}  {1}" -f $Marked.observationCompletedText, $MarkingDateText) -Color $Marked.headingColor -SpaceBefore 40 -SpaceAfter 60
+        }
+        $outcomeText   = $AttemptPrefix + $(if ($Outcome -eq 'S') { $Marked.satisfactoryText }  else { $Marked.notSatisfactoryText })
+        $outcomeColour = if ($Outcome -eq 'S') { $Marked.satisfactoryColor } else { $Marked.notSatisfactoryColor }
+        $lines += New-TextParagraph -Doc $doc -Text $outcomeText -Color $outcomeColour -Bold -SpaceBefore 80 -SpaceAfter 80
 
-    foreach ($line in $lines) { $after = Add-ParagraphAfter -Anchor $after -NewParagraph $line }
+        foreach ($line in $lines) { $after = Add-ParagraphAfter -Anchor $after -NewParagraph $line }
+    }
 
     # --- feedback to the student, on the sheet's own feedback line ----------
     if ($Sheet.PSObject.Properties.Name.Contains('feedback') -and $Sheet.feedback) {
@@ -1496,6 +2504,35 @@ foreach ($mc in @($L.markedCopies)) {
         $doc = $pkg.Xml
 
         $totalS = 0; $totalNys = 0; $totalQ = 0; $totalTasks = 0
+
+        # Margin geometry, measured from the document's OWN first section so a
+        # template with different paper or margins still lands the box just
+        # clear of the text column.
+        $marginId = 0; $marginItemUsed = @{}
+        $marginExtraTw = 4536          # 8 cm of new paper, all of it right margin
+        $__sz = $doc.SelectSingleNode('//w:sectPr/w:pgSz', $ns)
+        $__mar = $doc.SelectSingleNode('//w:sectPr/w:pgMar', $ns)
+        $__wns = $ns.LookupNamespace('w')
+        $__pgW = if ($__sz) { [int]$__sz.GetAttribute('w', $__wns) } else { 11906 }
+        $__left = if ($__mar) { [int]$__mar.GetAttribute('left', $__wns) } else { 1134 }
+        $__right = if ($__mar) { [int]$__mar.GetAttribute('right', $__wns) } else { 1134 }
+        $marginGapTw = 900                                        # room for the pointer
+        $marginBoxX = [int](($__pgW - $__right + $marginGapTw) * 635)
+        # The pointer reaches INTO the answer rather than stopping at the page
+        # edge, so it lands on the response instead of gesturing at it from the
+        # margin. It crosses the response box border by this much; the outcome
+        # line it sits beside is short, so the right of that line is clear and
+        # the arrow does not cross the student's words.
+        # Placed from the PAGE edge. Anchoring to "rightMargin" instead was tried
+        # and is wrong: Word put the boxes inside the text column, one of them
+        # over the student's own table.
+        # 2.5 cm inside the text column. The outcome line the arrow sits beside
+        # is short, so the right of that line is clear and the head lands on
+        # empty page rather than across the student's words.
+        $marginArrowOverlapTw = 1400
+        $marginArrowX = [int](($__pgW - $__right - $marginArrowOverlapTw) * 635)
+        $marginArrowW = [int](($marginGapTw - 80 + $marginArrowOverlapTw) * 635)
+        $marginBoxW = [int](($marginExtraTw - $marginGapTw - 284) * 635)
         $appendObs = @()          # records with no sheet to write into
         $sheetsWritten = 0
 
@@ -1534,6 +2571,11 @@ foreach ($mc in @($L.markedCopies)) {
 
             $questions = @()
             if ($res.PSObject.Properties.Name.Contains('questions') -and $res.questions) { $questions = @($res.questions) }
+
+            # Remembered so the practical fallback below can tell whether THIS
+            # tool put any note in the margin, rather than the copy as a whole.
+            $marginIdAtResultStart = $marginId
+            $resultItemsUsed = @{}
 
             # Re-read the paragraph list for EVERY tool. A previous tool's
             # outcome lines are new paragraphs, so indices taken before them are
@@ -1660,11 +2702,95 @@ foreach ($mc in @($L.markedCopies)) {
                 $line = New-TextParagraph -Doc $doc -Text $text -Color $col -Bold `
                                           -SpaceBefore 80 -SpaceAfter 80
                 [void](Add-ParagraphAfter -Anchor $target -NewParagraph $line)
+
+                if (-not $NoMarginNotes) {
+                    # The item that speaks for this question, if any. One item
+                    # can cover a run of questions; its words go on the first it
+                    # covers, and the rest carry the outcome alone, so a
+                    # paragraph is not repeated down ten boxes.
+                    $issue = ''; $action = ''; $label = "$($q.ref)"
+                    foreach ($item in @($res.items)) {
+                        $refs = if ($item.PSObject.Properties.Name -contains 'questionNos' -and $item.questionNos) {
+                            @($item.questionNos)
+                        } else { @("$($item.questionNo)") }
+                        if ($refs -contains "$($q.ref)") {
+                            # Claimed either way: the words print once, on the
+                            # first block the item covers, but the item counts as
+                            # placed for all of them so the leftovers pass below
+                            # does not print it again at the top.
+                            $resultItemsUsed["$($item.questionNo)"] = $true
+                            if (-not $marginItemUsed.ContainsKey("$($item.questionNo)")) {
+                                $marginItemUsed["$($item.questionNo)"] = $true
+                                $issue = "$($item.issue)"; $action = "$($item.action)"
+                                $label = "$($item.questionNo)"
+                            }
+                            break
+                        }
+                    }
+                    $marginId++
+                    Add-MarginNote -Doc $doc -Paragraph $line -Id $marginId -Label $label `
+                        -IsNys (-not $isS) -Issue $issue -Action $action `
+                        -BoxXEmu $marginBoxX -BoxWEmu $marginBoxW `
+                        -ArrowXEmu $marginArrowX -ArrowWEmu $marginArrowW
+                }
             }
 
             $totalQ   += $located.Count
             $totalS   += @($located | Where-Object { $_.outcome -eq 'S' }).Count
             $totalNys += @($located | Where-Object { $_.outcome -eq 'NYS' }).Count
+
+            # --- a practical tool's items, listed in its own margin -----------
+            #
+            # A RECIPE WORKBOOK OR OBSERVATION TOOL HAS NOTHING TO PIN A NOTE TO.
+            # There are no questions and no response boxes, and the observation
+            # sheet is ticked Yes on every row by the RTO's own process, so there
+            # is no failing row to point at either. What a failing practical has
+            # is its feedback items — "Recipe card 2 — chocolate mousse: records
+            # no setting time" — and a recipe card is not modelled in the ledger,
+            # so nothing anchors it.
+            #
+            # Without this the student opened their workbook and found NOTHING.
+            # Every note stopped at the end of the knowledge questions, and where
+            # both tools are bound into one file they stopped half way through it.
+            #
+            # So the items stack down the margin from the top of the workbook.
+            # They say what to fix and what to redo — which is what a student
+            # needs from a failed practical — and they say it inside the document
+            # the student opens, not only on the sheet behind it.
+            #
+            # THEY CARRY NO POINTER, deliberately: an arrow would claim to know
+            # which line the remark is about, and nothing here does.
+            if (-not $NoMarginNotes) {
+                # EVERY ITEM THIS TOOL CARRIES THAT NO CARD OR QUESTION CLAIMED.
+                # Where the tool has none at all - a practical - that is all of
+                # them. Where it has some, this catches the leftovers: an item
+                # about the observation, say, on a workbook whose cards are
+                # anchored. Without it those items reached the feedback sheet and
+                # never the document the student opens.
+                $practicalItems = @(@($res.items) | Where-Object { -not $resultItemsUsed.ContainsKey("$($_.questionNo)") })
+                if ($practicalItems.Count -gt 0) {
+                    $anchorPara = $null
+                    foreach ($pp in $paras) {
+                        if (Test-ParagraphInTextBox $pp) { continue }
+                        if ([string]::IsNullOrWhiteSpace((Get-RunText -Node $pp -Ns $ns))) { continue }
+                        $anchorPara = $pp; break
+                    }
+                    if ($anchorPara) {
+                        $stackY = 0
+                        foreach ($item in $practicalItems) {
+                            $marginId++
+                            Add-MarginNote -Doc $doc -Paragraph $anchorPara -Id $marginId `
+                                -Label "$($item.questionNo)" -IsNys $true `
+                                -Issue "$($item.issue)" -Action "$($item.action)" `
+                                -BoxXEmu $marginBoxX -BoxWEmu $marginBoxW -YOffsetEmu $stackY
+                            $lines2 = 2 +
+                                [Math]::Max(1, [int][Math]::Ceiling("$($item.issue)".Length / 34.0)) +
+                                [Math]::Max(1, [int][Math]::Ceiling("$($item.action)".Length / 34.0))
+                            $stackY += [int](($lines2 * 11.0 + 16.0) * 12700) + [int](0.25 * 360000)
+                        }
+                    }
+                }
+            }
 
             # --- the TASK outcomes --------------------------------------------
             # A tool made of tasks rather than questions — three practical
@@ -1916,16 +3042,41 @@ foreach ($mc in @($L.markedCopies)) {
                 $sheet = $null
                 if ($res.PSObject.Properties.Name.Contains('observationSheet') -and $res.observationSheet) { $sheet = $res.observationSheet }
                 if ($sheet) {
+                    $sns = @()
+                    if ($sheet.PSObject.Properties.Name.Contains('snsChecklists') -and $sheet.snsChecklists) {
+                        $sns = @($sheet.snsChecklists)
+                    }
+                    # Hand the record to Write-SnsChecklist only where a grid
+                    # actually has a comments box to put it in. The small-table
+                    # instrument has none, and skipping both writers would leave
+                    # the record nowhere at all.
+                    $snsHasBox = (@($sns | Where-Object { "$($_.comments)".Trim() -ne '' }).Count -gt 0)
                     [void](Write-ObservationSheet -Pkg $pkg -Sheet $sheet -Observations ([string[]]$obs) `
                                                   -Outcome $res.result -MarkingDateText $L.dates.markingDateText `
                                                   -AssessorName "$($L.assessor)" `
                                                   -AssessmentDateText "$($L.dates.assessmentDateText)" `
                                                   -AttemptPrefix $attemptPrefix `
-                                                  -Marked $M -Who "$($s.fullName) / $($res.toolName)")
+                                                  -Marked $M -Who "$($s.fullName) / $($res.toolName)" `
+                                                  -SkipRecord:$snsHasBox)
                     if ($sheet.PSObject.Properties.Name.Contains('verification') -and $sheet.verification) {
                         [void](Write-VerificationRows -Pkg $pkg -Verification $sheet.verification `
                                                       -Who "$($s.fullName) / $($res.toolName)")
                     }
+                    # The third sheet shape: an S / NS tick-box grid, with its
+                    # own outcome table and one comments box, and no Yes/No
+                    # paragraph boxes or comments column for the two writers
+                    # above to find. One entry per grid in the submission. It
+                    # also carries the tool-level record, into the first box.
+                    $vts = @()
+                    if ($sheet.PSObject.Properties.Name.Contains('verificationTables') -and $sheet.verificationTables) {
+                        $vts = @($sheet.verificationTables)
+                    }
+                    [void](Write-VerificationTable -Pkg $pkg -Tables $vts -Who "$($s.fullName) / $($res.toolName)")
+                    $sheetIsInline = ($sheet.PSObject.Properties.Name.Contains('layout') -and "$($sheet.layout)".Trim() -eq 'inlinePairs')
+                    [void](Write-SnsChecklist -Pkg $pkg -Checklists $sns -Who "$($s.fullName) / $($res.toolName)" `
+                                              -Observations ([string[]]$obs) -Outcome $res.result `
+                                              -MarkingDateText $L.dates.markingDateText -Marked $M `
+                                              -NoInlineGrids:$sheetIsInline)
                     $sheetsWritten++
                 } else {
                     # The submission carries no observation sheet, which the
@@ -2243,6 +3394,9 @@ foreach ($mc in @($L.markedCopies)) {
 
         $first = $pkg.Body.FirstChild
         foreach ($h in $header) { [void]$pkg.Body.InsertBefore($h, $first) }
+
+        # ---- widen the page so the margin notes have paper to sit on --------
+        if (-not $NoMarginNotes) { [void](Expand-PageForMargin -Doc $doc -Ns $ns -ExtraTwips $marginExtraTw) }
 
         # ---- save -----------------------------------------------------------
         $dest = Join-Path $OutDir $mc.file

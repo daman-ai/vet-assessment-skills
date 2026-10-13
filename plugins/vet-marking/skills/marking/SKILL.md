@@ -1,6 +1,6 @@
 ﻿---
 name: marking
-description: Mark a batch of submitted student assessments for one unit of competency and produce the records an Australian RTO keeps - a marked copy of each student's own assessment carrying a filled cover sheet, a feedback page and a green Satisfactory or red Not yet Satisfactory inside every response, a standalone Student Feedback Sheet for any student with nothing coming back, a Student Assessment Record per student, and one Assessment Marking and Results Record for the class (not built for a class of one). Every student is handed their feedback, not only those assessed Not Yet Competent. Reads the unit's prerequisites from training.gov.au and confirms each student holds them from the WiseNet 0217 Unit Enrolment Outcome Matrix, withholding the result as RW where they do not. Works out who is required to submit from that same matrix, by cell colour rather than text. Fills the RTO's own supplied Word templates without touching their headers, footers or numbering; judges substance rather than English, so no student is marked down for spelling or grammar; keeps feedback to two commas a sentence; stacks resubmissions so an earlier attempt is never overwritten; derives every result, date, tick and filename from one ledger so fifty documents cannot disagree; and blocks delivery on a gate that reads the finished files back. Consolidates several marking runs into one record per WiseNet course-offer group and lays the result out as a handover package, one folder per group and one per student inside it. Serves Meridian Vocational College, ACI Culinary and ACI Construction, and any RTO that supplies its templates. Use when asked to mark assessments, mark student submissions, complete a SAR or student assessment record, produce a marking record or results record, write student feedback, return marked assessments to students, record assessment outcomes, process a batch of marking for a unit of competency, consolidate marking runs into per-group records, or build a group handover package.
+description: Mark a batch of submitted student assessments for one unit of competency and produce the records an Australian RTO keeps - a marked copy of each student's own assessment carrying a filled cover sheet, a feedback page and a green Satisfactory or red Not yet Satisfactory inside every response, a standalone Student Feedback Sheet for any student with nothing coming back, a Student Assessment Record per student, and one Assessment Marking and Results Record for the class (not built for a class of one). Every student is handed their feedback, not only those assessed Not Yet Competent. Reads the unit's prerequisites from training.gov.au and confirms each student holds them from the WiseNet 0217 Unit Enrolment Outcome Matrix, withholding the result as RW where they do not. Works out who is required to submit from that same matrix, by cell colour rather than text. Fills the RTO's own supplied Word templates without touching their headers, footers or numbering; judges substance rather than English, so no student is marked down for spelling or grammar; keeps feedback to two commas a sentence; stacks resubmissions so an earlier attempt is never overwritten; derives every result, date, tick and filename from one ledger so fifty documents cannot disagree; and blocks delivery on a gate that reads the finished files back. Optionally produces an annotated feedback map: every page of the marked copy reproduced at 75 per cent width and full height, each question's outcome written in the column beside it - Satisfactory in green outline, Not yet Satisfactory as a blue panel carrying what to fix - and a hand-drawn arrow from each to the centre of the answer it judges, so a student sees where they went wrong instead of matching a list of faults to a thirty-page workbook. Consolidates several marking runs into one record per WiseNet course-offer group and lays the result out as a handover package, one folder per group and one per student inside it. Serves Meridian Vocational College, ACI Culinary and ACI Construction, and any RTO that supplies its templates. Use when asked to mark assessments, mark student submissions, complete a SAR or student assessment record, produce a marking record or results record, write student feedback, return marked assessments to students, record assessment outcomes, process a batch of marking for a unit of competency, consolidate marking runs into per-group records, build a group handover package, or produce an annotated or marked-up feedback copy showing a student where on their work each comment applies.
 ---
 
 # Assessment Marking
@@ -12,10 +12,11 @@ of competency**, for **one class**, on **one marking date**.
 
 | Document | How many | Purpose |
 |---|---|---|
-| **Marked assessment** | one per submitted **file** | the student's own work returned, with an outcome inside every response box, a filled cover sheet, and a **feedback page** in front carrying the overall result and the feedback |
+| **Marked assessment** | one per submitted **file** | the student's own work returned, with an outcome inside every response box, **the outcome and its feedback in a box out in the right margin beside the answer**, a filled cover sheet, and a **feedback page** in front. The paper is widened rather than the text narrowed, so nothing reflows and the document stays editable for the resubmission |
 | **Student Feedback Sheet** | one per student with **no** marked copy | the same feedback, standalone, for a student who has nothing coming back |
 | Student Assessment Record (SAR) | one per student | the individual record of that student's outcome |
 | Assessment Marking and Results Record | one per class/unit, or **one per WiseNet course-offer group** where the RTO files by group | the class-wide summary, one row per student. **Not built for a class of one** |
+| Annotated feedback map | **superseded** — the marked assessment carries its outcomes in its own right margin | pages reproduced as pictures with the feedback beside them. Kept only for annotating a submission that must not be reopened; nothing calls it |
 
 **EVERY STUDENT IS HANDED THEIR FEEDBACK.** A student with work coming back reads
 it on page one of their own marked assessment, where it cannot be separated from
@@ -145,6 +146,20 @@ Satisfactory** and note the reasoning in the assessor comments.
 actually read; record its path in the ledger's `evidence` field. If you cannot
 find a submission, that is a **non-submission** — not a fail on quality grounds.
 
+**Judge each response box, not each task.** A task whose (a) and (b) are full
+and whose (c) is two letters sums to a healthy word count and reads as complete.
+One learner's whole Task 12 passed that way on a first pass; the answer to part
+(c) was `SS`. Check the parts, then the whole.
+
+**Two versions of a tool can be in circulation at once.** Learners submit the
+copy they were given, which is not always the current one. Mark the instrument
+in front of you, tell the learner which version to use next time, and tell the
+RTO. To find a learner's own words, subtract the **blank template** — differencing
+one submission against the rest of the cohort makes a colluding group's shared
+text look like boilerplate, and an older version's boilerplate look like
+collusion.
+
+
 Full standard: [references/marking-standard.md](references/marking-standard.md).
 
 ## Two comma rules. They are not the same rule.
@@ -187,6 +202,26 @@ student reporting *to* the trainer is something the student did, and it stays:
 one confirming, observing or noting, and it catches *your trainer* or *your
 assessor* anywhere. The resolver refuses the ledger and names each place.
 
+## Never call a learner he or she
+
+The RTO's rule, enforced by the resolver: everything the assessor writes says
+**the learner**. No `he`, `she`, `his`, `her`, `him`, `himself` or `herself` in
+an observation record, a criterion comment, a checklist comment or a note.
+
+It applies to what is written *about* a learner. Feedback written *to* one is
+second person — "your Task 12 calculation reached 16 bags" — and needs nothing.
+
+Substituting the pronoun straight out reads badly: "set the learner's controls"
+three times in a sentence is worse prose than the thing it replaced. Name the
+learner once per sentence and let the rest of it use plain articles.
+
+> The learner named the alkaline dust as the first hazard and set the controls
+> around it. The PPE changed as the learner moved from unloading to decanting.
+
+If you rewrite in bulk, **re-check the 25-word floor and cross-student
+uniqueness afterwards.** Shortening the possessives shortens the paragraph, and
+on the run this rule came from it made two records identical again.
+
 ## The marked assessment
 
 The student's own submission comes back marked. It carries:
@@ -205,7 +240,46 @@ The student's own submission comes back marked. It carries:
   oversight rather than a judgement;
 - for an **observation tool**, the assessor's record written **into the
   observation sheet the student submitted** — the ticks, the times, the
-  point-form notes, the feedback and the sufficiency box.
+  point-form notes, the feedback and the sufficiency box;
+- **out in the right margin, level with every answer, a box giving that
+  question's outcome** — a quiet green outline for Satisfactory, a **solid blue
+  panel carrying the issue and the action** for Not yet Satisfactory — with a
+  pointer running from the box 2.5 cm into the answer it judges.
+
+### The outcomes go in the right margin — the rule
+
+A feedback sheet lists what to fix. It does not say **where**. A student with
+nine items and a thirty-page workbook has to match each one to an answer before
+they can start, and many of these students are reading in a second language. The
+margin box does that matching for them: the remark sits beside the work.
+
+Four things about how it is done are not negotiable.
+
+- **WIDEN THE PAPER, NEVER NARROW THE TEXT.** The page and the right margin both
+  grow by 8 cm, so the text column is identical and **nothing reflows** — same
+  line breaks, same page breaks, tables untouched. Narrowing the column to make
+  room instead moves every break and pushes any wide table off the page. The
+  proof is a page count that does not change: SITHPAT020 is 37 pages with the
+  boxes and 37 without.
+- **IT STAYS EDITABLE.** The marked copy is what a student writes their
+  resubmission into, so it must remain a real Word document with a fillable
+  cover sheet. Every box is an anchored shape, not a picture. Rendering the
+  pages to images would read the same and take the resubmission away.
+- **THE BOX IS ANCHORED, NOT POSITIONED.** It hangs off its own outcome
+  paragraph with `positionV relativeFrom="paragraph"`, so Word keeps it level
+  with that answer wherever the answer lands. Nothing queries a coordinate and
+  nothing is rendered, which is why a copy builds in about five seconds.
+  `layoutInCell="0"` is what lets a box anchored in a response table's cell out
+  into the margin.
+- **BLUE FOR A FAIL, NOT RED.** The page already carries the red and green of
+  the outcome lines and the instrument's own headings, so a red panel competes
+  with what is under it and a green one reads as a pass at a glance. Blue
+  appears nowhere else in these documents: the student finds everything they
+  must act on by colour alone, without reading a word.
+
+`-NoMarginNotes` returns the plain marked copy. Full detail, including the
+geometry constants and what was tried and rejected, is in
+[references/marked-assessment.md](references/marked-assessment.md).
 
 **One marked copy per submitted FILE, not per tool.** Where UAT 1 and UAT 2 are
 supplied bound together, they are marked together into that one document, and
@@ -256,16 +330,51 @@ stops. `MarkedCopyInAnswerSpace` checks the delivered file: an outcome line
 sitting under a blank paragraph, or outside the box holding the answer above it,
 fails the gate.
 
-### Two sheet shapes
+### Three sheet shapes, and the wrong reader ticks nothing
 
-A **labelled** sheet writes the decision into the box's own text — `☐ Yes`. A
-**column** sheet heads two columns `Yes` and `No` and leaves a bare `☐` in each
-cell, which is what ACI's construction checklists do. The readers are blind to
-each other, so the ledger says which shape it is with
-`observationSheet.layout: "columns"`, and a column sheet's `comments` fill its
-comments column, one note per criterion row. Details:
-[references/marked-assessment.md](references/marked-assessment.md).
+Handing a sheet to the wrong reader is silent: it finds no box, ticks no box,
+and reports success.
 
+| Shape | Ledger |
+|---|---|
+| **Labelled** — the decision is in the box's own text, `☐ Yes` | `observationSheet.outcomes` |
+| **Column** — `Yes` and `No` head two columns, a bare `☐` in each cell | `observationSheet.layout: "columns"`, `comments` one per row |
+| **S / NS grid** — criteria down, bare boxes under `S` and `NS`, no Yes/No words | `snsChecklists`, one entry per grid |
+| **Inline S / NS grid** — one `S / NS` column, `☐ S ☐ NS` in each cell, an occasion outcome line and `Assessor name:` line after it | `snsChecklists`, one entry per grid — the same entry; the shape is read off the heading |
+
+The first two are one sheet read two ways — the column shape is what ACI's
+construction checklists do — so the ledger says which with
+`observationSheet.layout`, and a column sheet's `comments` fill its comments
+column, one note per criterion row. The third is a different instrument: a
+document can carry more than one grid, so `snsChecklists` takes **one entry per
+grid in document order**, each with its own `outcomes` (one `S` or `NS` per
+criterion row) and, where the sheet provides them, an `outcome` for its Outcome
+table, `comments` for its comments box, `notes` one per row, and a `decision`
+answering the task decision line printed after the grid. A count that does not
+match the grids found is a hard failure, not a half-filled column.
+
+Columns are located **by their headings, never by ordinal**. Three spellings of
+the pair are in circulation — `S`/`NS`, `S`/`NYS` and `Satisfactory`/`Not yet`
+— and the not-satisfactory heading is matched **first**, or `Not yet` is
+claimed by the satisfactory pattern and both columns address one cell. **Two
+characters are used for an empty box**, WHITE SQUARE and BALLOT BOX: they look
+alike, they are not the same codepoint, and a reader that knows only one leaves
+every box on the other instrument untouched and reports success. The gate's
+patterns are the writer's, word for word.
+
+**A row whose opposite box is already marked is a hard failure**, not something
+to tick beside — the row would carry two marks and say both things at once.
+**Boxes outside every grid still have to be ticked**: one instrument closes each
+performance task with a decision pair of its own, in no grid and in no outcome
+table, and that line is answered by the grid's own `decision` rather than by the
+tool result. The two are not always the same judgement.
+
+Where a grid carries its own comments box, the tool-level observation record
+goes **into that box** rather than into the sheet's notes cell, so the record
+appears once. The sign-off row and the student feedback line are written either
+way.
+
+Details: [references/marked-assessment.md](references/marked-assessment.md).
 ### What the notes cell carries, and what it must not
 
 **Settled by the RTO on 8 September 2026.** The observation record is the
@@ -358,6 +467,63 @@ above it opens the same way.
 
 Full standard: [references/observation-comments.md](references/observation-comments.md).
 
+## The annotated feedback map — optional, and additional
+
+The Student Feedback Sheet lists what to fix. It does not say **where**. A
+student with nine items spread over a thirty-page workbook has to find each one
+before they can start, and many of these students are reading in a second
+language.
+
+The map does that search for them. It reproduces each page of the marked copy
+**narrowed to 75% of the text width but at the full page height**, writes every
+question's outcome in the column beside it, and draws an arrow from each one to
+the exact place on the page it judges.
+
+**Both outcomes are shown.** Satisfactory is a quiet green-outlined panel; Not
+yet Satisfactory is a **solid blue panel** carrying the issue and the action.
+Blue, because the page is already full of the red and green the marked copy and
+the instrument use — the student finds everything they must act on by colour
+alone. Only a fail is numbered and ringed.
+
+```bash
+powershell -File scripts/Build-AnnotatedFeedback.ps1 -Ledger run/resolved.json -MarkedDir run -OutDir run
+```
+
+Four things about it are not negotiable:
+
+- **It adds placement, never content.** The note beside every arrow is the
+  ledger's `items[]` row — the same row the feedback sheet prints, word for
+  word. Writing a note *for* the map would be a second description of one fault,
+  and two descriptions drift apart the moment either is edited.
+- **It does not replace the Student Feedback Sheet.** The sheet is the RTO's
+  record that feedback was issued and it is built from the RTO's template. The
+  map travels with it. Handing over the map alone drops a required record.
+- **It never opens the student's work for writing.** It renders each page as a
+  picture and annotates the picture. Widening the marked copy's margin to make
+  room for the notes would reflow the student's document, move every page break
+  and push fixed-width response tables off the page.
+- **It runs after the marked copies are built**, and reads those — so the map
+  shows the green and red outcome lines the student will see.
+
+An item whose `questionNo` is a label rather than a question ref — a recipe
+card, an observation item — has nothing in the document to point at. It is still
+printed, at the end of the map, and the run says how many there were. Give it a
+`questionNos` entry naming the question it belongs to and it gets an arrow.
+
+The map carries **every page** of the marked copy, so the student reads their
+whole assessment with the outcomes in place rather than an extract.
+`-NotedPagesOnly` gives just the annotated pages where a short handout is wanted,
+and `-Dpi 110` roughly halves the file size of a long workbook.
+
+**It also finds verdicts that never reached the response box.** The arrow goes
+to the outcome line, so the run reports any verdict written outside a response
+box — which is what a walk-back that overshot into the *next* task's heading
+block looks like, and it leaves the student's own box empty. The test is
+structural and self-calibrating: where most of a document's verdicts sit inside
+a box, the ones that do not are named. Fix the marked copy, then rebuild.
+
+Full detail: [references/annotated-feedback.md](references/annotated-feedback.md).
+
 ## The workflow
 
 ### Stage 1 — the roll
@@ -415,8 +581,13 @@ worse: [references/parallel-marking.md](references/parallel-marking.md).
 the empty answer and misses the unsigned line four hundred paragraphs later.
 
 ```bash
-powershell -File scripts/Test-SubmissionBlanks.ps1 -Docx a.docx,b.docx -KeyFile keys.txt -Json blanks.json
+powershell -File scripts/Test-SubmissionBlanks.ps1 -Docx a.docx,b.docx -KeyFile keys.tsv -EndAnchor "<questionsEndAnchor>" -Json blanks.json
 ```
+
+The key file is `ref<TAB>anchor`, one question per line (`|` also works). An
+anchor missing from a copy is listed under **KEY NOT FOUND**, never dropped —
+a dropped key reads as answered. Lines opening `Assessor` or `Trainer` are the
+assessor's sign-off and are not reported as blank student lines.
 
 Pass **every submission in the cohort at once**: what the copies share is the
 workbook printing itself, so what is left inside a question block is the
@@ -469,6 +640,13 @@ Without a roll the gate reports `RollReconciled` as a **WARN**, not a pass.
 
 ```bash
 powershell -File scripts/Build-MarkingRecords.ps1 -Ledger resolved.json -OutDir out -SubmissionRoot .
+```
+
+Optionally, the annotated feedback map. It runs **after** the marked copies
+exist, because it annotates those rather than the raw submissions:
+
+```bash
+powershell -File scripts/Build-AnnotatedFeedback.ps1 -Ledger resolved.json -MarkedDir out -OutDir out
 ```
 
 ### Stage 6 — gate
@@ -699,6 +877,13 @@ gate.
 - **Never alter the templates' structure, styling, headers or footers.** The
   gate hashes every part except `document.xml` against the template.
 - **Never alter the student's own words** in a marked copy.
+- **Never narrow the text column to make room for the margin notes.** Widen the
+  paper and the right margin together so the column is untouched. Narrowing it
+  reflows the student's document — every line break, every page break, and any
+  table wider than the new column runs off the page.
+- **Never return the marked copy as images.** It is what the student writes
+  their resubmission into; the margin notes are anchored shapes in a live Word
+  document, never a rendered page.
 - **Never leave an unfilled `[ … ]` field or a bracketed checkbox.**
 - **Never return a cover sheet with a blank field.** Half of them are the RTO's
   to complete, and a blank Trainer / Assessor line records that nobody marked it.
@@ -761,6 +946,7 @@ references/
   ledger.md                     the ledger schema — read before writing one
   wisenet-roll.md               who is required to submit, and how the matrix says so
   marked-assessment.md          the green/red copy returned to the student
+  annotated-feedback.md         SUPERSEDED picture-based map; margin notes replaced it
   marking-standard.md           how to judge; the authorship rule and its limits
   result-rules.md               S/NYS → C/NYC, resit, invoicing
   date-rules.md                 the four dates and the holiday table
@@ -781,6 +967,7 @@ scripts/
   Resolve-MarkingLedger.ps1     validate and derive
   Build-MarkingRecords.ps1      render the three official records, then the marked copies
   Build-MarkedAssessment.ps1    mark the student's own submission
+  Build-AnnotatedFeedback.ps1   the annotated map: pages at 75%, notes and arrows
   Test-MarkingRecords.ps1       the blocking gate
   Test-AiFlag.ps1               the authorship rule, with its evidence
   Test-SubmissionBlanks.ps1     unanswered tasks, unsigned lines, undated records
@@ -822,6 +1009,19 @@ build before it was found.
 7. **The comma binds tighter than `+` in a PowerShell array literal.**
    `@('a', 'b' + $x, 'c')` is four elements, not three, so a `-join` of it
    silently gains a line break where the concatenation was meant to be.
+
+8. **`Add-CellLine` writes nothing when the cell's last paragraph is empty** —
+   it clones that paragraph, finds no run to fill, and returns having appended a
+   blank. It reported success while two learners' observation comments went
+   missing under a signed record. Fixed by building the run; the lesson is the
+   older one, that a no-op is not an error.
+
+9. **A paragraph's own MARK carries a colour, and it is read before the run's.**
+   `w:pPr/w:rPr/w:color` tints only the pilcrow, so it changes nothing a reader
+   sees — but it is the first `w:color` in the paragraph, and anything asking
+   "what colour is this line" finds it first. Three green Satisfactory lines were
+   reported as black. `Set-CellText` and `Add-CellLine` now clear it.
+
 
 Details, plus the nested-array and `SetAttribute`-returns-a-value traps:
 [references/template-fill.md](references/template-fill.md).

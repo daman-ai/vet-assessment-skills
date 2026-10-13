@@ -222,6 +222,147 @@ note written into each row lands in merge continuations, which Word does not
 draw — the page shows one comment and eleven blanks. Write to the `w:vMerge`
 master.
 
+## The outcome also goes in the right margin
+
+Every question's verdict appears twice: once **in the response box** as the
+coloured line above, and once **out in the right margin** in a box level with
+the answer, which for a Not yet Satisfactory also carries the issue and the
+action from the ledger's `items[]`.
+
+The two cannot disagree — the margin box is rendered from the same ledger row in
+the same pass that writes the line — and they do different jobs. The line is the
+record inside the work. The box is what makes the fault findable: a feedback
+sheet says *what* to fix, and only this says *where*.
+
+| | Panel | Pointer |
+|---|---|---|
+| Satisfactory | white, thin green outline, green type | thin grey |
+| Not yet Satisfactory | **solid blue, white type**, issue and action | blue, full weight |
+
+`-NoMarginNotes` returns the plain marked copy.
+
+### A practical tool has nothing to pin a note to
+
+A recipe workbook or observation tool has no questions and no response boxes,
+and the observation sheet is **ticked Yes on every row** by the RTO's own
+process — the practical is run and watched before marking, with oral feedback at
+the time, so the sheet records that it happened, never that it failed. There is
+no failing row to point at.
+
+Where a practical actually fails is the workbook: *"Recipe card 2 — chocolate
+mousse: records no setting time"*.
+
+### A RECIPE CARD IS A QUESTION
+
+A card has the same shape as a question — a heading that appears once, the
+student's content under it, one judgement — so it goes in `questions` and needs
+no machinery of its own:
+
+```jsonc
+"questions": [
+  { "ref": "Recipe card 1", "anchor": "Recipe card 1 - creme caramel",    "outcome": "S"   },
+  { "ref": "Recipe card 2", "anchor": "Recipe card 2 - chocolate mousse", "outcome": "NYS" },
+  { "ref": "Recipe card 3", "anchor": "Recipe card 3 - poached pear",     "outcome": "S"   }
+],
+"questionsEndAnchor": "Service record"
+```
+
+Each card then carries its own coloured outcome **inside its own box** and its
+own note in the margin **pointing at the card**, exactly as a question does. The
+item that speaks for a card names it in `questionNos`, the same as any other
+item. `questionsEndAnchor` names the first thing that is not a card.
+
+The same applies to any block a practical is judged by. If the workbook has
+labelled sections rather than cards, anchor those.
+
+### What is left over is stacked, without a pointer
+
+Some items have nothing to anchor to at all — *"Observation item 7 — crème
+caramel"* names something watched in a kitchen, not a block in the document.
+Those stack down the margin from the top of the workbook.
+
+Before this, they were dropped from the document entirely: a student opened
+their workbook and found **nothing**, and where both tools are bound into one
+file the notes stopped half way through it. Now every item reaches the student
+either against its own block or in the stack.
+
+**A stacked note carries no pointer, deliberately.** An arrow would claim to
+know which line the remark is about, and nothing here does. A workbook with
+nothing to fix gets no boxes at all.
+
+### Widen the paper; never narrow the text
+
+The boxes need empty page to sit on. **Both the page width and the right margin
+grow by 8 cm (4536 twips)**, so the text column is arithmetically unchanged and
+nothing reflows: the same words fall on the same lines on the same pages, and
+every table keeps its width.
+
+Narrowing the column instead is the obvious move and it is wrong. It moves every
+line break and page break, and any table wider than the new column runs off the
+page — and most response boxes in these instruments are fixed-width tables.
+
+**The test is the page count.** SITHPAT020 is 37 pages with the boxes and 37
+without. If a copy gains or loses a page, the column was not preserved.
+
+### It must stay editable
+
+The marked copy is the document a student writes their resubmission into, and
+its cover sheet and declaration are filled in by hand. So the boxes are
+**anchored shapes in a live Word document**, never a rendered image of the page.
+
+Rendering the pages and annotating the pictures reads identically and was built
+first. It cost the resubmission — nobody can type into a picture — and it took
+**over ten minutes a student** on a table-heavy cookery booklet against about
+**five seconds** for this. Both reasons are decisive on their own.
+
+### Anchored, not positioned
+
+Each box hangs off its own outcome paragraph:
+
+```xml
+<wp:positionH relativeFrom="page"><wp:posOffset>…</wp:posOffset></wp:positionH>
+<wp:positionV relativeFrom="paragraph"><wp:posOffset>0</wp:posOffset></wp:positionV>
+```
+
+Word then keeps it level with that answer wherever the answer lands — no
+coordinate is ever queried, nothing is repaginated, and the build stays fast.
+
+Two details are load-bearing:
+
+- **`layoutInCell="0"`.** The anchor sits in a response table's cell. Without
+  this Word confines the shape to that cell instead of letting it out into the
+  margin.
+- **`relativeFrom="page"`, not `"rightMargin"`.** Anchoring to the right margin
+  looks like the better idea — Word would locate the text column's edge itself
+  and no arithmetic would be needed. It was tried and it is wrong: Word placed
+  the boxes *inside* the text column, one of them over a student's own table.
+
+### Geometry
+
+All measured from the document's own first section, so a template with different
+paper or margins still lands the box clear of the text:
+
+| | Twips | What it is |
+|---|---|---|
+| extra page width and right margin | 4536 | 8 cm of new paper |
+| gap before the box | 900 | where the pointer runs |
+| pointer overlap | 1400 | 2.5 cm **into** the text column |
+| box width | extra − gap − 284 | the rest of the new margin |
+
+The pointer crosses into the answer rather than stopping at its edge, so it
+lands on the response instead of gesturing at it from the margin. The outcome
+line it sits beside is short, so the right of that line is clear page and the
+head falls there rather than across the student's words.
+
+### What it costs the gate
+
+A shape anchored in a paragraph keeps its words in `w:txbxContent` **under that
+paragraph**, so any `.//w:t` sweep returns the outcome line with the note's text
+glued onto it. `Get-RunText` excludes shape text for exactly this reason — see
+its own note. Without that the outcome checks stop finding their own lines, an
+empty spacer paragraph reads as full, and the walk-back in
+`Get-OutcomeTargetIndex` stops on a paragraph that only looks non-empty.
+
 ### The pre-start verification checklist
 
 The small assessor table inside an activity — *Assessor / supervisor to confirm
@@ -258,6 +399,31 @@ share one table, skipping "everything in that table" walks straight back over th
 answer being marked. A heading block is a few paragraphs; an answer is many. Past
 the bound the skip is abandoned and the position found by rules 1 and 2 is used,
 which is the end of the student's answer.
+
+### Rule 4 — and if it still is not in the box, put it in the box
+
+Rules 1 to 3 all walk **back** from the next question, and rule 3 only engages
+where that next question opens a table of its own. Where the next question is
+plain body text — as every ACI CPCC task's `(a)` is, sitting under its own Task
+heading — nothing stops the walk-back at the box, and the verdict comes to rest
+on the last non-empty paragraph before the anchor: the **next** task's
+*Question / instructions* line.
+
+Two things then go wrong at once, and neither shows in a build log. The
+student's own response box comes back **empty**, and a red *Not yet
+Satisfactory* prints directly above a part they passed. On the CPCCSP3001 24
+September copies this hit the last sub-question of nearly every task — 12 of 43
+on one student — and every gate passed it, because each question did carry an
+outcome in the right colour. Only reading *where* it landed finds it, which is
+what the annotated feedback map does.
+
+So where the chosen paragraph is **not in a table** but the question does have a
+response box, the line goes after the last thing written inside that box. Where
+rules 1 to 3 already landed inside the box this changes nothing. A lookahead
+bound (`-ResponseBoxLookahead`, 12 paragraphs) stops a question whose response
+is plain paragraphs from adopting the next task's scenario or *Maps to* box as
+its own: a real response box follows its question within a line or two, while a
+next task's furniture only appears past the whole answer.
 
 ```jsonc
 "questions": [
@@ -464,6 +630,75 @@ sheet anchored there excludes the very table it names: no rows found, nothing
 ticked, no error. Anchor on the last body paragraph before the table and use the
 line inside it as `notesAnchor`.
 
+### The S / NS grid, and where its record goes
+
+A third shape has no `Yes` or `No` beside its boxes at all — criteria down the
+rows, bare boxes under an `S` and an `NS` heading — and often no comments column
+either. `Write-SnsChecklist` handles it from `snsChecklists`, one entry per grid
+in document order. The S and NS columns are found **by their headings**, so the
+same writer serves a four-column sheet and a five-column one with an
+`Assessor Notes` column beside them.
+
+**The record goes in the space the sheet allocates.** For this shape that is the
+one-cell table under the `Assessor comments` heading — not the body flow beneath
+that heading, which is where it lands if you anchor on the heading and stop
+thinking. Where a submission has lost that table, one is **built** by cloning a
+table already on that sheet, so the box keeps the learner's own width, borders
+and shading rather than being invented.
+
+Boxes that sit in no grid still have to be ticked. One instrument closes each
+performance task with a `SATISFACTORY (S)` / `NOT SATISFACTORY (NS)` pair of its
+own, outside every grid and every outcome table; four per learner went out empty
+under a signed result before the writer learned to reach them.
+
+### Two S / NS grids with both boxes in one cell
+
+ACI's CPCCSP3001 pack closes UAT 2 with **two** observation checklists, one per
+occasion, each headed `Maps to | Observable behaviour | S / NS` with `☐ S ☐ NS`
+in the decision cell. After each grid, in the body: an `Assessor comments`
+heading and a one-cell box holding *Record overall comments for this observation
+occasion here…*, an `Occasion outcome` line `□ Satisfactory (S) □ Not
+Satisfactory (NS)`, and `Assessor name: ___ Signature: ___ Date: ___`.
+
+This is **not** `layout: "inlinePairs"`. That reads one sheet, and its
+`notesAnchor` is printed twice here, so the build throws. It is `snsChecklists`,
+one entry per grid, and the writer tells the shape from the single `S / NS`
+heading:
+
+```jsonc
+"observationSheet": {
+  "anchor":         "Assessor Observation Checklist — Occasion 1 (straight wall & pier)",
+  "endAnchor":      "Assessor judgement guidance",
+  "notesAnchor":    "Assessor Observation Checklist — Occasion 1 (straight wall & pier)",
+  "perRowComments": false,               // no comments column beside the criteria
+  "snsChecklists": [
+    { "outcomes": ["S", "…"],           // 26, one per criterion row
+      "outcome":  "S",                   // ticks this occasion's outcome line
+      "comments": "…\n…\n…",             // replaces the 'Record … here…' prompt
+      "assessor": "Karan Deep SINGH", "dateText": "10 / 09 / 2026" },
+    { "outcomes": ["S", "…"], "outcome": "S", "comments": "…", "assessor": "…", "dateText": "…" }  // 13
+  ]
+}
+```
+
+- The wanted box is ticked **inside the cell**, where it stands; the other box
+  and the cell's words are left as printed. Both empty-box characters are read,
+  and a row whose opposite box is already marked is refused.
+- The comments box's prompt is template text, so it is **replaced**. Anything
+  else in the box is appended to, as on every other sheet. The tool-level
+  record goes at the head of the first box.
+- Each grid's outcome line, comments box and sign-off are the **first after
+  that grid**, so occasion 2's record cannot land in occasion 1's space. The
+  sign-off line is rewritten whole with the signature left blank.
+- `notes` are refused: the grid has no notes column.
+- `anchor` and `notesAnchor` only satisfy the resolver here; the record goes in
+  the grids' boxes. `endAnchor` keeps the sign-off search off the rest of the
+  pack.
+
+The gate re-finds the grids with the writer's patterns and, per grid, checks the
+ticks, that its own box carries its comments with the prompt gone, its outcome
+line and its sign-off line.
+
 ### When the submission has no sheet
 
 Say so. The resolver **refuses** an observation record with no `observationSheet`
@@ -527,6 +762,7 @@ The marked copy and the SAR are two records of one judgement. They must agree:
 | `MarkedCopyInAnswerSpace` | every outcome line follows a non-empty paragraph and sits in the same cell as it |
 | `MarkedCopyDeclarationPage` | the page break is there, the result is above it, the student's own content is below it |
 | `MarkedCopyObservationSheet` | the record is inside the sheet, every Yes/No pair matches the ledger, the sufficiency box matches, each field carries its value |
+| `MarkedCopySnsChecklist` | every S/NS grid in the delivered file is re-paired against the ledger: one mark per criterion row in the right column, the comments in the sheet, the sign-off naming the assessor |
 | `MarkedCopyFrontBlockAligned` | the declaration sits on the same left and right edge as the content below it |
 
 The tick check re-pairs the boxes from the delivered file rather than trusting

@@ -147,11 +147,46 @@ function Set-XmlSpacePreserve {
 }
 
 function Get-RunText {
+    <#
+      The text a paragraph ITSELF carries.
+
+      TEXT INSIDE A FLOATING SHAPE IS NOT THE PARAGRAPH'S TEXT. A shape anchored
+      in a paragraph keeps its words in w:txbxContent underneath that paragraph,
+      so a plain .//w:t sweep returns the answer's outcome line AND everything
+      written in the note box beside it, glued together. Every caller then reads
+      a line that does not match what is printed: the outcome check stops
+      finding its own line, an empty spacer paragraph reads as full, and the
+      walk-back in Get-OutcomeTargetIndex stops on a paragraph that only looks
+      non-empty.
+
+      marked-assessment.md has carried this warning as "rule 1" of the insertion
+      logic since before there were margin notes. It belongs here instead, in
+      the one place every caller reads text through.
+    #>
     param($Node, $Ns)
     $sb = New-Object System.Text.StringBuilder
-    foreach ($t in $Node.SelectNodes('.//w:t', $Ns)) { [void]$sb.Append($t.InnerText) }
+    foreach ($t in $Node.SelectNodes('.//w:t[not(ancestor::w:txbxContent)]', $Ns)) {
+        [void]$sb.Append($t.InnerText)
+    }
     $sb.ToString()
 }
+
+function Clear-ParagraphMarkColor {
+    <#
+      Drops the colour carried by a paragraph's own MARK (w:pPr/w:rPr/w:color).
+      It tints only the pilcrow, so it changes nothing a reader sees — but it
+      is the first w:color in the paragraph, and a gate that asks "what colour
+      is this line" finds it before the run's. Three marked copies reported a
+      green Satisfactory line as black for exactly that reason: the cell whose
+      paragraph was cloned carried a black mark colour.
+    #>
+    param($Node, $Ns)
+    foreach ($c in @($Node.SelectNodes('w:pPr/w:rPr/w:color', $Ns))) {
+        [void]$c.ParentNode.RemoveChild($c)
+    }
+    $Node
+}
+
 
 function Set-RunAnswerStyle {
     <#
@@ -540,6 +575,7 @@ function Set-CellText {
     $ts[0].InnerText = $Value
     Set-XmlSpacePreserve $ts[0]
     Set-RunAnswerStyle -Run $run -Ns $Ns -Color $Color
+    [void](Clear-ParagraphMarkColor -Node $p -Ns $Ns)
     $Cell
 }
 
@@ -613,7 +649,22 @@ function Get-BodyContentBox {
     } else {
         $tbl = $Pkg.Body.SelectSingleNode('.//w:tbl', $ns)
     }
-    if (-not $tbl) { return $null }
+    # A submission with no table at all — one arrived as fifty-three page
+    # IMAGES and nothing else — has its content box on the text margin. Saying
+    # so beats returning $null: the caller then sizes the front block AND the
+    # feedback sheet it inserts to the margin, and the gate, which measures the
+    # first table in the delivered file, measures that same box. Returning
+    # $null left the block on the margin and the sheet at its default width, so
+    # the two disagreed and the gate refused a correctly aligned document.
+    if (-not $tbl) {
+        return [pscustomobject]@{
+            IndentLeft  = 0
+            IndentRight = 0
+            TextWidth   = $textW
+            TableWidth  = $textW
+        }
+    }
+
 
     $indNode = $tbl.SelectSingleNode('w:tblPr/w:tblInd', $ns)
     $left = 0
@@ -1172,6 +1223,7 @@ function Add-CellLine {
     $ts[0].InnerText = $Value
     Set-XmlSpacePreserve $ts[0]
     Set-RunAnswerStyle -Run $runs[0] -Ns $Ns -Color $Color
+    [void](Clear-ParagraphMarkColor -Node $p -Ns $Ns)
     $p
 }
 
