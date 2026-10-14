@@ -2199,6 +2199,11 @@ if (-not $SkipRender) {
                     for ($pg = 1; $pg -le $pages; $pg++) {
                         $st = $doc.GoTo(1, 1, $pg).Start        # wdGoToPage
                         $en = if ($pg -lt $pages) { $doc.GoTo(1, 1, $pg + 1).Start } else { $doc.Content.End }
+                        # A ZERO-LENGTH RANGE IS NOT A BLANK PAGE. Where a page opens inside a table row
+                        # that cannot split, GoTo returns the same position for that page and the next, so
+                        # the range measures nothing although the rendered page is full (CPCCSP3002, 14 Oct
+                        # 2026). A spacer-paragraph blank page always holds at least its paragraph mark.
+                        if ($en -le $st) { continue }
                         if ((($doc.Range($st, $en).Text) -replace '[\s\r\n\f\a\x07\x0c]', '') -eq '') {
                             $blankProbs += "$($f.Name): page $pg of $pages is blank"
                         }
