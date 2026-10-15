@@ -20,7 +20,7 @@ Colleges: Adelaide Construction Institute and Adelaide Culinary Institute are tw
   - `Course Offer Desc:` e.g. `Certificate III in Solid Plastering - Group 3`. **The group name comes from here.**
   - `Location:` and `Offer Start Date:`
 - **Units row**: a cell `Units`, then one header per unit to its right: `CODE\nDD/MM/YYYY - DD/MM/YYYY` (unit activity start/end dates). Some headers are **merged across two columns**, and the outcome can sit in either column of the merge. Columns between merges are blank spacers.
-- **Learner header row**: `Learner Name | Reg Start / End Date | RefInternal (RefExternal) | Status | Workplace`. Reg start and end are in two separate cells. RefInternal is the Wisenet student ID (e.g. ADL3000284); RefExternal is in brackets, often empty.
+- **Learner header row**: `Learner Name | Reg Start / End Date | RefInternal (RefExternal) | Status | Workplace`. Reg start and end are in two separate cells. RefInternal is the Wisenet student ID (e.g. ADL3000NNN); RefExternal is in brackets, often empty.
 - **One row per learner, one column per unit.** Each cell is one of three things:
 
   | Cell | Meaning | Use in this review |
