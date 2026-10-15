@@ -22,7 +22,8 @@ RTO's own quality system against the 2025 Standards for RTOs and the ESOS framew
 
 | Requirement | Why |
 |---|---|
-| Windows 10/11 with **Microsoft Word** installed | Both skills update fields, count pages and export PDFs through Word COM |
+| Windows 10/11 with **Microsoft Word** installed | The marking and compliance skills update fields, count pages and export PDFs through Word COM |
+| Python 3 with `openpyxl` and `pandas`, plus LibreOffice | The progress skill parses the 0217 `.xls` and writes Excel reports |
 | Windows PowerShell 5.1 (ships with Windows) | All build scripts target 5.1 |
 | **Claude Code** with a JavaScript-capable browser tool | training.gov.au is a JS application; plain fetches return an empty page |
 
@@ -71,6 +72,12 @@ Mark a batch of submitted student assessments with:
 
 The marking skill reads the WiseNet 0217 Unit Enrolment Outcome Matrix **by cell colour** to work out who was actually enrolled and is required to submit. It reads the unit's prerequisites from training.gov.au and withholds the result as **RW** where the matrix does not positively show the student holding them. Every student is handed their feedback, not only those assessed NYC. A 0217 export carries **one worksheet per course offer**, and where the RTO files by group rather than by marking day, several runs consolidate into one record per group and a handover package - one folder per group, one per student inside it. Real roll exports carry student names and IDs - they are gitignored, never commit one.
 
+Review student progress across every group in a WiseNet 0217 export - record discrepancies, prerequisite non-compliance, students at risk and which units to mark first - with one Excel report per group and a combined exceptions register:
+
+```
+/progress
+```
+
 Assess the RTO itself against the 2025 Standards and the ESOS framework, and design the system that keeps it compliant:
 
 ```
@@ -100,6 +107,10 @@ plugins/vet-marking/
                         the controlled assessment-validation document set: Parts A/B/C, the
                         Validation Plan, the Continuous Improvement Register and panel rosters,
                         against the Standards for RTOs 2025 (versioned here; installed per-project)
+  skills/progress/      the progress review: parses every sheet of a WiseNet 0217 matrix (merged
+                        unit columns, black Not-Attached cells), checks records, prerequisites from
+                        training.gov.au, students at risk and marking priority, and builds one
+                        Excel report per course-offer group plus a combined exceptions register
 
 plugins/vet-compliance/
   skills/auditor/       the compliance architect: registers the RTO's documents, builds one gap
