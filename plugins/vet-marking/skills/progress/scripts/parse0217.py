@@ -1,7 +1,7 @@
 """Parse a Wisenet Report 0217 'Unit Enrolment Outcome Matrix' (.xls/.xlsx) into tidy rows.
 Usage: python3 -I parse0217.py <report.xls|xlsx> <outdir>
 Writes <outdir>/sheets.csv (inventory), learners.csv, outcomes.csv, units.csv
-outcomes.csv has attached=False where the cell is blacked out (Not Attached to Unit): exclude those rows.
+outcomes.csv has black=True where the cell is blacked out. RTO rule: black = not resulted yet (outstanding), never excluded.
 """
 import sys, os, re, subprocess, datetime as dt, csv
 import openpyxl
@@ -26,7 +26,7 @@ def asdate(v):
     return None
 
 def is_black(cell):
-    """WiseNet marks 'Not Attached to Unit' with a black fill (see the report legend)."""
+    """True for a black-filled cell. RTO rule: black = not resulted yet."""
     f = cell.fill
     if not f or f.fill_type != 'solid': return False
     rgb = str(f.fgColor.rgb or '')
@@ -99,12 +99,12 @@ for ws in wb.worksheets:
                  workplace=(ws.cell(r, wp).value if wp else None), row=r)
         learners.append(L); n += 1
         for code, us, ue, cols in ucols:
-            attached = not any(is_black(ws.cell(r, c)) for c in cols)
+            black = any(is_black(ws.cell(r, c)) for c in cols)
             vals = [ws.cell(r, c).value for c in cols if ws.cell(r, c).value not in (None, '')]
             oc = str(vals[0]).strip() if vals else ''
             if oc.endswith('.0'): oc = oc[:-2]
             outcomes.append(dict(sheet=ws.title, student_id=sid, learner=L['learner'], unit=code,
-                                 unit_start=us, unit_end=ue, outcome=oc, attached=attached, conflict=len(set(map(str, vals))) > 1))
+                                 unit_start=us, unit_end=ue, outcome=oc, black=black, conflict=len(set(map(str, vals))) > 1))
     rec.update(type='outcome matrix', header_row=lcell.row, learners=n, units=len(ucols), **meta)
     inv.append(rec)
 

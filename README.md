@@ -108,7 +108,7 @@ plugins/vet-marking/
                         Validation Plan, the Continuous Improvement Register and panel rosters,
                         against the Standards for RTOs 2025 (versioned here; installed per-project)
   skills/progress/      the progress review: parses every sheet of a WiseNet 0217 matrix (merged
-                        unit columns, black Not-Attached cells), checks records, prerequisites from
+                        unit columns; black cells = not resulted yet), checks records, prerequisites from
                         training.gov.au, students at risk and marking priority, and builds one
                         Excel report per course-offer group plus a combined exceptions register
 

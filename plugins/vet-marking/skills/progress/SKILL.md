@@ -25,11 +25,11 @@ Colleges: Adelaide Construction Institute and Adelaide Culinary Institute are tw
 
   | Cell | Meaning | Use in this review |
   | --- | --- | --- |
-  | **blacked out** (black fill; legend: "- Not Attached to Unit") | not enrolled in that unit | **exclude** from every count, check and queue |
   | **an outcome code** (20, 30, 40, 51, 53, 60, 70, 70AP, 81, 82, 85, 90) | result recorded | count it |
-  | **blank, not blacked out** | enrolled, no result yet | "no outcome recorded" |
+  | **blacked out** (black fill) | **not resulted yet** | count it as outstanding, the same as "no outcome recorded" |
+  | **blank** | no outcome recorded | count it as outstanding |
 
-  Blank and blacked-out cells look identical in extracted text, so read the **fill colour** from the spreadsheet (the parser sets `attached=False` for black cells), never from a PDF. Codes 70, 85 and 90 also mean "enrolled, no result yet": treat them like blank cells for overdue and marking checks, and list them so staff can confirm. The same rule is used by the `marking` skill's `Import-WisenetMatrix.ps1`.
+  **RTO rule: black cells are not resulted yet.** They are never excluded. They feed the overdue checks (D1), the at-risk measures and the marking queue exactly like blank cells. This deliberately overrides the report legend's "- Not Attached to Unit" wording. The parser sets `black=True` for these cells so the reports can show how many outstanding results came from black cells. Read the fill colour from the spreadsheet, never from a PDF, because black and blank cells look identical in extracted text. Codes 70, 85 and 90 also mean "enrolled, no result yet": treat them as outstanding too, and list them so staff can confirm.
 - **Identity is the student ID, never the name**: one learner can hold two enrolments and appear on two rows.
 - Delivery patterns seen:
   - **Concurrent**: every unit has the same date range (e.g. 14/11/2025 to 08/11/2026).
@@ -50,7 +50,7 @@ Then:
 - Produce the **sheet inventory** (every sheet: name, visible/hidden, group, course, location, offer start, learners, units, delivery pattern). Any sheet the parser marks "not an outcome matrix" is opened and reviewed by hand, never dropped.
 - Group name = text after the last " - " in Course Offer Desc. If it is missing, use the sheet name.
 - As-at date = today (the report has no run date). State it.
-- Drop rows with `attached=False` before any analysis, and report how many were dropped per group on the Summary tab. Progress percentages use attached units only, not a fixed 20.
+- Keep every cell, including black ones. On the Summary tab, report per group how many outstanding results were black cells and how many were blank.
 - Sanity check: learners per sheet and unit count match a visual look at the sheet. `conflict=True` (two different codes inside one merged unit) is finding D5.
 
 ## 3. Rules reference
@@ -90,7 +90,7 @@ The matrix has no result dates, so only state-based checks are possible:
 - **P4 Site-safety policy check (not a training package breach)**: CPCWHS1001 (White Card) is not competent or is blank while practical CPCCSP units are competent.
 
 ### C. Students at risk
-Competent % = competent units ÷ attached units for that learner. Elapsed % = (as-at − Reg Start) ÷ (Reg End − Reg Start).
+Competent % = competent units ÷ all units in the learner's row (black cells included). Elapsed % = (as-at − Reg Start) ÷ (Reg End − Reg Start).
 - R1 5+ units NYC (30).
 - R2 Closed units with no result for this learner (D1).
 - R3 Progress gap: elapsed % − competent % greater than 25 points.
