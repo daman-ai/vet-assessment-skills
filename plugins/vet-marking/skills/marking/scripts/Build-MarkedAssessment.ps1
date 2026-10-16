@@ -2257,6 +2257,9 @@ function Write-ObservationSheet {
             $onLabel  = if ($sufTick) { "$($sufLabels[0])" } else { "$($sufLabels[1])" }
             $offLabel = if ($sufTick) { "$($sufLabels[1])" } else { "$($sufLabels[0])" }
             $n = Set-LabelledBox -Node $paras[$hit] -Ns $ns -Label $onLabel -Ticked $true
+            # A STACKED RESUBMISSION already carries the box ticked from the attempt beneath, so
+            # ticking it again changes nothing - that is the right state, not a failure (16 Oct 2026).
+            if ($n -lt 1 -and (Get-RunText $paras[$hit] $ns).IndexOf("$($script:BOX_TICKED) $onLabel", [StringComparison]::Ordinal) -ge 0) { $n = 1 }
             if ($n -lt 1) {
                 throw "$Who / observation sheet: the '$onLabel' box was found but not ticked."
             }
